@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+dist/
+build/
+.next/
+
+# Personal Claude Code settings and ECC local state
+.claude/settings.local.json
+.claude/ecc/
