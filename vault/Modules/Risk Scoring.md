@@ -33,6 +33,11 @@ Tests: 19 pass in `backend/tests/test_road_status.py`. The first commit was the 
 - age band: 65+ up, 16-19 teen flag that notifies the parent (`age 0.12`)
 - vehicle: low clearance and EV factors (`vehicle 0.08`)
 - situation multiplier: planning 0.2, driving toward 0.6, stopped in water 1.0 (`situation 0.20`)
+- simulated driver profile (2026-11-07, see `docs/driver-profile.md`). Additive, so it can only raise urgency:
+  - self-reported evacuation need: mobility, wheelchair, powered medical equipment, cognitive support, pregnancy (`needs 0.10`). Hearing and vision needs change the alert channel, not the score.
+  - new to the area (`unfamiliar 0.03`)
+  - Drive Safe & Save phone-distraction rate, saturating at 2 per 100 mi (`distraction 0.04`)
+  - live State Farm signal once its scripted time passes: roadside request or ADT water sensor (`signal 0.15`)
 
 Output: a score plus `reasons[]` for the case card. A score at or above `high_risk_threshold` (0.65) sets `responder_flag`. See [[Stage 3 Stopped in water]].
 
@@ -41,8 +46,8 @@ Output: a score plus `reasons[]` for the case card. A score at or above `high_ri
 - `backend/scoring/road_status.py` (exists): `RoadStatus` enum and `classify()`
 - `backend/tests/test_road_status.py` (exists): 19 tests
 - `backend/config/weights.yaml` (exists): all weights and thresholds
-- `backend/scoring/risk.py` (planned): urgency score and reasons
-- `backend/tests/test_risk.py` (planned, TDD)
+- `backend/scoring/risk.py` (exists): urgency score, reasons, and `profile_risk_fields()`
+- `backend/tests/test_risk.py` (exists, TDD): includes the profile factors and the never-lowers rule
 
 ## Related
 
