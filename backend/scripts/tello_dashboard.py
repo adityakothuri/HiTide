@@ -157,7 +157,10 @@ def default_gauge_reader() -> GaugeReaderLike:
     from gauge.model import load_tray
 
     dye = os.environ.get("GAUGE_DYE", GAUGE_DYE_DEFAULT)
-    return GaugeReader(load_tray(), load_intrinsics(), dye=dye)
+    # The demo always places the tray with its FLOOD WATCH edge towards the drone, so the outline is found
+    # automatically. GAUGE_TRAY_FACING=any lets the terrain decide instead (may ask for corner clicks).
+    facing = os.environ.get("GAUGE_TRAY_FACING", "flood_watch")
+    return GaugeReader(load_tray(), load_intrinsics(), dye=dye, facing=None if facing == "any" else facing)
 
 
 def encode_jpeg(frame_bgr: np.ndarray) -> bytes | None:

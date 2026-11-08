@@ -45,6 +45,8 @@ TRACK_SCHEDULE = (0.12, 0.06, 0.03)
 MAX_ROUNDS = 6
 FOCAL_LIMITS = (0.7, 1.4)  # refined focal stays within this ratio of the starting guess
 TOP_CANDIDATES = 3
+FACING_TOLERANCE_DEG = 60.0  # 'FLOOD WATCH edge faces the drone' allows this much off-axis
+FACINGS = ("flood_watch",)  # supported placement rules (None = any orientation, decided by the terrain)
 DRY_EDGE_BELOW_RIM_MM = 0.5  # rim lip edges sit within this of the rim top
 
 
@@ -159,10 +161,27 @@ def detect_tray_quads(frame_bgr: np.ndarray) -> list[np.ndarray]:
     """Candidate tray outlines (4x2 image points, clockwise), largest first."""
     h, w = frame_bgr.shape[:2]
     gray = cv2.GaussianBlur(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY), (5, 5), 0)
-    edges = cv2.Canny(gray, CANNY_LO, CANNY_HI)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (CLOSE_KERNEL_PX, CLOSE_KERNEL_PX))
-    closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=CLOSE_ITERS)
-    contours, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    quads = []
+    for mask in _outline_masks(gray, kernel):
+        quads += _quads_from(mask, h, w)
+    return quads
+
+
+def _outline_masks(gray: np.ndarray, kernel: np.ndarray) -> list[np.ndarray]:
+    """Two independent ways to separate the tray from the table: closed edges, and brightness
+    (Otsu threshold, both polarities, for a light tray on a dark table or the reverse)."""
+    edges = cv2.morphologyEx(cv2.Canny(gray, CANNY_LO, CANNY_HI), cv2.MORPH_CLOSE, kernel, iterations=CLOSE_ITERS)
+    _, bright = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    masks = [edges]
+    for m in (bright, 255 - bright):
+        masks.append(cv2.morphologyEx(cv2.morphologyEx(m, cv2.MORPH_OPEN, kernel), cv2.MORPH_CLOSE, kernel,
+                                      iterations=CLOSE_ITERS))
+    return masks
+
+
+def _quads_from(mask: np.ndarray, h: int, w: int) -> list[np.ndarray]:
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     quads = []
     for contour in sorted(contours, key=cv2.contourArea, reverse=True)[:TOP_CANDIDATES]:
         hull = cv2.convexHull(contour)
@@ -245,9 +264,25 @@ def solve_clicked_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
     return RimFit(PoseFix(pose, score, (), camera_position_mm(pose)), cam_out, score, float("inf"), "corners")
 
 
+def _faces(model: TrayModel, pose: Pose, facing: str | None) -> bool:
+    """With facing="flood_watch" the camera must be in front of the FLOOD WATCH (y = 0) edge."""
+    if facing is None:
+        return True
+    w, d = model.size_mm[0], model.size_mm[1]
+    cam = camera_position_mm(pose)
+    off_axis = np.degrees(np.arctan2(abs(cam[0] - w / 2), (d / 2) - cam[1]))
+    return cam[1] < d / 2 and off_axis <= FACING_TOLERANCE_DEG
+
+
 def solve_rim_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
-                   corners_px: np.ndarray | None = None, dt: np.ndarray | None = None) -> RimFit | None:
-    """Tag-free pose: from clicked corners if given, else the detected outline snapped onto the terrain."""
+                   corners_px: np.ndarray | None = None, dt: np.ndarray | None = None,
+                   facing: str | None = None) -> RimFit | None:
+    """Tag-free pose: from clicked corners if given, else the detected outline snapped onto the terrain.
+
+    facing="flood_watch" means the tray is always placed with its FLOOD WATCH edge towards the camera,
+    which settles which way it faces; otherwise the terrain has to decide, and may be unsure."""
+    if facing is not None and facing not in FACINGS:
+        raise ValueError(f"unknown facing {facing!r}; expected one of {FACINGS} or None")
     if corners_px is not None:
         return solve_clicked_pose(frame_bgr, model, cam, corners_px)
     dt = edge_distance(frame_bgr) if dt is None else dt
@@ -260,8 +295,8 @@ def solve_rim_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
             if not ok:
                 continue
             pose = Pose(rvec.reshape(3), tvec.reshape(3))
-            if camera_position_mm(pose)[2] <= model.rim_top_mm:
-                continue  # camera below the table: a mirrored solution
+            if camera_position_mm(pose)[2] <= model.rim_top_mm or not _faces(model, pose, facing):
+                continue  # camera below the table (mirrored) or on the wrong side for the placement rule
             candidates.append(_descend(dt, pts, cam, pose, QUICK_SCHEDULE))
     if not candidates:
         return None
@@ -270,7 +305,7 @@ def solve_rim_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
                     key=lambda c: c[2])
     best_pose, best_cam, best_score = finals[0]
     rivals = [c[2] for c in finals[1:] + candidates if _differs(c[0], best_pose)]
-    margin = (min(rivals) / max(best_score, 1e-6)) if rivals else float("inf")
+    margin = float("inf") if facing is not None or not rivals else min(rivals) / max(best_score, 1e-6)
     fix = PoseFix(best_pose, best_score, (), camera_position_mm(best_pose))
     return RimFit(fix, best_cam, best_score, margin, "rim")
 

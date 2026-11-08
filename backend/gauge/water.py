@@ -212,8 +212,12 @@ class _RimLock:
 class GaugeReader:
     """Reads the flood level from tray frames. Not thread-safe: use one reader per thread."""
 
-    def __init__(self, model: TrayModel, cam: Intrinsics | None = None, dye: str = "blue") -> None:
+    def __init__(self, model: TrayModel, cam: Intrinsics | None = None, dye: str = "blue",
+                 facing: str | None = None) -> None:
+        """facing="flood_watch": the tray is always placed with its FLOOD WATCH edge towards the camera,
+        so the automatic outline needs no corner clicks."""
         self.model = model
+        self._facing = facing
         self._cam_guess = cam
         self._direction = dye_direction(dye)
         self._grid: CellGrid = build_cell_grid(model)
@@ -299,7 +303,8 @@ class GaugeReader:
         if self._rim_problem is not None and now - self._last_rim_attempt < RESOLVE_MIN_SECONDS:
             return None, self._rim_problem
         self._last_rim_attempt = now
-        fit = solve_rim_pose(frame, self.model, self._guess_for(frame.shape[:2]), corners_px=self._corners_px)
+        fit = solve_rim_pose(frame, self.model, self._guess_for(frame.shape[:2]), corners_px=self._corners_px,
+                             facing=self._facing)
         problem = rim_problem(fit)
         if problem is not None or fit is None:
             self._rim_lock, self._rim_problem = None, problem
