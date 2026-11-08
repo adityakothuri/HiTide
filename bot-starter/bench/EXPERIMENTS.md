@@ -348,3 +348,15 @@ Implementation: `src/replay.ts`, `bench/live/fetch-replay.mts`,
 identification, tile conservation, impossible histories, duplicate count
 constraints, reserve/tie sensitivity, conditional sampling bias, dual payouts
 and final-close timing.
+
+## E15 — Market7VF deployment on version 2
+
+User selected Market7VF as the running strategy and created version 2 on
+the server. Verified public `bot_version` row for Pegasus (bot 208): version
+2. Set the saved default and fallback in `src/strategy.ts` to `market7vf`.
+After verifying no earlier bot or handoff process remained, started a
+single Market7VF process with the existing bot credential. Confirmed its
+strategy banner, subscription readiness, Pegasus identity and lobby join.
+Log: `bench/results/live-bot-v2-market7vf.log` (local, not committed).
+Build and all 26 tests pass. E14's replay results remain screening evidence;
+version-2 live results should be measured separately.

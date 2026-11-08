@@ -63,4 +63,4 @@ export const CHOICES: Record<string, () => Policy> = {
   report: () => reportHybrid(REPORT_PARAMS),
 };
 
-export const STRATEGY: Policy = (CHOICES[process.env.STRATEGY ?? "market7v"] ?? CHOICES.final!)();
+export const STRATEGY: Policy = (CHOICES[process.env.STRATEGY ?? "market7vf"] ?? CHOICES.market7vf!)();
