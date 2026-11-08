@@ -276,8 +276,8 @@
         <button class="alt" id="btn-land">Land <kbd>L</kbd></button>
         <button class="danger" id="btn-emergency">Kill motors <kbd>Backspace</kbd></button>
       </div>
-      <div class="speed">Thrust <input type="range" id="speed-in" min="10" max="100" step="5" value="50"
-        aria-label="Speed"><span id="speed-val">50</span></div>
+      <div class="speed">Thrust <input type="range" id="speed-in" min="10" max="100" step="5" value="30"
+        aria-label="Speed"><span id="speed-val">30</span></div>
       <div class="focus-warn">Keyboard not armed: click the page</div>
     </div>
 
@@ -320,7 +320,7 @@ const AXES = {
 const LOW = 20, CRITICAL = 10, HOT = 80, VIDEO_STALE = 4;
 const held = new Set();
 const $ = (id) => document.getElementById(id);
-let speed = 50;
+let speed = 30;  // gentle default; raise it once flying feels comfortable
 
 function rcValues() {
   const v = { lr: 0, fb: 0, ud: 0, yaw: 0 };

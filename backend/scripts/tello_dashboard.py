@@ -34,9 +34,14 @@ RECONNECT_EVERY_SECONDS = 3.0
 LAND_RESEND_SECONDS = 1.5  # keep repeating "land" until the drone is down (works mid-takeoff too)
 LAND_MIN_SENDS = 3
 LAND_TIMEOUT_SECONDS = 15
-DRIFT_SPEED = 3  # Tello speed units; above this while hovering with no keys held = drifting
-DRIFT_SECONDS = 2.0
-DRIFT_REPORT_EVERY = 10.0
+DRIFT_SPEED = 3  # Tello speed units; average above this while hovering hands-off = drifting
+WOBBLE_DEG = 4  # pitch/roll swing (max - min) above this while hovering hands-off = wobbling
+HOVER_WINDOW_SECONDS = 3.0
+HOVER_REPORT_EVERY = 8.0
+RC_STEP = 8  # max change per control tick (20 Hz): 0 -> 50 in ~0.3 s, so key presses don't jerk it
+NORMAL_DRAIN_PCT_PER_MIN = 8  # a healthy Tello hovers ~13 min on a full battery
+HIGH_DRAIN_FACTOR = 2
+MIN_FLIGHT_FOR_DRAIN_S = 10
 TAKEOVER_WAIT_SECONDS = 15  # time for an old dashboard to land and release the port
 WATCHDOG_SECONDS = 0.25
 LOW_BATTERY_PCT = 20
@@ -84,8 +89,11 @@ class Drone:
         self.state_at = time.time()
         self.frame_at = 0.0
         self.reconnect_at = 0.0
-        self.drift_since = 0.0
-        self.drift_reported = 0.0
+        self.hover_samples: deque[tuple[float, int, int, int]] = deque()
+        self.hover_reported = 0.0
+        self.hover_steady_noted = False
+        self.rc_out = (0, 0, 0, 0)  # what we actually send: ramps toward self.rc
+        self.flight_start: tuple[float, int] | None = None  # (time, battery %) at takeoff
 
     def start(self) -> None:
         """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
@@ -147,30 +155,60 @@ class Drone:
                 except OSError:
                     pass  # no network yet; try again next round
             if connected:
-                self._check_drift()
+                self._check_hover()
             time.sleep(WATCHDOG_SECONDS)
 
-    def _check_drift(self) -> None:
-        """Hovering with no keys held should be still; say why when it isn't.
+    def _check_hover(self) -> None:
+        """While hovering hands-off, measure whether it wobbles (tilts) or drifts (slides).
 
-        The Tello holds position with its downward camera (VPS). Dim light or a plain,
-        shiny, or uniform floor blinds it and it slides around. Software can't fix that,
-        but it can tell the pilot.
+        They have different causes. Wobble is mechanical: a chipped or swapped propeller, a
+        weak motor, or a loose guard makes the flight controller fight to stay level. Drift
+        is the downward camera (VPS) not seeing the floor: dim light, plain or shiny floor.
         """
         holding = (self.tello.is_flying and not self.busy and not self.landing
                    and (self.rc == (0, 0, 0, 0) or time.time() - self.rc_at > DEADMAN_SECONDS))
-        speed = max(abs(self.value("get_speed_x")), abs(self.value("get_speed_y")))
-        if not holding or speed <= DRIFT_SPEED:
-            self.drift_since = 0.0
+        if not holding:
+            self.hover_samples.clear()
             return
-        self.drift_since = self.drift_since or time.time()
-        if time.time() - self.drift_since < DRIFT_SECONDS or time.time() - self.drift_reported < DRIFT_REPORT_EVERY:
+        now = time.time()
+        v = self.value
+        speed = max(abs(v("get_speed_x")), abs(v("get_speed_y")))
+        self.hover_samples.append((now, v("get_pitch"), v("get_roll"), speed))
+        while self.hover_samples and now - self.hover_samples[0][0] > HOVER_WINDOW_SECONDS:
+            self.hover_samples.popleft()
+        span = now - self.hover_samples[0][0]
+        if span < HOVER_WINDOW_SECONDS * 0.6 or now - self.hover_reported < HOVER_REPORT_EVERY:
             return
-        self.drift_reported = time.time()
-        floor = self.value("get_distance_tof")
-        self.note(f"DRIFTING while hovering (speed {speed}, floor {floor}cm). It holds position by watching the "
-                  "floor: turn on bright lights, fly over a patterned rug or tape marks, stay 0.5-2m up, "
-                  "and avoid shiny or plain floors.")
+        pitches = [p for _, p, _, _ in self.hover_samples]
+        rolls = [r for _, _, r, _ in self.hover_samples]
+        swing = max(max(pitches) - min(pitches), max(rolls) - min(rolls))
+        drift = sum(sp for *_, sp in self.hover_samples) / len(self.hover_samples)
+        self.hover_reported = now
+        if swing > WOBBLE_DEG:
+            self.note(f"WOBBLING while hovering (tilt swings {swing} deg). That's mechanical: check each "
+                      "propeller for chips and the right A/B motor, spin each motor by hand for grit or hair, "
+                      "seat the prop guards, push the battery fully in. A corner that sounds different is a weak motor.")
+        if drift > DRIFT_SPEED:
+            self.note(f"DRIFTING while hovering (speed {drift:.0f}, floor {v('get_distance_tof')}cm). Its "
+                      "downward camera can't see the floor: bright lights, a patterned rug or tape marks, "
+                      "0.5-2 m up, no shiny or plain floors.")
+        if swing <= WOBBLE_DEG and drift <= DRIFT_SPEED and not self.hover_steady_noted:
+            self.hover_steady_noted = True
+            self.note(f"Hover steady (tilt swing {swing} deg, drift {drift:.0f}).")
+
+    def _note_battery_drain(self) -> None:
+        if not self.flight_start:
+            return
+        started, battery = self.flight_start
+        self.flight_start = None
+        seconds = time.time() - started
+        used = battery - self.value("get_battery")
+        if seconds < MIN_FLIGHT_FOR_DRAIN_S or used <= 0:
+            return
+        rate = used / seconds * 60
+        verdict = ("HIGH: the motors are working too hard (damaged/swapped propeller, weak motor, or worn battery)"
+                   if rate > NORMAL_DRAIN_PCT_PER_MIN * HIGH_DRAIN_FACTOR else "normal")
+        self.note(f"Flight used {used}% battery in {seconds:.0f}s ({rate:.0f}%/min, {verdict}).")
 
     def note(self, text: str) -> None:
         self.log.appendleft(write_log(text))
@@ -196,10 +234,15 @@ class Drone:
         while True:
             if self.tello.is_flying and not self.busy and not self.landing:
                 fresh = time.time() - self.rc_at < DEADMAN_SECONDS
+                target = self.rc if fresh else (0, 0, 0, 0)
+                # Ramp toward the target instead of jumping, so key presses and releases are smooth.
+                self.rc_out = tuple(o + max(-RC_STEP, min(RC_STEP, t - o)) for o, t in zip(self.rc_out, target))
                 try:
-                    self.tello.send_rc_control(*(self.rc if fresh else (0, 0, 0, 0)))
+                    self.tello.send_rc_control(*self.rc_out)
                 except Exception as exc:
                     self.note(f"Control error: {exc}")
+            else:
+                self.rc_out = (0, 0, 0, 0)
             time.sleep(1 / RC_HZ)
 
     def set_rc(self, values: dict) -> None:
@@ -260,6 +303,7 @@ class Drone:
                     break
             self.tello.is_flying = False
             self.note(f"Landed | {self.readings()}")
+            self._note_battery_drain()
         except Exception as exc:
             self.note(f"Land error: {exc}")
         finally:
@@ -293,6 +337,8 @@ class Drone:
                 self.note("Takeoff finished but a landing is in progress")
                 return
             self.tello.is_flying = True
+            self.flight_start = (time.time(), self.value("get_battery"))
+            self.hover_steady_noted = False
             self.note("Takeoff done, hovering")
             return
         self.note(f"Drone refused takeoff: '{reply}' | {self.readings()}")
