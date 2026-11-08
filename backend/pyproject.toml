@@ -43,3 +43,4 @@ dev = [
 pythonpath = ["."]
 testpaths = ["tests"]
 asyncio_default_fixture_loop_scope = "function"
+markers = ["spacetime: needs the local SpacetimeDB server and CLI (publishes a throwaway database)"]

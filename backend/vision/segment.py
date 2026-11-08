@@ -164,6 +164,8 @@ class Segmenter:
         groups = ids_by_group(self.names)
         self.water_ids = sorted(groups["water"])
         self.lut = group_lut(groups, n=len(self.names))
+        hard = {"car", "truck", "bus", "van", "person", "boat", "ship", "bicycle", "minibike"}
+        self.hard_veto = np.array([n.strip() in hard for n in self.names] + [False])
         use_zs = self.cfg["zero_shot"]["enabled"] if zero_shot is None else zero_shot
         self.zero_shot = ZeroShotWater() if use_zs else None
         self._zs_every = int(self.cfg["zero_shot"]["every_n"])
@@ -195,10 +197,13 @@ class Segmenter:
             logits = self.model(pixel_values=inputs["pixel_values"].to(self.device)).logits
             prob = logits.softmax(dim=1)
             p_small = prob[:, self.water_ids].sum(dim=1, keepdim=True)
-            lab_small = prob.argmax(dim=1).to(torch.int16)[0].cpu().numpy()
+            top, arg = prob.max(dim=1)
+            lab_small = arg.to(torch.int16)[0].cpu().numpy()
+            conf_small = top[0].float().cpu().numpy()
             p_water = torch.nn.functional.interpolate(p_small, size=(h, w), mode="bilinear",
                                                       align_corners=False)[0, 0].float().cpu().numpy()
         labels = cv2.resize(lab_small, (w, h), interpolation=cv2.INTER_NEAREST)
+        conf = cv2.resize(conf_small, (w, h), interpolation=cv2.INTER_NEAREST)
         base = p_water >= 0.5
         water = base.copy()
         zs = self._zero_shot(rgb)
@@ -207,7 +212,10 @@ class Segmenter:
             # zero-shot may add water, but never over a confident blocker (car, person, tree, sky, ...)
             from vision.grid import BLOCKER
 
-            zs = np.where(self.lut[labels] == BLOCKER, 0.0, zs)
+            # only a CONFIDENT blocker vetoes it: SegFormer calls calm aerial river 'wall'/'plant' at low confidence
+            sure = conf >= float(self.cfg["zero_shot"].get("blocker_veto_conf", 0.0))
+            veto = (self.lut[labels] == BLOCKER) & (sure | self.hard_veto[labels])   # cars/people: always
+            zs = np.where(veto, 0.0, zs)
             water |= zs >= 0.5
             p_water = np.maximum(p_water, zs)
         if self.color_fallback:

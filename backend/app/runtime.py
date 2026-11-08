@@ -50,10 +50,14 @@ class Runtime:
         await self.hub.emit("snapshot", self.snapshot())
 
 
-def build_runtime() -> Runtime:
+def build_runtime(db: Any = None) -> Runtime:
+    """`db` (db.factory.Database): escalation cases are persisted through its write-behind queue."""
     town = load_town()
     drivers = load_drivers()
     hub = WsHub()
     engine = Engine(town=town, drivers=drivers, emit=hub.emit, speed=1.0)
-    runner = StageRunner(engine, drivers)
+    on_case = None
+    if db is not None:
+        on_case = lambda case: db.writer.submit(lambda: db.data.save_case(case.model_dump(mode="json")))  # noqa: E731
+    runner = StageRunner(engine, drivers, on_case=on_case)
     return Runtime(town=town, drivers=drivers, hub=hub, engine=engine, runner=runner, demo=DemoScenario(engine, runner))

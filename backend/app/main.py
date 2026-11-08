@@ -7,7 +7,7 @@ import logging
 import os
 from contextlib import asynccontextmanager, suppress
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values, find_dotenv, load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -19,17 +19,21 @@ from api.routes_region import router as region_router
 from api.routes_safety import router as safety_router
 from api.routes_snapshots import router as snapshots_router
 from app.config import DATA_DIR
+from app.data_mode import apply_data_mode
 from app.hill_runtime import shutdown as hill_shutdown
 from app.hill_runtime import warm
 from app.runtime import build_runtime
 from app.security import ORIGIN_RE
-from evidence.factory import open_store
+from db.factory import open_database
 from evidence.routes import router as evidence_router
 from evidence.service import EvidenceService
 from outreach.inbound import handle_inbound
+from outreach.log import append_log_file, set_sink as set_outreach_sink
 from outreach.photon2_ws import Photon2Inbound
 
-load_dotenv()
+_DOTENV = find_dotenv()
+apply_data_mode(os.environ, dotenv_values(_DOTENV) if _DOTENV else {})
+load_dotenv(_DOTENV or None)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger(__name__)
 
@@ -46,11 +50,17 @@ async def poll_evidence(service: EvidenceService, interval_s: float) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    runtime = build_runtime()
-    store = await asyncio.to_thread(open_store)
+    db = await asyncio.to_thread(open_database)   # SpacetimeDB primary; loud SQLite fallback
+    runtime = build_runtime(db)
+    store = db.evidence
     worker = None
     inbound: Photon2Inbound | None = None
     try:
+        app.state.db = db
+        if db.backend == "spacetime":   # outreach audit log -> SpacetimeDB outreach_event (no phones in it)
+            # if SpacetimeDB is down the event goes to the JSONL log instead (re-imported by the migration script)
+            set_outreach_sink(lambda e: db.writer.submit(lambda: db.data.append_outreach([e]),
+                                                         on_fail=lambda: append_log_file(e)))
         app.state.runtime = runtime
         app.state.evidence = await asyncio.to_thread(EvidenceService, store, runtime.town)
         interval_s = float(os.environ.get("EVIDENCE_POLL_SECONDS", "120"))
@@ -61,7 +71,7 @@ async def lifespan(app: FastAPI):
         runtime.engine.start()
         warm(app)  # Hill Country region loads in the background (~5 s)
         if os.environ.get("PHOTON_MODE") == "photon2":
-            inbound = Photon2Inbound()
+            inbound = Photon2Inbound(cursor_store=db)
             await inbound.start(lambda s, t: handle_inbound(runtime, s, t))
         yield
     finally:
@@ -81,7 +91,8 @@ async def lifespan(app: FastAPI):
             worker.cancel()
             with suppress(asyncio.CancelledError):
                 await worker
-        await asyncio.to_thread(store.close)
+        set_outreach_sink(None)
+        await asyncio.to_thread(db.close)   # flushes queued writes first
 
 
 app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)

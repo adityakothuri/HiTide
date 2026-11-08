@@ -29,6 +29,7 @@ segmentation:
     every_n: 5                # ~2.2 s per call on MPS (SegFormer alone 0.14 s); reused while hovering
     water_prompts: [flood water, muddy brown water]
     scene_prompts: [a road, a car, trees, a building, sky]
+    blocker_veto_conf: 0.5    # a blocker (car, tree, wall, ...) vetoes zero-shot water only when SegFormer is this sure
     coarse_frac: 0.5          # zero-shot supplied >= half the water => coarse-edge reason, mask bias x2
 
 grid:

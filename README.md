@@ -30,7 +30,41 @@ Replay a historical NWS warning from `backend/` with `uv run python -m scripts.d
 
 ## Run it
 
+One command starts the backend and the frontend together, in one data mode:
+
 ```bash
+./dev.sh            # TEST DATA (default): simulated drivers, cached feeds, July 4 2025 replay. Offline, no texts.
+./dev.sh real       # REAL DATA: live NWS/USGS feeds, live Hill Country region, live weather map. Texts still mock.
+./dev.sh real --live-outreach   # REAL DATA + real texts/calls to the allowlisted DEMO_PHONE_* numbers (asks 5 s to cancel)
+```
+
+Then open http://localhost:5173/present and press **Shift+D** to run the demo. Every screen shows a badge
+(**Test data** / **Real data** / **Real data · live texts**), and `curl localhost:8000/api/health` lists the active modes.
+Add `--reload` for backend auto-reload while coding (off by default, so a teammate's edit can't wipe a running demo).
+`BACKEND_PORT=8010 ./dev.sh` if 8000 is taken.
+
+| | `test` | `real` |
+|---|---|---|
+| Kerrville driver demo | simulated (same in both) | simulated (same in both) |
+| NWS / USGS feeds | `data/feeds_cache/` only | live, cache fallback |
+| Hill Country region | July 4, 2025 replay | live Texas feeds |
+| Ops weather map | July 4, 2025 replay | live Kerrville gauge, NWS alerts, IEM MRMS rain |
+| Texts and calls | mock | mock, unless `--live-outreach` |
+| Evidence DB | SQLite | SQLite (set `FLOODWATCH_DB_BACKEND=mongodb` for Mongo) |
+
+How it works: `DATA_MODE=test|real` (`backend/app/data_mode.py`) fills in the individual settings before `.env` is
+read, so a stale value in `.env` can't leak into test mode, while a shell variable still overrides a single setting
+(`REGION_MODE=replay ./dev.sh real`). `PHOTON_MODE` from `.env` only takes effect with `--live-outreach`.
+The `/texas` monitor only shows readings from the last 15-30 minutes, so it is live in both modes.
+Not wired to the UI yet: the Hill Country (`region.*`) and per-user safety (`user.*`) events and their REST endpoints.
+
+Individual pieces, by hand:
+
+```bash
+# database: SpacetimeDB is the primary store (docs/SPACETIMEDB.md). Once: curl -sSf https://install.spacetimedb.com | sh
+scripts/spacetime_up.sh --migrate             # start local SpacetimeDB, publish the module, copy existing data in
+# (not running? the backend logs "FALLING BACK TO SQLITE" and keeps working; /api/health shows which)
+
 # backend (Python 3.12 via uv)
 cd backend && uv sync
 uv run uvicorn app.main:app --reload          # http://localhost:8000/docs
@@ -50,7 +84,7 @@ uv run python -m scripts.replay_report        # drones vs gauges-only vs naive p
 REGION_MODE=live uv run uvicorn app.main:app   # or switch at runtime:
 curl -X POST -H 'Origin: http://localhost:5173' 'localhost:8000/api/region/mode?mode=live'
 curl localhost:8000/api/region/sources | jq   # each source: status, provenance, age of its newest data
-# no MongoDB running? FLOODWATCH_DB_BACKEND=sqlite
+# evidence DB is SQLite by default; FLOODWATCH_DB_BACKEND=mongodb needs scripts/start-mongodb.ps1 (Windows)
 RUN_SLOW=1 uv run pytest tests/test_replay_golden.py   # replay is bit-for-bit unchanged (~15 min)
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
@@ -66,6 +100,9 @@ uv run python scripts/stress_safety.py --users 2000 --fault none   # accuracy vs
 uv run python scripts/stress_safety.py --load 20000                # latency only
 # env: OUTREACH_ALLOW_ENROLLED=1 lets consented API-enrolled +E.164 users get real sends (default off);
 #      SAFETY_DEMO=1 shrinks ladder timers 10x; SAFETY_REGISTRY_PATH / SAFETY_STATE_PATH move the gitignored runtime files
+
+# flood risk index frames -> frontend/public/grids/ (offline, ~4 s)
+uv run python -m scripts.build_risk_grid
 
 # ops console weather layers (data/wx/, served offline by the frontend after `npm run sync-wx`; needs network once)
 uv run python -m scripts.fetch_mrms_tiles     # archived MRMS rain tiles, Kerr County, Jul 4 2025, recolored to an NWS-style ramp
@@ -91,24 +128,29 @@ cd photon-sidecar && npm install && npm start
 # frontend (Node 22+)
 cd frontend && npm install && npm run dev       # http://localhost:5173
 
-# consumer mobile app (Expo SDK 58, iOS/Android, local demo data); see mobile/README.md
-cd mobile && npm install && npx expo start      # press i for the iOS simulator
+# consumer mobile app (Expo SDK 58, iOS/Android); see mobile/README.md
+cd mobile && npm install && npx expo start      # sample data; press i for the iOS simulator
+# live: follows the backend's per-user danger for Dana (hc-dana); demo drive in Profile -> Developer
+EXPO_PUBLIC_API_URL=http://localhost:8000 npx expo start
 ```
 
-Frontend views (add `?mode=live` or `?mode=mock` to force a data source; the default tries the backend and falls back to the recorded offline demo after 2.5 s):
+Frontend views (add `?mode=live` or `?mode=mock` to force the backend or the bundled recording, `?data=test|real` to override the weather map mode; the default tries the backend and falls back to the recorded offline demo after 2.5 s):
 
 | URL | What it is |
 |---|---|
 | `/present` | Demo view: the driver's phone next to the ops console, one shared data stream |
 | `/driver` | Driver app (390×844). `?driver=demo-a\|demo-b\|demo-d` pins a persona |
-| `/console` | State Farm flood operations console (1440×900) |
+| `/console` | Flood monitor: flood risk / rain / depth map, gauges, roads, time bar (1440×900). `?scheme=dark` for the night theme |
+| `/console/cases` | Driver cases: queue, map and case detail |
+| `/console/inspections` | Road inspections (needs `/api/evidence/state`) |
+| `/console/sources` | Every data source with status and freshness |
 | `/gallery` | Component gallery in every state |
 
 Maps use CARTO's keyless vector basemaps (OpenStreetMap data), so they need internet. If the tiles can't load within 4 s, the map falls back to the bundled Kerrville road data automatically and the demo keeps running.
 
 Press **Shift+D** for presenter controls (run, next step, reset, which persona the phone shows). Before presenting, tap "Test spoken alert" in the phone's settings once: browsers block speech until the page has had a click.
 
-Copy `.env.example` to `.env`. `PHOTON_MODE` picks how outreach is sent:
+Copy `.env.example` to `.env`. With `./dev.sh real --live-outreach` (or `DATA_MODE=manual`), `PHOTON_MODE` picks how outreach is sent:
 
 | `PHOTON_MODE` | Texts | Calls |
 |---|---|---|
@@ -124,7 +166,7 @@ Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted, plus API-
 |---|---|
 | `backend/` | FastAPI + WebSockets: flood sim, risk scoring, stages 1-3, outreach, drone, vision |
 | `frontend/` | React + Vite: driver app view + ops dashboard (teammates) |
-| `mobile/` | Expo consumer app: Flood Watch (white/royal blue), mock data boundary for a future backend |
+| `mobile/` | Expo consumer app: Flood Watch (white/royal blue). Live mode follows `/api/users/{id}/danger` (poll + WS), sample-data mode needs no backend |
 | `photon-sidecar/` | Node bridge to Photon Spectrum (`spectrum-ts`) |
 | `data/` | Cached town, synthetic drivers, feed snapshots, drone images |
 | `docs/api-contract.md` | Backend ⇄ frontend contract (REST + WS events) |

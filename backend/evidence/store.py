@@ -33,6 +33,22 @@ def encoded(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
+def prepare_observation(observation: dict[str, Any]) -> tuple[dict[str, Any], str]:
+    """Validate and hash an observation. Shared by every evidence backend so they dedupe identically."""
+    body = ObservationIn.model_validate(observation).model_dump()
+    semantic = {key: value for key, value in body.items()
+                if key not in {"id", "ingested_at", "supersedes_id", "source_mode"}}
+    # Raw provider data is evidence, but fetch transport metadata is not a revision.
+    semantic["raw"] = {key: value for key, value in body["raw"].items()
+                       if key not in {"fetched_at", "ingested_at", "retrieved_at", "source_mode"}}
+    return body, hashlib.sha256(encoded(semantic).encode()).hexdigest()
+
+
+def raw_hash(raw: Any) -> tuple[str, str]:
+    raw_json = encoded(raw)
+    return raw_json, hashlib.sha256(raw_json.encode()).hexdigest()
+
+
 class Store:
     def __init__(self, path: str | Path | None = None):
         selected = str(path if path is not None else os.environ.get("FLOODWATCH_DB_PATH", DEFAULT_DB))
@@ -120,13 +136,7 @@ class Store:
                           (source_id, source_id.replace("_", " "), "report", "Submitted evidence", 300))
 
     def add_observation(self, observation: dict[str, Any]) -> dict[str, Any]:
-        body = ObservationIn.model_validate(observation).model_dump()
-        semantic = {key: value for key, value in body.items()
-                    if key not in {"id", "ingested_at", "supersedes_id", "source_mode"}}
-        # Raw provider data is evidence, but fetch transport metadata is not a revision.
-        semantic["raw"] = {key: value for key, value in body["raw"].items()
-                           if key not in {"fetched_at", "ingested_at", "retrieved_at", "source_mode"}}
-        semantic_hash = hashlib.sha256(encoded(semantic).encode()).hexdigest()
+        body, semantic_hash = prepare_observation(observation)
         with self.transaction():
             prior = self.conn.execute("SELECT body_json FROM observations WHERE semantic_hash=?", (semantic_hash,)).fetchone()
             if prior:
@@ -139,11 +149,10 @@ class Store:
             body["id"] = body["id"] or f"obs-{uuid.uuid4().hex}"
             body["ingested_at"] = now_iso()  # the server owns receipt time
             body["supersedes_id"] = body["supersedes_id"] or (latest[0] if latest else None)
-            raw_json = encoded(body["raw"])
-            raw_hash = hashlib.sha256(raw_json.encode()).hexdigest()
+            raw_json, payload_hash = raw_hash(body["raw"])
             self.conn.execute("INSERT OR IGNORE INTO raw_records(source_id,payload_json,payload_hash,received_at) VALUES (?,?,?,?)",
-                              (body["source_id"], raw_json, raw_hash, body["ingested_at"]))
-            raw_id = self.conn.execute("SELECT id FROM raw_records WHERE source_id=? AND payload_hash=?", (body["source_id"], raw_hash)).fetchone()[0]
+                              (body["source_id"], raw_json, payload_hash, body["ingested_at"]))
+            raw_id = self.conn.execute("SELECT id FROM raw_records WHERE source_id=? AND payload_hash=?", (body["source_id"], payload_hash)).fetchone()[0]
             self.conn.execute("INSERT INTO observations VALUES (?,?,?,?,?,?,?,?,?)",
                               (body["id"], body["source_id"], body["source_record_id"], body["observed_at"], body["ingested_at"],
                                semantic_hash, body["supersedes_id"], raw_id, encoded(body)))

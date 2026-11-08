@@ -153,3 +153,22 @@ def test_nan_ts_rejected(client):
 def test_api_key_guards_location_too(client, monkeypatch):
     monkeypatch.setenv("SAFETY_API_KEY", "k3y")
     assert client.post("/api/users/hc-ruth/location", json={"lat": 30.06, "lon": -99.33}).status_code == 401
+
+
+def test_region_gauges_is_the_small_gauge_list_the_phone_polls(client):
+    _step(client, "07:00")
+    r = client.get("/api/region/gauges")
+    assert r.status_code == 200
+    gauges = r.json()
+    assert any(g["site"] == "08166200" for g in gauges)
+    assert all({"site", "name", "stage_ft", "observed_at", "rate_ft_per_hr"} <= g.keys() for g in gauges)
+
+
+def test_phone_app_persona_is_enrolled_and_assessed(client):
+    """hc-dana is the mobile app's user (mobile/): consented, sim-only phones, and assessed like everyone else."""
+    _step(client, "07:00")
+    r = client.get("/api/users/hc-dana/danger")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["user_id"] == "hc-dana" and "response" in body
+    assert "phone" not in str(body)

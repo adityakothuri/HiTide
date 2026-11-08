@@ -6,7 +6,7 @@ from evidence.store import Store
 
 
 def open_store():
-    backend = os.environ.get("FLOODWATCH_DB_BACKEND", "mongodb").lower()
+    backend = os.environ.get("FLOODWATCH_DB_BACKEND", "sqlite").lower()
     if backend == "sqlite":
         return Store()
     if backend != "mongodb":

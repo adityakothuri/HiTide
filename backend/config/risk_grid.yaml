@@ -1,0 +1,49 @@
+# Flood Risk Index surface (scoring/risk_grid.py, built by scripts/build_risk_grid.py).
+# A RELATIVE 0..100 index per ~60 m cell over the Hunt -> Kerrville study area. It is not a water depth,
+# not a probability, and not a FEMA flood zone. Notes: vault/Modules/Risk Surface.md.
+#
+# Components, each 0..1 (higher = riskier):
+#   hand    = clip(1 - HAND / hand_max_m, 0, 1)     HAND = lowest 30 m DEM cell in the 60 m cell minus the bed
+#             of the nearest waterway (bed profile from waterways.geojson; unprofiled streams use the DEM low)
+#   dist    = exp(-distance_to_waterway / dist_scale_m)
+#   rain1h  = clip(MRMS 1 h accumulation / rain1h_norm_in, 0, 1)
+#   rain24h = clip(MRMS 24 h accumulation / rain24h_norm_in, 0, 1)
+# Formula:
+#   terrain = (w.hand * hand + w.dist * dist) / (w.hand + w.dist)
+#   rain    = (w.rain1h * rain1h + w.rain24h * rain24h) / (w.rain1h + w.rain24h)
+#   index   = 100 * terrain * (rain_floor + (1 - rain_floor) * rain)
+# Rain multiplies terrain susceptibility: a dry ridge stays near 0 in any rain, and a river corridor with no
+# rain tops out at 100 * rain_floor. Top factors rank the group-normalized weighted contributions
+# [hand, dist, rain1h, rain24h] (factor indices 0..3).
+
+grid:
+  block: 2                # 2x2 block mean of the 30 m DEM -> ~60 m cells
+  cell_m: 60              # nominal cell size written to index.json
+  river_sample_m: 15.0    # spacing of points sampled along each waterway when rasterizing
+
+terrain:
+  hand_max_m: 15.0
+  dist_scale_m: 400.0
+
+rain:
+  rain1h_norm_in: 3.0
+  rain24h_norm_in: 10.0
+  floor: 0.15
+  tile_zoom: 10           # recolored MRMS tiles sampled (MRMS is ~1 km, z10 is ~150 m per pixel)
+  top_bin_in: 7.0         # value for the open-ended top ramp bin (6 in +); other bins use their midpoint
+
+weights:
+  hand: 0.6
+  dist: 0.4
+  rain1h: 0.6
+  rain24h: 0.4
+
+frames:
+  start_utc: "2025-07-04T06:00:00Z"   # 01:00 CDT
+  end_utc: "2025-07-04T12:30:00Z"     # 07:30 CDT
+  step_min: 30
+  # Each observed frame uses the newest completed MRMS hour at or before its time (same rule as the replay).
+  # Forecast = persistence of the last observed frame's rain, 30 and 60 min ahead: the 1 h rain is
+  # multiplied by forecast_decay_1h per step, the 24 h total is held. It never reads later archived hours.
+  forecast_steps: 2
+  forecast_decay_1h: 0.8

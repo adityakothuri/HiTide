@@ -51,3 +51,11 @@ data/print_model/*.stl
 data/print_model/*.3mf
 data/print_model/*.step
 data/print_model/runs.jsonl
+
+# real flood footage + renders (copyrighted sources; see data/demo_videos/sources.md)
+data/demo_videos/raw/
+data/demo_videos/out/
+*.mp4
+
+# SpacetimeDB module build output
+spacetime/**/dist/

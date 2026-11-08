@@ -26,6 +26,7 @@ DEFAULT_ORIGIN = "https://api.photon.codes"
 SUBSCRIBE_TIMEOUT_S = 10
 RECONNECT_MIN_S = 1
 RECONNECT_MAX_S = 30
+CURSOR_KEY = "photon2.inbound.cursor"
 QUEUE_MAX = 128
 
 OnMessage = Callable[[str, str], Awaitable[None]]
@@ -70,12 +71,29 @@ def parse_ws_event(event: dict[str, Any]) -> tuple[str, str] | None:
 class Photon2Inbound:
     """Socket.IO client with reconnect and backoff. Inert unless PHOTON_MODE=photon2 and a key is set."""
 
-    def __init__(self) -> None:
+    def __init__(self, cursor_store: Any = None) -> None:
         self._sio: socketio.AsyncClient | None = None
         self._worker: asyncio.Task[None] | None = None
         self._queue: asyncio.Queue[tuple[dict[str, Any], int]] = asyncio.Queue(maxsize=QUEUE_MAX)
         self._on_message: OnMessage | None = None
-        self._cursor = 0  # in-memory only; replay after reconnect within one process run
+        # db.factory.Database: the cursor survives restarts (SpacetimeDB kv), so replies are not re-applied.
+        self._db = cursor_store
+        self._cursor = 0   # restored from the database in start(), off the event loop
+
+    def _load_cursor(self) -> int:
+        if self._db is None:
+            return 0
+        try:
+            raw = self._db.data.kv_get(CURSOR_KEY)
+            return int(raw) if raw and raw.isdigit() else 0
+        except Exception as exc:  # a missing cursor only means replies may replay once
+            log.warning("photon2 cursor not restored (%s); starting at 0", type(exc).__name__)
+            return 0
+
+    def _save_cursor(self) -> None:
+        if self._db is not None:
+            cursor, data = self._cursor, self._db.data
+            self._db.writer.submit(lambda: data.kv_set(CURSOR_KEY, str(cursor)))
 
     @property
     def running(self) -> bool:
@@ -90,6 +108,7 @@ class Photon2Inbound:
             log.warning("photon2 inbound disabled: PHOTON2_API_KEY or PHOTON2_PROJECT_ID missing")
             return
         self._on_message = on_message
+        self._cursor = await asyncio.to_thread(self._load_cursor)
         self._sio = self._build_client()
         self._worker = asyncio.create_task(self._work(), name="photon2-inbound-worker")
         self._connector = asyncio.create_task(self._connect(key, project), name="photon2-inbound-connect")
@@ -187,4 +206,6 @@ class Photon2Inbound:
                     await self._on_message(sender, text)
                 except Exception as exc:
                     log.error("photon2 inbound handler failed for %s: %s", mask_phone(sender), type(exc).__name__)
-            self._cursor = max(self._cursor, seq)
+            if seq > self._cursor:
+                self._cursor = seq
+                self._save_cursor()

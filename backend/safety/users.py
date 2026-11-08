@@ -96,10 +96,12 @@ def atomic_write_json(path: Path, data: Any) -> None:
 
 
 class UserRegistry:
-    def __init__(self, users: Iterable[SafetyUser] = (), registry_path: Path | None = REGISTRY_PATH):
+    def __init__(self, users: Iterable[SafetyUser] = (), registry_path: Path | None = REGISTRY_PATH,
+                 store: Any = None):
         self._lock = threading.Lock()
         self._users: dict[str, SafetyUser] = {u.id: u for u in users}
         self._path = registry_path
+        self._store = store   # db.store.DataStore: enrollments are written to the primary database
         if registry_path is not None and registry_path.exists():
             try:
                 for d in json.loads(registry_path.read_text()):
@@ -118,6 +120,21 @@ class UserRegistry:
             log.warning("%s missing: run scripts/gen_region_users.py", path)
         return cls(users, registry_path() if registry == "env" else (Path(registry) if registry else None))
 
+    @classmethod
+    def from_store(cls, store: Any, seed_path: Path = REGION_USERS_PATH) -> "UserRegistry":
+        """Users from the primary database (SpacetimeDB app_user + private user_contact/user_profile).
+        A fresh, empty database is seeded once from data/region_users.json."""
+        rows = store.load_users()
+        if not rows and seed_path.exists():
+            seed = [{**d, "simulated": True, "population": "region"} for d in json.loads(seed_path.read_text())]
+            store.seed_users(seed)
+            log.info("seeded %d simulated residents into the %s database", len(seed), store.name)
+            rows = store.load_users()
+        # The Kerrville drivers (population "kerrville") belong to the town sim, not the Hill Country monitor.
+        users = [_user(d, simulated=bool(d.get("simulated", True))) for d in rows
+                 if d.get("population", "region") in ("region", "enrolled")]
+        return cls(users, registry_path=None, store=store)
+
     def get(self, uid: str) -> SafetyUser | None:
         return self._users.get(uid)
 
@@ -135,6 +152,12 @@ class UserRegistry:
                 raise ValueError("id already enrolled")
             if sum(1 for u in self._users.values() if not u.simulated) >= MAX_ENROLLED:
                 raise OverflowError("enrollment is full")
+        if self._store is not None:   # outside the lock (a slow database must not stall the monitor);
+            # the database rejects an existing id itself, so a race still can't overwrite anyone
+            self._store.enroll_user({**_to_json(user), "simulated": False, "population": "enrolled"})
+        with self._lock:
+            if user.id in self._users:
+                raise ValueError("id already enrolled")
             self._users[user.id] = user
             if self._path is not None:
                 atomic_write_json(self._path, [_to_json(u) for u in self._users.values() if not u.simulated])

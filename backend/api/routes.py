@@ -10,10 +10,11 @@ from typing import Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
-from api.schemas import ReplyIn
+from api.schemas import DroneCommandIn, ReplyIn
 from outreach.inbound import handle_inbound
 
 from app.hill_runtime import get_hill, set_mode, start_replay
+from app.data_mode import current_modes
 from app.runtime import Runtime
 from app.security import origin_ok, require_trusted_origin
 from feeds import Scope, all_feeds
@@ -29,7 +30,23 @@ def rt(request: Request) -> Runtime:
 @router.get("/api/health")
 async def health(request: Request) -> dict[str, Any]:
     r = rt(request)
-    return {"ok": True, "segments": len(r.town.edge_ids), "drivers": len(r.drivers), "ws_clients": r.hub.client_count}
+    return {"ok": True, "segments": len(r.town.edge_ids), "drivers": len(r.drivers), "ws_clients": r.hub.client_count,
+            "modes": current_modes(_region_mode_now(request), _db_now(request)),
+            "database": db.public() if (db := getattr(request.app.state, "db", None)) is not None else None}
+
+
+def _db_now(request: Request) -> str | None:
+    """The database actually in use, e.g. "spacetime" or "sqlite (fallback: SpacetimeDB unreachable ...)"."""
+    db = getattr(request.app.state, "db", None)
+    return db.describe() if db is not None else None
+
+
+def _region_mode_now(request: Request) -> str | None:
+    """Region mode without waiting for the Hill Country build (health must stay instant)."""
+    task = getattr(request.app.state, "hill_task", None)
+    if task is None or not task.done() or task.cancelled() or task.exception() is not None:
+        return None
+    return task.result().mode
 
 
 @router.get("/api/town")
@@ -100,6 +117,14 @@ async def demo_reset(request: Request, scenario: Scenario = "kerrville") -> dict
 @router.get("/api/cases")
 async def cases(request: Request) -> list[dict[str, Any]]:
     return [c.model_dump(mode="json") for c in rt(request).sorted_cases()]
+
+
+@router.post("/api/drones/{drone_id}/command", dependencies=[Depends(require_trusted_origin)])
+async def drone_command(drone_id: str, body: DroneCommandIn, request: Request) -> dict[str, Any]:
+    case = await rt(request).runner.drone_command(drone_id, body.command)
+    if case is None:
+        raise HTTPException(status_code=404, detail="drone not found")
+    return case.model_dump(mode="json")
 
 
 @router.post("/api/cases/{case_id}/reply", dependencies=[Depends(require_trusted_origin)])

@@ -77,23 +77,27 @@ def region_dir(region: Region):
     return DATA_DIR / "region" / region.id
 
 
-def _build(emit) -> HillCountry:
+def _build(emit, db: Any = None) -> HillCountry:
     region = load_region("hill_country")
     flood = RegionFlood(region)
     loop = CriticalLoop(region, flood)
     # Persona outreach in the scripted replay: nobody there is a moving driver.
     outreach = make_outreach(emit, lambda _driver_id: False)
-    safety = _safety(region, loop, emit)
+    safety = _safety(region, loop, emit, db)
     static = json.dumps(_static(region, flood, loop)).encode()
     demo = HillCountryDemo(loop, emit, outreach, after_step=lambda: safety.after_step(loop))
     return HillCountry(region, flood, loop, demo, static, loop.observations, emit, safety=safety)
 
 
-def _safety(region: Region, loop: CriticalLoop, emit) -> SafetyMonitor:
+def _safety(region: Region, loop: CriticalLoop, emit, db: Any = None) -> SafetyMonitor:
     """Users + locator + monitor. Its outreach knows who is driving (texts to a moving driver are blocked)."""
     holder: dict[str, SafetyMonitor] = {}
     outreach = make_outreach(emit, lambda uid: holder["m"].is_moving(uid) if "m" in holder else False)
-    monitor = SafetyMonitor(Locator(region, loop.points), UserRegistry.load(), outreach, emit, state_path=state_path())
+    if db is not None:   # primary database (SpacetimeDB): users, positions, ladders, danger table
+        monitor = SafetyMonitor(Locator(region, loop.points), UserRegistry.from_store(db.data), outreach, emit,
+                                state_path=None, db=db)
+    else:
+        monitor = SafetyMonitor(Locator(region, loop.points), UserRegistry.load(), outreach, emit, state_path=state_path())
     holder["m"] = monitor
     return monitor
 
@@ -133,8 +137,8 @@ async def start_replay(h: HillCountry, speed: float) -> None:
 async def _set_mode_locked(h: HillCountry, mode: RegionMode) -> None:
     await h.demo.stop()
     await _stop_live(h)
-    if h.safety is not None:
-        h.safety.reset(mode)   # before any new task can step: stale contexts from the old mode are discarded
+    if h.safety is not None:   # before any new task can step; restore reads the database, so off the event loop
+        await asyncio.to_thread(h.safety.reset, mode)
     if mode == "live":
         live = _live(h)
         await asyncio.to_thread(h.loop.configure, live, False, h.flood)
@@ -162,8 +166,8 @@ def env_mode() -> RegionMode:
     return mode  # type: ignore[return-value]
 
 
-async def _build_and_start(emit) -> HillCountry:
-    h = await asyncio.to_thread(_build, emit)
+async def _build_and_start(emit, db: Any = None) -> HillCountry:
+    h = await asyncio.to_thread(_build, emit, db)
     if env_mode() == "live":
         try:
             await set_mode(h, "live")
@@ -178,7 +182,7 @@ def warm(app: FastAPI) -> None:
     env_mode()  # fail fast on a bad value
     if os.environ.get("HILL_COUNTRY_WARM", "1") == "0" and not hasattr(app.state, "hill_task"):
         return
-    app.state.hill_task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit))
+    app.state.hill_task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit, getattr(app.state, "db", None)))
     app.state.hill_task.add_done_callback(lambda t: _expose_safety(app, t))
 
 
@@ -192,7 +196,7 @@ async def get_hill(app: FastAPI) -> HillCountry:
     async with _lock:
         task = getattr(app.state, "hill_task", None)
         if task is None or (task.done() and (task.cancelled() or task.exception() is not None)):
-            app.state.hill_task = task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit))
+            app.state.hill_task = task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit, getattr(app.state, "db", None)))
             task.add_done_callback(lambda t: _expose_safety(app, t))
     try:
         return await asyncio.shield(task)  # a cancelled request never orphans the build

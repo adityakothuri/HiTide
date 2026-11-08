@@ -31,6 +31,7 @@ Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
 | POST | `/api/demo/reset` | Resets the sim to t=0. |
 | GET | `/api/drivers/{id}` | Driver view data: `{driver, pretrip_warning?, active_turn_around?, case?}` |
 | GET | `/static/drone/<file>` | Drone sample images (raw + annotated) |
+| GET | `/api/health` | `{ok, segments, drivers, ws_clients, modes: {data_mode: test\|real\|manual, outreach: mock\|stable\|photon2, feeds: cache\|live, region: replay\|live, db}}`; the UI badge reads `modes` |
 
 **Segment ids:** segments are *directed* edges, so a two-way street appears twice (`u-v-0` and `v-u-0`) with the same geometry. Draw both or dedupe by geometry. Colour each one by its status from the latest `segments.update`. Any id that isn't listed is `open`.
 
@@ -125,7 +126,7 @@ The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outr
 | `Case` | `emergency_contact_name: str` | Driver app says "We contacted Maria" | Persona table, then "your emergency contact" |
 | `TimelineEntry` | `simulated: bool` | Label simulated or mock rows without parsing "(mock" out of `text` | The UI also looks for "(mock" or "(simulated" in the text |
 | `TimelineEntry` (outreach) | `status: sent\|delivered\|read\|replied`, `reply: str?` | Show read and reply state in the case timeline | Shows the text as sent |
-| REST | `POST /api/drones/{id}/command` body `{"command": "speak"\|"drop_jacket"\|"return"}` → emits `case.update` (+ `drone.update` for return) | Drone actions in the console | The UI adds a local timeline row labelled simulated |
+| REST | `POST /api/drones/{id}/command` body `{"command": "speak"\|"drop_jacket"\|"return"}` → emits `case.update` (+ `drone.update` for return) | Drone actions in the console | **Implemented 2026-11-08.** 404 if the drone has no open case; the UI then adds a local row labelled simulated |
 | `StateSnapshot` | `reroutes: Reroute[]`, `turn_arounds: TurnAround[]` | A driver view that reconnects mid-trip can restore its route and alert | Lost on reconnect |
 
 The **feed status** keys returned by `GET /api/feeds` are `nws_alerts`, `usgs_gage`, `usgs_flood_impacts` (each with `source` and `fetched_at`), not `nws` / `flood_impacts` as written in the REST table above. The frontend reads the actual keys.
@@ -262,6 +263,7 @@ Outside the region only NWS polygon alerts apply, capped at `warning`, or `dange
 | POST | `/api/users/{id}/location` | Trusted origin. Body: `{lat, lon, speed_mps?, heading_deg?, accuracy_m?, ts?}`. Returns `Assessment + response + actions`. Live mode: 422 if `ts` is more than 5 min in the future or more than 1 h old. Replay: pings are stamped with the sim clock. |
 | POST | `/api/users/{id}/route` | Trusted origin. Body: `{points: [[lat, lon], ...]}` (2 to 2000 points), the planned trip. Every road on it is checked (a pre-trip warning). Returns `{edges_matched}`. |
 | POST | `/api/users/{id}/reply` | Trusted origin. Body: `{reply: safe\|need_help, by: driver\|emergency_contact\|parent}`. Manual or ops reply. Real replies also arrive by SMS or poll through `/api/photon/inbound` or the Photon 2.0 socket, in English or Spanish (SAFE/HELP/BIEN/AYUDA), matched by normalized phone. |
+| GET | `/api/region/gauges` | Added 2026-11-08 (additive). The region loop's gauge list only, without segments and points (~2 KB instead of ~140 KB): `[{site, name, waterway, lon, lat, online, stage_ft, observed_at (epoch s), flood_category\|null, rate_ft_per_hr}]`. Polled by the phone app. |
 
 **Assessment**:
 - Top-level fields:
@@ -300,6 +302,15 @@ Outside the region only NWS polygon alerts apply, capped at `warning`, or `dange
 - **All clear:** once the level has stayed below warning for 15 min, one "all clear" message is sent.
 - **Wording:** messages are in English or Spanish, and never call a road safe.
 
+**Mobile consumer** (`mobile/src/data/live/`, added 2026-11-08):
+- The phone app is one user (`hc-dana`, Dana Whitfield, sim-only phones).
+- It reads `GET /danger` every 5 s and refetches on `user.danger` for its own `user_id`. A 409 (no flood picture yet) shows "Connecting". Network errors and 5xx show "Offline".
+- Every 30 s it also reads `GET /api/safety/summary` (`mode` only) and `GET /api/region/gauges` (Kerrville, site 08166200).
+- It reads `hazard.degraded_sources` and `confidence: low` as "can't fully check", never as clear.
+- It writes `/reply` (`by: driver`), `/route`, and `/location`. Location writes come from the developer demo drive only.
+- It validates every payload with zod and ignores fields it does not use.
+- Timeline strings it matches: `critical|danger -> …poll|voice|open_case`, `HELP from `, `family contacted`, `responders flagged`, `SAFE from <who>` (exact), `all clear` (episode boundary). Changing that wording is a contract change.
+
 **WS events**:
 - `user.danger`: `{user: UserPublic, ...Assessment}`, sent only when the level or top reason changes.
 - `user.responders`: `{user_id, level, reasons, location}`.
@@ -309,3 +320,25 @@ Outside the region only NWS polygon alerts apply, capped at `warning`, or `dange
 **Outreach events**:
 - `outreach.status` gains `"suppressed"`: live mode, but the number isn't allowlisted. It used to be logged as a fake `"sent"`.
 - Real sends go only to `env:DEMO_PHONE_*` numbers, or to enrolled +E.164 users when `OUTREACH_ALLOW_ENROLLED=1`.
+
+## SpacetimeDB live tables (added 2026-11-08, additive)
+
+SpacetimeDB is now the primary database (see `docs/SPACETIMEDB.md`). Besides the REST/WS API above, the frontend may **subscribe directly** to the public tables for live row updates (no polling):
+
+- **Server:** local `ws://127.0.0.1:3000`. Use the WebSocket subprotocol `v1.json.spacetimedb` on `/v1/database/floodwatch/subscribe`, or the `spacetimedb` npm SDK.
+- **Query shape:** subscriptions must be `SELECT * FROM <table> [WHERE ...]`. Column projections aren't allowed.
+- **Field names:** snake_case.
+- **Options:** encoded `{"some": v}` / `{"none": []}`.
+- **Timestamps:** encoded `{"__timestamp_micros_since_unix_epoch__": n}`.
+
+| Table | Use |
+|---|---|
+| `danger_latest` | One row per person: `user_id, level, hazard_level, top_reason, advice, confidence, lat?, lon?, vulnerability_band, mode, assessed_at, updated_at`. Position only for simulated users, or real users at danger or above, rounded to about 1 km. Example: `SELECT * FROM danger_latest WHERE level = 'critical'` |
+| `app_user` | People: no phones. Enrolled users show first name only, no age, no tags, and a rounded home |
+| `source`, `ingestion_run` | Data sources and their fetch health |
+
+Outreach, cases, drone snapshots and evidence stay on the REST/WS API above. Those tables are private because they can identify or locate people.
+
+- **Private tables** are not visible to clients: `user_contact`, `user_profile`, `user_track`, `response_state`, `outreach_event`, `escalation_case`, `vision_snapshot`, `observation`, `raw_record`, `setting`, `inspection_task`, `kv`, `config`.
+- **All writes go through the backend.** The module rejects reducer calls from any identity but the backend's.
+- `/api/health` gains `database: {backend, requested, fallback_reason, writes: {queued, failed, dropped, last_error}, spacetime: {url, database, authenticated}}`, and `modes.db` is the backend actually in use. That reads `spacetime`, or `sqlite (fallback: …)` when SpacetimeDB isn't running.

@@ -199,3 +199,7 @@ class WsEvent(Frozen):
 
 class ReplyIn(BaseModel):
     reply: Literal["safe", "need_help"]
+
+
+class DroneCommandIn(BaseModel):
+    command: Literal["speak", "drop_jacket", "return"]

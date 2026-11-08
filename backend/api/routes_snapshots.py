@@ -66,6 +66,9 @@ async def ingest(app: Any, snap: VisionSnapshot) -> SnapshotAck:
         hill = await get_hill(app)
         fused, why = await asyncio.to_thread(apply_to_loop, hill.loop, snap)
     payload = snap.model_dump(mode="json")
+    db = getattr(app.state, "db", None)
+    if db is not None:   # drone / vision evidence -> SpacetimeDB vision_snapshot (write-behind, never blocks)
+        db.writer.submit(lambda: db.data.add_snapshot({**payload, "fused": fused}))
     try:  # state is already updated; a broadcast problem must not turn into a 500 that clients retry
         await app.state.runtime.hub.emit("snapshot.created", payload)
     except Exception:

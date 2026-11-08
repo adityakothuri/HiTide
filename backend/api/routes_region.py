@@ -57,6 +57,7 @@ async def region_mode(request: Request, mode: RegionMode) -> dict:
 
 router.add_api_route("/api/region/critical-points", _part("critical_points"), methods=["GET"])
 router.add_api_route("/api/region/nodes", _part("nodes"), methods=["GET"])
+router.add_api_route("/api/region/gauges", _part("gauges"), methods=["GET"])  # small: the phone app polls this
 router.add_api_route("/api/region/drones/plan", _part("drones"), methods=["GET"])
 
 

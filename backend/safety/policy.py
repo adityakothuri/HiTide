@@ -241,3 +241,26 @@ def apply_call_result(s: ResponseState, answered: bool, reply: str | None, now: 
     if not answered and by == "driver":
         return replace(s, call_unanswered=True, timeline=_note(s, now, "call unanswered")), []
     return replace(s, timeline=_note(s, now, f"call to {by} ended without a clear answer")), []
+
+
+# ---- persistence (SpacetimeDB response_state) --------------------------------------
+def response_to_dict(s: ResponseState) -> dict[str, Any]:
+    return {"episode_level": int(s.episode_level), "sent_at": {str(k): v for k, v in s.sent_at.items()},
+            "awaiting_since": s.awaiting_since, "called_at": s.called_at, "call_unanswered": s.call_unanswered,
+            "family_at": s.family_at, "responders_flagged": s.responders_flagged, "case_opened_at": s.case_opened_at,
+            "safe_until": s.safe_until, "safe_level": int(s.safe_level), "need_help": s.need_help,
+            "clear_since": s.clear_since, "reminders": {str(k): v for k, v in s.reminders.items()},
+            "timeline": [[t, w] for t, w in s.timeline]}
+
+
+def response_from_dict(d: Mapping[str, Any]) -> ResponseState:
+    return ResponseState(
+        episode_level=Level(int(d.get("episode_level", 0))),
+        sent_at={int(k): float(v) for k, v in (d.get("sent_at") or {}).items()},
+        awaiting_since=d.get("awaiting_since"), called_at=d.get("called_at"),
+        call_unanswered=bool(d.get("call_unanswered")), family_at=d.get("family_at"),
+        responders_flagged=bool(d.get("responders_flagged")), case_opened_at=d.get("case_opened_at"),
+        safe_until=d.get("safe_until"), safe_level=Level(int(d.get("safe_level", 0))),
+        need_help=bool(d.get("need_help")), clear_since=d.get("clear_since"),
+        reminders={int(k): int(v) for k, v in (d.get("reminders") or {}).items()},
+        timeline=tuple((float(t), str(w)) for t, w in (d.get("timeline") or [])))

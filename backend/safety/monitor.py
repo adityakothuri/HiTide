@@ -27,6 +27,7 @@ from safety.hazard import Locator
 from safety.levels import Level
 from safety.messages import render
 from safety.motion import MotionState, Ping, at_rest, update
+from safety.persist import SafetyPersistence, danger_row
 from safety.policy import Action, ResponseState, apply_call_result, apply_reply, decide
 from safety.users import STATE_PATH, SafetyUser, UserRegistry, atomic_write_json
 
@@ -65,7 +66,8 @@ def public_assessment(u: SafetyUser, a: DangerAssessment) -> dict[str, Any]:
 
 class SafetyMonitor:
     def __init__(self, locator: Locator, users: UserRegistry, outreach: Any, emit: Emit,
-                 cfg: Mapping[str, Any] | None = None, state_path: Any = STATE_PATH, clock: Callable[[], float] = time.time):
+                 cfg: Mapping[str, Any] | None = None, state_path: Any = STATE_PATH, clock: Callable[[], float] = time.time,
+                 db: Any = None):
         self.loc, self.users, self.outreach, self.emit = locator, users, outreach, emit
         self.cfg: Mapping[str, Any] = cfg if cfg is not None else safety_settings()
         self.scale = float(self.cfg["ladder"]["demo_time_scale"]) if os.environ.get("SAFETY_DEMO") == "1" else 1.0
@@ -77,7 +79,13 @@ class SafetyMonitor:
         self._last_persist = 0.0
         self._background: set[asyncio.Task] = set()
         self.epoch = 0                     # bumped by reset(); a context built before a reset is discarded
-        self._load_positions()
+        # Primary database (SpacetimeDB): positions, ladders and the public danger table. Without it, the
+        # legacy JSON position file is used (live mode only).
+        self.persist = SafetyPersistence(db, locator.region.edge_ids, locator.region.edge_index) if db else None
+        self._touched: set[str] = set()
+        self._dangers: list[dict[str, Any]] = []
+        if self.persist is None:
+            self._load_positions()
 
     # ---- clock -------------------------------------------------------------
     def now(self) -> float:
@@ -94,6 +102,19 @@ class SafetyMonitor:
                     if t.pinged and mode == "live"}
             self.tracks = keep
             self.ctx = empty_context(len(self.loc.region.edge_ids), mode)
+            self._touched, self._dangers = set(), []
+            if self.persist is not None:
+                if mode == "live":   # pick up where the last live run left off: no duplicate alerts after a restart
+                    for uid, (motion, pinged, route, resp) in self.persist.restore().items():
+                        if self.users.get(uid) is None:
+                            continue
+                        t = self.tracks.setdefault(uid, UserTrack())
+                        if motion is not None:
+                            t.motion, t.pinged, t.route_edges = motion, pinged, route
+                        if resp is not None:
+                            t.response = resp
+                else:
+                    self.persist.wipe()
         for task in list(self._background):
             task.cancel()
 
@@ -115,6 +136,9 @@ class SafetyMonitor:
         changed = prev is None or prev.level != a.level or prev.reasons[:1] != a.reasons[:1]
         resp, acts = decide(t.response, a, now, self.cfg, self.scale)
         t.response, t.last = resp, a
+        self._touched.add(u.id)
+        if changed and self.persist is not None:
+            self._dangers.append(danger_row(u, a, self.ctx.mode))
         return Decision(u, a, tuple(acts), changed)
 
     def refresh(self, ctx: SafetyContext | None = None, epoch: int | None = None) -> list[Decision]:
@@ -126,6 +150,8 @@ class SafetyMonitor:
                 rewound = ctx.t is not None and self.ctx.t is not None and ctx.t < self.ctx.t - 1.0
                 if rewound:   # the replay restarted: ladders and replay-clock positions belong to the old run
                     self.tracks = {}
+                    if self.persist is not None:
+                        self.persist.wipe()
                 self.ctx = ctx
             if not self.ctx.ready:
                 return []
@@ -157,6 +183,8 @@ class SafetyMonitor:
         edges = self.loc.snap_route(coords)
         with self.lock:
             self._track(uid).route_edges = edges
+            self._touched.add(uid)
+            self._maybe_persist(self.now())
         return tuple(self.loc.region.edge_ids[e] for e in edges)
 
     def assessment(self, uid: str) -> DangerAssessment | None:
@@ -215,12 +243,16 @@ class SafetyMonitor:
         with self.lock:
             t = self._track(uid)
             t.response, acts = apply_reply(t.response, kind, self.now(), by, t.last, self.cfg, self.scale)
+            self._touched.add(uid)
+            self._maybe_persist(self.now())
             return acts
 
     def call_result(self, uid: str, answered: bool, reply: str | None, by: str) -> list[Action]:
         with self.lock:
             t = self._track(uid)
             t.response, acts = apply_call_result(t.response, answered, reply, self.now(), by, t.last, self.cfg, self.scale)
+            self._touched.add(uid)
+            self._maybe_persist(self.now())
             return acts
 
     # ---- outreach ------------------------------------------------------------------
@@ -326,6 +358,11 @@ class SafetyMonitor:
 
     # ---- persistence ---------------------------------------------------------------------
     def _maybe_persist(self, now: float, force: bool = False) -> None:
+        if self.persist is not None:   # primary database: only changed rows, via the write-behind queue
+            if self._touched or self._dangers:
+                self.persist.save(self.tracks, self._touched, self._dangers, self.ctx.mode)
+                self._touched, self._dangers = set(), []
+            return
         if self.state_path is None or self.ctx.mode != "live":   # replay positions live on the sim clock
             return
         wall = time.monotonic()

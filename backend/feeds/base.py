@@ -174,7 +174,7 @@ async def fetch_with_fallback(
     shape: RecordShape | None = None,
 ) -> dict:
     signature = _request_signature(url, params)
-    if cache_only:
+    if cache_only or os.environ.get("FEEDS_OFFLINE") == "1":  # DATA_MODE=test
         return _read_cache(name, signature, ())
     response = await fetch_live_page(name, url, params, timeout_s)
     if response["source"] == "unavailable":

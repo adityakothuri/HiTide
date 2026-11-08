@@ -39,6 +39,23 @@ PERSONAS: list[dict[str, Any]] = [
      "contact_phone": "env:DEMO_PHONE_C", "parent_phone": "env:DEMO_PHONE_C", "needs": [], "tags": ["demo", "teen"]},
 ]
 
+# The consumer phone app's persona (mobile/). Appended after the seeded population with its own RNG, so adding it
+# does not reshuffle the 250 generated users the stress figures were measured on. Home = the app's trip origin.
+APP_PERSONAS: list[dict[str, Any]] = [
+    {"id": "hc-dana", "name": "Dana Whitfield", "age": 41, "vehicle": ("Toyota", "RAV4", "suv"),
+     "home": (30.01281, -99.1169), "phone": "sim:hc-dana", "contact_name": "Maria Whitfield",
+     "contact_phone": "sim:hc-dana-contact", "needs": [], "tags": ["demo", "commuter", "app"]},
+]
+APP_SEED_OFFSET = 1
+
+
+def _persona_record(rng: random.Random, p: dict[str, Any], points: list[dict]) -> dict:
+    prof = _profile(rng, p["id"], p["name"], p["age"], p["vehicle"], p["home"], points, p["needs"], "en")
+    return {"id": p["id"], "name": p["name"], "age": p["age"], "phone": p["phone"],
+            "home": {"lat": p["home"][0], "lon": p["home"][1]}, "contact_name": p["contact_name"],
+            "contact_phone": p["contact_phone"], "parent_phone": p.get("parent_phone"),
+            "profile": prof, "tags": p["tags"]}
+
 
 def _jitter(rng: random.Random, lat: float, lon: float, m: float) -> tuple[float, float]:
     r, th = m * math.sqrt(rng.random()), rng.uniform(0, 2 * math.pi)
@@ -74,13 +91,7 @@ def generate(n: int) -> list[dict]:
     data = json.loads((DATA_DIR / "region" / "hill_country" / "nodes.json").read_text())
     nodes, points = data["nodes"], data["points"]
     weights = [max(1, nd["households"]) for nd in nodes]
-    out: list[dict] = []
-    for p in PERSONAS:
-        prof = _profile(rng, p["id"], p["name"], p["age"], p["vehicle"], p["home"], points, p["needs"], "en")
-        out.append({"id": p["id"], "name": p["name"], "age": p["age"], "phone": p["phone"],
-                    "home": {"lat": p["home"][0], "lon": p["home"][1]}, "contact_name": p["contact_name"],
-                    "contact_phone": p["contact_phone"], "parent_phone": p.get("parent_phone"),
-                    "profile": prof, "tags": p["tags"]})
+    out: list[dict] = [_persona_record(rng, p, points) for p in PERSONAS]
     for i in range(n - len(PERSONAS)):
         nd = rng.choices(nodes, weights)[0]
         lat, lon = _jitter(rng, nd["lat"], nd["lon"], JITTER_M)
@@ -96,6 +107,8 @@ def generate(n: int) -> list[dict]:
                     "home": {"lat": round(lat, 6), "lon": round(lon, 6)}, "contact_name": f"{rng.choice(FIRST)} {name.split()[1]}",
                     "contact_phone": f"sim:{uid}-contact", "parent_phone": f"sim:{uid}-parent" if age <= 19 else None,
                     "profile": prof, "tags": [nd["kind"], nd["town"]]})
+    app_rng = random.Random(SEED + APP_SEED_OFFSET)
+    out.extend(_persona_record(app_rng, p, points) for p in APP_PERSONAS)
     return out
 
 

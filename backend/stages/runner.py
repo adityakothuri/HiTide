@@ -10,10 +10,12 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field, replace
+from collections.abc import Callable
 from typing import Any, Literal
 
 from api.schemas import Case, TimelineEntry, VisionResult
 from app.config import settings
+from db.hooks import PersistedDict
 from drone import dispatch
 from outreach import OutboundMessage, make_outreach, voice_elevenlabs
 from outreach.call_summary import call_variables, classify_call, first_name, follow_up_text, opening_line
@@ -37,6 +39,13 @@ CALL_DONE_STATUSES = frozenset({"done", "failed"})
 SEND_BUDGET_S = 8.0  # a slow Photon/ElevenLabs call must never freeze the tick for long
 
 
+
+DRONE_COMMAND_TEXT = {
+    "speak": "Drone loudspeaker: \"Stay with your vehicle. Help is on the way.\" (simulated)",
+    "drop_jacket": "Drone dropped a life jacket (simulated)",
+    "return": "Drone returning to station",
+}
+
 @dataclass
 class World:
     motions: dict[str, DriverMotion] = field(default_factory=dict)
@@ -56,11 +65,12 @@ class World:
 
 
 class StageRunner:
-    def __init__(self, engine: Engine, drivers: list[Driver]) -> None:
+    def __init__(self, engine: Engine, drivers: list[Driver], on_case: Callable[[Case], None] | None = None) -> None:
         self.engine = engine
         self.drivers = {d.id: d for d in drivers}
         self.lengths = edge_lengths(engine.town)
-        self.world = World()
+        self.on_case = on_case  # persistence hook (SpacetimeDB escalation_case); must not block
+        self.world = self._new_world()
         self.profile = os.environ.get("SIM_PROFILE", "demo")
         self.outreach = make_outreach(engine.emit, self.is_physically_moving)
         self._pending: set[asyncio.Task] = set()
@@ -68,9 +78,16 @@ class StageRunner:
                              self.drone_hook, self.counters_hook])
 
     # ---- helpers -------------------------------------------------------
+    def _new_world(self) -> World:
+        world = World()
+        if self.on_case is not None:
+            hook = self.on_case
+            world.cases = PersistedDict(lambda _cid, case: hook(case))
+        return world
+
     def reset(self) -> None:
         self.cancel_pending()  # a reset must not leave calls ringing or transcript watchers running
-        self.world = World()
+        self.world = self._new_world()
 
     def cancel_pending(self) -> None:
         for task in list(self._pending):
@@ -377,6 +394,21 @@ class StageRunner:
             drone = self.world.drones.pop(case_id)
             await self.engine.emit("drone.update", {**dispatch.state(drone, self.engine.t_sim_s), "status": "returning"})
         self.world.cases[case_id] = new
+        await self.engine.emit("case.update", new.model_dump(mode="json"))
+        return new
+
+    async def drone_command(self, drone_id: str, command: Literal["speak", "drop_jacket", "return"]) -> Case | None:
+        """Console drone actions. The drone is simulated, so this logs the action on the case timeline."""
+        cid = next((c for c, dr in self.world.drones.items() if dr.id == drone_id), None)
+        case = self.world.cases.get(cid) if cid else None
+        if case is None or cid is None:
+            return None
+        elapsed = self.engine.t_sim_s - self.world.case_opened_s[cid]
+        new = self._note(case, elapsed, DRONE_COMMAND_TEXT[command], kind="drone")
+        if command == "return":
+            drone = self.world.drones.pop(cid)
+            await self.engine.emit("drone.update", {**dispatch.state(drone, self.engine.t_sim_s), "status": "returning"})
+        self.world.cases[cid] = new
         await self.engine.emit("case.update", new.model_dump(mode="json"))
         return new
 
