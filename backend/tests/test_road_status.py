@@ -48,3 +48,7 @@ def test_passable_for_cars(status, passable):
 def test_truck_passable_below_boat_only():
     assert RoadStatus.FLOAT.passable_for_trucks is True
     assert RoadStatus.BOAT.passable_for_trucks is False
+
+
+def test_nan_depth_is_open():
+    assert classify(float("nan")) is RoadStatus.OPEN
