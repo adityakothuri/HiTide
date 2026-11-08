@@ -72,7 +72,7 @@ WORN_RC_STEP = 4
 GROUND_FLOOR_CM = 15  # floor sensor reads ~10 cm when sitting on the ground
 GROUNDED_SECONDS = 2.0  # "flying" but on the floor this long = lost lift; land to stop the motors
 DRAIN_SETTLE_SECONDS = 5.0  # battery % reads low under load; read it after it recovers
-MAX_TILT_DEG = 10
+MAX_TILT_DEG = 6  # take off only from a flat floor: a tilted or raised start makes it lurch and drift
 REFUSAL_HINT = (
     "Fixes to try: 1) IMU calibration in the Tello phone app (Settings > More > IMU Calibration), "
     "2) turn it off 15 min if hot, 3) flat surface, 4) turn the lights on (its downward camera "
@@ -549,8 +549,8 @@ class Drone:
             self.note(f"Hover steady (tilt swing {swing} deg, drift {drift:.0f}).")
 
     def _record_flight(self) -> None:
-        """One CSV row per second while flying, so a bad flight can be read back afterwards."""
-        if not self.tello.is_flying:
+        """One CSV row per second from the start of takeoff (when drift begins) until landed."""
+        if not (self.tello.is_flying or self.busy == "takeoff" or self.landing):
             self.record_file = None
             return
         now = time.time()
@@ -812,7 +812,7 @@ class Drone:
         if t.get_highest_temperature() >= HOT_TEMP_C:
             problems.append(f"drone is {t.get_highest_temperature()}C, turn it off for 15 min to cool")
         if max(abs(t.get_pitch()), abs(t.get_roll())) > MAX_TILT_DEG:
-            problems.append("drone is tilted, put it on a flat surface")
+            problems.append("drone is tilted: put it on a flat, level floor (not the stand or a box) before launch")
         if self.worn:
             rate = float(self.profile.get("drain_pct_per_min", NORMAL_DRAIN_PCT_PER_MIN)) / 60
             seconds = (t.get_battery() - self._land_floor_pct()) / rate

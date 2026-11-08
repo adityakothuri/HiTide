@@ -50,7 +50,13 @@ Nothing else from HiTide is needed.
    installs the Python packages, which needs internet once).
 3. Stop with **Ctrl+C** in the black window (it lands the drone first if flying).
 
-## Read the water level (stand mode)
+## Flying vs reading the gauge: two different setups
+- **To fly:** take off from a **flat, level floor** (not the stand, not a table edge, not your hand). Lifting off
+  a raised box makes the downward sensor see the floor drop away, and the drone lurches and drifts. The
+  dashboard shows "pitch/roll" at connect: both should be near 0 before you press Launch.
+- **To read the gauge:** the stand below, **motors off**. Don't take off from the stand.
+
+## Read the water level (stand mode, motors off)
 1. **Place the Tello level, on a stand above the tray, motors off** (its camera can't tilt, so height does the
    work). Recipe: the drone on a box or book stack about **15 cm tall**, about **43 cm back from the tray's
    centre**, facing the tray. That puts the camera about 16 cm above the rim, looking about 20 deg down, with

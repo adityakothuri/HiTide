@@ -222,17 +222,21 @@ def solve_clicked_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
     pts = _edge_points(model)
     img = np.asarray(corners_px, np.float64).reshape(4, 2)
     obj = _corners(model, model.rim_top_mm, model.rim_top_mm, (False,) * 4)
+    # "Go round" from the first click can mean clockwise or counter-clockwise depending on which side
+    # the camera views from, so try both directions; the first click stays corner (0, 0) either way.
+    forward, backward = img, np.roll(img[::-1], 1, axis=0)
     starts = []
-    for shift in range(4):
-        ok, rvec, tvec = cv2.solvePnP(obj, np.roll(img, -shift, axis=0), cam.matrix, cam.dist_array,
-                                      flags=cv2.SOLVEPNP_IPPE)
-        start = Pose(rvec.reshape(3), tvec.reshape(3))
-        if ok and camera_position_mm(start)[2] > model.rim_top_mm:
-            starts.append((shift, start, _score(dt, pts, cam, start)))
+    for direction in (forward, backward):
+        for shift in range(4):
+            ok, rvec, tvec = cv2.solvePnP(obj, np.roll(direction, -shift, axis=0), cam.matrix, cam.dist_array,
+                                          flags=cv2.SOLVEPNP_IPPE)
+            start = Pose(rvec.reshape(3), tvec.reshape(3))
+            if ok and camera_position_mm(start)[2] > model.rim_top_mm:  # camera above the table
+                starts.append((shift, start, _score(dt, pts, cam, start)))
     if not starts:
         return None
     # Pick the rotation on the raw corner fit: snapping first lets a wrong rotation half-fit the terrain.
-    clicked = next((s for s in starts if s[0] == 0), None)
+    clicked = min((s for s in starts if s[0] == 0), key=lambda s: s[2], default=None)
     best = min(starts, key=lambda s: s[2])
     chosen = clicked if clicked is not None and clicked[2] <= best[2] * CLICK_OVERRIDE_MARGIN else best
     if chosen is not clicked:
