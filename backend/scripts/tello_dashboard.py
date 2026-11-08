@@ -6,8 +6,9 @@ It opens http://127.0.0.1:8765 in your browser. Works offline. Press Ctrl+C in t
 """
 
 import json
-import re
+import math
 import os
+import re
 import sys
 import threading
 import time
@@ -121,11 +122,14 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]  # holds the `gauge` package
 GAUGE_HZ = 2
 GAUGE_DYE_DEFAULT = "blue"
 GAUGE_LOADING = "loading the gauge model"
+GAUGE_LOADING_RETRY = "loading the gauge model, try again in a moment"
+GAUGE_PRESS_WAIT_SECONDS = 1.5  # a press waits this long for a load it started itself, then answers
 GAUGE_ERROR_WAIT_SECONDS = 1.0  # back off after a reader error so a bad frame can't spin the CPU
+GAUGE_ENCODE_ERROR = "Overlay error: JPEG encode failed"
 ESTIMATE_FIELDS = (
     "level_mm", "level_mm_range", "ft", "ft_range", "confidence", "crossing_flooded", "car_level",
-    "houses_flooded", "houses_total", "visible_cells", "wet_cells", "tags_seen", "reproj_err_px",
-    "has_baseline", "simulated", "reason", "ts",
+    "houses_flooded", "houses_total", "visible_cells", "wet_cells", "wet_fraction", "tags_seen",
+    "reproj_err_px", "has_baseline", "baseline_moved", "simulated", "reason", "ts",
 )
 
 
@@ -160,13 +164,15 @@ def rgb_to_bgr(frame_rgb: np.ndarray) -> np.ndarray:
 
 
 def jsonable(value: Any) -> Any:
-    """numpy scalars and tuples from the estimate -> plain JSON types."""
+    """numpy scalars and tuples from the estimate -> plain JSON types; NaN and inf -> None."""
     if isinstance(value, dict):
         return {k: jsonable(v) for k, v in value.items()}
     if isinstance(value, (list, tuple, np.ndarray)):
         return [jsonable(v) for v in value]
     if isinstance(value, np.generic):
-        return value.item()
+        value = value.item()
+    if isinstance(value, float) and not math.isfinite(value):
+        return None  # json.dumps would write NaN, which JSON.parse in the browser rejects
     return value
 
 
@@ -175,7 +181,8 @@ class GaugeService:
 
     Runs on its own thread and touches the drone only through `frame_source`, so a slow or
     failing reader can never stall telemetry or flight control. Reader errors are logged once
-    per distinct message and reported in status()["error"].
+    per distinct message and reported in status()["error"]. The model loads on a background
+    thread, and button presses never wait on a load that is already running.
     """
 
     def __init__(self, frame_source: Callable[[], np.ndarray | None], note: Callable[[str], None],
@@ -188,40 +195,84 @@ class GaugeService:
         self._encoder = encoder
         self._interval = interval
         self._reader: GaugeReaderLike | None = None
-        self._unavailable = ""  # why the gauge package could not load; set once
-        self._load_lock = threading.Lock()
+        self._unavailable = ""  # why the gauge package could not load
+        self._state_lock = threading.Lock()  # enabled, the loop thread and load state change together
         self._reader_lock = threading.Lock()  # baseline and update never run at the same time
         self._thread: threading.Thread | None = None
+        self._loading = False
+        self._load_done = threading.Event()
         self.enabled = False
         self.has_baseline = False
         self.estimate: dict[str, Any] = {}
         self.overlay_jpeg: bytes | None = None
         self.error: str | None = None
-        self._preloading = False
 
-    def _ensure_reader(self, retry: bool = False) -> GaugeReaderLike | None:
-        """Load once. `retry` (a button press) tries again after a failure, e.g. once the package is fixed."""
-        with self._load_lock:
-            if retry and self._reader is None:
-                self._unavailable = ""
-            if self._reader is None and not self._unavailable:
-                try:
-                    self._reader = self._reader_factory()
-                    self._note("Water gauge ready")
-                except Exception as exc:  # noqa: BLE001 - ImportError, missing tray data, bad camera json
-                    self._unavailable = f"{type(exc).__name__}: {exc}"
-                    self.error = self._unavailable
-                    self._note(f"Water gauge unavailable ({self._unavailable})")
-            return self._reader
+    # ----- model loading -----
+
+    def _begin_load(self, retry: bool) -> tuple[threading.Event | None, bool]:
+        """(event set when the load finishes, or None if there is nothing to wait for; True if this call started it).
+
+        `retry` (a button press) tries again after a failure, e.g. once the package is fixed.
+        """
+        with self._state_lock:
+            if self._reader is not None:
+                return None, False
+            if self._loading:
+                return self._load_done, False
+            if self._unavailable and not retry:
+                return None, False
+            self._loading = True
+            self._load_done = threading.Event()
+            done = self._load_done
+        threading.Thread(target=self._load, args=(done,), daemon=True).start()
+        return done, True
+
+    def _load(self, done: threading.Event) -> None:
+        """Runs without holding any lock, so status polls and presses answer while the model loads."""
+        reader, problem = None, ""
+        try:
+            reader = self._reader_factory()
+        except Exception as exc:  # noqa: BLE001 - ImportError, missing tray data, bad camera json
+            problem = f"{type(exc).__name__}: {exc}"
+        with self._state_lock:
+            if problem:
+                self.error = problem
+            elif self.error == self._unavailable:
+                self.error = None  # an earlier failed load no longer applies
+            self._reader, self._unavailable, self._loading = reader, problem, False
+        self._note("Water gauge ready" if reader else f"Water gauge unavailable ({problem})")
+        done.set()
+
+    def _ensure_reader(self, retry: bool = False, timeout: float | None = None) -> GaugeReaderLike | None:
+        """Load if needed and wait up to `timeout` seconds (None = until done)."""
+        done, _ = self._begin_load(retry)
+        if done is not None:
+            done.wait(timeout)
+        return self._reader
+
+    def preload(self) -> None:
+        """Load the gauge model in the background so the first status poll answers at once."""
+        self._begin_load(retry=False)
+
+    def _reader_for_press(self) -> tuple[GaugeReaderLike | None, str]:
+        """(reader, "") or (None, why not). Answers at once while a load is already running."""
+        done, started = self._begin_load(retry=True)
+        if done is not None and not (started and done.wait(GAUGE_PRESS_WAIT_SECONDS)):
+            return None, GAUGE_LOADING_RETRY
+        if self._reader is None:
+            return None, f"gauge unavailable: {self._unavailable}"
+        return self._reader, ""
+
+    # ----- button presses -----
 
     def _frame_bgr(self) -> np.ndarray | None:
         frame = self._frame_source()
         return None if frame is None else rgb_to_bgr(frame)
 
     def capture_baseline(self) -> str:
-        reader = self._ensure_reader(retry=True)
+        reader, problem = self._reader_for_press()
         if reader is None:
-            return f"gauge unavailable: {self._unavailable}"
+            return problem
         frame = self._frame_bgr()
         if frame is None:
             return "no video frame yet"
@@ -235,24 +286,40 @@ class GaugeService:
         return "ok" if ok else str(reason)
 
     def start(self) -> str:
-        if self._ensure_reader(retry=True) is None:
-            return f"gauge unavailable: {self._unavailable}"
-        self.enabled = True
-        if self._thread is None or not self._thread.is_alive():
-            self._thread = threading.Thread(target=self._loop, daemon=True)
-            self._thread.start()
+        reader, problem = self._reader_for_press()
+        if reader is None:
+            return problem
+        with self._state_lock:
+            self.enabled = True
+            started = self._thread is None  # a loop that still holds _thread will see enabled=True
+            if started:
+                self._thread = threading.Thread(target=self._loop, daemon=True)
+                self._thread.start()
+        if started:
             self._note("Water gauge reading started")
         return "ok"
 
     def stop(self) -> str:
-        if self.enabled:
+        with self._state_lock:
+            was_enabled, self.enabled = self.enabled, False
+        if was_enabled:
             self._note("Water gauge reading stopped")
-        self.enabled = False
         return "ok"
+
+    # ----- reading -----
+
+    def _keep_running(self) -> bool:
+        """The loop's exit check. Under the lock, so start() never mistakes an exiting loop for a live one."""
+        with self._state_lock:
+            if self.enabled:
+                return True
+            if self._thread is threading.current_thread():
+                self._thread = None
+            return False
 
     def _loop(self) -> None:
         last_frame = None
-        while self.enabled:
+        while self._keep_running():
             frame = self._frame_source()
             if frame is None or frame is last_frame:
                 time.sleep(self._interval)
@@ -262,7 +329,10 @@ class GaugeService:
             time.sleep(self._interval if self.error is None else GAUGE_ERROR_WAIT_SECONDS)
 
     def read_once(self, frame_bgr: np.ndarray) -> None:
-        """One reading: smoothed estimate plus the annotated overlay. Never raises."""
+        """One reading: smoothed estimate plus the annotated overlay. Never raises.
+
+        On a reader error the last estimate stays; its age_s in status() makes it visibly stale.
+        """
         reader = self._reader
         if reader is None:
             return
@@ -270,14 +340,22 @@ class GaugeService:
             with self._reader_lock:
                 estimate = reader.update(frame_bgr)
                 overlay = reader.overlay(frame_bgr, estimate)
-            self.estimate = jsonable(estimate.to_dict())
-            self.overlay_jpeg = self._encoder(overlay) or self.overlay_jpeg
-            self.error = None
+            data = jsonable(estimate.to_dict())
+            jpeg = self._encoder(overlay)
         except Exception as exc:  # noqa: BLE001 - contain reader faults
             self._record_error("Reader", exc)
+            return
+        self.estimate = data
+        self.overlay_jpeg = jpeg  # None on an encode failure: never pair an old overlay with a new estimate
+        if jpeg is None:
+            self._record_message(GAUGE_ENCODE_ERROR)
+        else:
+            self.error = None
 
     def _record_error(self, what: str, exc: Exception) -> str:
-        message = f"{what} error: {type(exc).__name__}: {exc}"
+        return self._record_message(f"{what} error: {type(exc).__name__}: {exc}")
+
+    def _record_message(self, message: str) -> str:
         if message != self.error:  # log once per distinct error, not twice a second
             self._note(f"Water gauge {message}")
         self.error = message
@@ -285,14 +363,8 @@ class GaugeService:
 
     @property
     def running(self) -> bool:
-        return self.enabled and self._thread is not None and self._thread.is_alive()
-
-    def preload(self) -> None:
-        """Load the gauge model in the background so the first status poll answers at once."""
-        if self._preloading:
-            return
-        self._preloading = True
-        threading.Thread(target=self._ensure_reader, daemon=True).start()
+        thread = self._thread
+        return self.enabled and thread is not None and thread.is_alive()
 
     def status(self) -> dict[str, Any]:
         """Never blocks on loading: while the model loads, report unavailable with that reason."""
@@ -301,11 +373,14 @@ class GaugeService:
             self.preload()
         estimate = {k: self.estimate.get(k) for k in ESTIMATE_FIELDS}
         estimate["has_baseline"] = bool(estimate["has_baseline"] or self.has_baseline)
+        ts = estimate["ts"]
+        fresh_ts = isinstance(ts, (int, float)) and not isinstance(ts, bool) and ts > 0
         return {
             "gauge": "online" if self._reader is not None else "unavailable",
             "enabled": self.enabled,
             "running": self.running,
             "error": self.error or (GAUGE_LOADING if loading else None),
+            "age_s": round(max(0.0, time.time() - ts), 1) if fresh_ts else None,
             **estimate,
         }
 
@@ -838,23 +913,29 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
         def _refused(self, is_post: bool) -> bool:
             problem = request_problem(self.headers, is_post)
             if problem:
+                if is_post:  # read the (small) body first: closing with unread data resets the socket on Windows
+                    try:
+                        self.rfile.read(max(0, min(int(self.headers.get("Content-Length", 0)), MAX_BODY_BYTES)))
+                    except (ValueError, OSError):
+                        pass
                 self._json({"error": problem[1]}, problem[0])
             return problem is not None
 
         def do_GET(self) -> None:
             if self._refused(is_post=False):
                 return
-            if self.path == "/":
+            route = urlsplit(self.path).path
+            if route == "/":
                 self._send(PAGE.read_bytes(), "text/html; charset=utf-8")
-            elif self.path == "/status":
+            elif route == "/status":
                 try:
                     self._json(drone.status())
                 except Exception as exc:
                     self._json({"error": str(exc)}, 503)
-            elif self.path.startswith("/video"):
+            elif route == "/video":
                 self._stream_video()
-            elif self.path.startswith("/gauge/"):
-                self._gauge_get(urlsplit(self.path).path)
+            elif route.startswith("/gauge/"):
+                self._gauge_get(route)
             else:
                 self._json({"error": "not found"}, 404)
 
@@ -868,7 +949,7 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
                     return self._json({"error": str(exc)}, 503)
             if route == "/gauge/overlay.jpg":
                 jpeg = gauge.overlay_jpeg
-                return self._send(jpeg, "image/jpeg") if jpeg else self._json({"error": "no reading yet"}, 404)
+                return self._send(jpeg, "image/jpeg") if jpeg else self._json({"error": "no overlay for the latest reading"}, 404)
             return self._json({"error": "not found"}, 404)
 
         def do_POST(self) -> None:
@@ -881,18 +962,19 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
                 return self._json({"error": "bad json"}, 400)
             if not isinstance(body, dict):
                 return self._json({"error": "body must be a JSON object"}, 400)
-            if self.path == "/rc":
+            route = urlsplit(self.path).path  # same routing as GET: a ?query never changes the target
+            if route == "/rc":
                 drone.set_rc(body)
                 return self._json({"result": "ok"})
-            if self.path == "/shutdown":  # a newer dashboard is taking over (localhost only)
+            if route == "/shutdown":  # a newer dashboard is taking over (localhost only)
                 self._json({"result": "ok"})
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return None
-            if self.path.startswith("/gauge/"):
-                data, code = gauge_action(gauge, self.path.removeprefix("/gauge/"))
+            if route.startswith("/gauge/"):
+                data, code = gauge_action(gauge, route.removeprefix("/gauge/"))
                 return self._json(data, code)
-            name = self.path.removeprefix("/action/")
-            if name in ACTIONS:
+            name = route.removeprefix("/action/")
+            if route.startswith("/action/") and name in ACTIONS:
                 return self._json({"result": drone.action(name)})
             self._json({"error": "not found"}, 404)
 

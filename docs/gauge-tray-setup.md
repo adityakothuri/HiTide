@@ -158,14 +158,22 @@ A reading on a mid-step pour should land in the range between the two whole feet
 3. **Set up the tray and camera** as in steps 3-7. Check the live video: all 4 tags are visible and
    the tray is sharp.
 4. **Capture the dry baseline BEFORE pouring anything** (the tray must be completely dry and empty).
-   Click **Capture dry baseline** on the gauge card: either the bridge HUD gauge card or the console
-   Live drone panel gauge card. It should report success with 4 tags.
+   Click **Capture dry baseline** on the water gauge card: either the bridge HUD (http://127.0.0.1:8765)
+   or the console Live drone panel. The card shows **Dry baseline captured** and its Dry baseline
+   field changes to **Captured**. If it is refused the card shows **Baseline refused:** and the reason,
+   for example "tray already has water; capture the baseline dry" (dry the tray and press again) or
+   too few tags visible. "loading the gauge model, try again in a moment" right after the bridge
+   starts just means press again in a few seconds.
 5. Click **Start**. The reading updates about twice a second and is smoothed over the last 8 frames
-   (about 4 seconds).
+   (about 4 seconds). If the card dims and says **Last reading Ns ago**, the reader stopped or is
+   failing (the reason shows on the card): the number is old, not live.
 6. **Pour** to a level from the table. Pour slowly into the river channel, then **take your hand and
    the syringe out of the frame** and wait about 5 seconds for the water and the reading to settle.
 7. **Read the gauge card:** level in ft with its range, car level, crossing, houses flooded and
    confidence. Compare with the pour table.
+   A mid-step pour reads 2.5 ft with a 2 to 3 ft range. Water at or below the normal river reads
+   "0 ft" with **At or below normal pool**. If Dry baseline shows **Camera moved, using dye only**, the
+   camera was bumped: the reading still works from the dye colour, at lower confidence.
 8. Repeat steps 6-7 for higher levels. Click **Stop** when done.
 9. Afterwards: empty and dry the tray fully. Dye stains or leftover droplets mean you need a new
    baseline next time, and only after the tray is fully dry.
@@ -181,7 +189,9 @@ Backend: `/api/live-drone/gauge` (status), `POST /api/live-drone/gauge/{baseline
 |---|---|---|
 | "No tags found" or fewer than 3 tags | Tag out of frame, glare on the tag, too far, blurry, hand in the way | Check that all 4 tags are in the video. Move closer (300 mm). Remove shiny tape. Angle the light away from the paper. |
 | Tags found but pose rejected (high reprojection error) | Sheet printed at the wrong scale, tag curled, tag on the wrong corner | Re-check the 50 mm bar. Flatten the tags. Check the IDs against the table in step 4. |
-| "Camera moved since baseline" | Stand bumped, drone slid, or someone touched the tray | Put everything back, or empty and dry the tray and capture a new baseline. |
+| Dry baseline shows "Camera moved, using dye only" | Stand bumped, drone slid, or someone touched the tray | Put everything back, or empty and dry the tray and capture a new baseline. |
+| "Baseline refused: tray already has water; capture the baseline dry" | Water or dye already in the tray | Empty and dry the tray fully, then press **Capture dry baseline** again. |
+| Card dimmed, "Last reading Ns ago" | Reading stopped, or the reader is failing on every frame | Press **Start** again; read the reason on the card (often glare or tags out of view). |
 | Reads too high | Glare or reflections read as change, shadow from a hand or arm | Kill the glare (step 7). Keep hands out of frame. Wait for the smoothing to settle. |
 | Reads too low | Dye too light, so thin water on terraces looks dry | Add dye (deep blue in a 2 mm layer). The baseline stays valid if the camera has not moved. |
 | Reading flips between two whole feet | Water exactly at a terrace top | Pour to mid-step (the 0.5 ft table). |

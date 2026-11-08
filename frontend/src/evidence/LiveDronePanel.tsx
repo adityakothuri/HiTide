@@ -40,6 +40,11 @@ export type GaugeStatus = {
   simulated?: boolean | null
   reason?: string | null
   ts?: number | null
+  /** Seconds since `ts`; null before any reading. */
+  age_s?: number | null
+  /** The camera moved since the dry baseline, so the reading uses dye colour only. */
+  baseline_moved?: boolean | null
+  wet_fraction?: number | null
 }
 
 type GaugeCommand = 'baseline' | 'start' | 'stop'
@@ -48,6 +53,7 @@ const OFFLINE_GAUGE: GaugeStatus = { gauge: 'offline' }
 const CAR_SEVERITY: Record<CarLevel, string> = { none: 'sevNone', wheels: 'sevLow', doors: 'sevMid', windows: 'sevHigh', roof: 'sevHigh' }
 
 const POLL_MS = 1_000
+const GAUGE_STALE_S = 5
 const VIDEO_STALE_S = 4
 const LOW_BATTERY = 20
 const HOT_C = 80
@@ -90,8 +96,24 @@ function useGaugeStatus() {
 function gaugeNote(gauge: GaugeStatus) {
   if (gauge.gauge === 'offline') return 'Tello bridge not running. Start it to read the gauge tray.'
   if (gauge.gauge === 'unavailable') return gauge.error ?? 'The gauge reader is not installed in the bridge.'
-  if (gauge.ft == null) return gauge.reason ?? gauge.error ?? (gauge.enabled ? 'Waiting for the first reading.' : 'Press Start to read the water level.')
-  return gauge.error ?? ''
+  // A valid reading can still carry a caveat in `reason`: show it whenever it is set.
+  const fallback = gauge.ft != null ? '' : gauge.enabled ? 'Waiting for the first reading.' : 'Press Start to read the water level.'
+  return gauge.reason ?? gauge.error ?? fallback
+}
+
+function rangeText(range: [number, number] | null | undefined) {
+  if (!range) return 'No range'
+  return range[0] === range[1] ? 'At or below normal pool' : `${feet(range[0])}–${feet(range[1])} ft range`
+}
+
+function baselineText(gauge: GaugeStatus) {
+  if (gauge.baseline_moved) return 'Camera moved, using dye only'
+  return gauge.has_baseline ? 'Captured' : 'None'
+}
+
+/** A reading older than GAUGE_STALE_S, or from a stopped reader, must not look live. */
+function isStale(gauge: GaugeStatus) {
+  return gauge.age_s != null && (gauge.age_s > GAUGE_STALE_S || !gauge.running)
 }
 
 type GaugeCardProps = {
@@ -101,22 +123,39 @@ type GaugeCardProps = {
   onCommand: (command: GaugeCommand) => void
   pending: GaugeCommand | null
   message: string
+  messageOk: boolean
 }
 
-function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, message }: GaugeCardProps) {
+/** When Start (or Stop) disables itself, move focus to the button that now does something. */
+function useHandOffFocus(enabled: boolean | undefined) {
+  const startRef = useRef<HTMLButtonElement>(null)
+  const stopRef = useRef<HTMLButtonElement>(null)
+  const handOff = useRef<'start' | 'stop' | null>(null)
+  useEffect(() => {
+    if (handOff.current === 'start' && enabled) stopRef.current?.focus()
+    if (handOff.current === 'stop' && !enabled) startRef.current?.focus()
+    if ((handOff.current === 'start') === Boolean(enabled)) handOff.current = null
+  }, [enabled])
+  const handOffFrom = (button: 'start' | 'stop') => { handOff.current = button }
+  return { startRef, stopRef, handOffFrom }
+}
+
+function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, message, messageOk }: GaugeCardProps) {
   const online = gauge.gauge === 'online'
   const hasLevel = online && gauge.ft != null
   const confidence = Math.round((gauge.confidence ?? 0) * 100)
   const note = gaugeNote(gauge)
+  const stale = online && isStale(gauge)
+  const { startRef, stopRef, handOffFrom } = useHandOffFocus(gauge.enabled)
   const reading = hasLevel ? `${feet(gauge.ft ?? 0)} ft` : '— ft'
-  const range = hasLevel && gauge.ft_range ? `${feet(gauge.ft_range[0])}–${feet(gauge.ft_range[1])} ft range` : 'No reading'
+  const range = hasLevel ? rangeText(gauge.ft_range) : 'No reading'
   const crossing = gauge.crossing_flooded == null ? '—' : gauge.crossing_flooded ? 'Flooded' : 'Clear'
   const houses = gauge.houses_flooded == null ? '—' : `${gauge.houses_flooded} / ${gauge.houses_total ?? '?'}`
   const carLevel = gauge.car_level
     ? <span className={`${s.levelTag} ${s[CAR_SEVERITY[gauge.car_level]]}`}>{gauge.car_level}</span>
     : '—'
   return (
-    <section className={s.gauge} aria-labelledby="gauge-heading">
+    <section className={`${s.gauge} ${stale ? s.gaugeStale : ''}`} aria-labelledby="gauge-heading">
       <div className={s.gaugeHead}>
         <h3 id="gauge-heading"><Droplets size={15} />Water gauge</h3>
         {gauge.simulated ? <span className={s.simTag}>SIMULATED</span> : null}
@@ -126,33 +165,37 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
         <strong>{reading}</strong>
         <span>{range}</span>
       </div>
-      {note && <p className={s.gaugeNote}>{note}</p>}
+      {stale && <p className={s.gaugeAge}>Last reading {Math.round(gauge.age_s ?? 0)}s ago</p>}
+      <p className={s.gaugeNote} role="status">{note}</p>
       <dl className={s.gaugeFacts}>
         <div><dt>Car level</dt><dd>{carLevel}</dd></div>
         <div><dt>Crossing</dt><dd className={gauge.crossing_flooded ? s.flooded : ''}>{crossing}</dd></div>
         <div><dt>Houses flooded</dt><dd>{houses}</dd></div>
-        <div><dt>Dry baseline</dt><dd>{gauge.has_baseline ? 'Captured' : 'None'}</dd></div>
+        <div><dt>Dry baseline</dt><dd className={gauge.baseline_moved ? s.baselineMoved : ''}>{baselineText(gauge)}</dd></div>
       </dl>
       <div className={s.confidence}>
         <span id="gauge-confidence-label">Confidence {gauge.confidence == null ? '—' : `${confidence}%`}</span>
-        <div className={s.confidenceBar} role="progressbar" aria-labelledby="gauge-confidence-label"
-          aria-valuemin={0} aria-valuemax={100} aria-valuenow={confidence}>
+        <div className={s.confidenceBar} role="meter" aria-labelledby="gauge-confidence-label"
+          aria-valuemin={0} aria-valuemax={100} aria-valuenow={confidence}
+          aria-valuetext={gauge.confidence == null ? 'no reading' : `${confidence}%`}>
           <div style={{ width: `${confidence}%` }} />
         </div>
       </div>
       <div className={s.gaugeButtons}>
         <button className={s.land} disabled={!online || pending !== null} onClick={() => onCommand('baseline')}
           title="Before pouring water: capture the dry tray from this exact camera pose"><Camera size={15} />Capture dry baseline</button>
-        <button className={s.launch} disabled={!online || Boolean(gauge.enabled) || pending !== null}
-          onClick={() => onCommand('start')}><Play size={15} />Start</button>
-        <button className={s.land} disabled={!online || !gauge.enabled || pending !== null}
-          onClick={() => onCommand('stop')}><Square size={15} />Stop</button>
+        <button ref={startRef} className={s.launch} disabled={!online || Boolean(gauge.enabled) || pending !== null}
+          aria-label="Start water gauge reading"
+          onClick={() => { handOffFrom('start'); onCommand('start') }}><Play size={15} />Start</button>
+        <button ref={stopRef} className={s.land} disabled={!online || !gauge.enabled || pending !== null}
+          aria-label="Stop water gauge reading"
+          onClick={() => { handOffFrom('stop'); onCommand('stop') }}><Square size={15} />Stop</button>
       </div>
       <label className={s.overlayToggle}>
         <input type="checkbox" checked={showOverlay} disabled={!online} onChange={(event) => onToggleOverlay(event.target.checked)} />
         Show the gauge overlay in the feed
       </label>
-      <p role="status" aria-live="polite" className={s.message}>{message}</p>
+      <p role="status" aria-live="polite" className={messageOk ? s.messageOk : s.message}>{message}</p>
     </section>
   )
 }
@@ -175,6 +218,8 @@ export function LiveDronePanel() {
   const [overlayWanted, setOverlayWanted] = useState(false)
   const [gaugePending, setGaugePending] = useState<GaugeCommand | null>(null)
   const [gaugeMessage, setGaugeMessage] = useState('')
+  const [gaugeMessageOk, setGaugeMessageOk] = useState(false)
+  const [brokenOverlayTs, setBrokenOverlayTs] = useState<number | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -212,17 +257,22 @@ export function LiveDronePanel() {
   }
 
   async function sendGauge(command: GaugeCommand) {
-    setGaugePending(command); setGaugeMessage('')
+    setGaugePending(command); setGaugeMessage(''); setGaugeMessageOk(false)
     try {
       const response = await fetch(`/api/live-drone/gauge/${command}`, { method: 'POST' })
       const body = await response.json() as { result?: string; detail?: string }
-      setGaugeMessage(response.ok ? (body.result === 'ok' ? '' : `Gauge: ${body.result}`) : (body.detail ?? `Request failed (${response.status})`))
+      const ok = response.ok && body.result === 'ok'
+      if (!response.ok) setGaugeMessage(body.detail ?? `Request failed (${response.status})`)
+      else if (command === 'baseline') setGaugeMessage(ok ? 'Dry baseline captured' : `Baseline refused: ${body.result}`)
+      else setGaugeMessage(ok ? '' : `Gauge: ${body.result}`)
+      setGaugeMessageOk(ok)
     } catch { setGaugeMessage('Could not reach the backend.') }
     finally { setGaugePending(null); refreshGauge() }
   }
 
   // The overlay exists only after a reading; its ts changes per reading, which reloads the image.
-  const showOverlay = overlayWanted && gauge.gauge === 'online' && gauge.ts != null
+  // An overlay that fails to load (no JPEG for that reading) falls back to the feed until the next reading.
+  const showOverlay = overlayWanted && gauge.gauge === 'online' && gauge.ts != null && gauge.ts !== brokenOverlayTs
   const batteryLow = (status?.battery ?? 100) <= LOW_BATTERY
   const hot = (status?.temp ?? 0) >= HOT_C
   return (
@@ -234,11 +284,12 @@ export function LiveDronePanel() {
       <div className={s.body}>
         <div className={s.feed}>
           {showOverlay
-            ? <img src={`/api/live-drone/gauge/overlay.jpg?t=${gauge.ts}`} alt="Gauge tray overlay: detected tags and flooded cells tinted" />
+            ? <img src={`/api/live-drone/gauge/overlay.jpg?t=${gauge.ts}`} alt="Gauge tray overlay: detected tags and flooded cells tinted"
+                onError={() => setBrokenOverlayTs(gauge.ts ?? null)} />
             : feed.live
             ? <img key={streamKey} src="/api/live-drone/video" alt="Live camera feed from the drone" />
             : <img src={status?.fallback_image_url ?? '/static/drone/flood_03.jpg'} alt="Cached drone image of a flooded road (not live)" />}
-          {!feed.live && !showOverlay && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
+          {!feed.live && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
         </div>
         <div className={s.side}>
           <dl className={s.telemetry}>
@@ -261,7 +312,8 @@ export function LiveDronePanel() {
             Full flight controls (keyboard, hover drift log)<ExternalLink size={13} /></a>}
           {online && status?.log?.length ? <ul className={s.log} aria-label="Drone event log">{status.log.slice(0, 3).map((line) => <li key={line}>{line}</li>)}</ul> : null}
           <GaugeCard gauge={gauge} showOverlay={overlayWanted} onToggleOverlay={setOverlayWanted}
-            onCommand={(command) => void sendGauge(command)} pending={gaugePending} message={gaugeMessage} />
+            onCommand={(command) => void sendGauge(command)} pending={gaugePending} message={gaugeMessage}
+            messageOk={gaugeMessageOk} />
         </div>
       </div>
     </section>

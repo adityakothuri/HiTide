@@ -123,3 +123,12 @@ def test_bad_content_length_is_rejected(bridge):
     conn.endheaders()
     assert conn.getresponse().status == 400
     conn.close()
+
+
+def test_post_routing_ignores_the_query_string_like_get(bridge):
+    drone, port = bridge
+    assert request(port, "POST", "/action/land?from=hud", b"{}", **JSON) == 200
+    assert request(port, "POST", "/rc?t=1", b'{"fb": 10}', **JSON) == 200
+    assert drone.actions == ["land"] and drone.rc == [{"fb": 10}]
+    assert request(port, "POST", "/xaction/land", b"{}", **JSON) == 404  # no prefix tricks
+    assert drone.actions == ["land"]

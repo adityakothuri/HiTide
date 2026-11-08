@@ -18,6 +18,7 @@ GAUGE_STATUS = {
     "crossing_flooded": True, "car_level": "windows", "houses_flooded": 1, "houses_total": 4,
     "visible_cells": 18240, "wet_cells": 6120, "tags_seen": 4, "reproj_err_px": 0.9,
     "has_baseline": True, "simulated": False, "reason": None, "ts": 1762600000.0,
+    "baseline_moved": False, "wet_fraction": 0.34, "age_s": 0.4,
 }
 OVERLAY_JPEG = bytes([0xFF, 0xD8, 0xFF, 0xE0]) + b"fake-jpeg" + bytes([0xFF, 0xD9])
 
@@ -152,6 +153,23 @@ def test_unknown_gauge_command_rejected_without_reaching_bridge(client, bridge):
 
 def test_gauge_commands_return_503_when_bridge_offline(client, offline):
     assert client.post("/api/live-drone/gauge/start").status_code == 503
+
+
+def test_gauge_commands_allow_the_bridge_time_to_load_the_model(client, bridge):
+    client.post("/api/live-drone/gauge/start")
+    gauge_read = bridge[-1].extensions["timeout"]["read"]
+    client.post("/api/live-drone/action/land")
+    assert gauge_read >= 8.0 > bridge[-1].extensions["timeout"]["read"]
+
+
+def test_slow_bridge_is_reported_as_busy_not_offline(client, monkeypatch):
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("timed out", request=request)
+
+    monkeypatch.setattr(live_drone, "_transport", httpx.MockTransport(handler))
+    response = client.post("/api/live-drone/gauge/baseline")
+    assert response.status_code == 504
+    assert "offline" not in response.json()["detail"]
 
 
 def test_untrusted_origin_cannot_control_the_gauge(client, bridge):

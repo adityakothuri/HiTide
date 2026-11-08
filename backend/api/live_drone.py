@@ -23,6 +23,7 @@ router = APIRouter(prefix="/api/live-drone", tags=["live-drone"])
 FALLBACK_IMAGE_URL = "/static/drone/flood_03.jpg"
 STATUS_TIMEOUT = httpx.Timeout(1.5)
 COMMAND_TIMEOUT = httpx.Timeout(3.0)
+GAUGE_COMMAND_TIMEOUT = httpx.Timeout(8.0)  # a press can overlap the bridge loading the gauge model
 VIDEO_TIMEOUT = httpx.Timeout(5.0, read=None)  # MJPEG never "finishes"
 RC_LIMIT = 100
 STATUS_FIELDS = (
@@ -64,12 +65,14 @@ async def status() -> dict[str, Any]:
     return {**{k: data[k] for k in STATUS_FIELDS if k in data}, **base, "bridge": "online"}
 
 
-async def _forward(path: str, payload: dict[str, Any]) -> dict[str, Any]:
+async def _forward(path: str, payload: dict[str, Any], timeout: httpx.Timeout = COMMAND_TIMEOUT) -> dict[str, Any]:
     try:
-        async with _client(COMMAND_TIMEOUT) as client:
+        async with _client(timeout) as client:
             response = await client.post(path, json=payload)
             response.raise_for_status()
             return response.json()
+    except httpx.TimeoutException as exc:  # the bridge is up but slow: not the same as offline
+        raise HTTPException(status_code=504, detail="Tello bridge did not answer in time, try again") from exc
     except (httpx.HTTPError, ValueError) as exc:
         raise HTTPException(status_code=503, detail="Tello bridge is offline") from exc
 
@@ -128,7 +131,7 @@ async def gauge_status() -> dict[str, Any]:
 
 @router.post("/gauge/{command}", dependencies=[Depends(require_trusted_origin)])
 async def gauge_command(command: Literal["baseline", "start", "stop"]) -> dict[str, Any]:
-    return await _forward(f"/gauge/{command}", {})
+    return await _forward(f"/gauge/{command}", {}, GAUGE_COMMAND_TIMEOUT)
 
 
 @router.get("/gauge/overlay.jpg")

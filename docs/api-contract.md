@@ -170,28 +170,32 @@ POSTs use the same trusted-origin guard as the other state-changing routes.
 | Method | Path | Returns / body |
 |---|---|---|
 | GET | `/api/live-drone/gauge` | `GaugeStatus` (below). Poll about once a second. Always 200. |
-| POST | `/api/live-drone/gauge/baseline` | Captures the dry baseline from the current frame (pour no water yet, same camera pose as the readings). Returns `{"result": "ok"}` or `{"result": "<why it failed>"}`. |
+| POST | `/api/live-drone/gauge/baseline` | Captures the dry baseline from the current frame (pour no water yet, same camera pose as the readings). Returns `{"result": "ok"}` or `{"result": "<why it was refused>"}`, for example `"tray already has water; capture the baseline dry"`. UIs show "Dry baseline captured" or the refusal reason. |
 | POST | `/api/live-drone/gauge/start` | Starts reading at about 2 Hz. Returns `{"result": "ok"}` or a reason (for example the gauge module is unavailable). |
 | POST | `/api/live-drone/gauge/stop` | Stops reading; the last estimate stays visible. Returns `{"result": "ok"}`. |
 | GET | `/api/live-drone/gauge/overlay.jpg` | The latest annotated frame (tags, wet cells tinted, level text) as `image/jpeg`, `Cache-Control: no-store`. 404 before the first reading, 503 when the bridge is offline. Reload with a cache-busting query (`?t=...`). |
 
-POSTs use the trusted-origin guard and return 503 when the bridge is offline.
+POSTs use the trusted-origin guard and return 503 when the bridge is offline, or 504 when it is running but did not answer within 8 s. While the bridge is still loading the gauge model, `baseline` and `start` answer at once with `{"result": "loading the gauge model, try again in a moment"}`.
 
 `GaugeStatus` (the bridge's `WaterEstimate.to_dict()` fields, flat, plus service state):
 
 ```json
-{"gauge": "online", "enabled": true, "running": true, "error": null,
- "level_mm": 10.0, "level_mm_range": [9.0, 11.0], "ft": 3.0, "ft_range": [2.5, 3.5], "confidence": 0.82,
- "crossing_flooded": true, "car_level": "windows", "houses_flooded": 1, "houses_total": 4,
- "visible_cells": 18240, "wet_cells": 6120, "tags_seen": 4, "reproj_err_px": 0.9,
- "has_baseline": true, "simulated": false, "reason": null, "ts": 1762600000.0}
+{"gauge": "online", "enabled": true, "running": true, "error": null, "age_s": 0.4,
+ "level_mm": 9.0, "level_mm_range": [8.0, 10.0], "ft": 2.5, "ft_range": [2.0, 3.0], "confidence": 0.82,
+ "crossing_flooded": true, "car_level": "doors", "houses_flooded": 4, "houses_total": 10,
+ "visible_cells": 18240, "wet_cells": 6120, "wet_fraction": 0.34, "tags_seen": 4, "reproj_err_px": 0.9,
+ "has_baseline": true, "baseline_moved": false, "simulated": false, "reason": null, "ts": 1762600000.0}
 ```
 
 - `gauge`: `online` (the bridge answered and the gauge module loaded), `unavailable` (the bridge runs but `backend/gauge` failed to import; `error` says why; video and flight still work), or `offline` (no bridge; every other field is absent).
 - `enabled`: reading was started with `/gauge/start`. `running`: the reader thread is alive and producing estimates.
-- `error`: the last import or reader error, or null.
-- Estimate fields are null until the first reading. **`ft` is null when the evidence is weak** (fewer than 3 tags, high reprojection error, too few visible cells, flat score) and `reason` then says why: show the reason, never a guess.
-- **Always show the range** (`ft_range`) next to `ft`. `ft` is feet of rise above the pool (each tray step is 1 ft).
+- `error`: the last import, reader or overlay-encode error, or null. On a reader error the last estimate stays in the payload; `age_s` grows, so the UI shows it as stale.
+- `age_s`: seconds since `ts` (the last reading), or null before any reading. **When `age_s` > 5 or `running` is false, dim the reading and show "Last reading Ns ago"**: it is not live.
+- Estimate fields are null until the first reading. **`ft` is null when the evidence is weak** (fewer than 3 tags, high reprojection error, too few visible cells, flat score) and `reason` then says why: show the reason, never a guess. `reason` can also be set on a valid reading (a caveat); **show `reason` whenever it is non-null.**
+- **Always show the range** (`ft_range`) next to `ft`. Each tray terrace step is 1 ft of rise above the normal pool. The reading resolves which step the water is in: `ft_range` is that step's bounds and `ft` is its centre (water between the 2 ft and 3 ft terraces reads `"ft": 2.5, "ft_range": [2.0, 3.0]`).
+- `"ft": 0` with `"ft_range": [0, 0]` means the water is at or below the normal pool: show "At or below normal pool", not "0–0 ft".
+- `baseline_moved`: true when the camera moved since the dry baseline, so the reader ignores the baseline and uses the dye colour only (lower confidence). Show "Camera moved, using dye only" in place of "Captured" for the dry baseline.
+- `wet_fraction`: 0 to 1, wet cells over visible cells in the current frame (a diagnostic).
 - `car_level`: `none`, `wheels`, `doors`, `windows` or `roof` (the `VisionResult.water_level` vocabulary), or null.
 - `confidence`: 0 to 1; capped lower when `has_baseline` is false (dye-hue only).
 - `simulated`: true when the frame was synthetic (`gauge.synth`); label it "SIMULATED" in the UI.

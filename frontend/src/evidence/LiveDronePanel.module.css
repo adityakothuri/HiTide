@@ -35,7 +35,8 @@
 .launch:disabled, .land:disabled, .landHot:disabled, .kill:disabled { opacity: 0.45; cursor: not-allowed; }
 .launch:focus-visible, .land:focus-visible, .landHot:focus-visible, .kill:focus-visible, .controlsLink:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
 
-.message { min-height: 18px; font-size: 12px; color: var(--critical-deep); }
+.message, .messageOk { min-height: 18px; font-size: 12px; color: var(--critical-deep); overflow-wrap: anywhere; }
+.messageOk { color: var(--safe); }
 .controlsLink { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--info); }
 .log { margin: 0; padding: 10px 12px; list-style: none; border-radius: 6px; background: var(--neutral-1); font: 11px/1.6 Consolas, ui-monospace, monospace; color: var(--neutral-6); overflow-wrap: anywhere; }
 
@@ -46,7 +47,11 @@
 .gaugeReading { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .gaugeReading strong { font-size: 40px; line-height: 1; font-weight: 700; letter-spacing: -1.2px; font-variant-numeric: tabular-nums; color: var(--ink); }
 .gaugeReading span { font-size: 13px; font-weight: 600; color: var(--neutral-5); font-variant-numeric: tabular-nums; }
-.gaugeNote { margin: 0; padding: 8px 10px; border-left: 3px solid var(--caution-mark); border-radius: 4px; background: var(--caution-bg); color: var(--caution); font-size: 12px; line-height: 17px; }
+.gaugeNote { margin: 0; padding: 8px 10px; border-left: 3px solid var(--caution-mark); border-radius: 4px; background: var(--caution-bg); color: var(--caution); font-size: 12px; line-height: 17px; overflow-wrap: anywhere; }
+.gaugeNote:empty { display: none; }
+.gaugeAge { margin: -4px 0 0; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--caution); }
+.gaugeStale .gaugeReading, .gaugeStale .gaugeFacts, .gaugeStale .confidence { opacity: 0.45; filter: grayscale(1); }
+.baselineMoved { color: var(--caution); }
 .gaugeFacts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
 .gaugeFacts > div { padding: 8px 10px; border-radius: 6px; background: var(--neutral-1); }
 .gaugeFacts dt { font-size: 10px; font-weight: 600; color: var(--neutral-5); }

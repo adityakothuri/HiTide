@@ -45,7 +45,8 @@ class FakeEstimate:
         return {"ft": np.float64(self.ft) if self.ft is not None else None,
                 "ft_range": (np.float64(2.5), np.float64(3.5)) if self.ft is not None else None,
                 "car_level": "windows", "tags_seen": np.int64(4), "reason": self.reason,
-                "has_baseline": False, "simulated": True}
+                "has_baseline": False, "simulated": True, "baseline_moved": True,
+                "wet_fraction": np.float64(0.25), "reproj_err_px": float("nan"), "ts": time.time()}
 
 
 class FakeReader:
@@ -82,12 +83,13 @@ class FrameFeed:
         return frame
 
 
-def make_service(reader: FakeReader | None = None, factory=None, feed: FrameFeed | None = None):
+def make_service(reader: FakeReader | None = None, factory=None, feed: FrameFeed | None = None,
+                 encoder=None):
     notes: list[str] = []
     service = td.GaugeService(
         frame_source=feed or FrameFeed(), note=notes.append,
         reader_factory=factory or (lambda: reader or FakeReader()),
-        encoder=lambda frame: b"jpeg", interval=FAST,
+        encoder=encoder or (lambda frame: b"jpeg"), interval=FAST,
     )
     return service, notes
 
@@ -217,6 +219,8 @@ def test_real_default_factory_failure_is_unavailable(monkeypatch):
     ({"a": (np.float32(1.5), np.int64(2))}, {"a": [1.5, 2]}),
     (np.array([1, 2]), [1, 2]),
     (None, None),
+    (float("nan"), None),
+    ({"r": [np.float64("inf"), 1.0]}, {"r": [None, 1.0]}),
 ])
 def test_jsonable(value, expected):
     assert td.jsonable(value) == expected
@@ -237,3 +241,95 @@ def test_button_press_retries_a_failed_load():
     assert service.start() == "ok"
     assert service.status()["gauge"] == "online"
     service.stop()
+
+
+def test_status_reports_age_and_new_estimate_fields():
+    service, _ = make_service()
+    service._ensure_reader()
+    assert service.status()["age_s"] is None  # no reading yet
+    service.read_once(np.zeros((4, 4, 3), dtype=np.uint8))
+    status = service.status()
+    assert status["age_s"] is not None and 0 <= status["age_s"] < 1
+    assert status["baseline_moved"] is True and status["wet_fraction"] == 0.25
+    assert status["reproj_err_px"] is None  # NaN never reaches the JSON
+    json.dumps(status, allow_nan=False)
+    service.estimate = {**service.estimate, "ts": time.time() - 12}
+    assert service.status()["age_s"] >= 11.9
+
+
+def test_reader_error_keeps_the_last_estimate_which_then_ages():
+    reader = FakeReader()
+    service, _ = make_service(reader)
+    service._ensure_reader()
+    service.read_once(np.zeros((4, 4, 3), dtype=np.uint8))
+    service.estimate = {**service.estimate, "ts": time.time() - 10}
+    reader.fail_update = True
+    service.read_once(np.zeros((4, 4, 3), dtype=np.uint8))
+    status = service.status()
+    assert status["ft"] == 3.0 and "glare" in status["error"] and status["age_s"] >= 9.9
+
+
+def test_encode_failure_is_reported_and_drops_the_stale_overlay():
+    jpegs = [b"first", None]
+    service, notes = make_service(encoder=lambda frame: jpegs.pop(0))
+    service._ensure_reader()
+    service.read_once(np.zeros((4, 4, 3), dtype=np.uint8))
+    assert service.overlay_jpeg == b"first" and service.error is None
+    service.read_once(np.zeros((4, 4, 3), dtype=np.uint8))
+    assert service.overlay_jpeg is None  # not the previous frame's overlay
+    assert service.status()["error"] == td.GAUGE_ENCODE_ERROR
+    assert sum("encode" in n for n in notes) == 1
+
+
+def test_presses_answer_at_once_while_the_model_loads():
+    release = threading.Event()
+
+    def slow_factory():
+        release.wait(WAIT_S * 2)
+        return FakeReader()
+
+    service, _ = make_service(factory=slow_factory)
+    service.preload()
+    started = time.time()
+    assert service.start() == td.GAUGE_LOADING_RETRY
+    assert service.capture_baseline() == td.GAUGE_LOADING_RETRY
+    assert time.time() - started < 0.5
+    assert not service.enabled
+    release.set()
+    assert wait_for(lambda: service.status()["gauge"] == "online")
+    assert service.start() == "ok"
+    service.stop()
+
+
+def test_preload_only_loads_once():
+    calls: list[int] = []
+    release = threading.Event()
+
+    def counting():
+        calls.append(1)
+        release.wait(WAIT_S)
+        return FakeReader()
+
+    service, _ = make_service(factory=counting)
+    threads = [threading.Thread(target=service.preload) for _ in range(20)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    service.status()
+    release.set()
+    assert wait_for(lambda: service.status()["gauge"] == "online")
+    assert len(calls) == 1
+
+
+def test_rapid_stop_start_always_ends_running():
+    service, _ = make_service()
+    assert service.start() == "ok"
+    for _ in range(300):
+        service.stop()
+        service.start()
+    assert wait_for(lambda: service.running)
+    time.sleep(FAST * 5)
+    assert service.running  # no exiting loop was mistaken for a live one
+    service.stop()
+    assert wait_for(lambda: not service.running)
