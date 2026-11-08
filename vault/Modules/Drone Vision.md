@@ -40,6 +40,7 @@ uv run pytest tests/test_vision_*.py -q
 
 ## Honest limits (say these in the pitch)
 
+- A **physical test rig** now exists in software: the [[Tabletop Model]], a printed Kerrville tray with CAD ground truth and ArUco pose. So far it is validated only on synthetic frames; the real pour run is pending.
 - There was **no physical drone run**. The geometry is checked on synthetic hovers with exact truth, including synthetic scenes parameterised by July 2025 replay values at real Kerrville points. Perception is a smoke test on the 8 real photos it was tuned on, which have no pose and so get no depth.
 - Ordinary GPS gives about ±6–10 in. "High" confidence needs RTK-grade pose. Floods several metres deep read `low` because only steep banks contain them.
 - Depth comes only from the water edge plus the elevation map. Photos, video and the indoor Tello report `depth: null`. A car-shape estimate was removed after it matched only 3/8 photo labels.

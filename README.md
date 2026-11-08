@@ -76,6 +76,13 @@ uv run python -m vision.run_pipeline --source synth:cp-0014 --at 2025-07-04T10:4
 uv run python -m vision.run_pipeline --source images:../data/drone_samples --post               # real flood photos
 uv run pytest tests/test_vision_*.py -q                                    # accuracy: vault/Experiments/2026-11-08 Drone vision accuracy.md
 
+# tabletop model: 3D-printed downtown Kerrville tray (1:5455, 3x vertical) + CAD ground truth for the drone camera
+uv run python -m scripts.build_print_model                                 # STLs, truth.npz, pour table, ArUco sheet -> data/print_model/
+uv run python -m scripts.run_tabletop --source synth --rise 3,6,9,12,13    # pre-print accuracy vs truth
+uv run python -m scripts.run_tabletop --source images:<dir> --level-mm 11.1 # real pour: phone/Tello frames, caliper truth
+uv run python -m scripts.check_print_export <fusion_export.stl>           # Fusion (MCP in .mcp.json) kept the terrain
+# runbook: vault/Modules/Tabletop Model.md
+
 # frontend (driver view + ops dashboard)
 cd frontend && npm install && npm run dev
 ```

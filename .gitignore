@@ -45,3 +45,9 @@ data/feeds_cache/live_*.json
 # per-user danger pipeline runtime state (may hold real enrolled phone numbers / live positions)
 data/user_registry.json
 data/safety_state.json
+
+# Tabletop print model: regenerate with `uv run python -m scripts.build_print_model`
+data/print_model/*.stl
+data/print_model/*.3mf
+data/print_model/*.step
+data/print_model/runs.jsonl
