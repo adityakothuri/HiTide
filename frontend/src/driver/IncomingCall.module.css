@@ -1,0 +1,161 @@
+.call {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 96px 28px 64px;
+  background: rgb(28 28 30 / 78%);
+  color: var(--on-dark);
+  backdrop-filter: blur(40px) saturate(160%);
+  font-family: var(--ios-font);
+  animation: fade var(--dur-slide) var(--ease-out);
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.caller {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  text-align: center;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 18%);
+}
+
+.avatar svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: var(--on-dark);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.name {
+  color: var(--on-dark);
+  font-size: 34px;
+  line-height: 41px;
+  font-weight: 400;
+  letter-spacing: 0.37px;
+}
+
+.status {
+  color: rgb(235 235 245 / 70%);
+  font-size: 17px;
+  line-height: 22px;
+}
+
+.ringActions {
+  display: flex;
+  justify-content: space-around;
+}
+
+.action {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--on-dark);
+  cursor: pointer;
+}
+
+.round svg {
+  width: 30px;
+  height: 30px;
+}
+
+.decline { background: rgb(255 255 255 / 22%); }
+.accept { background: var(--ios-green); }
+
+.connected {
+  display: grid;
+  gap: 16px;
+}
+
+.transcript {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 12%);
+  font-size: 17px;
+  line-height: 23px;
+}
+
+.hint {
+  color: rgb(235 235 245 / 70%);
+  font-size: 15px;
+}
+
+.replies {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.reply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--ios-group);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reply svg {
+  width: 22px;
+  height: 22px;
+}
+
+.safe { color: var(--ios-green); }
+.help { color: var(--critical); }
+
+.end {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 22%);
+  color: var(--on-dark);
+  cursor: pointer;
+}
+
+.end svg {
+  width: 28px;
+  height: 28px;
+}
+
+.call button:focus-visible {
+  outline: 3px solid var(--on-dark);
+  outline-offset: 3px;
+}

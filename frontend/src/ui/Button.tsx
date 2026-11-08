@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import s from './Button.module.css'
 
@@ -11,13 +11,14 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: LucideIcon
   block?: boolean
   children: ReactNode
+  ref?: Ref<HTMLButtonElement>
 }
 
-export function Button({ variant = 'primary', size = 'md', icon: Icon, block = false, className, children, type = 'button', ...rest }: Props) {
+export function Button({ variant = 'primary', size = 'md', icon: Icon, block = false, className, children, type = 'button', ref, ...rest }: Props) {
   const dark = variant === 'emergency' || variant === 'primary' ? 'on-dark' : ''
   const cls = [s.button, s[variant], s[size], block ? s.block : '', dark, className ?? ''].join(' ')
   return (
-    <button type={type} className={cls} {...rest}>
+    <button ref={ref} type={type} className={cls} {...rest}>
       {Icon && <Icon className={s.icon} aria-hidden="true" strokeWidth={2} />}
       <span>{children}</span>
     </button>

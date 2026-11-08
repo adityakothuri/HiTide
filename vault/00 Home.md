@@ -43,7 +43,8 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Drone vision | Water edge + elevation → water surface, depth at road with range, rise rate; YOLO + tracking for vehicles/people; alerts; spread; `POST /api/snapshots`. See [[Drone Vision]], [[2026-11-08 Drone vision accuracy]] | done 2026-11-08: 137 vision tests; Kerrville replay 16/16 inside range; 3 reviewers' HIGH findings fixed |
 | Tabletop model | 3D-printed downtown Kerrville tray (1:5455, 3× vertical) with real dyed water. The drone camera measures the rise; the CAD heightmap is the ground truth. ArUco pose, bathtub truth, pour table. Fusion 360 MCP registered in `.mcp.json`. See [[Tabletop Model]] | built + synthetic-validated 2026-11-08: Park St within 0.2 m, bridge ranges honest; 23 TDD tests. Left: Fusion pass (add-in not running), print, real pour run |
 | Driver profiles | Simulated State Farm profile (DSS, policy, claims, household, needs; `docs/driver-profile.md`) weights urgency in all 3 stages. See [[Risk Scoring]] | done 2026-11-08: colleague commit cherry-picked + baseline vulnerability score, TDD |
-| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
+| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Built: driver app, ops console and `/present`, styled to State Farm's public design system. 86 unit tests plus a full 7-step Playwright demo. Verified on the live backend. |
+| Ops console redesign | Weather and flood dashboard (NWS/Windy style): MRMS rain 1h/24h, modelled flood depth (10 m 3DEP), NWS-category gauges, closed/likely-flooded roads, colorbar, time slider over the July 4, 2025 replay | done 2026-11-07 on `feat/frontend`, merged into `feat/safety-core` 2026-11-08. Live data source stubbed in `src/wx/liveSource.ts` |
 
 ## Checkpoints
 

@@ -10,6 +10,8 @@ export interface UiState {
   routeAccepted: Record<string, boolean>      // driverId -> tapped "Use safer route"
   remindLater: Record<string, boolean>        // driverId -> tapped "Remind me later"
   selectedCaseId: string | null
+  handled: Record<string, boolean>            // outreach id -> call answered/declined or notification dismissed
+  phoneDriverId: string | null                // presenter override for which driver the phone shows; null follows the story
 }
 
 export interface Store {
@@ -28,6 +30,8 @@ export const initialUi: UiState = {
   routeAccepted: {},
   remindLater: {},
   selectedCaseId: null,
+  handled: {},
+  phoneDriverId: null,
 }
 
 export function createStore(provider: DataProvider): Store {
@@ -48,7 +52,7 @@ export function createStore(provider: DataProvider): Store {
       const next = reduceEvent(app, e)
       if (next === app) return
       // The sim was reset: clear driver-side choices too.
-      if (next.epoch !== app.epoch) ui = { ...initialUi, status: ui.status }
+      if (next.epoch !== app.epoch) ui = { ...initialUi, status: ui.status, phoneDriverId: ui.phoneDriverId }
       app = next
       notify()
     },

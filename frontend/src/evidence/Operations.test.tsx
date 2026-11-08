@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Operations } from './Operations'
 
+vi.mock('./ops/EvidenceMap', () => ({ EvidenceMap: () => null }))
+
 const initial = {
   generated_at: '2026-11-08T01:00:00Z', dataset: { id: 'demo', name: 'Two-exit neighborhood', simulated: true },
   roads: [{ id: 'exit-b', name: 'Exit B crossing', geometry: { type: 'LineString', coordinates: [[-99.14, 30.04], [-99.13, 30.05]] }, access: 'unknown', freshness: 'stale', agreement: 'consistent', evidence_ids: ['old'] }],
@@ -16,13 +18,14 @@ describe('operations evidence workflow', () => {
   it('shows provenance and keeps observation time separate from receipt time', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(initial))))
     render(<Operations />)
-    await screen.findByRole('heading', { name: 'Flood intelligence' })
+    await screen.findByRole('heading', { name: 'Road verification' })
     await screen.findByText('Last remaining possible exit')
-    fireEvent.click(screen.getByRole('button', { name: /Exit B crossing — unknown/ }))
-    expect(screen.getByText('Observed')).toBeDefined()
-    expect(screen.getByText('Received')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: /Exit B crossing/ }))
+    expect(screen.getByRole('heading', { name: 'Exit B crossing' })).toBeDefined()
+    expect(screen.getByText(/^Observed .* · received /)).toBeDefined()
     expect(screen.getByText('Earlier report')).toBeDefined()
-    expect(screen.getByText(/Access depends on uncertain roads/)).toBeDefined()
+    expect(screen.getByText('1 modeled exit remaining')).toBeDefined()
+    expect(screen.getByText('Only modeled exit · Neighborhood A')).toBeDefined()
   })
 
   it('assigns a task then records a simulated closed inspection and refreshes connectivity', async () => {
@@ -41,7 +44,7 @@ describe('operations evidence workflow', () => {
     render(<Operations />)
     fireEvent.click(await screen.findByRole('button', { name: 'Assign inspection' }))
     fireEvent.click(await screen.findByRole('button', { name: 'Record simulated inspection' }))
-    await waitFor(() => expect(screen.getByText('No modeled exit')).toBeDefined())
+    await waitFor(() => expect(screen.getByText('Inspection recorded. Road evidence and priorities recomputed.')).toBeDefined())
     expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/complete'))).toBe(true)
   })
 

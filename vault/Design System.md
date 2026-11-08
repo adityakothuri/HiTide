@@ -378,3 +378,86 @@ Checked against brief §9 and the `frontend-design-direction` anti-patterns.
 ## Related
 
 - [[Dashboard]], [[Driver App]], [[Decisions]], [[Tooling]]
+
+## 8. Round 2: aligned to State Farm's public design system (2026-11-07)
+
+Values taken from statefarm.com's `1x.core.css` (DXL "oneX") and applied to `frontend/src/styles/tokens.css`. These supersede the color values in section 1 where they differ.
+
+| Token | Value | Source use |
+|---|---|---|
+| `--brand-red` | `#D62311` | `.-oneX-btn-primary` |
+| `--brand-red-hover` / `-active` | `#A11B13` / `#701611` | primary hover / active |
+| `--ink` / `--ink-strong` | `#403C3C` / `#212121` | headings, body |
+| `--surface-page`, `--neutral-1` | `#F4F3F3` | page background |
+| `--neutral-2` | `#E4E3E3` | header and tab rules |
+| `--info` (links, focus ring) | `#0073A8` | `:focus` outline 2px, offset 2px |
+
+- **Type:** Mecherle Sans is proprietary, so the stand-in is Source Sans 3 (another humanist sans). Headings are weight 600; body text is 16px.
+- **Buttons:** pill shaped. Primary is solid red. Secondary is white with a red border and red text. Text links are blue.
+- **Patterns:**
+  - Headers are white with a 1px bottom rule, and tabs use an underline.
+  - Notifications are white with a colored left rule.
+  - Lists are white groups of rows with red chevrons.
+- **Unchanged:** the critical color stays magenta-crimson (never brand red), and the water scale is the same. All contrast pairs still pass (`npm run contrast`).
+
+## 9. Round 3: dispatch console and native phone (2026-11-07)
+
+User feedback: the UI still "looks like vibecode". Directions the user chose:
+- **Console:** a dark, map-first dispatch command center.
+- **Phone:** a native iOS feel.
+- **Map:** a real basemap from an existing maps API.
+
+Skills used:
+- Anthropic `frontend-design`, installed in `.claude/skills/`.
+- Vercel `web-design-guidelines`, installed in `.claude/skills/` with the guidelines cached.
+- The local `taste` and `make-interfaces-feel-better`.
+
+**Basemap:** CARTO GL vector styles (no key, OpenStreetMap data). The console uses dark-matter and the phone uses voyager. `src/map/` tunes the style (POIs and house numbers hidden, water tinted) and draws our flood layers under the street labels. If the style doesn't load within 4 s, or tiles keep failing, it falls back to the bundled town data.
+
+### Console tokens (`[data-theme='dispatch']`)
+
+| Name | Hex | Role |
+|---|---|---|
+| Night | `#0E1620` | Map background, app base. Slate-navy from the basemap, deliberately not neutral black |
+| Panel | `#141E29` | Floating panels |
+| Raised | `#1B2734` | Rows, inputs, hover |
+| Text / muted | `#E6EDF3` / `#97A6B5` | |
+| Critical | `#F0569A` | Stopped cars, critical cases. Distinct from brand red |
+| Water scale | `#9FDCFF` to `#A26BFF` | Cyan to violet, deeper means more violet. Glows on the dark map |
+| Brand red | `#D62311` | Wordmark and primary actions only |
+
+**Type:** IBM Plex Sans. It has an industrial, engineering voice that suits a dispatch tool, and it isn't the default Inter. Every changing number uses tabular figures.
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ◇ State Farm Flood Watch  Flood operations │ Flash flood warning, Kerr Co │ 11 warned  2 rerouted  1 stopped  1 verified  $16,500 │ ● Live │
+├──────────────────────────────────────────────────────────────────────────┤
+│ ┌Cases──────────┐   full-bleed dark street map                ┌Margaret Hale──────┐ │
+│ │All Critical … │   flooded roads glow cyan→violet            │ Critical, 75+      │ │
+│ │▌Margaret 75+  │        ◉ car (pulse)   ▲ drone + trail      │ 17 min gained      │ │
+│ │ Riverside Dr  │                                             │ ▬▬▬ drone 0:15     │ │
+│ │ ●●●●○○○ 4 min │                                             │ ▬▬▬▬▬▬▬▬▬ crew 17m │ │
+│ └───────────────┘   [legend chip]                             │ actions, timeline  │ │
+│                                                               └────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+**The one bold element:** "Minutes gained", drawn as a race between two bars (drone ETA against ground-crew ETA). Everything else stays quiet.
+
+### Phone (iOS grouped)
+
+- **Type:** system font (SF Pro on Apple devices). Large title 34/41, body 17/22, footnote 13/18.
+- **Surfaces:** page `#F2F2F7`, white inset groups with a 10px radius and hairline separators inset 16px.
+- **Home:** a red State Farm band behind the large title.
+- **Controls:** filled red buttons, 50px tall with a 12px radius. Translucent tab bar.
+- **Maps:** small MiniMaps (voyager style) on the warning, home trip and help screens.
+
+### Anti-default review of this plan
+
+| Default it could fall into | What we do instead |
+|---|---|
+| Near-black with one acid accent (`frontend-design` tell 2) | Slate-navy taken from the basemap, with multiple semantic hues: water scale, critical, safe, caution |
+| Identical rounded cards everywhere (tell 4) | Two surfaces only (floating panels, raised rows). Detail sections are divided by spacing, not boxes |
+| Pill soup of risk factors | Stacked list with icons |
+| KPI tiles | Inline counters in the top bar |
+| Generic iOS clone | State Farm red band, real map cards, and calls and notifications that mirror the backend's actual outreach |

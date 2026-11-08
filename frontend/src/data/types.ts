@@ -60,6 +60,8 @@ export interface OutreachEvent {
   mode: 'mock' | 'photon'
   status: 'queued' | 'sent' | 'delivered' | 'read' | 'failed' | 'blocked'
   case_id: string | null
+  provider?: 'stable' | 'photon2' // live sends only
+  call_id?: string // placed voice calls only (ElevenLabs conversation id)
 }
 
 export interface TurnAround {
@@ -161,6 +163,7 @@ export interface StateSnapshot {
   cases: Case[]
   drones: DroneState[]
   counters: Counters
+  drivers_opted_in?: number
 }
 
 export type EventMap = {

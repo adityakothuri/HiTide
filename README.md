@@ -85,9 +85,28 @@ uv run python -m scripts.run_tabletop --source images:<dir> --level-mm 11.1 # re
 uv run python -m scripts.check_print_export <fusion_export.stl>           # Fusion (MCP in .mcp.json) kept the terrain
 # runbook: vault/Modules/Tabletop Model.md
 
-# frontend (driver view + ops dashboard)
-cd frontend && npm install && npm run dev
+# Photon (real iMessage texts/polls); needs creds in .env, see .env.example
+cd photon-sidecar && npm install && npm start
+
+# frontend (Node 22+)
+cd frontend && npm install && npm run dev       # http://localhost:5173
+
+# consumer mobile app (Expo SDK 58, iOS/Android, local demo data); see mobile/README.md
+cd mobile && npm install && npx expo start      # press i for the iOS simulator
 ```
+
+Frontend views (add `?mode=live` or `?mode=mock` to force a data source; the default tries the backend and falls back to the recorded offline demo after 2.5 s):
+
+| URL | What it is |
+|---|---|
+| `/present` | Demo view: the driver's phone next to the ops console, one shared data stream |
+| `/driver` | Driver app (390×844). `?driver=demo-a\|demo-b\|demo-d` pins a persona |
+| `/console` | State Farm flood operations console (1440×900) |
+| `/gallery` | Component gallery in every state |
+
+Maps use CARTO's keyless vector basemaps (OpenStreetMap data), so they need internet. If the tiles can't load within 4 s, the map falls back to the bundled Kerrville road data automatically and the demo keeps running.
+
+Press **Shift+D** for presenter controls (run, next step, reset, which persona the phone shows). Before presenting, tap "Test spoken alert" in the phone's settings once: browsers block speech until the page has had a click.
 
 Copy `.env.example` to `.env`. `PHOTON_MODE` picks how outreach is sent:
 
@@ -105,6 +124,7 @@ Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted, plus API-
 |---|---|
 | `backend/` | FastAPI + WebSockets: flood sim, risk scoring, stages 1-3, outreach, drone, vision |
 | `frontend/` | React + Vite: driver app view + ops dashboard (teammates) |
+| `mobile/` | Expo consumer app: Flood Watch (white/royal blue), mock data boundary for a future backend |
 | `photon-sidecar/` | Node bridge to Photon Spectrum (`spectrum-ts`) |
 | `data/` | Cached town, synthetic drivers, feed snapshots, drone images |
 | `docs/api-contract.md` | Backend ⇄ frontend contract (REST + WS events) |

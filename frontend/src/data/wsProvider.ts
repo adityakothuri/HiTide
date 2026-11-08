@@ -1,7 +1,7 @@
 import type { ConnectionStatus, DataProvider } from './provider'
 import { caseAfterDroneCommand } from './synthetic'
 import { loadStaticTown } from './town'
-import type { Case, DroneCommand, Feeds, Reply, Town, WsEvent } from './types'
+import type { Case, DroneCommand, Feeds, Reply, TimelineEntry, Town, WsEvent } from './types'
 
 const BACKOFF_MIN_MS = 500
 const BACKOFF_MAX_MS = 8000
@@ -33,6 +33,9 @@ export class WsProvider implements DataProvider {
   private onEvent: (e: WsEvent) => void = () => {}
   private onStatus: (s: ConnectionStatus) => void = () => {}
   private cases = new Map<string, Case>()
+  /** Simulated timeline rows added in the browser, kept across backend case updates. */
+  private localEntries = new Map<string, TimelineEntry[]>()
+  private lastSimT = 0
 
   connect(onEvent: (e: WsEvent) => void, onStatus: (s: ConnectionStatus) => void): void {
     this.onEvent = onEvent
@@ -79,7 +82,12 @@ export class WsProvider implements DataProvider {
     } catch {
       // Proposed endpoint not implemented yet: show it locally, labelled simulated.
       const c = this.cases.get(caseId)
-      if (c) this.dispatchLocal(caseAfterDroneCommand(c, cmd))
+      if (!c) return
+      const next = caseAfterDroneCommand(c, cmd)
+      const added = next.timeline.slice(c.timeline.length)
+      this.localEntries.set(caseId, [...(this.localEntries.get(caseId) ?? []), ...added])
+      this.cases.set(caseId, next)
+      this.dispatchLocal(next)
     }
   }
 
@@ -93,6 +101,13 @@ export class WsProvider implements DataProvider {
 
   async reset(): Promise<void> {
     await post('/api/demo/reset')
+  }
+
+  private withLocal(c: Case): Case {
+    const local = this.localEntries.get(c.id)
+    if (!local?.length) return c
+    const timeline = [...c.timeline, ...local].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts))
+    return { ...c, timeline }
   }
 
   private dispatchLocal(c: Case): void {
@@ -113,11 +128,19 @@ export class WsProvider implements DataProvider {
     ws.onmessage = (m) => {
       if (this.ws !== ws) return
       try {
-        const e = JSON.parse(m.data as string) as WsEvent
+        let e = JSON.parse(m.data as string) as WsEvent
         if (e.type === 'snapshot') {
-          this.cases = new Map(e.payload.cases.map((c) => [c.id, c]))
+          if (e.payload.t_sim_s < this.lastSimT || e.payload.cases.length === 0) this.localEntries.clear()
+          const cases = e.payload.cases.map((c) => this.withLocal(c))
+          this.cases = new Map(cases.map((c) => [c.id, c]))
+          e = { ...e, payload: { ...e.payload, cases } }
         }
-        if (e.type === 'case.update') this.cases.set(e.payload.id, e.payload)
+        if (e.type === 'snapshot' || e.type === 'segments.update') this.lastSimT = e.payload.t_sim_s
+        if (e.type === 'case.update') {
+          const merged = this.withLocal(e.payload)
+          this.cases.set(merged.id, merged)
+          e = { ...e, payload: merged }
+        }
         this.onEvent(e)
       } catch (err) {
         console.error('Flood Watch: could not read a message from the backend', err)

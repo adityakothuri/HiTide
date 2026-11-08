@@ -16,28 +16,28 @@ const PERSONAS: Record<string, Persona> = {
     name: 'Dana Whitfield', age: 34, vehicle: '2018 Honda Civic',
     contact: { name: 'Chris Whitfield', relation: 'spouse', phone: '(830) 555-0101' },
     trip: { label: 'Work', destination: 'Peterson Regional Medical Center' },
-    claim: { number: '31-8842-K11', tow: 'Select Service shop on Junction Hwy', towWhen: 'Tomorrow, 8 AM', rental: 'Reserved near Sidney Baker St' },
+    claim: { number: '31-8842-K11', tow: 'Select Service shop on Junction Hwy', towWhen: 'tomorrow at 8 AM', rental: 'Reserved near Sidney Baker St' },
     aliases: ['Emergency contact'],
   },
   'demo-b': {
     name: 'Luis Ortega', age: 27, vehicle: '2021 Toyota Camry',
     contact: { name: 'Ana Ortega', relation: 'sister', phone: '(830) 555-0102' },
     trip: { label: 'School', destination: 'Schreiner University' },
-    claim: { number: '31-8842-K14', tow: 'Select Service shop on Junction Hwy', towWhen: 'Tomorrow, 9 AM', rental: 'Reserved near Sidney Baker St' },
+    claim: { number: '31-8842-K14', tow: 'Select Service shop on Junction Hwy', towWhen: 'tomorrow at 9 AM', rental: 'Reserved near Sidney Baker St' },
     aliases: ['Emergency contact'],
   },
   'demo-d': {
     name: 'Margaret Hale', age: 78, vehicle: '2019 Toyota Camry',
     contact: { name: 'Maria Hale', relation: 'daughter', phone: '(830) 555-0142' },
     trip: { label: 'Church', destination: 'Notre Dame Catholic Church' },
-    claim: { number: '31-8842-K17', tow: 'Select Service shop on Junction Hwy', towWhen: 'Tomorrow, 8 AM', rental: 'Reserved near Sidney Baker St' },
+    claim: { number: '31-8842-K17', tow: 'Select Service shop on Junction Hwy', towWhen: 'tomorrow at 8 AM', rental: 'Reserved near Sidney Baker St' },
     aliases: ['Teammate C (demo relative)'],
   },
   'demo-t': {
     name: 'Jordan Ruiz', age: 17, vehicle: '2017 Hyundai Elantra',
     contact: { name: 'Dana Whitfield', relation: 'parent', phone: '(830) 555-0101' },
     trip: { label: 'School', destination: 'Tivy High School' },
-    claim: { number: '31-8842-K19', tow: 'Select Service shop on Junction Hwy', towWhen: 'Tomorrow, 10 AM', rental: 'Reserved near Sidney Baker St' },
+    claim: { number: '31-8842-K19', tow: 'Select Service shop on Junction Hwy', towWhen: 'tomorrow at 10 AM', rental: 'Reserved near Sidney Baker St' },
     aliases: ['Teammate A (demo parent)'],
   },
 }
@@ -66,4 +66,15 @@ export function ageFromReasons(reasons: readonly string[]): number | null {
     if (m) return Number(m[1])
   }
   return null
+}
+
+// Backend demo narration names teammates. Swap in the persona names for the presenter caption.
+const NARRATION_NAMES: [RegExp, string][] = [
+  [/Teammate A('s)?/g, 'Dana$1'],
+  [/Teammate B('s)?/g, 'Luis$1'],
+  [/Teammate C('s)?/g, 'Maria$1'],
+]
+
+export function humanizeNarration(text: string): string {
+  return NARRATION_NAMES.reduce((t, [re, name]) => t.replace(re, name), text)
 }

@@ -1,0 +1,124 @@
+.panel {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: var(--detail-w);
+  padding: 12px 14px 14px;
+  background: var(--d-panel);
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 4px;
+  color: var(--d-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--d-muted);
+  cursor: pointer;
+}
+
+.close:hover { background: var(--d-raised); color: var(--d-strong); }
+
+.close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.kicker {
+  color: var(--d-muted);
+  font-size: 11px;
+}
+
+.name {
+  margin: 2px 28px 8px 0;
+  color: var(--d-strong);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.reading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.value {
+  color: var(--d-strong);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.trend { color: var(--d-muted); }
+
+.category {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 10px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.action { background: var(--wx-cat-action); stroke: var(--wx-cat-action); }
+.minor { background: var(--wx-cat-minor); stroke: var(--wx-cat-minor); }
+.moderate { background: var(--wx-cat-moderate); stroke: var(--wx-cat-moderate); }
+.major { background: var(--wx-cat-major); stroke: var(--wx-cat-major); }
+.below { background: var(--wx-cat-below); }
+.none { background: var(--wx-cat-none); }
+
+.spark {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.series {
+  fill: none;
+  stroke: var(--d-strong);
+  stroke-width: 1.5;
+}
+
+.threshold {
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.7;
+}
+
+.cursor {
+  stroke: var(--d-muted);
+  stroke-width: 1;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin: 0;
+}
+
+.table dt { color: var(--d-muted); font-size: 11px; }
+.table dd { margin: 0; color: var(--d-text); }
+
+.muted {
+  margin-top: 6px;
+  color: var(--d-muted);
+}

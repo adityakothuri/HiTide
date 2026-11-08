@@ -1,0 +1,366 @@
+/* Driver screens. Shared iOS pieces live in ../ios.module.css. */
+
+.stack {
+  display: grid;
+  gap: 24px;
+}
+
+.stackTight {
+  display: grid;
+  gap: 8px;
+}
+
+.mapPlaceholder {
+  height: 200px;
+  background: var(--ios-fill);
+}
+
+.lede {
+  padding: 0 4px;
+  color: var(--ios-secondary);
+  font-size: 17px;
+  line-height: 22px;
+}
+
+.footnote {
+  padding: 0 4px;
+  color: var(--ios-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0;
+}
+
+/* ---- Home: red State Farm band behind the large title; the first group overlaps it. ---- */
+.band {
+  display: grid;
+  gap: 16px;
+  margin: 0 -16px;
+  padding: 8px 20px 48px;
+  background: var(--brand-red);
+  color: var(--on-dark);
+}
+
+.bandBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-right: -10px;
+}
+
+.bandMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.bandMark svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.bandButton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 22px;
+  background: rgb(255 255 255 / 16%);
+  color: var(--on-dark);
+  cursor: pointer;
+}
+
+.bandButton svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bandButton:focus-visible { outline-color: var(--on-dark); }
+
+.bandTitle {
+  color: var(--on-dark);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  letter-spacing: 0.36px;
+}
+
+.bandTitle:focus { outline: none; }
+
+.bandSub {
+  margin-top: -12px;
+  color: var(--on-dark);
+  font-size: 17px;
+}
+
+.overlap { margin-top: -56px; }
+
+/* Status hero inside a group. */
+.statusRow {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+}
+
+.statusGlyph {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+}
+
+.statusSafe { color: var(--ios-green); }
+.statusCaution { color: var(--caution); }
+
+.statusText {
+  display: grid;
+  gap: 2px;
+}
+
+.statusTitle {
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.statusSub {
+  color: var(--ios-secondary);
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.2px;
+}
+
+.clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ios-secondary);
+  font-size: 15px;
+}
+
+.clear svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ios-green);
+}
+
+/* ---- Warning ---- */
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--ios-group);
+}
+
+.alert svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: var(--caution);
+}
+
+.alertTitle {
+  font-weight: 600;
+}
+
+.alertSub {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.caption {
+  padding: 0 16px;
+  color: var(--ios-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Sticky action area above the tab bar. */
+.actionBar {
+  position: sticky;
+  bottom: -24px;
+  display: grid;
+  gap: 4px;
+  margin: 0 -16px -24px;
+  padding: 12px 16px 16px;
+  background: rgb(242 242 247 / 92%);
+  border-top: 0.5px solid var(--ios-separator);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+.note {
+  padding: 4px;
+  color: var(--ios-secondary);
+  font-size: 15px;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* ---- Check-in: two big answer tiles. ---- */
+.question {
+  padding: 0 4px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  letter-spacing: 0.35px;
+}
+
+.answers {
+  display: grid;
+  gap: 12px;
+}
+
+.answer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ios-group);
+  color: var(--ios-label);
+  font: inherit;
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 600;
+  letter-spacing: 0.38px;
+  text-align: left;
+  cursor: pointer;
+  transition-property: transform, background-color;
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
+}
+
+.answer svg {
+  width: 26px;
+  height: 26px;
+  flex: none;
+}
+
+.answer:active:not(:disabled) { transform: scale(0.98); }
+.answer:disabled { opacity: 0.6; cursor: default; }
+
+.answerSafe svg { color: var(--ios-green); }
+.answerHelp svg { color: var(--critical); }
+
+.answerSub {
+  display: block;
+  color: var(--ios-secondary);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}
+
+/* ---- Help: Live Activity style card. ---- */
+
+.stepIcon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.stepDone { color: var(--ios-green); }
+.stepActive { color: var(--ios-blue); }
+.stepWaiting { color: var(--ios-tertiary); }
+
+.mapWrap { position: relative; }
+
+
+.pass {
+  display: grid;
+  gap: 2px;
+  padding: 16px;
+  border-radius: 10px;
+  border-top: 3px solid var(--brand-red);
+  background: var(--ios-group);
+}
+
+.passLabel {
+  color: var(--ios-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.passNumber {
+  color: var(--ios-label);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  letter-spacing: 0.36px;
+  font-variant-numeric: tabular-nums;
+}
+
+.passVehicle {
+  color: var(--ios-secondary);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.passStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--ios-green);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.passStatus svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- Settings ---- */
+.switch {
+  position: relative;
+  flex: none;
+  width: 51px;
+  height: 31px;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: var(--ios-separator);
+  cursor: pointer;
+  transition: background-color 200ms ease-out;
+}
+
+.switch[data-state='checked'] { background: var(--ios-green); }
+
+.thumb {
+  display: block;
+  width: 27px;
+  height: 27px;
+  border-radius: 14px;
+  background: var(--ios-group);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 15%), 0 1px 1px rgb(0 0 0 / 16%);
+  transform: translateX(2px);
+  transition: transform 200ms ease-out;
+}
+
+.thumb[data-state='checked'] { transform: translateX(22px); }
+
+.action {
+  color: var(--ios-blue);
+}
+
+.actionDisabled { color: var(--ios-tertiary); }
+
+.flooded { color: var(--caution); }
+
+.addIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--ios-blue);
+}

@@ -60,7 +60,7 @@ export function helpSteps(c: Case, drone: DroneState | null, contactName: string
       label: `We contacted ${contactName}`,
       detail: 'Emergency contact',
       status: idx >= stateIndex('contacting_family') ? 'done' : 'waiting',
-      ts: findTs(c, (_, t) => t.includes('family') || t.includes('daughter')),
+      ts: findTs(c, (_, t) => t.includes('emergency contact') || t.includes('family') || t.includes('daughter')),
     },
     {
       key: 'drone',

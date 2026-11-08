@@ -1,0 +1,123 @@
+.panel {
+  position: fixed;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 50;
+  width: 360px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  background: var(--surface);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  font-weight: 700;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin-right: calc(var(--space-1) * -1);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+}
+
+.close:hover { background: var(--neutral-1); }
+
+.desc {
+  color: var(--neutral-6);
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+}
+
+.step {
+  display: grid;
+  padding: var(--space-1) var(--space-2);
+  background: var(--neutral-1);
+  border-radius: var(--radius-sm);
+}
+
+.stepNum {
+  font-size: var(--text-xs);
+  color: var(--neutral-6);
+}
+
+.stepTitle { font-weight: 600; }
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+}
+
+.actions > :first-child { grid-column: 1 / -1; }
+
+.caption {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-2) 0 0;
+  border-top: 2px solid var(--brand-red);
+  color: var(--d-text);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+.captionNum {
+  flex: none;
+  min-width: 28px;
+  color: var(--d-muted);
+  font-size: var(--text-lg);
+  line-height: var(--lh-md);
+  font-weight: 500;
+}
+
+.captionTitle {
+  color: var(--d-strong);
+  font-weight: 600;
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+}
+
+.captionDetail {
+  margin-top: var(--space-half);
+  color: var(--d-muted);
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-half);
+}
+
+.fieldLabel {
+  font-weight: 600;
+  font-size: var(--text-xs);
+}
+
+.select {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--neutral-3);
+  border-radius: var(--radius-md);
+  background: var(--neutral-1);
+  color: var(--ink);
+  font: inherit;
+}

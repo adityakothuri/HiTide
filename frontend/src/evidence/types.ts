@@ -13,6 +13,8 @@ export interface Road {
 export interface Task {
   id: string; road_id: string; road_name: string; status: 'queued' | 'assigned' | 'completed' | 'inconclusive'
   priority: number; reasons: string[]; affected_communities: string[]
+  /** Observations the backend cited when ranking this task (includes area context such as warnings). */
+  evidence_ids?: string[]
 }
 export interface Community {
   id: string; name: string; node_id: string; optimistic_access: boolean
@@ -27,4 +29,6 @@ export interface Source {
 export interface EvidenceState {
   generated_at: string; dataset: { id: string; name: string; simulated: boolean; description?: string }
   observations: Observation[]; roads: Road[]; tasks: Task[]; communities: Community[]; sources: Source[]
+  /** Known gaps in the analysis, stated by the backend. */
+  limitations?: string[]
 }
