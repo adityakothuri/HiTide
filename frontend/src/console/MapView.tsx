@@ -36,6 +36,8 @@ interface Props {
   wx: WxState
   feature: Feature | null
   onFeature: (f: Feature | null) => void
+  /** Receives the map each time its layers are (re)built, so callers can add overlays. */
+  onMap?: (map: MlMap | null, version: number) => void
 }
 
 export function MapView(props: Props) {
@@ -73,12 +75,17 @@ function popupHtml(name: string, stage: string, category: string): string {
   return `<div class="${s.tipName}">${esc(name)}</div><div class="${s.tipRow}"><span class="num">${esc(stage)}</span> · ${esc(category)}</div>`
 }
 
-function MapCanvas({ town, padding, wx, feature, onFeature }: Props & { town: Town }) {
+function MapCanvas({ town, padding, wx, feature, onFeature, onMap }: Props & { town: Town }) {
   const store = useStore()
   const ref = useRef<HTMLDivElement>(null)
   const { map: liveMap, version, mode } = useMlMap(ref, town, 'dark', { bounds: START_BOUNDS, fitBoundsOptions: { padding: { top: 24, bottom: 24, left: padding.left + 8, right: 24 } } })
   const ready = version > 0
   const source = wx.load.status === 'ready' ? wx.load.source : null
+  useEffect(() => {
+    if (!onMap) return
+    onMap(liveMap, version)
+    return () => onMap(null, 0)
+  }, [onMap, liveMap, version])
   const cases = useApp((a) => a.cases)
   const drones = useApp((a) => a.drones)
   const newest = useApp((a) => a.newestCaseId)

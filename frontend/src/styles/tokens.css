@@ -121,6 +121,35 @@
   --ios-fill: #e9e9eb;
   --ios-green: #1f7a36;
   --ios-blue: #0a66c2;
+
+  /* Inspections workspace (consumer-aligned royal blue). Used by src/evidence/ops. */
+  --ops-primary: #2448e8;
+  --ops-primary-hover: #1b39c4;
+  --ops-ink: #13203b;
+  --ops-muted: #5d6882;
+  --ops-line: #e3e7ef;
+  --ops-pale: #eef3ff;
+  --ops-page: #f7f8fb;
+  --ops-land: #f3f5f8;
+  --ops-water: #b9d3f5;
+  --ops-amber: #e8900c;
+  --ops-amber-ink: #8a5200;
+  --ops-amber-bg: #fff4dc;
+  --ops-closed: #d9262c;
+  --ops-closed-bg: #fdecec;
+  --ops-open: #2f7d4f;
+  --ops-open-bg: #e7f4ec;
+  --ops-radius: 14px;
+  --ops-line-strong: #c9cfdb;
+  --ops-closed-line: #f1b7b9;
+  --ops-closed-ink: #a3161b;
+  --ops-open-line: #b9dcc6;
+  --ops-amber-line: #f2c46d;
+  --ops-primary-line: #b8c6fa;
+  --ops-sim-line: #d6d0f0;
+  --ops-sim-bg: #f5f3fd;
+  --ops-sim-ink: #4a3f8a;
+  --ops-open-on-dark: #6fd39a;
 }
 
 /*

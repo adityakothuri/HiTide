@@ -59,7 +59,7 @@ function DriverAutostart() {
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, '')
   if (path === '' || path === '/texas') return <TexasMonitor />
-  if (path === '/console') return <Operations />
+  if (path === '/console') return <StoreProvider><Operations /></StoreProvider>
   return (
     <StoreProvider>
       <TipProvider>

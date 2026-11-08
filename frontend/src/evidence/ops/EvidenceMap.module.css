@@ -1,0 +1,150 @@
+/* Shared hydromet map (from /present) inside the light workspace, with the evidence overlay. */
+.wrap {
+  position: relative;
+  height: 100%;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: var(--ops-radius);
+  background: var(--d-bg);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%);
+}
+
+.fit {
+  position: absolute;
+  top: 74px;
+  right: 8px;
+  z-index: 2;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 4px;
+  background: var(--d-panel);
+  color: var(--d-text);
+  cursor: pointer;
+}
+
+.fit:hover {
+  background: var(--d-raised);
+}
+
+.fit:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.fit:focus-visible {
+  outline: 2px solid var(--ops-amber);
+  outline-offset: 2px;
+}
+
+.legend {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 4px;
+  background: var(--d-panel);
+  color: var(--d-text);
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.legend div {
+  display: grid;
+  grid-template-columns: 26px auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend dt {
+  display: grid;
+  place-items: center;
+}
+
+.legend dd {
+  margin: 0;
+}
+
+.lgClosed,
+.lgUnknown,
+.lgOpen {
+  display: block;
+  width: 22px;
+  height: 0;
+}
+
+.lgClosed {
+  border-top: 3px solid var(--ops-closed);
+}
+
+.lgUnknown {
+  border-top: 3px dashed var(--ops-amber);
+}
+
+.lgOpen {
+  border-top: 3px solid var(--ops-open-on-dark);
+}
+
+.lgDiamond,
+.diamond {
+  display: block;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  border: 2px solid var(--ops-primary-line);
+  background: var(--ops-primary);
+}
+
+.diamond {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border-width: 3px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+}
+
+.callout {
+  display: inline-block;
+  padding: 3px 9px;
+  border: 1.5px solid;
+  border-radius: 6px;
+  background: var(--on-dark);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+  color: var(--ops-ink);
+  font: 600 12px/16px var(--ops-font);
+  white-space: nowrap;
+}
+
+.calloutClosed {
+  margin-bottom: 8px;
+  border-color: var(--ops-closed);
+}
+
+.calloutSelected {
+  border-color: var(--ops-amber);
+}
+
+.selectedMarker {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.pin {
+  width: 18px;
+  height: 18px;
+  transform: rotate(-45deg);
+  border: 3px solid var(--on-dark);
+  border-radius: 50% 50% 50% 0;
+  background: var(--ops-amber);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 40%);
+}

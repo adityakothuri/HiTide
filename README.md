@@ -43,6 +43,9 @@ cd photon-sidecar && npm install && npm start
 
 # frontend (Node 22+)
 cd frontend && npm install && npm run dev       # http://localhost:5173
+
+# consumer mobile app (Expo SDK 58, iOS/Android, local demo data); see mobile/README.md
+cd mobile && npm install && npx expo start      # press i for the iOS simulator
 ```
 
 Frontend views (add `?mode=live` or `?mode=mock` to force a data source; the default tries the backend and falls back to the recorded offline demo after 2.5 s):
@@ -66,6 +69,7 @@ Copy `.env.example` to `.env`. Without Photon creds everything runs in **mock mo
 |---|---|
 | `backend/` | FastAPI + WebSockets: flood sim, risk scoring, stages 1-3, outreach, drone, vision |
 | `frontend/` | React + Vite: driver app view + ops dashboard (teammates) |
+| `mobile/` | Expo consumer app: Flood Watch (white/royal blue), mock data boundary for a future backend |
 | `photon-sidecar/` | Node bridge to Photon Spectrum (`spectrum-ts`) |
 | `data/` | Cached town, synthetic drivers, feed snapshots, drone images |
 | `docs/api-contract.md` | Backend ⇄ frontend contract (REST + WS events) |

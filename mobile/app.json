@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Flood Watch",
+    "slug": "flood-watch",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "floodwatch",
+    "userInterfaceStyle": "light",
+    "description": "Independent flood safety for people traveling through flood-prone areas. Demo build with sample data.",
+    "ios": {
+      "bundleIdentifier": "app.floodwatch.consumer",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "app.floodwatch.consumer",
+      "adaptiveIcon": {
+        "backgroundColor": "#2448E8",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#2448E8",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Flood Watch uses your location during flood alerts to check on you near reported flooding.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
