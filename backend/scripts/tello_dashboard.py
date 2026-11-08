@@ -27,6 +27,10 @@ RC_LIMIT = 100
 ACTIONS = ("takeoff", "land", "emergency")
 FLUSH_WAIT_SECONDS = 0.3
 TAKEOFF_TIMEOUT = 20
+STATE_STALE_SECONDS = 2.0  # no telemetry for this long = drone connection lost
+VIDEO_STALE_SECONDS = 4.0
+RECONNECT_EVERY_SECONDS = 3.0
+WATCHDOG_SECONDS = 0.25
 LOW_BATTERY_PCT = 20
 HOT_TEMP_C = 80
 MAX_TILT_DEG = 10
@@ -68,13 +72,16 @@ class Drone:
         self.busy = ""
         self.jpeg: bytes | None = None
         self.log: deque[str] = deque(maxlen=30)
+        self.state_at = time.time()
+        self.frame_at = 0.0
+        self.reconnect_at = 0.0
 
     def start(self) -> None:
         self.tello.connect()
         flush_replies(self.tello)
         self.note(f"Connected | {self.readings()}")
         # Video can take a while (or fail) to start; never let it block telemetry and controls.
-        for loop in (self._video_loop, self._rc_loop):
+        for loop in (self._video_loop, self._rc_loop, self._watchdog):
             threading.Thread(target=loop, daemon=True).start()
 
     def _video_loop(self) -> None:
@@ -88,15 +95,51 @@ class Drone:
         self.note("Video started")
         self._encode_loop()
 
+    @property
+    def connected(self) -> bool:
+        return time.time() - self.state_at < STATE_STALE_SECONDS
+
+    def _watchdog(self) -> None:
+        """Notice when the drone stops talking (restart, Wi-Fi switch) and bring it back.
+
+        A restarted Tello forgets SDK mode, so telemetry and video stop until it hears
+        "command" and "streamon" again. Without this the page keeps showing frozen data.
+        """
+        last_state, was_connected = None, True
+        while True:
+            state = self.tello.get_current_state()
+            if state is not last_state:  # the receiver thread swaps in a new dict per packet
+                last_state, self.state_at = state, time.time()
+            connected = self.connected
+            if connected != was_connected:
+                was_connected = connected
+                if connected:
+                    self.tello.is_flying = self.tello.get_height() > 0
+                    self.note(f"Drone reconnected | {self.readings()}")
+                else:
+                    self.note("Drone connection LOST (restarted, out of range, or Wi-Fi switched). Reconnecting...")
+            video_stale = time.time() - self.frame_at > VIDEO_STALE_SECONDS
+            if (not connected or video_stale) and time.time() - self.reconnect_at > RECONNECT_EVERY_SECONDS:
+                self.reconnect_at = time.time()
+                try:
+                    self.tello.send_command_without_return("command")
+                    self.tello.send_command_without_return("streamon")
+                except OSError:
+                    pass  # no network yet; try again next round
+            time.sleep(WATCHDOG_SECONDS)
+
     def note(self, text: str) -> None:
         self.log.appendleft(write_log(text))
 
     def _encode_loop(self) -> None:
         params = [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
+        last_frame = None
         while True:
             try:
                 frame = self.frames.frame
-                if frame is not None:
+                if frame is not None and frame is not last_frame:
+                    last_frame = frame
+                    self.frame_at = time.time()
                     ok, buf = cv2.imencode(".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR), params)
                     if ok:
                         self.jpeg = buf.tobytes()
@@ -133,6 +176,8 @@ class Drone:
         # Land is always allowed: if our flying flag is ever wrong, landing must still work.
         if name == "takeoff" and self.tello.is_flying:
             return "already flying"
+        if name == "takeoff" and not self.connected:
+            return "drone not connected (no telemetry), waiting to reconnect"
         threading.Thread(target=self._run_action, args=(name,), daemon=True).start()
         return "ok"
 
@@ -192,6 +237,9 @@ class Drone:
             "speed": [t.get_speed_x(), t.get_speed_y(), t.get_speed_z()],
             "attitude": [t.get_pitch(), t.get_roll(), t.get_yaw()],
             "flying": t.is_flying,
+            "connected": self.connected,
+            "state_age": round(time.time() - self.state_at, 1),
+            "video_age": round(time.time() - self.frame_at, 1) if self.frame_at else None,
             "busy": self.busy,
             "log": list(self.log),
         }
