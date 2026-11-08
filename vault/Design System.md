@@ -1,7 +1,7 @@
 ---
-tags: [floodwatch, frontend, design]
-status: checkpoint-1
-updated: 2026-11-07
+tags: [hitide, frontend, design]
+status: round-4
+updated: 2026-11-08
 ---
 
 # Design System
@@ -126,12 +126,12 @@ Every screen has a top bar (wordmark) and a bottom tab bar (Home, Trips, Claims,
 **5.1 Home, calm**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch        (gear)│
+│ ■ HiTide        (gear)│
 ├──────────────────────────────────────┤
 │ Good evening, Margaret               │
 │                                      │
 │ ┌──────────────────────────────────┐ │
-│ │ (shield) Flood Watch is on       │ │
+│ │ (shield) HiTide is on       │ │
 │ │ No flood warnings near you.      │ │
 │ │ Checked 2 min ago                │ │
 │ └──────────────────────────────────┘ │
@@ -158,7 +158,7 @@ Every screen has a top bar (wordmark) and a bottom tab bar (Home, Trips, Claims,
 **5.2 Warning active**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │▌(!) Flash flood warning              │  caution banner, left rule
 │▌ Kerr County until 2:15 AM           │
@@ -210,7 +210,7 @@ The tab bar is hidden while the takeover shows. `role="alertdialog"`, and focus 
 **5.4 Check-in**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │ Your car stopped on a flooded road   │
 │ Water St, 8:42 PM                    │
@@ -235,7 +235,7 @@ The tab bar is hidden while the takeover shows. `role="alertdialog"`, and focus 
 **5.5 Help is on the way**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │ Help is on the way                   │
 │ Stay on the roof if water is rising. │
@@ -261,7 +261,7 @@ Step states are shown by icon shape (filled check / half ring / empty ring) **an
 **5.6 After: claim started**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │ You're safe. We started your claim.  │
 │                                      │
@@ -286,9 +286,9 @@ Step states are shown by icon shape (filled check / half ring / empty ring) **an
 **5.7 Settings (gear icon on Home)**
 ```
 ┌──────────────────────────────────────┐
-│ ← Flood Watch settings               │
+│ ← HiTide settings               │
 ├──────────────────────────────────────┤
-│ Flood Watch                    [on ] │  switch
+│ HiTide                    [on ] │  switch
 │ We check your usual routes against   │
 │ National Weather Service and USGS    │
 │ flood data.                          │
@@ -311,7 +311,7 @@ Step states are shown by icon shape (filled check / half ring / empty ring) **an
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
-│ ■ State Farm Flood Watch   Flash flood warning, Kerr County (simulated)                       │
+│ ■ HiTide   Flash flood warning, Kerr County (simulated)                       │
 │  Warned 42   Rerouted 17   Stopped in water 3   Confirmed safe 9      NWS 8:41 PM  USGS 8:40 PM│
 ├─────────────────────┬────────────────────────────────────────────────┬────────────────────────┤
 │ Cases               │                                                │ (!) Critical           │
@@ -430,7 +430,7 @@ Skills used:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ ◇ State Farm Flood Watch  Flood operations │ Flash flood warning, Kerr Co │ 11 warned  2 rerouted  1 stopped  1 verified  $16,500 │ ● Live │
+│ ◇ HiTide  Flood operations │ Flash flood warning, Kerr Co │ 11 warned  2 rerouted  1 stopped  1 verified  $16,500 │ ● Live │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ ┌Cases──────────┐   full-bleed dark street map                ┌Margaret Hale──────┐ │
 │ │All Critical … │   flooded roads glow cyan→violet            │ Critical, 75+      │ │
@@ -461,3 +461,80 @@ Skills used:
 | Pill soup of risk factors | Stacked list with icons |
 | KPI tiles | Inline counters in the top bar |
 | Generic iOS clone | State Farm red band, real map cards, and calls and notifications that mirror the backend's actual outreach |
+
+
+## 10. Round 4: independent HiTide analyst console (2026-11-08)
+
+Supersedes the State Farm styling in sections 1, 8 and 9 for the console and the web driver app. See [[Decisions]] (independent brand) and the audit in `Experiments/ui-audit.md`.
+
+**Direction:**
+- The look takes after NWS, Esri ops and GIS risk maps: calm and data-first.
+- The map is the loudest thing on screen, and the panels stay quiet.
+- Borders do the work instead of shadows. The one shadow is on the map legend and popovers.
+
+**Brand:**
+- "HiTide" with the two-wave mark (`ui/WaveMark.tsx`). There's no insurer name or logo.
+- Cobalt `#2448E8` is the only brand color. It's used for the wordmark, primary buttons and the selected nav item, and never for data or warnings.
+- `--brand-red` keeps its name, so existing components re-theme without edits. Its value is now cobalt.
+- The mobile app uses the same cobalt (`mobile/src/theme/tokens.ts`).
+
+**Themes:**
+- Light analyst theme is the default: CARTO Positron basemap, gray-1 canvas, white panels.
+- The night theme uses neutral grays (`#141618` / `#1b1e21`), never navy, with the CARTO Dark Matter basemap.
+- Switch with the sidebar toggle or `?scheme=dark`. The choice is saved per browser (`shell/scheme.ts`).
+
+**Neutrals:** `--gray-1`…`--gray-8`, `#f6f7f8` → `#1d2125`.
+
+The console's `--d-*` tokens point at these. Lines use `--d-line` and `--d-line-strong` instead of white-alpha literals.
+
+**Data scales (never reused for UI chrome):**
+
+| Field | Scale |
+|---|---|
+| Flood risk index 0–100 | Turbo, starting at its blue (skips the near-black start). Alpha fades in from 5 to 25, so negligible risk lets the basemap show (`risk/turbo.ts`) |
+| Rainfall | NWS-style MRMS ramp from the replay manifest |
+| Flood depth | Sequential blues, 4 bands; the night theme gets a lighter ramp |
+| Gauges | NWS categories: action yellow, minor orange, moderate red, major purple. 10 px dots with a 1.5 px white stroke |
+| Roads | Closed is solid red, likely flooded is dashed orange. Nothing else is drawn |
+
+**Status:** always an icon plus a label: Critical (octagon), Caution (triangle), Resolved (shield check). The case list, header warning and Sources table all follow this.
+
+**Type:**
+- IBM Plex Sans, tabular figures for all values (`.num`).
+- Console sizes are 12/13/14/16/20/24. Nothing is larger than 24 px, and nothing smaller than 11 px (time ticks only).
+- Sentence case everywhere: no uppercase or letter-spaced labels.
+
+**Shape:** 4 px radius for controls, 6 px for panels, and no pills on the console. `--radius-pill` maps to 4 px under `[data-theme='dispatch']`.
+
+**Layout:**
+- 224 px sidebar: Flood monitor, Driver cases, Inspections, Sources, theme toggle, prototype note.
+- 48 px header: breadcrumb on the left; warning, data time (amber when stale) and connection on the right.
+- **Flood monitor:** 280 px left panel (search, base field radios, overlays with inline keys, opacity, cases, river gauges), a full-bleed map, a 360 px detail panel when something is selected, and a 56 px time bar.
+- **Legend:** a vertical 12×160 px colorbar at bottom left, for the active field only. The scale bar is at bottom right.
+
+**WCAG (`npm run contrast`, every pairing passes):**
+
+| Pairing | Ratio |
+|---|---|
+| White on cobalt | 6.6:1 |
+| `--d-muted` `#5c646d` on white | 6.0:1 |
+| `--d-faint` `#656d76` on white | 5.4:1 |
+| Mobile secondary text `#626D85` on white | 5.2:1 (darkened from 4.4:1) |
+
+**Removed:**
+- The navy dispatch theme
+- The "Drone vs crew" race bars and the hard-coded 17-minute crew ETA (crew time now shows only when the backend sends `crew_eta_s`)
+- Uppercase section labels
+- The top-bar "Simulated" box, now one sidebar note plus a "demo" tag only where data is synthetic
+- The stacked four-block legend
+
+Screenshots: `Experiments/screenshots/after-1440-*.png` (before: `audit-*.png`).
+
+
+## 11. Situation monitor (2026-11-08)
+
+- **Tokens:** `--sev-critical`, `--sev-warning`, `--sev-muted` and `--drone` are the only colours on the situation map. Text chips use `--d-critical` and `--d-caution` for contrast.
+- **Left column:** four trend tiles (in danger, warning, homes cut off, points checked) with sparklines over the run. Below them, people at critical and danger level (warning level on request), then areas cut off or at risk.
+- **Right column:** each drone with battery, current action, next stops and tour-progress dots. Then the critical-point queue, each with a priority bar and a tick for flood probability. "Why this point" comes from the backend score breakdown.
+- **Time bar:** while the replay runs, a stacked area of people in danger (red) over warning (amber) sits above the scrubber.
+- **Map:** drones checking a point show a camera-footprint disc. A blue ring marks each drone's next target.

@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, module, drone-vision, tabletop, cad]
+tags: [hitide, module, drone-vision, tabletop, cad]
 status: built-synthetic-validated
 updated: 2026-11-08
 ---

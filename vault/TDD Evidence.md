@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, testing, tdd]
+tags: [hitide, testing, tdd]
 status: done
 updated: 2026-11-07
 ---
@@ -12,7 +12,7 @@ Written per the ECC `tdd-workflow` skill (Step 8). Source plan: `/Users/sandhyak
 
 1. As a State Farm driver planning a trip during a flash flood warning, I get a text with a safer route before I leave, and my parent gets a copy if I'm a teen.
 2. As a driver heading toward a flooded road, my app tells me "Turn around" and reroutes me. I never get a text while I'm driving.
-3. As an older driver stalled in floodwater at night, Flood Watch calls me, then my family, flags responders and sends a drone. "Not safe" never closes my case.
+3. As an older driver stalled in floodwater at night, HiTide calls me, then my family, flags responders and sends a drone. "Not safe" never closes my case.
 4. As a responder, I see only location, number of people and water depth.
 
 ## Task report

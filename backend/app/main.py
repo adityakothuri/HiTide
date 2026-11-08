@@ -1,4 +1,4 @@
-"""State Farm Flood Watch backend. Run: uv run uvicorn app.main:app --reload"""
+"""HiTide backend. Run: uv run uvicorn app.main:app --reload"""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ from db.factory import open_database
 from evidence.routes import router as evidence_router
 from evidence.service import EvidenceService
 from outreach.inbound import handle_inbound
+from outreach.live_users import live_users
 from outreach.log import append_log_file, set_sink as set_outreach_sink
 from outreach.photon2_ws import Photon2Inbound
 
@@ -46,6 +47,15 @@ async def poll_evidence(service: EvidenceService, interval_s: float) -> None:
         except Exception:
             log.exception("Evidence refresh failed; retaining existing observations")
         await asyncio.sleep(interval_s)
+
+
+def photon2_inbound_wanted() -> bool:
+    """Listen for texted SAFE/HELP replies in photon2 mode, or when HITIDE_LIVE_USERS get real texts while the
+    rest of the demo is mock (needs the Photon 2 keys). One condition, so the listener is started once."""
+    if os.environ.get("PHOTON_MODE") == "photon2":
+        return True
+    keys = all(os.environ.get(k, "").strip() for k in ("PHOTON2_API_KEY", "PHOTON2_PROJECT_ID"))
+    return bool(live_users()) and keys
 
 
 @asynccontextmanager
@@ -70,7 +80,7 @@ async def lifespan(app: FastAPI):
             worker = asyncio.create_task(poll_evidence(app.state.evidence, interval_s))
         runtime.engine.start()
         warm(app)  # Hill Country region loads in the background (~5 s)
-        if os.environ.get("PHOTON_MODE") == "photon2":
+        if photon2_inbound_wanted():
             inbound = Photon2Inbound(cursor_store=db)
             await inbound.start(lambda s, t: handle_inbound(runtime, s, t))
         yield
@@ -95,7 +105,7 @@ async def lifespan(app: FastAPI):
         await asyncio.to_thread(db.close)   # flushes queued writes first
 
 
-app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="HiTide", version="0.1.0", lifespan=lifespan)
 
 
 @app.exception_handler(RequestValidationError)

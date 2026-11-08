@@ -1,44 +1,37 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Avatar, openDevControls } from '@/components/BlueHeader';
+import { ConnectionBadge } from '@/components/ConnectionBadge';
 import { GaugeCard } from '@/components/GaugeCard';
+import { HeroMapScreen, heroChip } from '@/components/HeroMapScreen';
 import { Icon } from '@/components/Icon';
 import { Appear } from '@/components/Motion';
 import { PressableScale } from '@/components/PressableScale';
 import { ListRow, SectionHeader } from '@/components/Rows';
 import { useStatusBar } from '@/components/ScreenHeader';
 import { Wordmark } from '@/components/WaveMark';
+import { floodCounts } from '@/data/live/mapFlood';
+import { LEVEL_LABEL, levelTone } from '@/domain/riskLevel';
 import { useAppState, useRepository } from '@/data/RepositoryProvider';
-import { FloodMap } from '@/map/FloodMap';
 import { buildScene } from '@/map/scene';
-import { formatTime, greeting, selectedRouteAffected } from '@/state/selectors';
-import { balanced, color, font, gutter, radius, space, tabular, touchTarget } from '@/theme/tokens';
+import { formatTime, greeting, selectedRouteAffected, warningDetail } from '@/state/selectors';
+import { balanced, color, font, radius, risk, space, tabular, touchTarget } from '@/theme/tokens';
 
-const SHEET_OVERLAP = 28;
-const HERO_MIN = 260;
-const HERO_MAX = 420;
-const HERO_RATIO = 0.42;
 
 export function HomeScreen() {
   const state = useAppState();
   const repo = useRepository();
-  const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
-  const heroH = Math.round(Math.min(Math.max(height * HERO_RATIO, HERO_MIN), HERO_MAX));
   const { user, warning, contact, trip, safetyCase, gauge } = state;
   const routeAffected = selectedRouteAffected(state);
   useStatusBar('dark');
 
-  // Parallax: the map drifts at half speed as the sheet scrolls over it.
-  const scrollY = useSharedValue(0);
-  const onScroll = useAnimatedScrollHandler((e) => {
-    scrollY.value = e.contentOffset.y;
-  });
-  const heroStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: interpolate(scrollY.value, [-100, 0, heroH], [0, 0, -heroH / 2], Extrapolation.CLAMP) }],
-  }));
+
+  const counts = state.floodLayer ? floodCounts(state.floodLayer) : null;
+  const floodSubtitle = counts
+    ? counts.flooded > 0
+      ? `${counts.flooded} ${counts.flooded === 1 ? 'road' : 'roads'} flooded, ${counts.likely} likely nearby`
+      : `${counts.likely} ${counts.likely === 1 ? 'road' : 'roads'} likely flooded nearby`
+    : 'Flooded roads, crossings and river gauges';
 
   const tripSubtitle = !trip.closure
     ? 'No reported closures on your route'
@@ -47,87 +40,127 @@ export function HomeScreen() {
       : `Alternate route via ${trip.routes.alternate.via}`;
 
   return (
-    <View style={styles.screen}>
-      <Animated.View style={[styles.hero, { height: heroH }, heroStyle]}>
-        <FloodMap
-          scene={buildScene(state, 'overview')}
-          accessibilityLabel="Map of Kerrville and the Guadalupe River with your location near home"
-          rounded={false}
-          bottomInset={SHEET_OVERLAP + 8}
-          style={StyleSheet.absoluteFill}
-        />
-      </Animated.View>
-
-      <View style={[styles.topBar, { top: insets.top + 6 }]} pointerEvents="box-none">
-        <View style={styles.brandChip}>
-          <Wordmark tint={color.ink} onLongPress={openDevControls} />
+    <HeroMapScreen
+      scene={buildScene(state, 'overview')}
+      mapLabel="Map of Kerrville and the Guadalupe River with your location near home"
+      topBar={
+        <>
+          <View style={heroChip.chip}>
+            <Wordmark tint={color.ink} onLongPress={openDevControls} />
+          </View>
+          <Avatar initials={user.initials} onPress={() => router.navigate('/profile')} />
+        </>
+      }
+      heroActions={
+        <>
+          <Pressable
+            onPress={() => router.push('/set-location')}
+            accessibilityRole="button"
+            accessibilityLabel="Set your location on the map"
+            style={heroChip.chip}
+          >
+            <Icon name="pin" size={18} color={color.ink} />
+            <Text style={styles.mapButtonText}>Set location</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/flood-map')}
+            accessibilityRole="button"
+            accessibilityLabel="Open the flood map"
+            style={heroChip.chip}
+          >
+            <Icon name="layers" size={18} color={color.ink} />
+            <Text style={styles.mapButtonText}>Flood map</Text>
+          </Pressable>
+        </>
+      }
+    >
+      <Appear index={0}>
+        <Text style={styles.meta}>{user.homeArea}</Text>
+        <Text style={styles.title} accessibilityRole="header" {...balanced}>
+          {greeting(new Date().toISOString())}, {user.firstName}
+        </Text>
+        <View style={styles.badge}>
+          <ConnectionBadge connection={state.connection} />
         </View>
-        <Avatar initials={user.initials} onPress={() => router.navigate('/profile')} />
-      </View>
+      </Appear>
 
-      <Animated.ScrollView
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: heroH - SHEET_OVERLAP }}
-      >
-        <View style={styles.sheet}>
-          <View style={styles.handle} />
-          <Appear index={0}>
-            <Text style={styles.meta}>{user.homeArea}</Text>
-            <Text style={styles.title} accessibilityRole="header" {...balanced}>
-              {greeting(new Date().toISOString())}, {user.firstName}
-            </Text>
-          </Appear>
+      <Appear index={1}>
+        {safetyCase?.minimized ? (
+          <StatusCard tone="info" icon="shieldCheck" label="Help request active" detail="See its status" onPress={() => repo.restoreCase()} />
+        ) : warning ? (
+          <StatusCard
+            tone={levelTone(state.connection.level) === 'critical' ? 'critical' : 'hazard'}
+            icon="warning"
+            label={warning.event}
+            level={state.connection.level && LEVEL_LABEL[state.connection.level] ? `Your risk: ${LEVEL_LABEL[state.connection.level]}` : undefined}
+            detail={warningDetail(warning)}
+            onPress={() => router.push('/warning')}
+          />
+        ) : state.connection.kind === 'live' && state.connection.status !== 'live' ? (
+          <StatusCard
+            tone="info"
+            icon="warning"
+            label="Can’t check for flooding right now"
+            detail="Unknown is not the same as clear. Avoid low-water crossings."
+          />
+        ) : state.connection.kind === 'live' && state.connection.degraded ? (
+          <StatusCard
+            tone="info"
+            icon="warning"
+            label="Some flood data is unavailable"
+            detail="No warning found, but that isn’t the same as clear. Avoid low-water crossings."
+          />
+        ) : state.connection.kind === 'live' && state.connection.level === 'watch' ? (
+          <StatusCard
+            tone="info"
+            icon="warning"
+            label="Flood watch near you"
+            detail={state.connection.topReason ?? 'Conditions could change quickly.'}
+          />
+        ) : (
+          <StatusCard
+            tone="calm"
+            icon="check"
+            label="No flood warnings"
+            detail={state.connection.assessedAt ? `Checked ${formatTime(state.connection.assessedAt)}` : 'Checked just now'}
+          />
+        )}
+      </Appear>
 
-          <Appear index={1}>
-            {safetyCase?.minimized ? (
-              <StatusCard tone="info" icon="shieldCheck" label="Help request active" detail="See its status" onPress={() => repo.restoreCase()} />
-            ) : warning ? (
-              <StatusCard
-                tone="hazard"
-                icon="warning"
-                label={warning.event}
-                detail={`${warning.area} · until ${formatTime(warning.expiresAt)}`}
-                onPress={() => router.push('/warning')}
-              />
-            ) : (
-              <StatusCard tone="calm" icon="check" label="No flood warnings" detail="Checked just now" />
-            )}
-          </Appear>
+      <Appear index={2}>
+        <GaugeCard gauge={gauge} />
+      </Appear>
 
-          <Appear index={2}>
-            <GaugeCard gauge={gauge} />
-          </Appear>
-
-          <Appear index={3} style={styles.section}>
-            <SectionHeader title="Before you go" actionLabel="All updates" onAction={() => router.navigate('/updates')} />
-            <ListRow icon="briefcase" title={trip.name} subtitle={tripSubtitle} onPress={() => router.navigate('/trips')} showDivider />
-            <ListRow icon="person" title="Emergency contact" subtitle={contact.name} onPress={() => router.push('/contact')} />
-          </Appear>
-        </View>
-      </Animated.ScrollView>
-    </View>
+      <Appear index={3} style={styles.section}>
+        <SectionHeader title="Before you go" actionLabel="All updates" onAction={() => router.navigate('/updates')} />
+        <ListRow icon="layers" title="Flood map" subtitle={floodSubtitle} onPress={() => router.push('/flood-map')} showDivider />
+        <ListRow icon="briefcase" title={trip.name} subtitle={tripSubtitle} onPress={() => router.navigate('/trips')} showDivider />
+        <ListRow icon="person" title="Emergency contact" subtitle={contact.name} onPress={() => router.push('/contact')} />
+      </Appear>
+    </HeroMapScreen>
   );
 }
 
-type Tone = 'hazard' | 'calm' | 'info';
+type Tone = 'critical' | 'hazard' | 'calm' | 'info';
 
 interface StatusCardProps {
   tone: Tone;
   icon: 'warning' | 'check' | 'shieldCheck';
   label: string;
   detail: string;
+  /** Your risk level as the dashboard labels it ("Danger", "Critical", ...). */
+  level?: string;
   onPress?: () => void;
 }
 
 const TONE: Record<Tone, { bg: string; border: string; tint: string }> = {
+  critical: { bg: risk.criticalBg, border: risk.criticalLine, tint: risk.criticalInk },
   hazard: { bg: color.hazardBg, border: color.hazardBorder, tint: color.amberInk },
   calm: { bg: color.surface, border: color.divider, tint: color.primary },
   info: { bg: color.paleBlue, border: color.paleBlueBorder, tint: color.primary },
 };
 
-function StatusCard({ tone, icon, label, detail, onPress }: StatusCardProps) {
+function StatusCard({ tone, icon, label, detail, level, onPress }: StatusCardProps) {
   const t = TONE[tone];
   return (
     <PressableScale
@@ -135,11 +168,12 @@ function StatusCard({ tone, icon, label, detail, onPress }: StatusCardProps) {
       disabled={!onPress}
       pressedScale={0.985}
       accessibilityRole={onPress ? 'button' : 'text'}
-      accessibilityLabel={`${label}. ${detail}`}
+      accessibilityLabel={`${level ? `${level}. ` : ''}${label}. ${detail}`}
       style={[styles.status, { backgroundColor: t.bg, borderColor: t.border }]}
     >
       <Icon name={icon} size={22} color={t.tint} strokeWidth={2} />
       <View style={styles.statusText}>
+        {level ? <Text style={[styles.statusLevel, { color: t.tint }]}>{level}</Text> : null}
         <Text style={styles.statusTitle}>{label}</Text>
         <Text style={styles.statusDetail}>{detail}</Text>
       </View>
@@ -149,38 +183,10 @@ function StatusCard({ tone, icon, label, detail, onPress }: StatusCardProps) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.white },
-  hero: { position: 'absolute', top: 0, left: 0, right: 0 },
-  topBar: {
-    position: 'absolute',
-    left: space.md,
-    right: space.md,
-    zIndex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  brandChip: {
-    minHeight: touchTarget,
-    justifyContent: 'center',
-    paddingHorizontal: 14,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.94)',
-    boxShadow: '0 1px 2px rgba(19,32,59,0.10), 0 4px 12px rgba(19,32,59,0.08)',
-  },
-  sheet: {
-    minHeight: 640,
-    backgroundColor: color.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: gutter,
-    paddingBottom: space.xxl,
-    gap: space.md,
-    boxShadow: '0 -1px 0 rgba(19,32,59,0.06), 0 -8px 24px rgba(19,32,59,0.06)',
-  },
-  handle: { alignSelf: 'center', width: 36, height: 5, borderRadius: 3, backgroundColor: color.divider, marginTop: 8 },
+  mapButtonText: { ...font.small, fontWeight: '600', color: color.ink },
   meta: { ...font.small, color: color.secondary },
-  title: { ...font.title, fontSize: 28, lineHeight: 33, color: color.ink, marginTop: 2 },
+  title: { ...font.title, color: color.ink, marginTop: 2 },
+  badge: { marginTop: space.xs },
   status: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -193,6 +199,7 @@ const styles = StyleSheet.create({
   },
   statusText: { flex: 1, gap: 1 },
   statusTitle: { ...font.rowTitle, color: color.ink },
+  statusLevel: { ...font.overline },
   statusDetail: { ...font.small, ...tabular, color: color.secondary },
   section: { marginTop: space.xs },
 });

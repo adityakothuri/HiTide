@@ -10,7 +10,7 @@ from db.spacetime import SpacetimeError
 
 def test_spacetime_unreachable_falls_back_to_sqlite_loudly(monkeypatch, tmp_path, caplog):
     monkeypatch.setenv("SPACETIME_URL", "http://127.0.0.1:9")   # nothing listens on the discard port
-    monkeypatch.setenv("FLOODWATCH_DB_PATH", str(tmp_path / "e.sqlite3"))
+    monkeypatch.setenv("HITIDE_DB_PATH", str(tmp_path / "e.sqlite3"))
     monkeypatch.setenv("SAFETY_REGISTRY_PATH", str(tmp_path / "reg.json"))
     with caplog.at_level(logging.ERROR, logger="db.factory"):
         db = open_database("spacetime")
@@ -24,7 +24,7 @@ def test_spacetime_unreachable_falls_back_to_sqlite_loudly(monkeypatch, tmp_path
 
 
 def test_explicit_sqlite_and_memory(monkeypatch, tmp_path):
-    monkeypatch.setenv("FLOODWATCH_DB_PATH", str(tmp_path / "e.sqlite3"))
+    monkeypatch.setenv("HITIDE_DB_PATH", str(tmp_path / "e.sqlite3"))
     for name in ("sqlite", "memory"):
         db = open_database(name)
         try:
@@ -35,15 +35,15 @@ def test_explicit_sqlite_and_memory(monkeypatch, tmp_path):
 
 
 def test_default_is_spacetime_and_bad_value_fails_fast(monkeypatch):
-    monkeypatch.delenv("FLOODWATCH_DB_BACKEND", raising=False)
+    monkeypatch.delenv("HITIDE_DB_BACKEND", raising=False)
     assert requested_backend() == "spacetime"
-    monkeypatch.setenv("FLOODWATCH_DB_BACKEND", "postgres")
+    monkeypatch.setenv("HITIDE_DB_BACKEND", "postgres")
     with pytest.raises(ValueError):
         requested_backend()
 
 
 def test_write_behind_never_raises_and_counts_failures(monkeypatch, tmp_path):
-    monkeypatch.setenv("FLOODWATCH_DB_PATH", str(tmp_path / "e.sqlite3"))
+    monkeypatch.setenv("HITIDE_DB_PATH", str(tmp_path / "e.sqlite3"))
     db = open_database("memory")
     try:
         def bad():
@@ -58,7 +58,7 @@ def test_write_behind_never_raises_and_counts_failures(monkeypatch, tmp_path):
 
 
 def test_write_failure_runs_fallback_and_pauses_remote_writes(monkeypatch, tmp_path):
-    monkeypatch.setenv("FLOODWATCH_DB_PATH", str(tmp_path / "e.sqlite3"))
+    monkeypatch.setenv("HITIDE_DB_PATH", str(tmp_path / "e.sqlite3"))
     db = open_database("memory")
     fell_back = []
     try:

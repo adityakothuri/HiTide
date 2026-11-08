@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, pitch]
+tags: [hitide, pitch]
 status: todo
 updated: 2026-11-07
 ---
@@ -12,7 +12,7 @@ Flash floods kill people in cars, and most drivers never see a warning tied to t
 
 ## Solution
 
-State Farm Flood Watch protects opted-in drivers in three stages:
+HiTide protects opted-in drivers in three stages:
 
 1. **Before the trip:** a text that warns about closed or at-risk water on the driver's usual route, with an alternate route.
 2. **On the road:** a "turn around" alert and reroute before the driver reaches the water.

@@ -91,7 +91,7 @@ export function UpdatesScreen() {
           <ListRow
             icon="shieldCheck"
             title="Location and alert settings"
-            subtitle="Choose what Flood Watch can use"
+            subtitle="Choose what HiTide can use"
             onPress={() => router.navigate({ pathname: '/profile', params: { section: 'privacy' } })}
           />
         </View>

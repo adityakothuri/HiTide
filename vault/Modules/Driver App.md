@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, module, frontend]
+tags: [hitide, module, frontend]
 status: built
 updated: 2026-11-07
 ---
@@ -30,7 +30,7 @@ Precedence: case, then turn-around, then pre-trip warning, then calm.
 
 ## Built (2026-11-07)
 
-- Shell: app bar (wordmark, settings gear), bottom tabs Home / Trips / Claims / Profile (all work; Profile is Flood Watch settings). Phone frame with a status bar when shown on desktop or in `/present`.
+- Shell: app bar (wordmark, settings gear), bottom tabs Home / Trips / Claims / Profile (all work; Profile is HiTide settings). Phone frame with a status bar when shown on desktop or in `/present`.
 - 5.2 route card is a small SVG map (`RouteMap.tsx`): nearby roads, flooded roads on the water scale, the blocked segment and a critical pin, the safer route in green. The primary action is sticky above the tab bar.
 - 5.3 takeover: `role="alertdialog"`, the rest of the app is `inert`, focus goes to "Show new route" and returns to the new heading after. Speaks the backend message via `speechSynthesis`; the button only says "Speaking" once audio actually starts (browsers block speech before a user gesture, so press "Test spoken alert" in Settings once before presenting).
 - 5.4 replies go to `POST /api/cases/{id}/reply` in live mode (verified against the backend: "I need help" moves the case to "Driver needs help" then "Handed to responders").

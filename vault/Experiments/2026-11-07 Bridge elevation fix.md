@@ -1,6 +1,6 @@
 ---
 date: 2026-11-07
-tags: [floodwatch, experiment, flood, bug]
+tags: [hitide, experiment, flood, bug]
 changed: backend/sim/town.py _fix_bridges; scripts/gen_drivers.py demo-d depth window; stages/runner.py recommendation rule
 result: Demo depths are now believable (B's crossing 20 in, Margaret's car 21 in), and the recommendation is "boat required"
 ---

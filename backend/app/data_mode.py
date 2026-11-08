@@ -24,18 +24,19 @@ PRESETS: dict[str, dict[str, str]] = {
         "FEEDS_OFFLINE": "1",  # NWS/USGS from data/feeds_cache only, no network
         "REGION_MODE": "replay",  # Hill Country: July 4, 2025 replay
         "EVIDENCE_POLL_SECONDS": "0",  # no background Texas feed polling
-        "FLOODWATCH_DB_BACKEND": "spacetime",  # primary; falls back to SQLite (logged) if it isn't running
+        "HITIDE_DB_BACKEND": "spacetime",  # primary; falls back to SQLite (logged) if it isn't running
         "SAFETY_DEMO": "1",  # compressed outreach-ladder timers
     },
     "real": {
         "FEEDS_OFFLINE": "0",
         "REGION_MODE": "live",
         "EVIDENCE_POLL_SECONDS": "120",
-        "FLOODWATCH_DB_BACKEND": "spacetime",
+        "HITIDE_DB_BACKEND": "spacetime",
     },
 }
 
 _LIVE_PHOTON = ("photon2", "stable", "photon")
+_LEGACY_ENV = (("FLOODWATCH_DB_BACKEND", "HITIDE_DB_BACKEND"), ("FLOODWATCH_DB_PATH", "HITIDE_DB_PATH"))
 
 
 def _truthy(v: str | None) -> bool:
@@ -53,6 +54,11 @@ def apply_data_mode(env: dict[str, str] | os._Environ, dotenv: Mapping[str, str 
     """Set preset defaults into `env` (normally os.environ) before load_dotenv runs."""
     mode = resolve_mode(env, dotenv)
     env["DATA_MODE"] = mode
+    # The product was renamed from Flood Watch: old FLOODWATCH_* settings still apply unless HITIDE_* is set.
+    for old, new in _LEGACY_ENV:
+        legacy = env.get(old) or dotenv.get(old)
+        if legacy and not (env.get(new) or dotenv.get(new)):
+            env[new] = legacy
     if mode == "manual":
         return mode
     for key, value in PRESETS[mode].items():
@@ -75,5 +81,5 @@ def current_modes(region_mode: str | None = None, db: str | None = None) -> dict
         "outreach": photon_mode(),
         "feeds": "cache" if _truthy(os.environ.get("FEEDS_OFFLINE")) else "live",
         "region": region_mode or os.environ.get("REGION_MODE", "replay"),
-        "db": db or os.environ.get("FLOODWATCH_DB_BACKEND", "spacetime").lower(),
+        "db": db or os.environ.get("HITIDE_DB_BACKEND", "spacetime").lower(),
     }

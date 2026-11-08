@@ -1,4 +1,4 @@
-"""Initialize only the local Flood Watch replica set, required for atomic missions."""
+"""Initialize only the local HiTide replica set, required for atomic missions."""
 
 import time
 
@@ -26,7 +26,7 @@ def main():
             client.admin.command("replSetInitiate", {"_id": "floodwatch", "members": [{"_id": 0, "host": "127.0.0.1:27017"}]})
         for _ in range(60):
             if client.admin.command("hello").get("isWritablePrimary"):
-                print("Local Flood Watch MongoDB replica set is writable at 127.0.0.1:27017")
+                print("Local HiTide MongoDB replica set is writable at 127.0.0.1:27017")
                 return
             time.sleep(0.5)
         raise RuntimeError("MongoDB did not become writable within 30 seconds")

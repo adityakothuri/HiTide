@@ -7,6 +7,7 @@ import hmac
 import logging
 import os
 import time
+import weakref
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -14,6 +15,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.hill_runtime import get_hill
 from app.security import require_trusted_origin
+from critical.flood_layer import geometry_index
+from safety.assistant import AssistantLine
+from safety.directions import Directions, directions_for, flooded_roads_near
 from safety.levels import Level
 from safety.monitor import SafetyMonitor, public_assessment
 from safety.motion import Ping
@@ -224,3 +228,62 @@ async def reply(uid: str, body: ReplyIn, m: SafetyMonitor = Depends(monitor)) ->
     await _safe_dispatch(m.dispatch_actions(u, acts))
     r = m.response(uid)
     return {"user_id": uid, "reply": body.reply, "response": r.public() if r else None}
+
+
+@router.post("/api/users/{uid}/reset", dependencies=[Depends(require_trusted_origin), Depends(require_api_key)])
+async def reset_user(uid: str, m: SafetyMonitor = Depends(monitor)) -> dict:
+    """Demo: clear one user's track and ladder so the next ping re-triggers outreach (a fresh call per judge)."""
+    _user_or_404(m, uid)
+    try:
+        await asyncio.to_thread(m.reset_user, uid)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="unknown user") from exc
+    await m.emit_event("user.reset", {"user_id": uid})
+    return {"user_id": uid, "reset": True}
+
+
+# ---- where to go + the assistant line (phone app) -------------------------------------------------------------
+_ASSISTANTS: "weakref.WeakKeyDictionary[SafetyMonitor, AssistantLine]" = weakref.WeakKeyDictionary()
+
+
+def _assistant(m: SafetyMonitor) -> AssistantLine:
+    line = _ASSISTANTS.get(m)
+    if line is None:
+        line = _ASSISTANTS[m] = AssistantLine(m, emit=m.emit_event)
+    return line
+
+
+async def _directions(request: Request, m: SafetyMonitor, uid: str) -> tuple[SafetyUser, dict, Directions]:
+    u = _user_or_404(m, uid)
+    a = await asyncio.to_thread(m.assessment, uid)
+    if a is None:
+        raise HTTPException(status_code=409, detail="no flood picture yet: start the replay or live mode")
+    public = public_assessment(u, a)
+    loop = (await get_hill(request.app)).loop
+    index = await asyncio.to_thread(geometry_index, loop.region)
+
+    def build() -> Directions:
+        with loop.lock:
+            status = dict(loop.status)
+        return directions_for(loop.graph, loop.safe, loop.point_of, status, index.names, index.coords,
+                              public["hazard"].get("edge_id"), str(public.get("advice") or "none"),
+                              flooded_roads_near(public))
+
+    return u, public, await asyncio.to_thread(build)
+
+
+@router.get("/api/users/{uid}/directions")
+async def directions(request: Request, uid: str, m: SafetyMonitor = Depends(monitor)) -> dict:
+    """A way to higher ground from the user's last position (never called "safe"), with its map geometry."""
+    _u, _public, d = await _directions(request, m, uid)
+    return {"user_id": uid, **d.public()}
+
+
+@router.post("/api/users/{uid}/assistant", dependencies=[Depends(require_trusted_origin), Depends(require_api_key)])
+async def assistant(request: Request, uid: str, m: SafetyMonitor = Depends(monitor)) -> dict:
+    """Prepare the assistant line: give the agent this person's situation + directions, return its number to dial.
+    Live only with HITIDE_ASSISTANT_LIVE=1. Responders are flagged from the call's outcome; 911 is never called."""
+    u, public, d = await _directions(request, m, uid)
+    result = await _assistant(m).request(uid, u.name, public, d)
+    r = m.response(uid)
+    return {"user_id": uid, **result, "response": r.public() if r else None}

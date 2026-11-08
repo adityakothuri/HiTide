@@ -1,0 +1,135 @@
+{
+ "user_id": "hc-dana",
+ "level": "critical",
+ "hazard_level": "critical",
+ "bumped_for_vulnerability": false,
+ "reasons": [
+  "Park Street over Quinlan Creek is confirmed flooded where you are",
+  "Flash Flood Emergency covers your location",
+  "Flash Flood Warning covers your location"
+ ],
+ "advice": "move_to_high_ground",
+ "confidence": "medium",
+ "stopped_in_water": false,
+ "location_stale": false,
+ "assessed_at": "2025-07-04T12:28:33.560044+00:00",
+ "location": {
+  "lat": 30.03785,
+  "lon": -99.13361,
+  "ts": 1751632113.5600438,
+  "state": "parked",
+  "speed_mps": 0.0,
+  "heading_deg": 148.5461355452867
+ },
+ "hazard": {
+  "lat": 30.03785,
+  "lon": -99.13361,
+  "coverage": "region",
+  "edge_id": "151656713-151656767-0",
+  "road_name": "Park Street",
+  "distance_to_road_m": 0.0,
+  "waterway": "Quinlan Creek",
+  "height_above_water_m": 0.0,
+  "depth_in": null,
+  "max_depth_nearby_in": null,
+  "unknown_nearby": true,
+  "in_warning": true,
+  "in_emergency": true,
+  "emergency_polygon": false,
+  "in_watch": false,
+  "far_from_water": false,
+  "region_rising": false,
+  "alert_headlines": [
+   "REPLAY of July 4, 2025: Flash Flood Warning for Kerr County",
+   "REPLAY of July 4, 2025: Flash Flood Emergency for Hunt",
+   "REPLAY of July 4, 2025: Flash Flood Emergency for Hunt to Kerrville"
+  ],
+  "rain_in_hr": 0.0,
+  "gauge_rising": false,
+  "gauge_category": null,
+  "forecast_category": null,
+  "closure_nearby": null,
+  "degraded_sources": [],
+  "worst_point": {
+   "id": "cp-0043",
+   "name": "Park Street",
+   "kind": "crossing",
+   "waterway": "Quinlan Creek",
+   "status": "confirmed_flooded",
+   "p": 0.95,
+   "distance_m": 0,
+   "on_my_road": true
+  },
+  "ahead": [],
+  "route": [],
+  "confidence": "medium"
+ },
+ "vulnerability": {
+  "score": 0.225,
+  "band": "low",
+  "stall_depth_in": 18.0,
+  "needs_priority": false,
+  "is_teen": false,
+  "is_older": false,
+  "channel": "sms",
+  "no_voice": false,
+  "language": "en",
+  "reasons": [
+   "low-clearance vehicle",
+   "drives low-water crossings often",
+   "new to the area"
+  ],
+  "factors": {
+   "needs": 0.0,
+   "age": 0.0,
+   "vehicle": 0.5,
+   "night": 0.0,
+   "passengers": 0.0,
+   "crossing_exposure": 1.0,
+   "past_flood": 0.0,
+   "home_exposure": 0.0,
+   "unfamiliar": 1.0
+  }
+ },
+ "response": {
+  "episode_level": "critical",
+  "awaiting_reply": false,
+  "called": true,
+  "call_unanswered": false,
+  "family_contacted": true,
+  "responders_flagged": true,
+  "case_open": true,
+  "need_help": true,
+  "safe_until": null,
+  "timeline": [
+   {
+    "t": 1751609653.9290626,
+    "what": "warning -> text:warning"
+   },
+   {
+    "t": 1751610517.4677374,
+    "what": "warning reminder -> text:warning_reminder"
+   },
+   {
+    "t": 1751616561.1877377,
+    "what": "danger -> tts_in_app:danger_driving"
+   },
+   {
+    "t": 1751617105.3631563,
+    "what": "danger reminder -> tts_in_app:danger_driving"
+   },
+   {
+    "t": 1751632102.5600438,
+    "what": "critical -> voice:critical_call, open_case:case"
+   },
+   {
+    "t": 1751632113.5600438,
+    "what": "family contacted (critical, no reply)"
+   },
+   {
+    "t": 1751632102.5600438,
+    "what": "HELP from driver -> responders flagged"
+   }
+  ]
+ }
+}

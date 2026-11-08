@@ -45,3 +45,12 @@ export function makeProjector(region: Region, width: number, height: number) {
     height / 2 - (p[1] - region.latitude) * scale,
   ];
 }
+
+/** The exact inverse of `makeProjector`: view pixels back to lng/lat (e.g. where a finger tapped the map). */
+export function unproject(region: Region, width: number, height: number, [x, y]: readonly [number, number]): LngLat {
+  const k = Math.cos((region.latitude * Math.PI) / 180);
+  const spanX = region.longitudeDelta * k;
+  const spanY = region.latitudeDelta;
+  const scale = Math.min(width / spanX, height / spanY);
+  return [region.longitude + (x - width / 2) / (k * scale), region.latitude - (y - height / 2) / scale];
+}

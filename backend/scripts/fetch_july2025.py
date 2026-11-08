@@ -19,7 +19,7 @@ from scripts.build_region_cache import BACKEND, load_region
 
 OGC = "https://api.waterdata.usgs.gov/ogcapi/v1/collections"
 WINDOW = "2025-07-03T00:00:00Z/2025-07-06T00:00:00Z"
-HEADERS = {"User-Agent": "FloodWatch-HackUTD/0.1 (demo cache build)"}
+HEADERS = {"User-Agent": "HiTide-HackUTD/0.1 (demo cache build)"}
 
 
 def _get(client: httpx.Client, url: str, params: dict, attempts: int = 3) -> dict:

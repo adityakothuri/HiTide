@@ -1,0 +1,122 @@
+{
+  "name": "Kerrville River Trail below the Dietert Center",
+  "clip": "raw/yt_tFCaJNsK3_8.mp4",
+  "credit": "Video: Travis Humphreys (YouTube, Jul 4 2025) · internal demo, all rights with owner",
+  "camera_latlon": [
+    30.050611,
+    -99.157333
+  ],
+  "camera_source": "filmer's published coordinates 30°03'02.2\"N 99°09'26.4\"W, looking south",
+  "dem": "dem1m.npz",
+  "dem_crs": 5070,
+  "line_name": "River Trail (OSM)",
+  "line_offset_m": 1.8,
+  "keyframe_s": 50.0,
+  "keyframe_curb_px": [
+    [
+      80,
+      557
+    ],
+    [
+      240,
+      558
+    ],
+    [
+      400,
+      560
+    ],
+    [
+      560,
+      566
+    ],
+    [
+      720,
+      570
+    ],
+    [
+      880,
+      576
+    ],
+    [
+      1040,
+      582
+    ],
+    [
+      1200,
+      588
+    ]
+  ],
+  "priors": {
+    "heading": [
+      180,
+      20
+    ],
+    "pitch": [
+      8,
+      6
+    ],
+    "roll": [
+      0,
+      3
+    ],
+    "hfov": [
+      66,
+      6
+    ],
+    "eye_m": [
+      2.5,
+      1.5
+    ],
+    "dx": [
+      0,
+      4
+    ],
+    "dy": [
+      0,
+      4
+    ]
+  },
+  "gauge_site": "08166200",
+  "gauge_note": "USGS 08166200 is 0.6 km upstream (above Nimitz Lake dam)",
+  "inner_offset_m": 1.8,
+  "keyframe_inner_px": [
+    [
+      0,
+      600
+    ],
+    [
+      160,
+      600
+    ],
+    [
+      320,
+      601
+    ],
+    [
+      480,
+      604
+    ],
+    [
+      640,
+      608
+    ],
+    [
+      800,
+      615
+    ],
+    [
+      960,
+      622
+    ],
+    [
+      1120,
+      633
+    ],
+    [
+      1240,
+      640
+    ]
+  ],
+  "normal_wse_m": 485.7,
+  "normal_wse_source": "2018 lidar water surface in the channel south of the trail (hydro-flattened)"
+}

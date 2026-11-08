@@ -4,8 +4,8 @@
   gap: 20px;
   height: 40px;
   padding: 0 16px;
-  background: var(--d-bg);
-  border-bottom: 1px solid rgb(255 255 255 / 7%);
+  background: var(--d-panel);
+  border-bottom: 1px solid var(--d-line);
   min-width: 0;
 }
 
@@ -18,7 +18,7 @@
 
 .product {
   padding-left: 16px;
-  border-left: 1px solid rgb(255 255 255 / 12%);
+  border-left: 1px solid var(--d-line-strong);
   color: var(--d-muted);
   font-size: 13px;
   white-space: nowrap;
@@ -34,13 +34,40 @@
   font-size: 12px;
 }
 
-.warningDot {
-  width: 6px;
-  height: 6px;
+.warningIcon {
   flex: none;
-  border-radius: 50%;
-  background: var(--d-caution);
+  color: var(--caution-mark);
 }
+
+/* An active NWS warning is the one thing in the header that earns a fill. */
+.warningOn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--wx-warn-line);
+  border-radius: 6px;
+  background: var(--wx-warn-bg);
+  color: var(--wx-warn-ink);
+  font-weight: 600;
+}
+
+.warningOn .warningIcon { color: var(--wx-warn-ink); }
+
+.warningOn .issued {
+  color: var(--wx-warn-ink);
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  color: var(--d-muted);
+  font-size: 12px;
+}
+
+.stale { color: var(--d-stale); }
 
 .warningText {
   white-space: nowrap;
@@ -51,10 +78,10 @@
 .warningSim {
   flex: none;
   padding: 0 6px;
-  border: 1px solid rgb(255 255 255 / 14%);
+  border: 1px solid var(--d-line-strong);
   border-radius: 4px;
   color: var(--d-muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 16px;
 }
 
@@ -85,5 +112,10 @@
 .issued {
   flex: none;
   color: var(--d-muted);
-  font-size: 11px;
+  font-size: 12px;
 }
+
+/* Pushes itself and the connection status to the right edge. */
+.modeBadge { margin-left: auto; }
+.modeBadge + .conn { margin-left: 0; }
+

@@ -1,4 +1,7 @@
 import {
+  sampleRouteChoices,
+  sampleDirections,
+  sampleFloodLayer,
   DEFAULT_CONTACT,
   DEFAULT_PREFERENCES,
   DEMO_USER,
@@ -10,11 +13,22 @@ import {
   routeChangedUpdate,
   warningUpdate,
 } from '@/data/fixtures';
+import { applyAssessment } from '@/data/live/mapAssessment';
+import type { Assessment } from '@/data/live/schema';
+import { caseUpdate, routeSelectedUpdate, turnAroundUpdate } from './updates';
 import type {
   AppState,
+  AssistantLine,
+  Connection,
+  DangerLevel,
+  Directions,
+  LngLat,
+  FloodLayer,
+  RouteChoice,
   CaseEvent,
   EmergencyContact,
   FlowMode,
+  GaugeReading,
   PersistedState,
   Preferences,
   RouteId,
@@ -38,9 +52,52 @@ export type Action =
   | { type: 'minimize_case' }
   | { type: 'restore_case' }
   | { type: 'dismiss_resolved' }
-  | { type: 'reset'; now: string };
+  | { type: 'reset'; now: string }
+  | { type: 'apply_remote'; assessment: Assessment }
+  | { type: 'set_gauge'; gauge: GaugeReading }
+  | { type: 'set_connection'; patch: Partial<Connection> }
+  | { type: 'set_flood_layer'; layer: FloodLayer }
+  | { type: 'set_directions'; directions: Directions | null }
+  | { type: 'assistant_requested'; line: AssistantLine }
+  | { type: 'set_route_choices'; choices: readonly RouteChoice[] }
+  | { type: 'choose_route'; id: string; now: string }
+  /** A pin dropped on the map. `sample` (mock mode only) supplies the level and directions a backend would give. */
+  | { type: 'pin_location'; at: LngLat; now: string; sample?: { level: DangerLevel; directions: Directions | null } };
 
 export const DEFAULT_SCENARIO: Scenario = 'flood_warning';
+
+export const MOCK_CONNECTION: Connection = {
+  kind: 'mock',
+  status: 'live',
+  mode: null,
+  assessedAt: null,
+  level: null,
+  drive: 'idle',
+  paused: false,
+  failWrites: false,
+  degraded: false,
+  topReason: null,
+  callPlaced: false,
+  lastOutreach: null,
+};
+
+/** A replay restart rewinds the clock by hours; a late poll is only seconds to minutes old. */
+const REWIND_MS = 60 * 60 * 1000;
+
+/** True when this assessment is older than the one already shown, and not a replay rewind. */
+function isStale(state: AppState, assessment: Assessment): boolean {
+  const shown = state.connection.assessedAt;
+  if (!shown) return false;
+  const age = Date.parse(shown) - Date.parse(assessment.assessed_at);
+  return age > 0 && age < REWIND_MS;
+}
+
+function patchConnection(state: AppState, patch: Partial<Connection>): AppState {
+  const keys = Object.keys(patch) as (keyof Connection)[];
+  if (keys.every((k) => patch[k] === undefined || state.connection[k] === patch[k])) return state;
+  const defined = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+  return { ...state, connection: { ...state.connection, ...defined } };
+}
 
 interface Carry {
   contact: EmergencyContact;
@@ -57,41 +114,6 @@ const DEFAULT_CARRY: Carry = {
 };
 
 const CASE_LOCATION_LABEL = 'Riverside Drive';
-
-function routeSelectedUpdate(now: string): UpdateItem {
-  return {
-    id: UPDATE_IDS.routeSelected,
-    category: 'trips',
-    icon: 'route',
-    title: 'Alternate route selected',
-    body: 'Your work trip now goes via Memorial Blvd',
-    at: now,
-    target: 'route',
-    actionLabel: 'View route',
-  };
-}
-
-function turnAroundUpdate(now: string): UpdateItem {
-  return {
-    id: UPDATE_IDS.turnAround,
-    category: 'trips',
-    icon: 'warning',
-    title: 'Turn-around alert',
-    body: 'Flooded road reported ahead on Riverside Drive',
-    at: now,
-    target: 'route',
-    actionLabel: 'Review route',
-  };
-}
-
-function caseUpdate(kind: 'check_in' | 'help' | 'safe', now: string): UpdateItem {
-  const content = {
-    check_in: { id: UPDATE_IDS.checkIn, title: 'Safety check-in sent', body: 'We noticed a stop near a reported flood' },
-    help: { id: UPDATE_IDS.help, title: 'Help request received', body: 'Simulated workflow · Sample data' },
-    safe: { id: UPDATE_IDS.safe, title: 'You marked yourself safe', body: 'Thanks for checking in' },
-  }[kind];
-  return { ...content, category: 'checkins', icon: 'shield', at: now, target: 'case' };
-}
 
 function makeAlert(now: string): TurnAroundAlert {
   return {
@@ -123,7 +145,12 @@ function makeCase(status: SafetyCase['status'], now: string): SafetyCase {
 }
 
 /** Builds a complete, reviewable state for a scenario while keeping the user's own settings. */
-export function buildScenario(scenario: Scenario, carry: Carry, now: string): AppState {
+export function buildScenario(
+  scenario: Scenario,
+  carry: Carry,
+  now: string,
+  connection: Connection = MOCK_CONNECTION,
+): AppState {
   const trip = buildTrip(now);
   const hasWarning = scenario !== 'normal';
   const updates: UpdateItem[] = [contactUpdate(now, carry.contact.name)];
@@ -134,11 +161,11 @@ export function buildScenario(scenario: Scenario, carry: Carry, now: string): Ap
   let safetyCase: SafetyCase | null = null;
 
   if (scenario === 'alternate_route') selectedRouteId = 'alternate';
-  if (selectedRouteId === 'alternate') updates.push(routeSelectedUpdate(now));
+  if (selectedRouteId === 'alternate') updates.push(routeSelectedUpdate(now, trip.routes.alternate.via));
   if (scenario === 'turn_around') {
     selectedRouteId = 'original';
     alert = makeAlert(now);
-    updates.push(turnAroundUpdate(now));
+    updates.push(turnAroundUpdate(now, 'Riverside Drive'));
   }
   if (scenario === 'check_in') {
     safetyCase = makeCase('checking', now);
@@ -166,12 +193,28 @@ export function buildScenario(scenario: Scenario, carry: Carry, now: string): Ap
     readIds: carry.readIds,
     alert,
     safetyCase,
+    position: null,
+    // Sample mode draws an illustrative flood picture; live mode fills these from the backend.
+    floodLayer: connection.kind === 'mock' && hasWarning ? sampleFloodLayer(now) : null,
+    directions: connection.kind === 'mock' && safetyCase ? sampleDirections() : null,
+    assistant: null,
+    lastPin: null,
+    routeChoices: connection.kind === 'mock' && hasWarning ? sampleRouteChoices(trip) : [],
+    selectedChoiceId: connection.kind === 'mock' && hasWarning ? selectedRouteId : null,
+    connection,
   };
 }
 
 export function initialState(now: string): AppState {
   return buildScenario(DEFAULT_SCENARIO, DEFAULT_CARRY, now);
 }
+
+/** Live mode starts calm and waits for the backend: no sample warning, closure, or case. */
+export function liveInitialState(now: string): AppState {
+  return buildScenario('normal', DEFAULT_CARRY, now, { ...MOCK_CONNECTION, kind: 'live', status: 'connecting' });
+}
+
+const resetScenario = (state: AppState): Scenario => (state.connection.kind === 'live' ? 'normal' : DEFAULT_SCENARIO);
 
 const carryFrom = (s: AppState): Carry => ({
   contact: s.contact,
@@ -191,7 +234,7 @@ function selectRoute(state: AppState, routeId: RouteId, now: string): AppState {
   if (routeId === 'alternate' && !state.trip.closure) return state;
   const updates =
     routeId === 'alternate'
-      ? withUpdate(state.updates, routeSelectedUpdate(now))
+      ? withUpdate(state.updates, routeSelectedUpdate(now, state.trip.routes.alternate.via))
       : state.updates.filter((u) => u.id !== UPDATE_IDS.routeSelected);
   const readIds = routeId === 'alternate' ? unread(state.readIds, UPDATE_IDS.routeSelected) : state.readIds;
   return { ...state, selectedRouteId: routeId, updates, readIds };
@@ -201,20 +244,92 @@ function addCaseEvent(c: SafetyCase, event: CaseEvent): SafetyCase {
   return { ...c, events: [...c.events, event] };
 }
 
+/** A scenario rebuild keeps the live map picture: it comes from the backend, not from the scenario. */
+function keepLive(prev: AppState, next: AppState): AppState {
+  return prev.connection.kind === 'live'
+    ? {
+        ...next,
+        floodLayer: prev.floodLayer,
+        routeChoices: prev.routeChoices,
+        selectedChoiceId: prev.selectedChoiceId,
+        lastPin: prev.lastPin,
+      }
+    : next;
+}
+
+function pinLocation(state: AppState, action: Extract<Action, { type: 'pin_location' }>): AppState {
+  const level = action.sample ? action.sample.level : state.connection.level;
+  const lastPin = { at: action.at, level, requestedAt: action.now };
+  if (!action.sample) return { ...state, position: action.at, lastPin };
+  return {
+    ...state,
+    position: action.at,
+    lastPin,
+    directions: action.sample.directions,
+    connection: { ...state.connection, level },
+  };
+}
+
+const ASSISTANT_DETAIL: Record<AssistantLine['mode'], string> = {
+  live: 'Calling the HiTide assistant',
+  mock: 'Simulated call',
+  unavailable: 'Assistant line unavailable',
+};
+
+function requestAssistant(state: AppState, line: AssistantLine): AppState {
+  const c = state.safetyCase;
+  if (!c) return { ...state, assistant: line };
+  const event: CaseEvent = {
+    kind: 'assistant_call',
+    at: line.requestedAt,
+    simulated: line.mode !== 'live',
+    detail: ASSISTANT_DETAIL[line.mode],
+  };
+  return { ...state, assistant: line, safetyCase: { ...c, events: [...c.events.filter((e) => e.kind !== 'assistant_call'), event] } };
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'hydrate': {
       const p = action.persisted;
-      return buildScenario(
-        state.scenario,
-        { contact: p.contact, preferences: p.preferences, selectedRouteId: p.selectedRouteId, readIds: p.readIds },
-        action.now,
+      return keepLive(
+        state,
+        buildScenario(
+          state.scenario,
+          { contact: p.contact, preferences: p.preferences, selectedRouteId: p.selectedRouteId, readIds: p.readIds },
+          action.now,
+          state.connection,
+        ),
       );
     }
     case 'set_scenario':
-      return buildScenario(action.scenario, carryFrom(state), action.now);
+      return keepLive(state, buildScenario(action.scenario, carryFrom(state), action.now, state.connection));
     case 'reset':
-      return buildScenario(DEFAULT_SCENARIO, DEFAULT_CARRY, action.now);
+      return { ...keepLive(state, buildScenario(resetScenario(state), DEFAULT_CARRY, action.now, state.connection)), lastPin: null };
+    case 'pin_location':
+      return pinLocation(state, action);
+    case 'set_flood_layer':
+      return state.floodLayer === action.layer ? state : { ...state, floodLayer: action.layer };
+    case 'set_directions':
+      return state.directions === action.directions ? state : { ...state, directions: action.directions };
+    case 'assistant_requested':
+      return requestAssistant(state, action.line);
+    case 'set_route_choices': {
+      const keep = action.choices.some((c) => c.id === state.selectedChoiceId);
+      return { ...state, routeChoices: action.choices, selectedChoiceId: keep ? state.selectedChoiceId : null };
+    }
+    case 'choose_route': {
+      if (!state.routeChoices.some((c) => c.id === action.id)) return state;
+      const chosen = { ...state, selectedChoiceId: action.id };
+      // Sample-mode choices are the fixture routes: keep the route-update flow in step.
+      return action.id === 'original' || action.id === 'alternate' ? selectRoute(chosen, action.id, action.now) : chosen;
+    }
+    case 'apply_remote':
+      return state.connection.paused || isStale(state, action.assessment) ? state : applyAssessment(state, action.assessment);
+    case 'set_gauge':
+      return state.connection.paused || state.gauge === action.gauge ? state : { ...state, gauge: action.gauge };
+    case 'set_connection':
+      return patchConnection(state, action.patch);
     case 'select_route':
       return selectRoute(state, action.routeId, action.now);
     case 'mark_read':

@@ -1,0 +1,38 @@
+.wrap {
+  position: absolute;
+  top: 8px;
+  left: calc(var(--left-w) + 16px);
+  z-index: 3;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--d-line-strong);
+  border-radius: 6px;
+  background: var(--d-panel);
+  color: var(--d-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn:hover { background: var(--d-hover); }
+.btn[aria-expanded='true'] { background: var(--accent-tint); color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.pop {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  width: 290px;
+  border: 1px solid var(--d-line);
+  border-radius: var(--app-radius-panel);
+  overflow: hidden;
+  background: var(--d-panel);
+  box-shadow: var(--shadow-float);
+}

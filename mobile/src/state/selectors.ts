@@ -1,4 +1,4 @@
-import type { AppState, RouteOption, UpdateCategory, UpdateItem } from '@/domain/types';
+import type { AppState, FloodWarning, RouteOption, UpdateCategory, UpdateItem } from '@/domain/types';
 
 export type UpdateFilter = 'all' | Exclude<UpdateCategory, 'general'>;
 
@@ -26,4 +26,11 @@ export function greeting(nowIso: string): string {
   if (h < 12) return 'Good morning';
   if (h < 18) return 'Good afternoon';
   return 'Good evening';
+}
+
+/** "Kerr County · until 4:00 PM", or the time HiTide last checked when the source gives no expiry. */
+export function warningDetail(w: FloodWarning): string {
+  if (w.expiresAt) return `${w.area} · until ${formatTime(w.expiresAt)}`;
+  if (w.assessedAt) return `${w.area} · checked ${formatTime(w.assessedAt)}`;
+  return w.area;
 }

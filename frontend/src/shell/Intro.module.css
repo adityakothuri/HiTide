@@ -1,0 +1,98 @@
+/* Opening animation. Transform and opacity only; the cover leaves upward ("tide out"). */
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+
+  /* Flat app blue, exactly the phone splash. */
+  background: var(--brand-bar);
+  animation: drain 700ms cubic-bezier(0.7, 0, 0.25, 1) 1250ms forwards;
+  pointer-events: none;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 18px;
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  border-radius: 30px;
+  background: var(--rail-strong);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
+  animation: pop 650ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.ring {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  width: 128px;
+  height: 128px;
+  margin: -64px 0 0 -64px;
+  border: 2px solid var(--on-bar);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ripple 1200ms cubic-bezier(0.2, 0.6, 0.3, 1) both;
+}
+
+.r1 { animation-delay: 250ms; }
+.r2 { animation-delay: 520ms; }
+
+.line {
+  overflow: visible;
+}
+
+.line path {
+  fill: none;
+  stroke: var(--on-bar);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: draw 700ms ease-out 350ms forwards;
+}
+
+/* The cover's wavy bottom edge, drifting sideways while the cover rises. */
+.edge {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 200%;
+  height: 80px;
+  margin-top: -1px;
+  animation: drift 1950ms linear both;
+}
+
+.edge path { fill: var(--brand-bar); }
+
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.4) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes ripple {
+  0% { opacity: 0.7; transform: scale(0.9); }
+  100% { opacity: 0; transform: scale(2.8); }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes drain {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(calc(-100% - 90px)); }
+}

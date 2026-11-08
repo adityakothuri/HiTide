@@ -1,3 +1,4 @@
+import { WaveMark } from '../../ui/WaveMark'
 import { Check, CreditCard, LifeBuoy, MapPin, Settings as Gear, ShieldCheck, TriangleAlert, Users } from 'lucide-react'
 import { useApp } from '../../state/StoreContext'
 import { firstName, formatRelative } from '../../lib/format'
@@ -5,7 +6,6 @@ import { useNow } from '../../lib/useNow'
 import { useToast } from '../../ui/Toast'
 import { Row, Section } from '../ios'
 import type { DriverView } from '../useDriverView'
-import { ShieldMark } from './Brand'
 import s from './Screens.module.css'
 
 const hourFmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: 'America/Chicago' })
@@ -30,10 +30,10 @@ export function Home({ view, onSettings }: { view: DriverView; onSettings: () =>
       <section className={s.band} data-band>
         <div className={s.bandBar}>
           <span className={s.bandMark}>
-            <ShieldMark />
-            State Farm
+            <WaveMark size={14} />
+            HiTide
           </span>
-          <button type="button" className={s.bandButton} onClick={onSettings} aria-label="Flood Watch settings">
+          <button type="button" className={s.bandButton} onClick={onSettings} aria-label="HiTide settings">
             <Gear aria-hidden="true" />
           </button>
         </div>
@@ -47,7 +47,7 @@ export function Home({ view, onSettings }: { view: DriverView; onSettings: () =>
               ? <TriangleAlert className={`${s.statusGlyph} ${s.statusCaution}`} aria-hidden="true" />
               : <ShieldCheck className={`${s.statusGlyph} ${s.statusSafe}`} aria-hidden="true" />}
             <span className={s.statusText}>
-              <span className={s.statusTitle}>{warningNearby ? 'Flood warning in your area' : 'Flood Watch is on'}</span>
+              <span className={s.statusTitle}>{warningNearby ? 'Flood warning in your area' : 'HiTide is on'}</span>
               <span className={s.statusSub}>
                 {warningNearby
                   ? 'Your usual routes are clear right now. We will alert you if that changes.'
@@ -69,7 +69,7 @@ export function Home({ view, onSettings }: { view: DriverView; onSettings: () =>
         </Section>
       )}
 
-      <Section header={p ? `Auto policy, ${p.vehicle}` : 'Your policy'} id="quick">
+      <Section header={p ? `Your vehicle, ${p.vehicle}` : 'Your vehicle'} id="quick">
         <Row icon={CreditCard} title="ID cards" chevron onClick={notInDemo} />
         <Row icon={LifeBuoy} title="Roadside assistance" chevron onClick={notInDemo} />
         {p && <Row icon={Users} title="Emergency contact" subtitle={p.contact.name} chevron onClick={onSettings} />}

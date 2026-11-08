@@ -1,22 +1,35 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { IntroOverlay } from '@/components/IntroOverlay';
+import { WaveTransition } from '@/components/WaveTransition';
 import { RepositoryProvider } from '@/data/RepositoryProvider';
 import { FlowGate } from '@/state/flowGate';
 import { color } from '@/theme/tokens';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+/** Card screens rise in under the wave curtain; sheets keep the native modal presentation. */
+const SCREEN_OPTIONS = {
+  headerShown: false,
+  contentStyle: { backgroundColor: color.white },
+  animation: 'fade_from_bottom' as const,
+};
 const FOCUSED_FLOW = { gestureEnabled: false, animation: 'fade' as const, presentation: 'card' as const };
-const SHEET = { presentation: 'modal' as const };
+const SHEET = { presentation: 'modal' as const, animation: 'default' as const };
+/** Set location: a full-height map, so it covers the screen rather than a card sheet. */
+const FULL_MAP = { presentation: 'fullScreenModal' as const, gestureEnabled: false };
 
 export default function RootLayout() {
+  // The intro starts as the native splash hides; both share the brand blue, so the hand-off is seamless.
+  const [ready, setReady] = useState(false);
   const hideSplash = useCallback(() => {
     SplashScreen.hideAsync().catch(() => undefined);
+    setReady(true);
   }, []);
 
   return (
@@ -25,7 +38,7 @@ export default function RootLayout() {
         <StatusBar style="light" />
         <RepositoryProvider onReady={hideSplash}>
           <FlowGate />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.white } }}>
+          <Stack screenOptions={SCREEN_OPTIONS}>
             <Stack.Screen name="(tabs)" options={{ presentation: 'card' }} />
             <Stack.Screen name="turn-around" options={FOCUSED_FLOW} />
             <Stack.Screen name="check-in" options={FOCUSED_FLOW} />
@@ -35,9 +48,15 @@ export default function RootLayout() {
             <Stack.Screen name="route-details" options={SHEET} />
             <Stack.Screen name="contact" options={SHEET} />
             <Stack.Screen name="call-911" options={SHEET} />
+            <Stack.Screen name="assistant" options={SHEET} />
+            <Stack.Screen name="flood-map" options={SHEET} />
+            <Stack.Screen name="set-location" options={FULL_MAP} />
+            <Stack.Screen name="location-result" options={SHEET} />
             <Stack.Screen name="dev" options={SHEET} />
             <Stack.Screen name="dev-action" options={{ presentation: 'card', animation: 'none' }} />
           </Stack>
+          <WaveTransition />
+          <IntroOverlay ready={ready} />
         </RepositoryProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

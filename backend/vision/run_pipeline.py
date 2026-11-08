@@ -28,7 +28,7 @@ from vision.overlay import annotate, colorize
 from vision.snapshot import VisionSnapshot
 
 log = logging.getLogger("vision.run_pipeline")
-API = os.environ.get("FLOODWATCH_API", "http://127.0.0.1:8000")
+API = os.environ.get("HITIDE_API", "http://127.0.0.1:8000")
 
 
 def _save(name: str, image: np.ndarray) -> str:

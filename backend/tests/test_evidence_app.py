@@ -13,8 +13,8 @@ def test_full_app_mongo_inspection_survives_restart(monkeypatch):
     uri = os.environ.get("MONGODB_TEST_URI")
     if not uri:
         pytest.skip("set MONGODB_TEST_URI for the full MongoDB app integration")
-    name = f"floodwatch_test_{uuid.uuid4().hex}"
-    monkeypatch.setenv("FLOODWATCH_DB_BACKEND", "mongodb")
+    name = f"hitide_test_{uuid.uuid4().hex}"
+    monkeypatch.setenv("HITIDE_DB_BACKEND", "mongodb")
     monkeypatch.setenv("MONGODB_URI", uri)
     monkeypatch.setenv("MONGODB_DATABASE", name)
     monkeypatch.setenv("PHOTON_MODE", "mock")
@@ -45,6 +45,6 @@ def test_full_app_mongo_inspection_survives_restart(monkeypatch):
             assert not state["communities"][0]["optimistic_access"]
             assert client.get("/api/evidence/nearby?lon=-99.13&lat=30.05&radius_m=2000").status_code == 200
     finally:
-        assert name.startswith("floodwatch_test_") and len(name) == 48
+        assert name.startswith("hitide_test_") and len(name) == 48
         with MongoClient(uri, serverSelectionTimeoutMS=5000) as cleanup:
             cleanup.drop_database(name)

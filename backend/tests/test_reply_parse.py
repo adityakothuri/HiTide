@@ -17,3 +17,15 @@ def test_need_help_replies(text):
 @pytest.mark.parametrize("text", ["", "who is this?", "safety first lol", "helpful"])
 def test_unrelated_text_is_ignored(text):
     assert parse_reply(text) is None
+
+
+@pytest.mark.parametrize("text,want", [("No.", "need_help"), ("Nope, the water's rising", "need_help"),
+                                       ("nah", "need_help"), ("no, I'm fine", "safe"), ("know", None)])
+def test_spoken_reply_bare_no_is_need_help(text, want):
+    from outreach.replies import parse_spoken_reply
+    assert parse_spoken_reply(text) == want
+
+
+def test_texted_bare_no_is_unchanged():
+    """Texts ask for SAFE/HELP explicitly; only the voice agent's "Are you okay?" makes a bare "no" meaningful."""
+    assert parse_reply("No") is None

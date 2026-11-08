@@ -10,7 +10,7 @@ from typing import Any, Mapping
 
 from safety.danger import DangerAssessment
 
-BRAND = {"en": "State Farm Flood Watch", "es": "State Farm Alerta de Inundaciones"}
+BRAND = {"en": "HiTide", "es": "State Farm Alerta de Inundaciones"}
 TURN = {"en": "If you see water on the road, turn around.", "es": "Si ve agua en el camino, dé la vuelta."}
 ADVICE = {
     "en": {"turn_around": "Turn around now and take another way.", "do_not_drive": "Don't start that trip.",

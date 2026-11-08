@@ -14,6 +14,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from app.hill_runtime import RegionMode, get_hill, set_mode, state_json
 from app.security import require_trusted_origin
+from critical.flood_layer import build_flood_layer, geometry_index, parse_bbox
+from critical.route_options import edge_statuses, nearest_node, route_options
 from drone.dispatch import distance_m
 
 log = logging.getLogger(__name__)
@@ -58,6 +60,37 @@ async def region_mode(request: Request, mode: RegionMode) -> dict:
 router.add_api_route("/api/region/critical-points", _part("critical_points"), methods=["GET"])
 router.add_api_route("/api/region/nodes", _part("nodes"), methods=["GET"])
 router.add_api_route("/api/region/gauges", _part("gauges"), methods=["GET"])  # small: the phone app polls this
+
+
+_FLOOD_CACHE: dict[tuple, dict] = {}
+_FLOOD_CACHE_MAX = 8  # a few map windows x the current step; older entries fall out first
+
+
+@router.get("/api/region/flood-layer")
+async def flood_layer(request: Request, bbox: str) -> dict:
+    """Flooded / likely / unknown roads with geometry, crossings, gauges and alerts inside one map window."""
+    try:
+        box = parse_bbox(bbox)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=f"bbox: {exc}") from exc
+    hill = await get_hill(request.app)
+    loop = hill.loop
+    index = await asyncio.to_thread(geometry_index, loop.region)
+
+    def build() -> dict:
+        with loop.lock:  # the replay steps in a worker thread
+            snapshot, status = loop.snapshot, dict(loop.status)
+        # The snapshot is replaced (never mutated) each step; sim_time guards against a recycled id().
+        key = (box, id(snapshot), snapshot.get("sim_time"))
+        cached = _FLOOD_CACHE.get(key)
+        if cached is None:
+            cached = build_flood_layer(snapshot, loop.points, status, index, box)
+            if len(_FLOOD_CACHE) >= _FLOOD_CACHE_MAX:
+                _FLOOD_CACHE.pop(next(iter(_FLOOD_CACHE)))
+            _FLOOD_CACHE[key] = cached
+        return cached
+
+    return await asyncio.to_thread(build)
 router.add_api_route("/api/region/drones/plan", _part("drones"), methods=["GET"])
 
 
@@ -110,3 +143,37 @@ async def _vision_snapshot(res, point_id: str, drone_id: str):
     except Exception:  # any model failure (cv2.error, torch, missing weights) -> HSV fallback, flight kept
         log.exception("vision model unavailable for the Tello hover; using the HSV cover fallback")
         return None
+
+
+def _lon_lat(raw: str, name: str, bbox: tuple[float, float, float, float]) -> tuple[float, float]:
+    try:
+        lon, lat = (float(v) for v in raw.split(","))
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=f"{name} must be 'lon,lat'") from exc
+    if not (math.isfinite(lon) and math.isfinite(lat)) or not (bbox[0] <= lon <= bbox[2] and bbox[1] <= lat <= bbox[3]):
+        raise HTTPException(status_code=422, detail=f"{name} is outside the region")
+    return lon, lat
+
+
+@router.get("/api/routes/options")
+async def routes_options(request: Request, start: str, end: str) -> dict:
+    """Up to 3 different ways from start to end ('lon,lat'), each with the flooding reported on it.
+    The first is the plain fastest way (it may cross water); the others avoid known flooding. Never called safe."""
+    hill = await get_hill(request.app)
+    loop = hill.loop
+    rb = loop.region.cfg["bbox"]  # {west, south, east, north}
+    bbox = (float(rb["west"]), float(rb["south"]), float(rb["east"]), float(rb["north"]))
+    a = _lon_lat(start, "start", bbox)
+    b = _lon_lat(end, "end", bbox)
+    index = await asyncio.to_thread(geometry_index, loop.region)
+
+    def build() -> list[dict]:
+        with loop.lock:
+            snapshot, status = loop.snapshot, dict(loop.status)
+        u, v = nearest_node(index, *a), nearest_node(index, *b)
+        if not u or not v or u == v:
+            return []
+        edges = edge_statuses(snapshot.get("segments", []), loop.point_of, status)
+        return [o.public() for o in route_options(loop.graph, index, edges, u, v)]
+
+    return {"at": loop.snapshot.get("sim_time"), "options": await asyncio.to_thread(build)}

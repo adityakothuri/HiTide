@@ -60,7 +60,7 @@ def _monitor(loc, region, i, db, now):
 
 def test_ladder_survives_restart_without_duplicate_alerts(world, tmp_path, monkeypatch):
     region, loc, i = world
-    monkeypatch.setenv("FLOODWATCH_DB_PATH", str(tmp_path / "e.sqlite3"))
+    monkeypatch.setenv("HITIDE_DB_PATH", str(tmp_path / "e.sqlite3"))
     db = open_database("memory")
     try:
         m1, lat, lon = _monitor(loc, region, i, db, now=1000.0)
@@ -81,7 +81,7 @@ def test_ladder_survives_restart_without_duplicate_alerts(world, tmp_path, monke
 
 def test_replay_reset_clears_persisted_ladders(world, tmp_path, monkeypatch):
     region, loc, i = world
-    monkeypatch.setenv("FLOODWATCH_DB_PATH", str(tmp_path / "e.sqlite3"))
+    monkeypatch.setenv("HITIDE_DB_PATH", str(tmp_path / "e.sqlite3"))
     db = open_database("memory")
     try:
         m, lat, lon = _monitor(loc, region, i, db, now=1000.0)

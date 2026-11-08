@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-State Farm Flood Watch: a HackUTD 2026 project built by a small team in about 24 hours. Submissions close Sun Nov 8, 12:00 PM CT.
+HiTide: a HackUTD 2026 project built by a small team in about 24 hours. Submissions close Sun Nov 8, 12:00 PM CT.
 
 ## Mission
 
@@ -45,7 +45,7 @@ Full project brief and approved plan: `/Users/sandhyakothuri/.claude/plans/paste
 
 - Update the Obsidian vault after every phase (`vault/00 Home.md` status table first).
 - Core logic (risk scoring, road status, stop detection, escalation state machine, route checks) is TDD with pytest. This overrides "no tests unless asked" for those modules.
-- Run backend: `cd backend && uv run uvicorn app.main:app --reload`
+- Run everything: `./dev.sh` (test data, offline) or `./dev.sh real` (live feeds; add `--live-outreach` for real texts). Backend only: `cd backend && uv run uvicorn app.main:app --reload` (defaults to `DATA_MODE=test`)
 - Tests: `cd backend && uv run pytest`
 - Never commit phone numbers or Photon creds. Use `.env` (copy from `.env.example`). Demo phones are allowlisted only through `DEMO_PHONE_*`.
 

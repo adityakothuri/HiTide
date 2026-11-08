@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { dataMode } from '../config/dataMode'
 import { loadLiveSource } from './liveSource'
 import { loadReplaySource } from './replaySource'
 import type { RainProduct, WxMode, WxSnapshot, WxSource } from './types'
@@ -6,7 +7,11 @@ import type { RainProduct, WxMode, WxSnapshot, WxSource } from './types'
 /** One step per tick while playing: 6.5 h of replay in about 20 s. */
 const PLAY_TICK_MS = 250
 
-export interface WxLayers { rain: RainProduct | null; depth: boolean; gauges: boolean; roads: boolean }
+/** One base field at a time (risk, rain or depth) plus overlays. */
+export type BaseField = 'risk' | 'rain' | 'depth' | 'none'
+export interface WxLayers { base: BaseField; rainProduct: RainProduct; opacity: number; gauges: boolean; roads: boolean }
+
+export const DEFAULT_OPACITY = 0.7
 
 export type WxLoad = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; source: WxSource }
 
@@ -22,16 +27,35 @@ export interface WxState {
   setLayers: (fn: (l: WxLayers) => WxLayers) => void
 }
 
-const MODE: WxMode = import.meta.env.VITE_WX_MODE === 'live' ? 'live' : 'replay'
-
-/** Optional `?t=2025-07-04T09:30:00Z` starts the replay at that time (used for screenshots). */
-function initialT(range: [number, number]): number {
-  const q = new URLSearchParams(window.location.search).get('t')
-  const ms = q ? Date.parse(q) : NaN
-  return Number.isFinite(ms) ? Math.min(range[1], Math.max(range[0], ms)) : range[0]
+/** VITE_WX_MODE overrides; otherwise follow the test/real data mode. */
+async function wxMode(): Promise<WxMode> {
+  const forced = import.meta.env.VITE_WX_MODE
+  if (forced === 'live' || forced === 'replay') return forced
+  return (await dataMode()) === 'real' ? 'live' : 'replay'
 }
 
-export function useWx(): WxState {
+/** Real mode with the live feeds down still shows a map: the replay, labelled as such. */
+async function loadSource(): Promise<WxSource> {
+  if ((await wxMode()) === 'replay') return loadReplaySource()
+  try {
+    return await loadLiveSource()
+  } catch (e) {
+    console.warn('Live weather unavailable, falling back to the replay', e)
+    const replay = await loadReplaySource()
+    return { ...replay, note: `Live weather unavailable · showing ${replay.note.toLowerCase()}` }
+  }
+}
+
+/** Optional `?t=2025-07-04T09:30:00Z` starts the replay at that time (used for screenshots). */
+function initialT({ range, mode }: WxSource): number {
+  const q = new URLSearchParams(window.location.search).get('t')
+  const ms = q ? Date.parse(q) : NaN
+  if (Number.isFinite(ms)) return Math.min(range[1], Math.max(range[0], ms))
+  return mode === 'live' ? range[1] : range[0] // live opens on "now", the replay at its start
+}
+
+/** `initial` overrides the default layers (the monitor starts with a faded surface and no overlays). */
+export function useWx(initialBase: BaseField = 'risk', initial: Partial<WxLayers> = {}): WxState {
   const [load, setLoad] = useState<WxLoad>({ status: 'loading' })
   const [t, setTRaw] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -39,15 +63,15 @@ export function useWx(): WxState {
   useEffect(() => {
     tRef.current = t
   }, [t])
-  const [layers, setLayersRaw] = useState<WxLayers>({ rain: 'p1h', depth: true, gauges: true, roads: true })
+  const [layers, setLayersRaw] = useState<WxLayers>(() => ({ base: initialBase, rainProduct: 'p1h', opacity: DEFAULT_OPACITY, gauges: true, roads: true, ...initial }))
 
   useEffect(() => {
     let alive = true
-    ;(MODE === 'live' ? loadLiveSource() : loadReplaySource()).then(
+    loadSource().then(
       (source) => {
         if (!alive) return
         setLoad({ status: 'ready', source })
-        setTRaw(initialT(source.range))
+        setTRaw(initialT(source))
       },
       (e: unknown) => alive && setLoad({ status: 'error', message: e instanceof Error ? e.message : String(e) }),
     )

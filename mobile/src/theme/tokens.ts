@@ -1,14 +1,16 @@
 import { Platform } from 'react-native';
 
-/** Flood Watch consumer palette. Royal blue and white dominate; amber and red are semantic only. */
+/** HiTide consumer palette. Royal blue and white dominate; amber and red are semantic only. */
 export const color = {
+  /** Cobalt, shared with the ops dashboard. White text on it is 6.6:1 (AA, AAA large). */
   primary: '#2448E8',
   primaryPressed: '#1B39C4',
   onPrimary: '#FFFFFF',
   onPrimaryMuted: '#DCE4FF',
   white: '#FFFFFF',
   ink: '#13203B',
-  secondary: '#6D7890',
+  /** Slate secondary text: 5.2:1 on white, 4.9:1 on surface (WCAG AA). */
+  secondary: '#626D85',
   /** Slightly darker than secondary for small text on pale blue (AA contrast). */
   secondaryStrong: '#5A6580',
   paleBlue: '#EEF3FF',
@@ -59,6 +61,9 @@ export const touchTarget = Platform.select({ android: 48, default: 44 });
  * is regular or semibold, so hierarchy comes from size and color, not boldness.
  */
 export const font = {
+  /** Urgent single instruction (turn-around). */
+  alert: { fontSize: 38, lineHeight: 44, fontWeight: '700' as const, letterSpacing: -0.6 },
+  largeTitle: { fontSize: 34, lineHeight: 40, fontWeight: '700' as const, letterSpacing: -0.8 },
   display: { fontSize: 32, lineHeight: 38, fontWeight: '700' as const, letterSpacing: -0.8 },
   title: { fontSize: 26, lineHeight: 31, fontWeight: '700' as const, letterSpacing: -0.5 },
   heading: { fontSize: 19, lineHeight: 24, fontWeight: '600' as const, letterSpacing: -0.2 },
@@ -66,7 +71,11 @@ export const font = {
   body: { fontSize: 16, lineHeight: 22, fontWeight: '400' as const },
   small: { fontSize: 14, lineHeight: 19, fontWeight: '400' as const },
   caption: { fontSize: 13, lineHeight: 17, fontWeight: '400' as const },
-  overline: { fontSize: 12, lineHeight: 16, fontWeight: '600' as const, letterSpacing: 0.6 },
+  /** Eyebrow / section label. Sentence case, normal tracking: calm, not shouty. */
+  overline: { fontSize: 13, lineHeight: 18, fontWeight: '600' as const, letterSpacing: 0 },
+  tabLabel: { fontSize: 12, lineHeight: 16, fontWeight: '600' as const },
+  wordmark: { fontSize: 18, lineHeight: 23, fontWeight: '600' as const, letterSpacing: -0.3 },
+  buttonLarge: { fontSize: 19, lineHeight: 24, fontWeight: '600' as const, letterSpacing: -0.1 },
   button: { fontSize: 17, lineHeight: 22, fontWeight: '600' as const, letterSpacing: -0.1 },
 } as const;
 
@@ -91,4 +100,44 @@ export const shadow = {
     android: { elevation: 3 },
     default: { boxShadow: '0 2px 6px rgba(19,32,59,0.12)' },
   }),
+};
+
+/**
+ * Risk severity, the same values and mapping the ops dashboard uses (frontend/src/styles/tokens.css --sev-* and
+ * --d-*; region/derive.ts personTone/pointTone): critical and danger share the critical tone, warning is amber,
+ * watch and below are muted.
+ */
+export const risk = {
+  critical: '#D92D20',
+  criticalInk: '#B42318',
+  criticalBg: '#FDECEA',
+  criticalLine: '#F4B4AE',
+  warning: '#F08C00',
+  warningInk: '#8A5300',
+  warningBg: '#FDF3DC',
+  warningLine: '#F2C46D',
+  muted: '#7A8594',
+} as const;
+
+/** Flood map colours, from the dashboard's region map (severity tones) and NWS gauge categories. */
+export const flood = {
+  flooded: risk.critical,
+  likely: risk.warning,
+  /** Likely flooded on the map: thin and translucent, so dozens of short segments read as a tint, not blobs. */
+  likelySoft: '#F08C0099',
+  unknown: risk.muted,
+  unknownSoft: '#7A859459',
+  directions: '#13203B',
+  gaugeMajor: '#B25FD9',
+  gaugeModerate: '#E5322B',
+  gaugeMinor: '#F28C28',
+  gaugeAction: '#F2D43D',
+  gaugeBelow: '#8B97A4',
+} as const;
+
+export const GAUGE_COLOR: Record<string, string> = {
+  major: flood.gaugeMajor,
+  moderate: flood.gaugeModerate,
+  minor: flood.gaugeMinor,
+  action: flood.gaugeAction,
 };

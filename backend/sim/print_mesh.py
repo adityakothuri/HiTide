@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
-STL_HEADER = b"FloodWatch tabletop model (model mm)".ljust(80, b" ")
+STL_HEADER = b"HiTide tabletop model (model mm)".ljust(80, b" ")
 
 
 def heightfield_solid(h: np.ndarray, x0: float, y0: float, res: float) -> np.ndarray:

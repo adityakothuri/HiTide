@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, decisions]
+tags: [hitide, decisions]
 status: in-progress
 updated: 2026-11-07
 ---
@@ -107,7 +107,7 @@ User request: every area gets a 0–100 risk score (access, water, ground height
 - **Decision:** we took the palette, button shapes and header, tab and notification patterns from statefarm.com's published CSS.
 - **Limits kept:** we don't use State Farm's logo. The mark is a neutral shield with a waterline, and every surface keeps the "Concept prototype" footer. The demo can look like their tooling without passing as an official product.
 - **Demo features added in this round:**
-  - An in-app mirror of the Flood Watch voice call (answer or decline; answering plays the script and lets the driver tap "I'm safe" or "I need help").
+  - An in-app mirror of the HiTide voice call (answer or decline; answering plays the script and lets the driver tap "I'm safe" or "I need help").
   - A lock-screen style banner for the pre-trip text.
   - A presenter control for which persona the phone shows.
 
@@ -120,3 +120,56 @@ User request: every area gets a 0–100 risk score (access, water, ground height
 - **Flood depth:** the HAND-style model from `sim/hand_flood.py`, run on every cell of a 10 m 3DEP grid (`backend/sim/depth_grid.py`, tested). One PNG per 0.5 m of Kerrville gauge rise; the client picks the frame for the gauge stage at time t. Not a hydraulic model, labelled "modelled".
 - **Gauges:** NWS NWPS categories exist only for Hunt (HNTT2) and Kerrville (KRRT2); the other three show gray. A gauge with no reading (Hunt after 05:10) shows dark gray, not a guess.
 - **Polish pass (2026-11-08):** rain bins under 0.25 in are partly transparent so widespread light rain doesn't hide the basemap; rain draws from z8 tiles overzoomed with linear resampling (smooth field like radar viewers, not 1 km blocks); the left panel gains an NWS-style river gauge table (ranked by category, stage and trend, click opens the gauge); NWS warning issuance times are marked on the time slider.
+
+## 2026-11-08: Independent HiTide brand in both apps
+
+- **Context:** sid's mobile app and mockups dropped State Farm branding (royal blue, wave mark). The console still used State Farm red.
+- **Decision (user):** both apps use the independent HiTide identity, and no State Farm name or logo appears in any UI. Cobalt `#2448E8` replaces the red wordmark and primary buttons. The 2026-11-07 "follows State Farm's public design tokens" decision is superseded for visuals. The pitch can still frame HiTide as an insurer program.
+- **Left as is:**
+  - The web driver app's Claims tab (wired into the driver flow and its tests). The mobile app is the consumer surface.
+  - Backend message templates.
+
+## 2026-11-08: Dashboard = sid's operator shell + map-first Flood monitor
+
+- **Decision (user):** one sidebar shell frames four pages:
+  - `/console` Flood monitor (GIS risk map, time bar)
+  - `/console/cases` Driver cases (queue, map, detail, after mockup 03)
+  - `/console/inspections` (sid's evidence workflow, re-tokened)
+  - `/console/sources` (provenance table)
+- **Not adopted:** we didn't add deck.gl, Tailwind, shadcn, Zustand or Recharts six hours before submission. MapLibre image sources plus a canvas cover the risk surface.
+
+## 2026-11-08: Risk surface scope
+
+- **Coverage:** the 30 m Hill Country DEM covers Hunt to Kerrville, not the whole county. The legend says "Study area: Hunt to Kerrville".
+- **FEMA flood zones** are dropped because they aren't cached offline.
+- **SpacetimeDB `risk_grid_frame`** is deferred. Static frames plus the existing replay clock keep clients in sync.
+- **Mock-mode feeds** are labelled "Recorded sample, offline demo" on the Sources page, never "Live".
+
+## 2026-11-08: Floating-panel restyle tried and reverted
+
+- **Tried:** frosted floating cards, an icon rail, header chips, a rain histogram, pulsing markers and gauge cards.
+- **Outcome:** you rejected it as looking generic and "vibe-coded", so the console went back to the round-4 analyst design.
+- **Kept from that round:**
+  - The source health bar is removed from Inspections. A "Return to Kerrville" button replaces it while an exercise is loaded.
+  - Calmer flooded roads: zoom-scaled width with a thin white casing, softer crimson and amber, and "likely flooded" only from z11.
+  - Overlap fixes: the left panel scrolls as one column, gauge names end in an ellipsis, and the attribution stays clear of the detail panel.
+  - The road-verification map shows no base field.
+  - `index.json` frames carry optional `rain1h_max` / `rain1h_mean`.
+
+## 2026-11-08: Flood monitor runs on the Hill Country region system
+
+- **Why:** you found the monitor hard to read (conflicting colours, many moving dots). You asked for three things: who is in a tough spot, the area's critical points (computed, not hardcoded), and drones touring those points.
+- **What:** `/console` now reads the backend region pipeline. Nothing about the points is hardcoded; they come from the OSM roads, the 3DEP terrain and the waterways.
+  - **Critical points:** `population/nodes.py` and the `critical/` cut tests and ranking.
+  - **Areas** with their status and rescue (boat or truck).
+  - **People:** the 251-user `safety/` danger ladder.
+  - **Drones:** the 3-drone fleet with priority tours (`critical/loop.py`, `drone/planner.py`).
+  - **Code:** the frontend lives in `frontend/src/region/` (polling hook plus tested `derive.ts`) and `map/regionLayers.ts`.
+- **One clock:** the backend July 4 replay (`POST /api/demo/start?scenario=hill_country&speed=60`) drives the time bar. The weather and risk layers follow `sim_time`.
+- **Map colours:**
+  - red: in danger, cut off or flooded
+  - amber: at risk or likely flooded
+  - grey: watched point
+  - blue: drones and their routes
+  - The risk surface sits underneath at 35 %. Gauges, rain and flooded roads are behind a Layers button.
+- **Kept:** Driver cases and `/present` still run the Kerrville town scenario.

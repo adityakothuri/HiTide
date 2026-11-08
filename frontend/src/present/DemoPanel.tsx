@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { Play, RotateCcw, SkipForward, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '../ui/Button'
+import { DataModeBadge } from '../ui/DataModeBadge'
 import { humanizeNarration, personaFor } from '../data/personas'
 import { useApp, useStore, useUi } from '../state/StoreContext'
 import { useToast } from '../ui/Toast'
@@ -54,6 +55,7 @@ export function DemoPanel() {
             </Dialog.Close>
           </div>
           <p id="demo-desc" className={s.desc}>
+            <DataModeBadge />{' '}
             {status === 'live' ? 'Driving the live backend.' : 'Playing the recorded offline demo.'} Shift+D hides this panel.
           </p>
           <div className={s.step} role="status">

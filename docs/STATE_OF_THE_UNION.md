@@ -1,4 +1,4 @@
-# Flood Watch / Lifeguard — State of the Union
+# HiTide / Lifeguard — State of the Union
 
 **As of November 7, 2026, America/Chicago.**
 **Integration branch: `feat/frontend`.**
@@ -119,10 +119,10 @@ into that WebSocket contract**.
 
 `backend/evidence/factory.py` selects the backend:
 
-- Default: `FLOODWATCH_DB_BACKEND=mongodb`.
+- Default: `HITIDE_DB_BACKEND=mongodb`.
 - Default Mongo URI: `mongodb://127.0.0.1:27017/?replicaSet=floodwatch`.
 - Default database: `floodwatch`.
-- Explicit alternative: `FLOODWATCH_DB_BACKEND=sqlite` and optional `FLOODWATCH_DB_PATH`.
+- Explicit alternative: `HITIDE_DB_BACKEND=sqlite` and optional `HITIDE_DB_PATH`.
 - Failure to connect to MongoDB fails startup; it does not silently switch databases.
 
 MongoDB must support transactions: use a replica set, Atlas, or a supported sharded
@@ -430,7 +430,7 @@ For automatic source polling, use `EVIDENCE_POLL_SECONDS=120` (default). Values 
 0 or at least 30 seconds. Polling is independent of the accelerated simulation clock.
 The console's **Refresh sources** button can still fetch when automatic polling is off.
 
-VS Code tasks: **Flood Watch: start all** starts MongoDB/backend/frontend dependencies;
+VS Code tasks: **HiTide: start all** starts MongoDB/backend/frontend dependencies;
 **ECC: audit harness** runs the bundled audit; **ECC: parallel reviews** needs Claude login.
 These startup helpers are Windows-specific; the Python application itself is not.
 
@@ -443,7 +443,7 @@ Do not run the local MongoDB helper when intentionally using Atlas.
 
 ### Explicit SQLite mode
 
-Set `FLOODWATCH_DB_BACKEND=sqlite` before starting the backend. This is useful for
+Set `HITIDE_DB_BACKEND=sqlite` before starting the backend. This is useful for
 offline evaluation and tests; it does not provide MongoDB's native geo queries.
 There is no automatic SQLite-to-Mongo migration tool in this milestone. Existing
 SQLite evidence, if any, is left untouched when selecting MongoDB.

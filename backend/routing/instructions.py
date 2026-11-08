@@ -58,10 +58,10 @@ def route_out(g: nx.MultiGraph, origin: str, safe: set[str], point_of: dict[str,
 
 def route_message(node_name: str, route: RouteOut) -> str:
     via = ", then ".join(route.road_names[:3]) or "the nearest main road"
-    return (f"State Farm Flood Watch: flash flooding near {node_name}. Leave now for high ground by {via}. "
+    return (f"HiTide: flash flooding near {node_name}. Leave now for high ground by {via}. "
             f"This route avoids known flooding. {TURN_AROUND} Reply SAFE, HELP, or LEFT.")
 
 
 def shelter_message(first_name: str) -> str:
-    return (f"Hi {first_name}, this is State Farm Flood Watch. Water is over every road out of your area. "
+    return (f"Hi {first_name}, this is HiTide. Water is over every road out of your area. "
             "Do not drive. Go to the highest floor or high ground now. We have told responders where you are.")

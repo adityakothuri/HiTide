@@ -9,7 +9,7 @@ import s from './IncomingCall.module.css'
 const RING_TIMEOUT_MS = 25_000
 
 /**
- * The Flood Watch voice call, as the phone shows it. In the live product the call arrives over the
+ * The HiTide voice call, as the phone shows it. In the live product the call arrives over the
  * phone network (ElevenLabs); here it's mirrored in-app so the audience can see it. Answering plays
  * the script and lets the driver answer by tapping.
  */
@@ -74,7 +74,7 @@ export function IncomingCall({ call, caseId, onDone }: { call: OutreachEvent; ca
             <path d="M12 2.5 4.5 5.4v5.9c0 4.6 3.1 8.6 7.5 10.2 4.4-1.6 7.5-5.6 7.5-10.2V5.4Z" />
           </svg>
         </span>
-        <h2 id="call-title" className={s.name}>State Farm Flood Watch</h2>
+        <h2 id="call-title" className={s.name}>HiTide</h2>
         <p id="call-status" className={`${s.status} num`}>
           {connected ? `Connected, ${mmss}` : 'Incoming call'}
         </p>

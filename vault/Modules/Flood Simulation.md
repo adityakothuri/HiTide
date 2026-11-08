@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, module, sim]
+tags: [hitide, module, sim]
 status: in-progress
 updated: 2026-11-07
 ---

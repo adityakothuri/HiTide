@@ -35,7 +35,7 @@ def _server_up() -> bool:
 def spacetime_client():
     if os.environ.get("SKIP_SPACETIME") == "1" or not Path(CLI).exists() or not _server_up():
         pytest.skip("SpacetimeDB CLI/server not available")
-    name = f"floodwatch-test-{uuid.uuid4().hex[:8]}"
+    name = f"hitide-test-{uuid.uuid4().hex[:8]}"
     pub = subprocess.run([CLI, "publish", name, "--server", "local", "-p", str(MODULE), "--yes"],
                          capture_output=True, text=True, timeout=240, cwd=MODULE.parent)
     if pub.returncode != 0:

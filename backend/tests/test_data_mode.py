@@ -10,16 +10,16 @@ def test_default_is_test_mode_offline_and_mock():
     assert apply_data_mode(env, {}) == "test"
     assert env["FEEDS_OFFLINE"] == "1"
     assert env["REGION_MODE"] == "replay"
-    assert env["FLOODWATCH_DB_BACKEND"] == "spacetime"  # primary; the factory falls back to SQLite if it is down
+    assert env["HITIDE_DB_BACKEND"] == "spacetime"  # primary; the factory falls back to SQLite if it is down
     assert env["EVIDENCE_POLL_SECONDS"] == "0"
     assert env["PHOTON_MODE"] == "mock"
 
 
 def test_preset_beats_stale_dotenv_values():
     env: dict[str, str] = {}
-    apply_data_mode(env, {"REGION_MODE": "live", "FLOODWATCH_DB_BACKEND": "mongodb", "PHOTON_MODE": "photon2"})
+    apply_data_mode(env, {"REGION_MODE": "live", "HITIDE_DB_BACKEND": "mongodb", "PHOTON_MODE": "photon2"})
     assert env["REGION_MODE"] == "replay"
-    assert env["FLOODWATCH_DB_BACKEND"] == "spacetime"  # primary; the factory falls back to SQLite if it is down
+    assert env["HITIDE_DB_BACKEND"] == "spacetime"  # primary; the factory falls back to SQLite if it is down
     assert env["PHOTON_MODE"] == "mock"
 
 

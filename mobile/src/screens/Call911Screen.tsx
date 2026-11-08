@@ -25,7 +25,7 @@ export function Call911Screen() {
         move to higher ground.
       </Text>
       <Text style={sheetText.muted}>
-        Flood Watch is not an emergency service and does not contact 911, responders, or your contacts in this demo.
+        HiTide is not an emergency service and does not contact 911, responders, or your contacts in this demo.
       </Text>
     </SheetScreen>
   );

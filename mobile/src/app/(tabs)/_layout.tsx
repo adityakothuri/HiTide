@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from '@/components/Icon';
 import { useAppState } from '@/data/RepositoryProvider';
 import { unreadCount } from '@/state/selectors';
-import { color } from '@/theme/tokens';
+import { color, font } from '@/theme/tokens';
 
 function TabIcon({ name, tint, hasDot }: { name: IconName; tint: ColorValue; hasDot?: boolean }) {
   return (
@@ -15,7 +15,8 @@ function TabIcon({ name, tint, hasDot }: { name: IconName; tint: ColorValue; has
   );
 }
 
-const TAB_BAR_HEIGHT = 58;
+/** Icon (26) + label (16) + spacing must fit inside the item, or web clips the label. */
+const TAB_BAR_HEIGHT = 64;
 
 export default function TabsLayout() {
   const state = useAppState();
@@ -65,8 +66,8 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingTop: 6,
   },
-  item: { paddingTop: 2 },
-  label: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+  item: {},
+  label: { ...font.tabLabel, marginTop: 2 },
   dot: {
     position: 'absolute',
     top: -1,

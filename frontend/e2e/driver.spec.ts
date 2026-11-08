@@ -12,7 +12,7 @@ async function open(page: Page, driver: string) {
 /** Plays the recorded demo up to the end of narration step n. */
 async function toStep(page: Page, n: number) {
   for (let i = 0; i < n; i += 1) {
-    await page.evaluate(() => (window as unknown as { __floodwatch: { provider: { nextStep(): Promise<void> } } }).__floodwatch.provider.nextStep())
+    await page.evaluate(() => (window as unknown as { __hitide: { provider: { nextStep(): Promise<void> } } }).__hitide.provider.nextStep())
   }
   await page.waitForTimeout(400)
 }
@@ -27,7 +27,7 @@ test('driver screens 5.1 to 5.7', async ({ page }) => {
   await toStep(page, 2)
   await page.getByRole('button', { name: 'Use safer route' }).waitFor()
   await shot(page, '2a-push')
-  await page.getByRole('button', { name: /Flood Watch now/ }).click()
+  await page.getByRole('button', { name: /HiTide now/ }).click()
   await shot(page, '2-warning')
 
   await open(page, 'demo-b')
@@ -58,6 +58,6 @@ test('driver screens 5.1 to 5.7', async ({ page }) => {
   await page.getByText("You're safe. We started your claim.").waitFor()
   await shot(page, '6-claim')
 
-  await page.getByRole('button', { name: 'Flood Watch settings' }).click()
+  await page.getByRole('button', { name: 'HiTide settings' }).click()
   await shot(page, '7-settings')
 })

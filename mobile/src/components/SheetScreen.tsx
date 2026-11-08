@@ -20,7 +20,7 @@ export function SheetScreen({ title, overline, children, footer }: SheetScreenPr
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: top }]}>
         <View style={{ flex: 1 }}>
-          {overline ? <Text style={styles.overline}>{overline.toUpperCase()}</Text> : null}
+          {overline ? <Text style={styles.overline}>{overline}</Text> : null}
           <Text style={styles.title} accessibilityRole="header">
             {title}
           </Text>

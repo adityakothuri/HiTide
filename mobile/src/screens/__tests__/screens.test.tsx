@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 import { cleanup, fireEvent, render, screen } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
 import * as Speech from 'expo-speech';
-import { type KeyValueStore, MockFloodWatchRepository } from '@/data/mockRepository';
+import { type KeyValueStore, MockHiTideRepository } from '@/data/mockRepository';
 import { RepositoryProvider } from '@/data/RepositoryProvider';
 import type { Scenario } from '@/domain/types';
 import { CheckInScreen } from '../CheckInScreen';
@@ -45,10 +45,10 @@ const memory = (): KeyValueStore => {
   };
 };
 
-let repo: MockFloodWatchRepository;
+let repo: MockHiTideRepository;
 
 async function show(scenario: Scenario, ui: ReactElement) {
-  repo = new MockFloodWatchRepository({ storage: memory(), latencyMs: 5, contactNotifyDelayMs: 50 });
+  repo = new MockHiTideRepository({ storage: memory(), latencyMs: 5, contactNotifyDelayMs: 50 });
   repo.setScenario(scenario);
   await render(<RepositoryProvider repository={repo}>{ui}</RepositoryProvider>);
 }
@@ -85,7 +85,7 @@ describe('Check-in screen', () => {
     await show('check_in', <CheckInScreen />);
     repo.setSimulateFailures(true);
     await fireEvent.press(await screen.findByRole('button', { name: 'I need help' }));
-    expect(await screen.findByText(/reach Flood Watch/)).toBeTruthy();
+    expect(await screen.findByText(/reach HiTide/)).toBeTruthy();
     expect(repo.getSnapshot().safetyCase?.status).toBe('checking');
   });
 });
@@ -102,7 +102,7 @@ describe('Turn-around screen', () => {
   });
 
   it('does not speak when spoken alerts are off', async () => {
-    repo = new MockFloodWatchRepository({ storage: memory(), latencyMs: 0 });
+    repo = new MockHiTideRepository({ storage: memory(), latencyMs: 0 });
     await repo.setPreferences({ spokenAlerts: false });
     repo.setScenario('turn_around');
     await render(

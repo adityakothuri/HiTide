@@ -101,3 +101,65 @@ async def get_conversation(
         logger.error("elevenlabs get conversation error: %s", type(exc).__name__)
         return None
     return data if isinstance(data, dict) else None
+
+
+# ---- inbound assistant line (the phone app's "Call the HiTide assistant") ---------------------------------------
+# PATCH /v1/convai/agents/{agent_id}       conversation_config.agent.dynamic_variables.dynamic_variable_placeholders
+# GET   /v1/convai/phone-numbers/{id}      -> {phone_number, ...}
+# GET   /v1/convai/conversations?agent_id= -> {conversations: [{conversation_id, start_time_unix_secs, status, ...}]}
+AGENT_URL = "https://api.elevenlabs.io/v1/convai/agents/{agent_id}"
+PHONE_NUMBER_URL = "https://api.elevenlabs.io/v1/convai/phone-numbers/{phone_number_id}"
+CONVERSATIONS_URL = "https://api.elevenlabs.io/v1/convai/conversations"
+API_TIMEOUT_S = 15.0
+LIST_PAGE_SIZE = 10
+
+
+async def _api(method: str, url: str, *, json: Any = None, params: Mapping[str, Any] | None = None,
+               transport: httpx.AsyncBaseTransport | None = None) -> Any:
+    """One authenticated call. Returns parsed JSON, or None on any failure (logged without secrets or numbers)."""
+    key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
+    if not key:
+        logger.error("elevenlabs api key missing")
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=API_TIMEOUT_S, transport=transport) as client:
+            resp = await client.request(method, url, json=json, params=params, headers={"xi-api-key": key})
+            resp.raise_for_status()
+            return resp.json() if resp.content else {}
+    except httpx.HTTPStatusError as exc:
+        logger.error("elevenlabs %s HTTP %s", method, exc.response.status_code)
+    except (httpx.HTTPError, ValueError) as exc:
+        logger.error("elevenlabs %s error: %s", method, type(exc).__name__)
+    return None
+
+
+async def set_agent_defaults(variables: Mapping[str, str], *,
+                             transport: httpx.AsyncBaseTransport | None = None) -> bool:
+    """Write the agent's default dynamic variables, so an inbound call (no client data) starts with this context."""
+    agent_id = os.environ.get("ELEVENLABS_AGENT_ID", "").strip()
+    if not agent_id:
+        return False
+    body = {"conversation_config": {"agent": {"dynamic_variables": {
+        "dynamic_variable_placeholders": {k: str(v) for k, v in variables.items()}}}}}
+    return await _api("PATCH", AGENT_URL.format(agent_id=agent_id), json=body, transport=transport) is not None
+
+
+async def agent_phone_number(*, transport: httpx.AsyncBaseTransport | None = None) -> str | None:
+    """The assistant's own number (the imported Photon SIP number), for the app to dial. Never logged."""
+    pid = os.environ.get("ELEVENLABS_PHONE_NUMBER_ID", "").strip()
+    if not pid:
+        return None
+    data = await _api("GET", PHONE_NUMBER_URL.format(phone_number_id=pid), transport=transport)
+    number = data.get("phone_number") if isinstance(data, dict) else None
+    return number if isinstance(number, str) and number.strip() else None
+
+
+async def list_conversations(*, transport: httpx.AsyncBaseTransport | None = None) -> list[dict[str, Any]]:
+    """Most recent conversations of this agent (newest first). Empty on failure."""
+    agent_id = os.environ.get("ELEVENLABS_AGENT_ID", "").strip()
+    if not agent_id:
+        return []
+    data = await _api("GET", CONVERSATIONS_URL, params={"agent_id": agent_id, "page_size": LIST_PAGE_SIZE},
+                      transport=transport)
+    rows = data.get("conversations") if isinstance(data, dict) else None
+    return [r for r in rows if isinstance(r, dict)] if isinstance(rows, list) else []

@@ -1,4 +1,4 @@
-# SpacetimeDB: Flood Watch's primary database
+# SpacetimeDB: HiTide's primary database
 
 Everything the backend persists now lives in one SpacetimeDB 2.14 database, `floodwatch`, published from a TypeScript module (`spacetime/floodwatch/spacetimedb/src/index.ts`). That covers:
 - evidence and data-source health
@@ -56,7 +56,7 @@ spacetime subscribe floodwatch "SELECT * FROM danger_latest WHERE level = 'criti
 ```
 
 **Settings:**
-- `FLOODWATCH_DB_BACKEND`: `spacetime` (the default in both `DATA_MODE`s), `sqlite`, `mongodb` or `memory`.
+- `HITIDE_DB_BACKEND`: `spacetime` (the default in both `DATA_MODE`s), `sqlite`, `mongodb` or `memory`.
 - `SPACETIME_URL`: default `http://127.0.0.1:3000`.
 - `SPACETIME_DB`: default `floodwatch`.
 - `SPACETIME_TOKEN`: defaults to your `spacetime` CLI login. Use `spacetime login show --token` to put it in `.env`.

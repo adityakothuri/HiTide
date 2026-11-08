@@ -9,7 +9,7 @@ export function Trips({ view }: { view: DriverView }) {
   return (
     <>
       <LargeTitle>Trips</LargeTitle>
-      <Section header="Usual trips" id="usual" footer="Flood Watch checks these routes whenever a flood warning is active.">
+      <Section header="Usual trips" id="usual" footer="HiTide checks these routes whenever a flood warning is active.">
         {p ? (
           <Row
             icon={MapPin}

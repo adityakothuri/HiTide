@@ -25,7 +25,7 @@ interface Props {
   onBack?: () => void;
   backLabel?: string;
   right?: ReactNode;
-  /** Show the Flood Watch mark in the bar (used on focused safety screens). */
+  /** Show the HiTide mark in the bar (used on focused safety screens). */
   showMark?: boolean;
 }
 
@@ -65,6 +65,6 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: touchTarget },
   back: { flexDirection: 'row', alignItems: 'center', marginLeft: -8, minHeight: touchTarget, paddingRight: 8 },
   backText: { ...font.body, color: color.primary },
-  title: { ...font.display, fontSize: 34, lineHeight: 40, color: color.ink, marginTop: 2 },
+  title: { ...font.largeTitle, color: color.ink, marginTop: 2 },
   subtitle: { ...font.body, color: color.secondary, marginTop: 2 },
 });

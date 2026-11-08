@@ -1,15 +1,18 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Appear } from '@/components/Motion';
+import Animated from 'react-native-reanimated';
+import { Appear, enterFade } from '@/components/Motion';
 import { Button, EmergencyCallLink } from '@/components/Button';
+import { DirectionsCard } from '@/components/DirectionsCard';
 import { Icon } from '@/components/Icon';
 import { useAppState, useRepository } from '@/data/RepositoryProvider';
 import { FloodMap } from '@/map/FloodMap';
 import { buildScene } from '@/map/scene';
-import { balanced, color, font, gutter, radius, space } from '@/theme/tokens';
+import { useAssistantCall } from '@/services/assistantCall';
+import { balanced, color, font, gutter, radius, space, touchTarget } from '@/theme/tokens';
 
 type Pending = 'safe' | 'help' | null;
 
@@ -19,6 +22,7 @@ export function CheckInScreen() {
   const insets = useSafeAreaInsets();
   const [pending, setPending] = useState<Pending>(null);
   const [error, setError] = useState<string | null>(null);
+  const assistant = useAssistantCall();
   const label = state.safetyCase?.locationLabel ?? 'Your location';
 
   useEffect(() => {
@@ -42,6 +46,7 @@ export function CheckInScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showMark />
+      {state.connection.callPlaced ? <CallBanner /> : null}
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, space.md) }]}
         bounces={false}
@@ -93,6 +98,20 @@ export function CheckInScreen() {
             isDisabled={pending !== null}
           />
         </Appear>
+        <Pressable
+          onPress={() => void assistant.call()}
+          disabled={assistant.isPending || pending !== null}
+          accessibilityRole="button"
+          hitSlop={8}
+          accessibilityLabel="Talk to the HiTide assistant"
+          accessibilityHint="Calls an AI voice assistant that knows where you are and how to get to higher ground"
+          style={({ pressed }) => [styles.assistant, pressed && { opacity: 0.7 }]}
+        >
+          <Icon name="phone" size={18} color={color.primary} />
+          <Text style={styles.assistantText}>{assistant.isPending ? 'Connecting…' : 'Talk to the HiTide assistant'}</Text>
+        </Pressable>
+        {assistant.error ? <Text style={styles.error}>{assistant.error}</Text> : null}
+        {state.directions ? <DirectionsCard directions={state.directions} isCompact /> : null}
         <EmergencyCallLink onPress={() => router.push('/call-911')} />
         <Text style={styles.footnote}>Check in when you’re stopped.</Text>
       </ScrollView>
@@ -100,10 +119,43 @@ export function CheckInScreen() {
   );
 }
 
+/** The backend is calling this person: answering is another way to check in. */
+function CallBanner() {
+  return (
+    <Animated.View
+      entering={enterFade}
+      style={styles.callBanner}
+      accessible
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      accessibilityLabel="HiTide is calling you now. Answer to tell us you’re okay."
+    >
+      <Icon name="phone" size={18} color={color.onPrimary} strokeWidth={2} />
+      <Text style={styles.callBannerText}>
+        <Text style={styles.callBannerStrong}>HiTide is calling you now</Text> · answer to tell us you’re okay
+      </Text>
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
+  callBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.xs,
+    marginHorizontal: gutter,
+    marginTop: space.xs,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
+    minHeight: touchTarget,
+    borderRadius: radius.control,
+    backgroundColor: color.primary,
+  },
+  callBannerText: { ...font.small, color: color.onPrimaryMuted, flex: 1 },
+  callBannerStrong: { fontWeight: '600', color: color.onPrimary },
   screen: { flex: 1, backgroundColor: color.white },
   content: { flexGrow: 1, paddingHorizontal: gutter, paddingTop: space.lg, gap: space.sm },
-  eyebrow: { ...font.overline, color: color.secondary, textTransform: 'uppercase' },
+  eyebrow: { ...font.overline, color: color.secondary },
   title: { ...font.display, color: color.ink, marginTop: -2 },
   subtitle: { ...font.body, color: color.secondary, marginBottom: space.xs },
   map: { height: 170, marginTop: space.xs },
@@ -121,4 +173,12 @@ const styles = StyleSheet.create({
   actions: { gap: space.sm, marginTop: space.xxs },
   block: { gap: space.sm },
   footnote: { ...font.caption, color: color.secondary, textAlign: 'center' },
+  assistant: {
+    minHeight: touchTarget,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.xs,
+  },
+  assistantText: { ...font.rowTitle, color: color.primary },
 });

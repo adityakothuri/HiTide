@@ -6,7 +6,7 @@ import { color, font, gutter, touchTarget } from '@/theme/tokens';
 import { Icon } from './Icon';
 import { Wordmark } from './WaveMark';
 
-/** Development-only entry to scenario controls: long-press the Flood Watch mark. */
+/** Development-only entry to scenario controls: long-press the HiTide mark. */
 export const openDevControls: (() => void) | undefined = __DEV__ ? () => router.push('/dev') : undefined;
 
 interface BlueHeaderProps {
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     boxShadow: '0 1px 2px rgba(19,32,59,0.10), 0 4px 12px rgba(19,32,59,0.08)',
   },
-  avatarText: { ...font.small, fontWeight: '600', letterSpacing: 0.4, color: color.primary },
+  avatarText: { ...font.small, fontWeight: '600', color: color.primary },
 });
 
 export const headerText = StyleSheet.create({

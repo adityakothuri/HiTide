@@ -32,7 +32,7 @@ RAW = DATA_DIR / "wx_cache" / "mrms_raw"
 IEM = "https://mesonet.agron.iastate.edu"
 TILE_URL = IEM + "/cache/tile.py/1.0.0/mrms::{product}-{stamp}00/{z}/{x}/{y}.png"
 LEGEND_URL = IEM + "/images/mrms_q3_{product}.png"
-USER_AGENT = "FloodWatch-HackUTD/1.0 (offline demo cache)"
+USER_AGENT = "HiTide-HackUTD/1.0 (offline demo cache)"
 
 KERR_COUNTY = (-99.76, 29.78, -98.92, 30.29)  # west, south, east, north
 ZOOMS = range(8, 12)  # MRMS is ~1 km; z11 is ~76 m per pixel, the map overzooms past it

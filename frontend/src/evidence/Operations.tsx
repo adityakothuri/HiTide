@@ -1,16 +1,19 @@
+import { DataModeBadge } from '../ui/DataModeBadge'
+import { AppShell } from '../shell/AppShell'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Activity, AlertTriangle, Car, Check, ClipboardCheck, Database, ExternalLink, FlaskConical, Layers, RefreshCw, Search, ShieldAlert } from 'lucide-react'
+import { AlertTriangle, Check, Database, ExternalLink, FlaskConical, RefreshCw, Search, ShieldAlert } from 'lucide-react'
 import type { EvidenceState } from './types'
-import { activeWarning, fullTime, mappedRoads, type QueueTab, secondsAgo, summary, tasksFor } from './ops/derive'
+import { activeWarning, fullTime, mappedRoads, type QueueTab, secondsAgo, summary, tasksFor, type WarningInfo } from './ops/derive'
 import { EvidenceMap } from './ops/EvidenceMap'
 import { Queue } from './ops/Queue'
 import { RoadDetail } from './ops/RoadDetail'
-import { SourceHealth } from './ops/SourceHealth'
 import s from './ops/ops.module.css'
 
 const POLL_MS = 5_000
 const TICK_MS = 5_000
 const MAX_RESULTS = 6
+/** Width of the floating road sheet plus its margin, so the map keeps its centre and controls clear of it. */
+const SHEET_INSET = 396
 
 async function request(path: string, signal: AbortSignal, body?: unknown) {
   const response = await fetch(`/api/evidence${path}`, {
@@ -28,30 +31,6 @@ async function request(path: string, signal: AbortSignal, body?: unknown) {
     throw new Error(message)
   }
   return response.json()
-}
-
-function WaveMark() {
-  return (
-    <svg width="34" height="20" viewBox="0 0 40 24" aria-hidden="true">
-      <path d="M3 9.5c4.2-4.6 8.4-4.6 12.6 0s8.4 4.6 12.6 0 6.3-3.4 8.8-1.3M3 17.5c4.2-4.6 8.4-4.6 12.6 0s8.4 4.6 12.6 0 6.3-3.4 8.8-1.3"
-        stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" fill="none" />
-    </svg>
-  )
-}
-
-function Sidebar() {
-  return (
-    <aside className={s.sidebar} aria-label="Workspace">
-      <a href="/console" className={s.brand}><WaveMark /><span>Flood Watch</span></a>
-      <div className={s.workspace}><span>Workspace</span><strong>Kerr County</strong></div>
-      <nav aria-label="Main" className={s.nav}>
-        <a href="/texas"><Activity size={20} aria-hidden />Flood monitor</a>
-        <a href="/console" aria-current="page"><ClipboardCheck size={20} aria-hidden />Inspections</a>
-        <a href="/present"><Car size={20} aria-hidden />Driver cases</a>
-        <a href="#source-health"><Layers size={20} aria-hidden />Sources</a>
-      </nav>
-    </aside>
-  )
 }
 
 interface SearchProps { state: EvidenceState | null; onPick: (roadId: string) => void }
@@ -98,7 +77,7 @@ export function Operations() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [selectedId, setSelectedId] = useState('')
-  const [tab, setTab] = useState<QueueTab>('review')
+  const [chosenTab, setTab] = useState<QueueTab | null>(null)
   const [now, setNow] = useState(() => Date.now())
   const lifecycle = useRef<AbortController | null>(null)
   const generation = useRef(0)
@@ -149,6 +128,8 @@ export function Operations() {
   const selectedTask = state?.tasks.find((t) => t.road_id === selectedRoad?.id && t.status !== 'completed') ?? state?.tasks.find((t) => t.road_id === selectedRoad?.id)
   const mapRoads = useMemo(() => (selectedRoad && !roads.includes(selectedRoad) ? [...roads, selectedRoad] : roads), [roads, selectedRoad])
   const counts = state ? summary(state) : null
+  // Until the operator picks a tab, open whichever list has work in it.
+  const tab: QueueTab = chosenTab ?? (state && !tasksFor(state, 'review').length && tasksFor(state, 'assigned').length ? 'assigned' : 'review')
   const warning = state ? activeWarning(state) : null
   const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
@@ -156,33 +137,31 @@ export function Operations() {
   const returnToTown = () => void action('/town', {}, 'Kerrville road network restored. Observation history preserved.')
 
   return (
-    <div className={s.app}>
-      <a className={s.skip} href="#ops-main">Skip to inspections</a>
-      <Sidebar />
-      <div className={s.shell}>
-        <header className={s.topbar}>
-          <nav aria-label="Breadcrumb" className={s.crumbs}><span>Operations</span><span aria-hidden>/</span><strong aria-current="page">Inspections</strong></nav>
-          <RoadSearch state={state} onPick={setSelectedId} />
-          <span className={s.avatar} title="Operator">OP</span>
-        </header>
-
-        <main id="ops-main" className={s.main}>
-          <div className={s.heading}>
-            <div>
-              <h1>Road verification</h1>
-              <p className={s.subtitle}>Prioritize the crossings that matter most.</p>
-            </div>
+    <AppShell page="inspections" status={<RoadSearch state={state} onPick={setSelectedId} />}>
+      <div className={s.app}>
+        <div id="ops-main" className={s.main}>
+          <header className={s.header}>
+            <h1>Inspections</h1>
+            {state && counts && (
+              <p className={s.counts} title={`Updated ${secondsAgo(state.generated_at, now)} · ${fullTime(state.generated_at)}`}>
+                <b>{counts.awaiting}</b> awaiting<span aria-hidden> · </span><b>{counts.conflicting}</b> conflicting<span aria-hidden> · </span>
+                <b>{counts.communitiesAffected}</b> {counts.communitiesAffected === 1 ? 'community' : 'communities'}
+              </p>
+            )}
+            {warning && <HazardPill warning={warning} />}
             <div className={s.headActions}>
-              <span className={s.stamp}>{fullTime(new Date(now).toISOString())}</span>
-              {!state?.dataset.simulated && (
-                <button type="button" className={s.secondary} disabled={busy} onClick={loadDemo}><FlaskConical size={16} aria-hidden />Load exercise</button>
+              <DataModeBadge />
+              {state?.dataset.simulated ? (
+                <button type="button" className={s.quiet} disabled={busy} onClick={returnToTown}>Return to Kerrville</button>
+              ) : (
+                <button type="button" className={s.quiet} disabled={busy} onClick={loadDemo}><FlaskConical size={16} aria-hidden />Load exercise</button>
               )}
-              <button type="button" className={s.iconButton} disabled={busy} aria-label="Refresh sources"
+              <button type="button" className={s.iconButton} disabled={busy} aria-label="Refresh sources" title="Refresh sources"
                 onClick={() => void action('/ingest', {}, 'Sources refreshed. Observation times are unchanged by the fetch.')}>
-                <RefreshCw size={18} className={busy ? s.spin : ''} />
+                <RefreshCw size={17} className={busy ? s.spin : ''} />
               </button>
             </div>
-          </div>
+          </header>
 
           {error && (
             <div role="alert" className={s.error}>
@@ -194,49 +173,45 @@ export function Operations() {
 
           {!state || !counts ? (
             <section className={s.loading} aria-label="Loading evidence">
-              <Database size={30} aria-hidden />
-              <h2>{error ? 'Waiting for the evidence service' : 'Loading road evidence'}</h2>
-              <p>Inspection priorities, road evidence, and source health will appear here.</p>
+              <div className={s.loadingCard}>
+                <Database size={26} aria-hidden />
+                <h2>{error ? 'Waiting for the evidence service' : 'Loading road evidence'}</h2>
+                <p>Inspection priorities and road evidence will appear here.</p>
+              </div>
             </section>
           ) : (
-            <>
-              <section className={s.stats} aria-label="Summary">
-                <div><strong>{counts.awaiting}</strong> Awaiting inspection</div>
-                <div><strong>{counts.conflicting}</strong> {counts.conflicting === 1 ? 'Conflicting report' : 'Conflicting reports'}</div>
-                <div><strong>{counts.communitiesAffected}</strong> {counts.communitiesAffected === 1 ? 'Community affected' : 'Communities affected'}</div>
-                <div className={s.updated}>Updated {secondsAgo(state.generated_at, now)}</div>
-              </section>
-
-              {warning && (
-                <div className={s.warning} role="note">
-                  <AlertTriangle size={22} aria-hidden />
-                  <p><strong>{warning.title}</strong> · {warning.source}<span className={s.warningNote}>Hazard context, not a road closure</span></p>
-                  {warning.link && <a href={warning.link} target="_blank" rel="noreferrer">View bulletin<ExternalLink size={16} aria-hidden /></a>}
-                </div>
-              )}
-
-              <div className={s.grid}>
-                <Queue state={state} tab={tab} onTab={setTab} selectedId={selectedRoad?.id ?? ''} onSelect={setSelectedId} now={now} onLoadDemo={loadDemo} busy={busy} />
-                <EvidenceMap roads={mapRoads} selectedId={selectedRoad?.id ?? ''} onSelect={setSelectedId} />
+            <div className={s.work}>
+              <Queue state={state} tab={tab} onTab={setTab} selectedId={selectedRoad?.id ?? ''} onSelect={setSelectedId} now={now} onLoadDemo={loadDemo} busy={busy} />
+              <div className={s.mapArea}>
+                <EvidenceMap roads={mapRoads} selectedId={selectedRoad?.id ?? ''} onSelect={setSelectedId} inset={SHEET_INSET} />
                 {selectedRoad ? (
                   <RoadDetail key={selectedRoad.id} state={state} road={selectedRoad} task={selectedTask} now={now} busy={busy} onAction={action} />
                 ) : (
-                  <section className={`${s.panel} ${s.detail}`} aria-labelledby="detail-heading">
+                  <section className={s.sheet} aria-labelledby="detail-heading">
                     <h2 id="detail-heading" className={s.detailTitle}>No crossings flagged</h2>
                     <p className={s.guidance}>{plural(state.roads.length, 'road', 'roads')} loaded with no direct road evidence yet. Unknown access is not treated as open.</p>
                     {state.limitations?.length ? (
                       <><h3 className={s.subhead}>Before ranking inspections</h3><ul className={s.reasons}>{state.limitations.map((l) => <li key={l}>{l}</li>)}</ul></>
                     ) : null}
-                    <div className={s.detailActions}><button type="button" className={s.secondary} onClick={loadDemo} disabled={busy}><FlaskConical size={16} aria-hidden />Load two-exit exercise</button></div>
+                    <div className={s.detailActions}><button type="button" className={s.primary} onClick={loadDemo} disabled={busy}><FlaskConical size={16} aria-hidden />Load two-exit exercise</button></div>
                   </section>
                 )}
               </div>
-
-              <SourceHealth state={state} now={now} onReturnToTown={returnToTown} busy={busy} />
-            </>
+            </div>
           )}
-        </main>
+        </div>
       </div>
-    </div>
+    </AppShell>
+  )
+}
+
+function HazardPill({ warning }: { warning: WarningInfo }) {
+  const [event] = warning.title.split(' · ')
+  const label = <><AlertTriangle size={14} aria-hidden /><span>{event} · not a road closure</span></>
+  const title = `${warning.title} · ${warning.source}. Hazard context, not a road closure.`
+  return warning.link ? (
+    <a className={s.hazard} href={warning.link} target="_blank" rel="noreferrer" title={`${title} Opens the bulletin.`}>{label}<ExternalLink size={13} aria-hidden /></a>
+  ) : (
+    <span className={s.hazard} role="note" title={title}>{label}</span>
   )
 }

@@ -1,6 +1,6 @@
 """Pick the database. SpacetimeDB is the primary; SQLite + files is the loud fallback.
 
-FLOODWATCH_DB_BACKEND:
+HITIDE_DB_BACKEND:
   spacetime (default)  SpacetimeDB at SPACETIME_URL / SPACETIME_DB. If it is unreachable or the module isn't
                        published, log an ERROR and fall back to SQLite + files (the app keeps working).
   sqlite               evidence in SQLite, users/outreach in files, the rest in memory (no SpacetimeDB).
@@ -25,7 +25,7 @@ BACKENDS = ("spacetime", "sqlite", "mongodb", "memory")
 @dataclass
 class Database:
     backend: str                       # what is actually in use
-    requested: str                     # what FLOODWATCH_DB_BACKEND asked for
+    requested: str                     # what HITIDE_DB_BACKEND asked for
     evidence: Any                      # Store-compatible evidence store
     data: DataStore
     writer: WriteBehind
@@ -50,9 +50,9 @@ class Database:
 
 
 def requested_backend() -> str:
-    value = os.environ.get("FLOODWATCH_DB_BACKEND", "spacetime").strip().lower()
+    value = os.environ.get("HITIDE_DB_BACKEND", "spacetime").strip().lower()
     if value not in BACKENDS:
-        raise ValueError(f"FLOODWATCH_DB_BACKEND must be one of {BACKENDS}, got {value!r}")
+        raise ValueError(f"HITIDE_DB_BACKEND must be one of {BACKENDS}, got {value!r}")
     return value
 
 

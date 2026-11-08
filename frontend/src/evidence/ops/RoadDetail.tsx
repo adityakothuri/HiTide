@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Activity, Camera, Check, Clock, CloudRain, Construction, Send, Users } from 'lucide-react'
+import { Check, Clock, Send } from 'lucide-react'
 import type { Access, EvidenceState, Observation, Road, Task } from '../types'
 import {
   accessChip, ageLabel, clock, communityNames, freshnessChip, fullTime, guidance, latestDirect, roadEvidence, sourceShort,
@@ -22,47 +22,29 @@ function localNow() {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
 }
 
-const KIND_ICON = { report: Users, warning: CloudRain, alert: CloudRain, closure: Construction, gauge: Activity, inspection: Camera, drone: Camera }
-
 export function RoadDetail({ state, road, task, now, busy, onAction }: Props) {
   const [showReport, setShowReport] = useState(false)
   const chip = accessChip(road)
   const fresh = freshnessChip(road)
   const evidence = roadEvidence(state, road, task)
-  const latest = latestDirect(state, road)
-  const communities = task ? communityNames(state, task.affected_communities) : []
-  const latestAge = ageLabel(latest?.observed_at, now)
+  const why = whyBullets(state, road, task, now)
+  const canAssign = task && (task.status === 'queued' || task.status === 'inconclusive')
 
   return (
-    <section className={`${s.panel} ${s.detail}`} aria-labelledby="detail-heading">
-      <h2 id="detail-heading" className={s.detailTitle}>{road.name || road.id}</h2>
-      <div className={s.chips}>
-        <span className={`${s.chip} ${s[`chip_${chip.tone}`]}`}>{chip.label}</span>
-        {fresh && <span className={`${s.chip} ${s.chip_caution}`}><Clock size={14} aria-hidden />{fresh.label}</span>}
-      </div>
-      <p className={s.guidance}>{guidance(road)}</p>
+    <section className={s.sheet} aria-labelledby="detail-heading">
+      <header className={s.sheetHead}>
+        <h2 id="detail-heading" className={s.detailTitle}>{road.name || road.id}</h2>
+        <div className={s.chips}>
+          <span className={`${s.chip} ${s[`chip_${chip.tone}`]}`}>{chip.label}</span>
+          {fresh && <span className={`${s.chip} ${s.chip_caution}`}><Clock size={13} aria-hidden />{fresh.label}</span>}
+        </div>
+        <p className={s.guidance}>{guidance(road)}</p>
+      </header>
 
-      <h3 className={s.subhead}>{task ? 'Why this is prioritized' : 'Current picture'}</h3>
-      <table className={s.why}>
-        <tbody>
-          {communities.map((c) => (
-            <tr key={c.id}>
-              <th scope="row">{c.name.replace(/\s*\(synthetic\)$/i, '')}</th>
-              <td>{c.remaining_exits != null ? `${c.remaining_exits} modeled exit${c.remaining_exits === 1 ? '' : 's'} remaining` : c.conservative_access ? 'Modeled access' : 'Access uncertain'}</td>
-            </tr>
-          ))}
-          <tr>
-            <th scope="row">Current observation</th>
-            <td>{latestAge ? `${latestAge === 'just now' ? 'Just now' : `${latestAge} old`} · ${sourceShort(latest?.source_id ?? '')}` : 'None on this road'}</td>
-          </tr>
-          {task && <tr><th scope="row">Inspection</th><td className={s.cap}>{task.status}</td></tr>}
-        </tbody>
-      </table>
-      {task && task.reasons.length > 0 && (
-        <ul className={s.reasons}>{task.reasons.map((r) => <li key={r}>{r}</li>)}</ul>
-      )}
+      <h3 className={s.subhead}>Why</h3>
+      <ul className={s.reasons}>{why.map((line) => <li key={line}>{line}</li>)}</ul>
 
-      <h3 className={s.subhead}>Evidence timeline</h3>
+      <h3 className={s.subhead}>Evidence</h3>
       {evidence.length ? (
         <ol className={s.timeline}>{evidence.map((o) => <TimelineItem key={o.id} o={o} />)}</ol>
       ) : (
@@ -70,10 +52,10 @@ export function RoadDetail({ state, road, task, now, busy, onAction }: Props) {
       )}
 
       <div className={s.detailActions}>
-        {task && (task.status === 'queued' || task.status === 'inconclusive') && (
+        {canAssign && (
           <button type="button" className={s.primary} disabled={busy}
             onClick={() => void onAction(`/tasks/${encodeURIComponent(task.id)}/assign`, {}, 'Inspection assigned. Awaiting fresh evidence.')}>
-            <Send size={17} aria-hidden />Assign inspection
+            <Send size={16} aria-hidden />Assign inspection
           </button>
         )}
         {task?.status === 'assigned' && <InspectionForm task={task} simulated={state.dataset.simulated} busy={busy} onAction={onAction} />}
@@ -81,28 +63,45 @@ export function RoadDetail({ state, road, task, now, busy, onAction }: Props) {
           {showReport ? 'Cancel field report' : 'Add field report'}
         </button>
         {showReport && <ReportForm road={road} simulated={state.dataset.simulated} busy={busy} onAction={onAction} onDone={() => setShowReport(false)} />}
-        <p className={s.footnote}>Assignment does not launch a physical drone.</p>
       </div>
     </section>
   )
 }
 
+const plainName = (name: string) => name.replace(/\s*\((synthetic|simulated)\)$/i, '')
+
+/** Two or three plain sentences: who depends on the road, the stated reason, and what we last saw. */
+function whyBullets(state: EvidenceState, road: Road, task: Task | undefined, now: number): string[] {
+  const communities = task ? communityNames(state, task.affected_communities) : []
+  const access = communities.map((c) => {
+    const name = plainName(c.name)
+    if (c.remaining_exits != null) return `${name} has ${c.remaining_exits} modeled exit${c.remaining_exits === 1 ? '' : 's'} remaining.`
+    return c.conservative_access ? `${name} keeps modeled access.` : `Access for ${name} is uncertain.`
+  })
+  const reason = task?.reasons[0]
+  const latest = latestDirect(state, road)
+  const age = ageLabel(latest?.observed_at, now)
+  const seen = age
+    ? `Last observed ${age === 'just now' ? 'just now' : `${age} ago`} by ${sourceShort(latest?.source_id ?? '')}`
+    : 'No direct observation of this road yet'
+  const status = task ? ` · inspection ${task.status}.` : '.'
+  return [...access.slice(0, 1), ...(reason ? [reason] : []), `${seen}${status}`]
+}
+
+const KIND_LABEL: Record<string, string> = { warning: 'warning', alert: 'alert', drone: 'inspection', inspection: 'inspection' }
+
 function TimelineItem({ o }: { o: Observation }) {
-  const Icon = KIND_ICON[o.kind as keyof typeof KIND_ICON] ?? Users
   const description = typeof o.raw.description === 'string' ? o.raw.description : `Reported access: ${o.access}`
-  const KIND_LABEL: Record<string, string> = { warning: 'weather warning', alert: 'weather alert', drone: 'inspection', inspection: 'inspection' }
   const kind = KIND_LABEL[o.kind] ?? o.kind
   return (
-    <li className={s.tlItem}>
-      <span className={s.tlIcon} aria-hidden><Icon size={18} /></span>
-      <div className={s.tlBody}>
-        <p className={s.tlTitle}><time dateTime={o.observed_at ?? undefined}>{clock(o.observed_at)}</time> · {sourceShort(o.source_id)} {kind}</p>
-        <p className={s.tlText}>{description}</p>
-        <p className={s.tlMeta}>Observed {fullTime(o.observed_at)} · received {fullTime(o.ingested_at)}</p>
-      </div>
+    <li className={s.tlItem} title={`Observed ${fullTime(o.observed_at)} · received ${fullTime(o.ingested_at)}`}>
+      <p className={s.tlBody}>
+        <span className={s.tlWhen}><time dateTime={o.observed_at ?? undefined}>{clock(o.observed_at)}</time> · {sourceShort(o.source_id)} {kind}</span>
+        <span className={s.tlText}>{description}</span>
+      </p>
       <span className={s.tlTags}>
-        <span className={`${s.chip} ${s.chip_neutral}`}>{o.quality === 'unverified' ? 'Unverified' : o.quality}</span>
-        {o.simulated && <span className={`${s.chip} ${s.chip_sim}`}>Simulated</span>}
+        <span className={`${s.tag} ${s.tag_neutral}`}>{o.quality === 'unverified' ? 'Unverified' : o.quality}</span>
+        {o.simulated && <span className={`${s.tag} ${s.tag_sim}`}>Sim</span>}
       </span>
     </li>
   )

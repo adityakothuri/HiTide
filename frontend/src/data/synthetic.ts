@@ -16,8 +16,6 @@ export function caseAfterReply(c: Case, reply: Reply, now = new Date()): Case {
 }
 
 const COMMAND_TEXT: Record<DroneCommand, string> = {
-  speak: 'Drone spoke to driver: "Help is coming. Stay on the roof."',
-  drop_jacket: 'Drone dropped a life jacket next to the car',
   return: 'Drone returning to Kerrville Fire Station 1',
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start SpacetimeDB (local) and publish the Flood Watch module. Safe to run repeatedly.
+# Start SpacetimeDB (local) and publish the HiTide module. Safe to run repeatedly.
 #
 #   scripts/spacetime_up.sh              start local server if needed, publish (keeps data)
 #   scripts/spacetime_up.sh --migrate    ...then copy existing SQLite/JSON data in (idempotent)
@@ -41,5 +41,5 @@ if [[ " $* " == *" --migrate "* ]]; then
 fi
 
 echo
-echo "SpacetimeDB ready: database '$DB' on $SERVER. The backend uses it by default (FLOODWATCH_DB_BACKEND=spacetime)."
+echo "SpacetimeDB ready: database '$DB' on $SERVER. The backend uses it by default (HITIDE_DB_BACKEND=spacetime)."
 echo "It authenticates with your spacetime CLI login, or SPACETIME_TOKEN in .env (spacetime login show --token)."

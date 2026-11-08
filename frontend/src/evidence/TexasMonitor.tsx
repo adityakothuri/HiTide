@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Droplets, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
+import { LogoMark } from '../ui/LogoMark'
 import { useNow } from '../lib/useNow'
+import { DataModeBadge } from '../ui/DataModeBadge'
 import boundary from './texasBoundary.json'
 import s from './Operations.module.css'
 import t from './TexasMonitor.module.css'
@@ -12,6 +14,20 @@ const labels: Record<string, string> = {
   usgs_gage: 'River gages',
 } as const
 type Source = string
+type Category = 'alert' | 'road' | 'river' | 'rain' | 'other'
+const CATEGORY_OF: Record<string, Category> = {
+  nws_alerts: 'alert',
+  nws_local_storm_reports: 'road', atx_flood_closures: 'road', sariver_crossings: 'road', hcfcd_inundation: 'road',
+  transtar_incidents: 'road', transtar_lane_closures: 'road', transtar_flood_risk: 'road',
+  usgs_gage: 'river', noaa_nwps: 'river', lcra_hydromet: 'river', hcfcd_water_levels: 'river',
+  noaa_mrms: 'rain', noaa_flash: 'rain',
+}
+const CATEGORIES: { key: Category; label: string }[] = [
+  { key: 'alert', label: 'Flood alerts' }, { key: 'road', label: 'Flooded roads' }, { key: 'river', label: 'River levels' },
+  { key: 'rain', label: 'Rain and runoff' }, { key: 'other', label: 'Other' },
+]
+const categoryOf = (source: string): Category => CATEGORY_OF[source] ?? 'other'
+const CATEGORY_RANK: Record<Category, number> = { alert: 0, road: 1, river: 2, other: 3, rain: 4 }
 type Preview = { title: string; detail: string; time: string | null; geometry?: GeoJSON.Geometry | null; evidence_type: string; timestamp_role: string; link?: string; value?: number }
 type Envelope = {
   preview?: Preview | null
@@ -99,15 +115,21 @@ const cities: [string, number, number][] = [
 function Mark({ item, selected, choose }: { item: Entry; selected: boolean; choose: () => void }) {
   const g = item.geometry
   if (!g) return null
-  const className = `${t[item.source] ?? t.additionalSource} ${selected ? t.selected : ''}`
+  const className = `${t[categoryOf(item.source)]} ${selected ? t.selected : ''}`
   const grid = item.source === 'noaa_mrms' || item.source === 'noaa_flash'
   const fraction = Math.min(1, Math.max(0, (item.value ?? 0) / (item.source === 'noaa_mrms' ? 25 : 5)))
-  const gridStyle = grid ? { fill: item.source === 'noaa_mrms' ? '#1263a0' : '#ae3e14', fillOpacity: 0.08 + 0.8 * fraction, strokeWidth: 0.2 } : undefined
+  const gridStyle = grid ? { fill: item.source === 'noaa_mrms' ? '#2f7f86' : '#5b5bb5', fillOpacity: 0.06 + 0.6 * fraction, stroke: 'none' } : undefined
   // Every marker has an equivalent keyboard-accessible button in the observation list.
   const title = <title>{item.title} · {item.detail}</title>
+  if (g.type === 'Point' && grid) {
+    // 0.5° grid cell centred on the point: a shaded raster, not a station marker.
+    const [x0, y0] = project([g.coordinates[0] - 0.25, g.coordinates[1] + 0.25])
+    const [x1, y1] = project([g.coordinates[0] + 0.25, g.coordinates[1] - 0.25])
+    return <rect className={className} style={gridStyle} x={x0} y={y0} width={x1 - x0} height={y1 - y0} onClick={choose}>{title}</rect>
+  }
   if (g.type === 'Point') {
     const [x, y] = project(g.coordinates)
-    return <circle className={className} style={gridStyle} cx={x} cy={y} r={selected ? 7 : item.source === 'usgs_gage' ? 3 : 5} onClick={choose}>{title}</circle>
+    return <circle className={className} style={gridStyle} cx={x} cy={y} r={selected ? 6.5 : categoryOf(item.source) === 'river' ? 2.6 : 4.2} onClick={choose}>{title}</circle>
   }
   if (g.type === 'Polygon' || g.type === 'MultiPolygon') {
     const rings = g.type === 'Polygon' ? g.coordinates : g.coordinates.flat()
@@ -131,6 +153,7 @@ export function TexasMonitor() {
   const [selected, setSelected] = useState('')
   const [limit, setLimit] = useState(20)
   const [includeContext, setIncludeContext] = useState(false)
+  const [category, setCategory] = useState<Category | ''>('')
   const clock = useNow(5_000)
 
   useEffect(() => {
@@ -161,69 +184,112 @@ export function TexasMonitor() {
     ...(includeContext ? (current?.sources[key]?.context ?? []).map(row => ({ ...entry(row, key), context: true })) : []),
   ]), [current, sources, includeContext])
   const asOf = Math.max(clock, current ? Date.parse(current.as_of) : 0)
-  const visible = entries.filter(row => row.context || (row.stamp <= asOf && asOf - row.stamp <= minutes * 60_000 && (row.expiry === undefined || row.expiry > asOf)))
-    .filter(row => (!source || row.source === source) && `${row.title} ${row.detail}`.toLowerCase().includes(query.toLowerCase().trim()))
-    .sort((a, b) => Number(!!a.context) - Number(!!b.context) || (b.stamp - a.stamp || a.id.localeCompare(b.id)))
+  const inWindow = entries.filter(row => row.context || (row.stamp <= asOf && asOf - row.stamp <= minutes * 60_000 && (row.expiry === undefined || row.expiry > asOf)))
+  const counts = CATEGORIES.map(c => ({ ...c, n: inWindow.filter(row => !row.context && categoryOf(row.source) === c.key).length }))
+  const visible = inWindow
+    .filter(row => (!source || row.source === source) && (!category || categoryOf(row.source) === category)
+      && `${row.title} ${row.detail}`.toLowerCase().includes(query.toLowerCase().trim()))
+    .sort((a, b) => Number(!!a.context) - Number(!!b.context)
+      || CATEGORY_RANK[categoryOf(a.source)] - CATEGORY_RANK[categoryOf(b.source)]
+      || (b.stamp - a.stamp || a.id.localeCompare(b.id)))
   const active = visible.find(row => row.id === selected)
   const complete = current && sources.every(key => current.sources[key]?.status === 'complete')
+  const reporting = current ? sources.filter(key => current.sources[key]?.status !== 'unavailable').length : 0
+  const statusText = (key: string) => {
+    const batch = current?.sources[key]
+    if (!current) return error ? 'Source unavailable' : 'Checking…'
+    return batch?.status === 'complete' ? 'Request complete' : batch?.status === 'partial' ? 'Partial results' : 'Source unavailable'
+  }
 
-  return <div className={s.app}>
+  return <div className={t.app}>
     <a className={s.skip} href="#texas-main">Skip to Texas monitoring</a>
-    <header className={s.header}>
-      <a href="/" className={s.brand}><span className={s.brandMark}><Droplets size={23} /></span>Flood Watch</a>
-      <nav aria-label="Main"><a href="/texas" aria-current="page">Texas monitor</a><a href="/console">Kerrville test case</a></nav>
+    <header className={t.topbar}>
+      <a href="/" className={t.brand} aria-label="HiTide home"><LogoMark size={30} /><span>HiTide</span></a>
+      <nav aria-label="Main" className={t.tabs}><a href="/texas" aria-current="page">Texas monitor</a><a href="/console">Kerrville test case</a></nav>
+      <div className={t.topRight}>
+        <DataModeBadge liveOnly />
+        <span className={t.checked}>{current ? `Updated ${formatTime(Date.parse(current.as_of))}` : error ? 'Not connected' : 'Connecting…'}</span>
+        <button className={t.iconButton} onClick={() => setReload(n => n + 1)} aria-label="Refresh"><RefreshCw size={16} /></button>
+      </div>
     </header>
-    <main id="texas-main" className={s.main}>
-      <div className={s.pageHeading}><div><h1>Texas flood monitor</h1>
-        <p className={s.subtitle}>Road flood reports, construction restrictions, weather alerts and river stage across Texas.</p></div>
-        <div className={t.controls}><label>Observation window<select value={minutes} onChange={e => { setMinutes(Number(e.target.value)); setLimit(20) }}>
+    <main id="texas-main" className={t.main}>
+      <div className={t.heading}>
+        <div>
+          <h1>Texas flood monitor</h1>
+          <p>Flood alerts, flooded roads, river levels and radar rain across Texas, from {sources.length} public sources.</p>
+        </div>
+        <label className={t.window}>Observation window<select value={minutes} onChange={e => { setMinutes(Number(e.target.value)); setLimit(20) }}>
           <option value={15}>Past 15 minutes</option><option value={30}>Past 30 minutes</option></select></label>
-          <button className={s.secondary} onClick={() => setReload(n => n + 1)}><RefreshCw size={16} />Refresh</button></div>
       </div>
-      {error && <p role="alert" className={s.error}>{error}</p>}
-      <details className={t.sourceDetails}><summary>Source availability · {current ? `${sources.filter(key => current.sources[key]?.status === 'unavailable').length} unavailable` : 'Checking…'}</summary>
-      <div className={t.coverage} aria-label="Source coverage">
-        {sources.map(key => { const batch = current?.sources[key]
-          return <div key={key}><strong>{label(key)}</strong><span>{current ? batch?.status === 'complete' ? 'Request complete' : batch?.status === 'partial' ? 'Partial results' : 'Source unavailable' : error ? 'Source unavailable' : 'Checking…'}</span>
-            {batch?.notes && <small>{batch.notes}</small>}
-            {!!batch?.errors?.length && <small>{batch.errors.join(', ').replaceAll('_', ' ')}</small>}
-            {!!batch && Object.entries(batch.excluded).filter(([reason]) => reason !== 'empty').map(([reason, count]) => <small key={reason}>{count} excluded · {reason.replaceAll('_', ' ')}</small>)}
+      {error && <p role="alert" className={t.error}><span className={t.errorDot} />{error}</p>}
+      <div className={t.stats} role="group" aria-label="Filter by category">
+        {counts.map(c => <button key={c.key} className={t.stat} aria-pressed={category === c.key}
+          onClick={() => { setCategory(category === c.key ? '' : c.key); setLimit(20) }}>
+          <span className={t.statLabel}><i className={t[c.key]} />{c.label}</span>
+          <strong>{current ? c.n.toLocaleString() : '–'}</strong>
+        </button>)}
+        <details className={t.sourceDetails}>
+          <summary><span className={t.statLabel}>Sources reporting</span><strong>{current ? `${reporting}/${sources.length}` : '–'}</strong></summary>
+          <div className={t.coverage} aria-label="Source coverage">
+            {sources.map(key => { const batch = current?.sources[key]; const st = statusText(key)
+              return <div key={key}>
+                <span className={t.coverageName}><i className={st === 'Request complete' ? t.ok : st === 'Partial results' ? t.partial : t.down} />{label(key)}</span>
+                <span className={t.coverageStatus}>{st}</span>
+                {batch?.notes && <small>{batch.notes}</small>}
+                {!!batch?.errors?.length && <small>{batch.errors.join(', ').replaceAll('_', ' ')}</small>}
+                {!!batch && Object.entries(batch.excluded).filter(([reason]) => reason !== 'empty').map(([reason, count]) => <small key={reason}>{count} excluded · {reason.replaceAll('_', ' ')}</small>)}
+              </div>
+            })}
           </div>
-        })}
+        </details>
       </div>
-      </details>
       <div className={t.workspace}>
-        <section className={s.panel} aria-labelledby="tx-map-title">
-          <div className={s.panelHeading}><h2 id="tx-map-title">Statewide observations</h2>{current && <small>Checked {formatTime(Date.parse(current.as_of))}</small>}</div>
+        <section className={t.card} aria-labelledby="tx-map-title">
+          <div className={t.cardHead}><h2 id="tx-map-title">Statewide map</h2>
+            {category && <button className={t.clear} onClick={() => setCategory('')}>Show all categories</button>}</div>
           <svg className={t.map} viewBox="0 0 665 575" role="img" aria-label="Texas observation map. Matching observations are listed alongside the map.">
+            <defs><clipPath id="tx-state-clip"><path d={outline} /></clipPath></defs>
             <path d={outline} className={t.boundary} />
-            {cities.map(([name, lon, lat]) => { const [x, y] = project([lon, lat]); return <g key={name} className={t.city}><circle cx={x} cy={y} r="2" /><text x={x + 5} y={y - 5}>{name}</text></g> })}
-            {[...visible].reverse().map(row => <Mark key={row.id} item={row} selected={false} choose={() => setSelected(row.id)} />)}
+            <g clipPath="url(#tx-state-clip)">
+              {[...visible].reverse().filter(row => categoryOf(row.source) === 'rain').map(row => <Mark key={row.id} item={row} selected={false} choose={() => setSelected(row.id)} />)}
+            </g>
+            <path d={outline} className={t.boundaryLine} />
+            {[...visible].reverse().filter(row => categoryOf(row.source) !== 'rain').map(row => <Mark key={row.id} item={row} selected={false} choose={() => setSelected(row.id)} />)}
+            {cities.map(([name, lon, lat]) => { const [x, y] = project([lon, lat]); return <g key={name} className={t.city}><circle cx={x} cy={y} r="2.2" /><text x={x + 6} y={y - 6}>{name}</text></g> })}
             {active && <Mark item={active} selected choose={() => setSelected(active.id)} />}
           </svg>
-          <div className={t.legend}>{sources.map(key => <span key={key}><i className={t[key] ?? t.additionalSource} />{label(key)}</span>)}</div>
-          {(source === 'noaa_mrms' || source === 'noaa_flash') && <p className={t.caption}>Cell maximum, 0.5° grid · darker shades increase from 0 to {source === 'noaa_mrms' ? '25+ mm/hour rainfall' : '5+ m³/s/km² modeled unit streamflow'}. Cell values describe an area and do not resolve individual roads.</p>}
-          <p className={t.caption}>Unmarked roads have unknown conditions. River gages measure water height at a station. Road depth requires a local observation. Construction freshness uses feed publication time. Individual records show their last edit time.</p>
-          <small className={t.credit}>State boundary · <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/Generalized_ACS2019/State_County/MapServer/9">U.S. Census Bureau</a></small>
+          {(source === 'noaa_mrms' || source === 'noaa_flash' || category === 'rain') && <p className={t.caption}>Rain cells show the maximum on a 0.5° grid; darker means more rain (up to 25 mm/hour) or more modeled runoff. Cells describe an area, not individual roads.</p>}
+          <p className={t.caption}>Unmarked roads have unknown conditions. River gauges measure water height at one station; road depth needs a local observation.</p>
+          <small className={t.credit}>State boundary: <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/Generalized_ACS2019/State_County/MapServer/9">U.S. Census Bureau</a></small>
         </section>
-        <section className={s.panel} aria-labelledby="tx-records-title">
-          <div className={s.panelHeading}><h2 id="tx-records-title">Recent observations</h2>{current && <span className={s.count}>{visible.length}</span>}</div>
-          <div className={t.filters}><label>Source<select value={source} onChange={e => { setSource(e.target.value as Source | ''); setLimit(20) }}>
-            <option value="">All sources</option>{sources.map(key => <option key={key} value={key}>{label(key)}</option>)}</select></label>
-            <label>Find a location<input value={query} placeholder="Road, county or station" onChange={e => { setQuery(e.target.value); setLimit(20) }} /></label>
-            <label><input type="checkbox" checked={includeContext} onChange={e => setIncludeContext(e.target.checked)} />Include source context with unverified freshness</label></div>
-          {active && <div className={t.selection}><strong>{active.title}</strong><p>{active.detail}</p><small>{label(active.source)} · {formatTime(active.stamp)}{!active.geometry && ' · Geometry unavailable'}</small>
+        <section className={`${t.card} ${t.listCard}`} aria-labelledby="tx-records-title">
+          <div className={t.cardHead}><h2 id="tx-records-title">Observations</h2>{current && <span className={t.count}>{visible.length.toLocaleString()}</span>}</div>
+          <div className={t.filters}>
+            <label className={t.search}>Find a location<input value={query} placeholder="Road, county or station" onChange={e => { setQuery(e.target.value); setLimit(20) }} /></label>
+            <label>Source<select value={source} onChange={e => { setSource(e.target.value as Source | ''); setLimit(20) }}>
+              <option value="">All sources</option>{sources.map(key => <option key={key} value={key}>{label(key)}</option>)}</select></label>
+            <label className={t.check}><input type="checkbox" checked={includeContext} onChange={e => setIncludeContext(e.target.checked)} />Include source context with unverified freshness</label>
+          </div>
+          {active && <div className={t.selection}>
+            <span className={t.meta}><i className={t[categoryOf(active.source)]} />{label(active.source)} · {formatTime(active.stamp)}{!active.geometry && ' · Geometry unavailable'}</span>
+            <strong>{active.title}</strong><p>{active.detail}</p>
             {active.category && <small>{active.category}</small>}
-            {active.link && <a href={active.link} target="_blank" rel="noreferrer">Open provider data</a>}
-            <button className={s.secondary} onClick={() => setSelected('')}>Clear selection</button></div>}
+            <div className={t.selectionActions}>
+              {active.link && <a href={active.link} target="_blank" rel="noreferrer">Open provider data</a>}
+              <button className={t.clear} onClick={() => setSelected('')}>Clear selection</button>
+            </div>
+          </div>}
           <div className={t.results}>
-            {!visible.length && <p className={s.empty}>{error ? 'Current observations unavailable.' : !current ? 'Retrieving Texas observations…' : !complete ? 'No matching observations in the available data. Coverage is incomplete.' : 'No matching observations in this time window.'}</p>}
+            {!visible.length && <p className={t.empty}>{error ? 'Current observations unavailable.' : !current ? 'Retrieving Texas observations…' : !complete ? 'No matching observations in the available data. Coverage is incomplete.' : 'No matching observations in this time window.'}</p>}
             {visible.slice(0, limit).map(row => <button key={row.id} className={t.record} aria-pressed={selected === row.id} onClick={() => setSelected(row.id)}>
-              <span className={t.meta}>{label(row.source)} · {formatTime(row.stamp)}</span><strong>{row.title}</strong><span>{row.detail || 'Detail unavailable'}</span>
-              {row.category && <small>{row.category}</small>}
-              {!row.geometry && <small>Geometry unavailable</small>}
+              <i className={t[categoryOf(row.source)]} />
+              <span className={t.recordBody}>
+                <span className={t.recordTop}><strong>{row.title}</strong><time>{formatTime(row.stamp)}</time></span>
+                <span className={t.detail}>{row.detail || 'Detail unavailable'}</span>
+                <span className={t.meta}>{label(row.source)}{!row.geometry && ' · Geometry unavailable'}</span>
+              </span>
             </button>)}
-            {visible.length > limit && <button className={s.secondary} onClick={() => setLimit(n => n + 20)}>Show more observations</button>}
+            {visible.length > limit && <button className={t.more} onClick={() => setLimit(n => n + 20)}>Show more observations</button>}
           </div>
         </section>
       </div>

@@ -1,6 +1,6 @@
 # Driver Flood-Risk Profile
 
-Design for the per-driver profile behind the three Flood Watch stages (pre-trip warning, en-route turn-around, stopped-in-water escalation).
+Design for the per-driver profile behind the three HiTide stages (pre-trip warning, en-route turn-around, stopped-in-water escalation).
 
 **Status:** design only. We have **no authorized access** to State Farm customer data. Every State Farm field below is **simulated** in the demo and labeled that way. The field list mirrors what State Farm publicly documents so the integration is realistic.
 

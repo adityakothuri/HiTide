@@ -51,7 +51,7 @@ def raw_hash(raw: Any) -> tuple[str, str]:
 
 class Store:
     def __init__(self, path: str | Path | None = None):
-        selected = str(path if path is not None else os.environ.get("FLOODWATCH_DB_PATH", DEFAULT_DB))
+        selected = str(path if path is not None else os.environ.get("HITIDE_DB_PATH") or os.environ.get("FLOODWATCH_DB_PATH", DEFAULT_DB))
         if selected != ":memory:":
             Path(selected).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
         self.path = selected

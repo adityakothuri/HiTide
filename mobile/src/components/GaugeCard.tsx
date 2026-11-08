@@ -4,22 +4,38 @@ import Animated, { ReduceMotion, useAnimatedProps, useSharedValue, withTiming } 
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 import type { GaugeReading } from '@/domain/types';
 import { formatTime } from '@/state/selectors';
-import { color, font, radius, space, tabular } from '@/theme/tokens';
+import { color, flood, font, GAUGE_COLOR, radius, space, tabular } from '@/theme/tokens';
 import { EASE_OUT } from './Motion';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const CHART_H = 56;
 const DRAW_MS = 900;
 const HEADROOM_FT = 1.5;
+const MIN_TREND_POINTS = 3;
 
-/** River stage for the last hours, with the action stage marked. Draws in once on mount. */
+function spanLabel(minutes: number): string {
+  return minutes >= 60 ? `${Math.round(minutes / 60)}h` : `${Math.round(minutes)} min`;
+}
+
+function footText(gauge: GaugeReading): string {
+  if (gauge.actionStageFt !== null) {
+    const toAction = gauge.actionStageFt - gauge.stageFt;
+    const distance = toAction > 0 ? `${toAction.toFixed(1)} ft to go` : `${(-toAction).toFixed(1)} ft above`;
+    return `Action stage ${gauge.actionStageFt} ft · ${distance} · ${gauge.source}`;
+  }
+  const category = gauge.floodCategory ? `${gauge.floodCategory[0].toUpperCase()}${gauge.floodCategory.slice(1)} flooding · ` : '';
+  return `${category}${gauge.source}`;
+}
+
+/** River stage over recent samples, with the action stage marked when known. Draws in once on mount. */
 export function GaugeCard({ gauge }: { gauge: GaugeReading }) {
   const [width, setWidth] = useState(0);
   const onLayout = (e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width));
-  const hours = gauge.series.length - 1;
-  const max = Math.max(gauge.actionStageFt, ...gauge.series) + HEADROOM_FT;
+  const steps = Math.max(gauge.series.length - 1, 1);
+  const action = gauge.actionStageFt;
+  const max = Math.max(action ?? -Infinity, ...gauge.series) + HEADROOM_FT;
   const min = Math.max(0, Math.min(...gauge.series) - HEADROOM_FT);
-  const x = (i: number) => (i / hours) * width;
+  const x = (i: number) => (i / steps) * width;
   const y = (v: number) => CHART_H - ((v - min) / (max - min)) * CHART_H;
   const line = gauge.series.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const length = width * 1.4;
@@ -32,14 +48,17 @@ export function GaugeCard({ gauge }: { gauge: GaugeReading }) {
 
   const rising = gauge.trend === 'rising';
   const delta = gauge.series[gauge.series.length - 1] - gauge.series[0];
-  const toAction = gauge.actionStageFt - gauge.stageFt;
+  const span = spanLabel(steps * gauge.seriesStepMinutes);
   const last = gauge.series[gauge.series.length - 1];
+  const foot = footText(gauge);
+  // Two points spanning hours would draw a misleading straight slope; show the trend from three readings on.
+  const hasLine = gauge.series.length >= MIN_TREND_POINTS;
 
   return (
     <View
       style={styles.card}
       accessible
-      accessibilityLabel={`${gauge.name}: ${gauge.stageFt.toFixed(1)} feet, ${gauge.trend}. ${toAction.toFixed(1)} feet below action stage. ${gauge.source}.`}
+      accessibilityLabel={`${gauge.name}: ${gauge.stageFt.toFixed(1)} feet, ${gauge.trend}. ${foot}.`}
     >
       <View style={styles.top}>
         <View style={{ flex: 1 }}>
@@ -48,16 +67,20 @@ export function GaugeCard({ gauge }: { gauge: GaugeReading }) {
             <Text style={styles.value}>{gauge.stageFt.toFixed(1)}</Text>
             <Text style={styles.unit}> ft</Text>
             <Text style={[styles.trend, rising && styles.trendRising]}>
-              {rising ? `  ▲ ${delta.toFixed(1)} ft in ${hours}h` : '  Steady'}
+              {rising && hasLine ? `  ▲ ${delta.toFixed(1)} ft in ${span}` : gauge.trend === 'falling' ? '  Falling' : rising ? '  Rising' : '  Steady'}
             </Text>
           </View>
         </View>
         <Text style={styles.meta}>{formatTime(gauge.observedAt)}</Text>
       </View>
+      {hasLine ? (
       <View onLayout={onLayout} style={styles.chart}>
         {width > 0 ? (
           <Svg width={width} height={CHART_H}>
-            <Line x1={0} x2={width} y1={y(gauge.actionStageFt)} y2={y(gauge.actionStageFt)} stroke={color.amber} strokeWidth={1} strokeDasharray="3 4" />
+            {action !== null ? (
+              <Line x1={0} x2={width} y1={y(action)} y2={y(action)} stroke={color.amber} strokeWidth={1} strokeDasharray="3 4" />
+            ) : null}
+            {hasLine ? (
             <AnimatedPath
               d={line}
               stroke={rising ? color.primary : color.secondary}
@@ -68,13 +91,18 @@ export function GaugeCard({ gauge }: { gauge: GaugeReading }) {
               strokeDasharray={`${length} ${length}`}
               animatedProps={animatedProps}
             />
-            <Circle cx={x(hours)} cy={y(last)} r={3.5} fill={rising ? color.primary : color.secondary} />
+            ) : null}
+            <Circle cx={x(hasLine ? steps : 0)} cy={y(last)} r={3.5} fill={rising ? color.primary : color.secondary} />
           </Svg>
         ) : null}
       </View>
-      <Text style={styles.foot}>
-        Action stage {gauge.actionStageFt} ft · {toAction.toFixed(1)} ft to go · {gauge.source}
-      </Text>
+      ) : null}
+      <View style={styles.footRow}>
+        {gauge.floodCategory ? (
+          <View style={[styles.catDot, { backgroundColor: GAUGE_COLOR[gauge.floodCategory] ?? flood.gaugeBelow }]} />
+        ) : null}
+        <Text style={styles.foot}>{foot}</Text>
+      </View>
     </View>
   );
 }
@@ -97,5 +125,7 @@ const styles = StyleSheet.create({
   trendRising: { color: color.primary, fontWeight: '600' },
   meta: { ...font.caption, ...tabular, color: color.secondary },
   chart: { height: CHART_H, marginTop: 2 },
-  foot: { ...font.caption, ...tabular, color: color.secondary },
+  foot: { ...font.caption, ...tabular, color: color.secondary, flexShrink: 1 },
+  footRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  catDot: { width: 10, height: 10, borderRadius: 5 },
 });

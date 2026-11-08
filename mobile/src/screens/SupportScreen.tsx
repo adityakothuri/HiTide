@@ -6,15 +6,19 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { enterUp } from '@/components/Motion';
 import Animated, { ReduceMotion, ZoomIn } from 'react-native-reanimated';
 import { Button, EmergencyCallLink } from '@/components/Button';
+import { DirectionsCard } from '@/components/DirectionsCard';
 import { Icon } from '@/components/Icon';
 import { useAppState, useRepository } from '@/data/RepositoryProvider';
 import type { CaseEventKind, SafetyCase } from '@/domain/types';
 import { FloodMap } from '@/map/FloodMap';
 import { buildScene } from '@/map/scene';
+import { useAssistantCall } from '@/services/assistantCall';
 import { formatTime } from '@/state/selectors';
 import { balanced, color, font, gutter, space, tabular, touchTarget } from '@/theme/tokens';
 
 type StepStatus = 'done' | 'active' | 'waiting';
+
+const STEP_ORDER: Record<StepStatus, number> = { done: 0, active: 1, waiting: 2 };
 
 interface Step {
   key: string;
@@ -25,9 +29,25 @@ interface Step {
 
 const eventAt = (c: SafetyCase, kind: CaseEventKind): string | undefined => c.events.find((e) => e.kind === kind)?.at;
 
-function buildSteps(c: SafetyCase, contactName: string): Step[] {
+const tag = (simulated: boolean | undefined): string => (simulated ? ' · Simulated' : '');
+
+function assistantStep(c: SafetyCase): Step | null {
+  const e = c.events.find((x) => x.kind === 'assistant_call');
+  if (!e) return null;
+  const finished = !/^Calling|^Simulated/.test(e.detail ?? '');
+  return {
+    key: 'assistant',
+    title: finished ? 'Talked with the HiTide assistant' : 'HiTide assistant',
+    detail: `${formatTime(e.at)} · ${e.detail ?? 'Calling'}${e.simulated ? ' · Simulated' : ''}`,
+    status: finished ? 'done' : 'active',
+  };
+}
+
+function buildSteps(c: SafetyCase, contactName: string, isLive: boolean): Step[] {
+  const event = (kind: CaseEventKind) => c.events.find((e) => e.kind === kind);
   const received = eventAt(c, 'help_received');
-  const notified = eventAt(c, 'contact_notified');
+  const notified = event('contact_notified');
+  const responders = event('responders_flagged');
   return [
     {
       key: 'received',
@@ -38,15 +58,26 @@ function buildSteps(c: SafetyCase, contactName: string): Step[] {
     {
       key: 'contact',
       title: 'Emergency contact notified',
-      detail: notified ? `${contactName} · ${formatTime(notified)} · Simulated` : `Notifying ${contactName}…`,
-      status: notified ? 'done' : 'active',
+      detail: notified
+        ? `${contactName} · ${formatTime(notified.at)}${tag(notified.simulated)}`
+        : isLive
+          ? `${contactName} has not been contacted yet`
+          : `Notifying ${contactName}…`,
+      status: notified ? 'done' : isLive ? 'waiting' : 'active',
     },
-    {
-      key: 'operator',
-      title: 'Awaiting operator update',
-      detail: 'No response time confirmed',
-      status: 'waiting',
-    },
+    responders
+      ? {
+          key: 'operator',
+          title: 'Responders flagged',
+          detail: `${formatTime(responders.at)}${tag(responders.simulated)} · No response time confirmed`,
+          status: 'done',
+        }
+      : {
+          key: 'operator',
+          title: 'Awaiting operator update',
+          detail: 'No response time confirmed',
+          status: 'waiting',
+        },
   ];
 }
 
@@ -55,6 +86,7 @@ export function SupportScreen() {
   const repo = useRepository();
   const insets = useSafeAreaInsets();
   const c = state.safetyCase;
+  const assistant = useAssistantCall();
 
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -65,7 +97,14 @@ export function SupportScreen() {
   }, [repo]);
 
   if (!c) return null;
-  const steps = buildSteps(c, state.contact.name);
+  const isLive = state.connection.kind === 'live';
+  // Live: the backend notifies its enrolled contact, which may differ from an edit made on this phone.
+  const assistantRow = assistantStep(c);
+  const base = buildSteps(c, isLive ? 'Your emergency contact' : state.contact.name, isLive);
+  const merged = assistantRow ? [base[0], assistantRow, ...base.slice(1)] : base;
+  // Completed steps first (in the order they happened), then what is still in progress or waiting.
+  const steps = [...merged].sort((a, b) => STEP_ORDER[a.status] - STEP_ORDER[b.status]);
+  const anySimulated = !isLive || c.events.some((e) => e.simulated);
 
   return (
     <View style={styles.screen}>
@@ -87,11 +126,14 @@ export function SupportScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, space.md) }]}
         bounces={false}
       >
-        <Text style={styles.eyebrow}>Help request · Sample data</Text>
+        <Text style={styles.eyebrow}>{isLive ? 'Help request' : 'Help request · Sample data'}</Text>
         <Text style={styles.title} accessibilityRole="header" {...balanced}>
           We received your request.
         </Text>
-        <Text style={styles.subtitle}>This page updates as each step happens. No real call or dispatch is made in this demo.</Text>
+        <Text style={styles.subtitle}>
+          This page updates as each step happens.
+          {anySimulated ? ' No real call or dispatch is made in this demo.' : ''}
+        </Text>
 
         <FloodMap
           scene={buildScene(state, 'location')}
@@ -107,9 +149,23 @@ export function SupportScreen() {
           ))}
         </View>
 
+        {state.directions ? <DirectionsCard directions={state.directions} /> : null}
+
+        <Button
+          label="Call the HiTide assistant"
+          icon="phone"
+          onPress={() => void assistant.call()}
+          isBusy={assistant.isPending}
+          accessibilityHint="Calls an AI voice assistant that knows where you are and how to get to higher ground"
+        />
+        {assistant.error ? (
+          <Text style={styles.error} accessibilityRole="alert">
+            {assistant.error}
+          </Text>
+        ) : null}
         <Button label="View contact details" variant="outline" onPress={() => router.push('/contact')} />
         <EmergencyCallLink onPress={() => router.push('/call-911')} />
-        <Text style={styles.footnote}>Simulated workflow</Text>
+        {anySimulated ? <Text style={styles.footnote}>Simulated workflow</Text> : null}
       </ScrollView>
     </View>
   );
@@ -155,8 +211,9 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.white },
   homeButton: { minHeight: touchTarget, justifyContent: 'center', paddingLeft: space.sm },
   homeText: { ...font.body, color: color.primary },
+  error: { ...font.small, color: color.emergency, textAlign: 'center' },
   content: { flexGrow: 1, paddingHorizontal: gutter, paddingTop: space.sm, gap: space.xs + 2 },
-  eyebrow: { ...font.overline, color: color.secondary, textTransform: 'uppercase' },
+  eyebrow: { ...font.overline, color: color.secondary },
   title: { ...font.title, color: color.ink, marginTop: -2 },
   subtitle: { ...font.small, color: color.secondary, marginBottom: space.xs },
   map: { height: 112 },

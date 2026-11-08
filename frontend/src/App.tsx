@@ -12,6 +12,8 @@ import { Wordmark } from './ui/Wordmark'
 import { Disclaimer } from './ui/Footer'
 import { TexasMonitor } from './evidence/TexasMonitor'
 import { Operations } from './evidence/Operations'
+import { SourcesPage } from './shell/SourcesPage'
+import { Intro } from './shell/Intro'
 
 function Index() {
   return (
@@ -36,8 +38,13 @@ function route(path: string) {
       return <Gallery />
     case '/driver':
       return <><DriverAutostart /><DriverApp framed={window.innerWidth > 500} /></>
-    case '/console':
+    case '/console': // Flood monitor; /ops kept as an alias
+    case '/ops':
       return <Console />
+    case '/console/cases':
+      return <Console page="cases" />
+    case '/console/sources':
+      return <SourcesPage />
     case '/present':
       return <Present />
     default:
@@ -59,9 +66,12 @@ function DriverAutostart() {
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, '')
   if (path === '' || path === '/texas') return <TexasMonitor />
-  if (path === '/console') return <StoreProvider><Operations /></StoreProvider>
+  // The dashboard opens with the intro once per session.
+  const intro = path.startsWith('/console') || path === '/ops' ? <Intro /> : null
+  if (path === '/console/inspections') return <StoreProvider>{intro}<Operations /></StoreProvider>
   return (
     <StoreProvider>
+      {intro}
       <TipProvider>
         <ToastProvider>
           {route(window.location.pathname)}

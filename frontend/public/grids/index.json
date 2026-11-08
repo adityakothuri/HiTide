@@ -1,0 +1,198 @@
+{
+ "version": 1,
+ "name": "Flood risk index",
+ "study_area": "Hunt to Kerrville",
+ "bounds": [
+  -99.456301,
+  29.959441,
+  -99.094659,
+  30.130481
+ ],
+ "width": 647,
+ "height": 306,
+ "cell_m": 60,
+ "factors": [
+  "Low height above stream",
+  "Near a waterway",
+  "Rain, past hour",
+  "Rain, past 24 h"
+ ],
+ "frames": [
+  {
+   "id": "2025-07-04T0100",
+   "time": "2025-07-04T06:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0100.bin",
+   "factors_url": "grids/2025-07-04T0100.factors.bin",
+   "min": 0.01,
+   "max": 40.5,
+   "rain1h_max": 1.25,
+   "rain1h_mean": 0.46
+  },
+  {
+   "id": "2025-07-04T0130",
+   "time": "2025-07-04T06:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0130.bin",
+   "factors_url": "grids/2025-07-04T0130.factors.bin",
+   "min": 0.01,
+   "max": 40.5,
+   "rain1h_max": 1.25,
+   "rain1h_mean": 0.46
+  },
+  {
+   "id": "2025-07-04T0200",
+   "time": "2025-07-04T07:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0200.bin",
+   "factors_url": "grids/2025-07-04T0200.factors.bin",
+   "min": 0.01,
+   "max": 73.64,
+   "rain1h_max": 3.5,
+   "rain1h_mean": 1.139
+  },
+  {
+   "id": "2025-07-04T0230",
+   "time": "2025-07-04T07:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0230.bin",
+   "factors_url": "grids/2025-07-04T0230.factors.bin",
+   "min": 0.01,
+   "max": 73.64,
+   "rain1h_max": 3.5,
+   "rain1h_mean": 1.139
+  },
+  {
+   "id": "2025-07-04T0300",
+   "time": "2025-07-04T08:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0300.bin",
+   "factors_url": "grids/2025-07-04T0300.factors.bin",
+   "min": 0.01,
+   "max": 89.8,
+   "rain1h_max": 3.5,
+   "rain1h_mean": 1.268
+  },
+  {
+   "id": "2025-07-04T0330",
+   "time": "2025-07-04T08:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0330.bin",
+   "factors_url": "grids/2025-07-04T0330.factors.bin",
+   "min": 0.01,
+   "max": 89.8,
+   "rain1h_max": 3.5,
+   "rain1h_mean": 1.268
+  },
+  {
+   "id": "2025-07-04T0400",
+   "time": "2025-07-04T09:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0400.bin",
+   "factors_url": "grids/2025-07-04T0400.factors.bin",
+   "min": 0.01,
+   "max": 89.8,
+   "rain1h_max": 3.5,
+   "rain1h_mean": 1.392
+  },
+  {
+   "id": "2025-07-04T0430",
+   "time": "2025-07-04T09:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0430.bin",
+   "factors_url": "grids/2025-07-04T0430.factors.bin",
+   "min": 0.01,
+   "max": 89.8,
+   "rain1h_max": 3.5,
+   "rain1h_mean": 1.392
+  },
+  {
+   "id": "2025-07-04T0500",
+   "time": "2025-07-04T10:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0500.bin",
+   "factors_url": "grids/2025-07-04T0500.factors.bin",
+   "min": 0.02,
+   "max": 81.3,
+   "rain1h_max": 2.5,
+   "rain1h_mean": 0.792
+  },
+  {
+   "id": "2025-07-04T0530",
+   "time": "2025-07-04T10:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0530.bin",
+   "factors_url": "grids/2025-07-04T0530.factors.bin",
+   "min": 0.02,
+   "max": 81.3,
+   "rain1h_max": 2.5,
+   "rain1h_mean": 0.792
+  },
+  {
+   "id": "2025-07-04T0600",
+   "time": "2025-07-04T11:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0600.bin",
+   "factors_url": "grids/2025-07-04T0600.factors.bin",
+   "min": 0.01,
+   "max": 45.17,
+   "rain1h_max": 0.88,
+   "rain1h_mean": 0.218
+  },
+  {
+   "id": "2025-07-04T0630",
+   "time": "2025-07-04T11:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0630.bin",
+   "factors_url": "grids/2025-07-04T0630.factors.bin",
+   "min": 0.01,
+   "max": 45.17,
+   "rain1h_max": 0.88,
+   "rain1h_mean": 0.218
+  },
+  {
+   "id": "2025-07-04T0700",
+   "time": "2025-07-04T12:00:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0700.bin",
+   "factors_url": "grids/2025-07-04T0700.factors.bin",
+   "min": 0.01,
+   "max": 49.42,
+   "rain1h_max": 0.62,
+   "rain1h_mean": 0.295
+  },
+  {
+   "id": "2025-07-04T0730",
+   "time": "2025-07-04T12:30:00Z",
+   "kind": "observed",
+   "url": "grids/2025-07-04T0730.bin",
+   "factors_url": "grids/2025-07-04T0730.factors.bin",
+   "min": 0.01,
+   "max": 49.42,
+   "rain1h_max": 0.62,
+   "rain1h_mean": 0.295
+  },
+  {
+   "id": "2025-07-04T0800",
+   "time": "2025-07-04T13:00:00Z",
+   "kind": "forecast",
+   "url": "grids/2025-07-04T0800.bin",
+   "factors_url": "grids/2025-07-04T0800.factors.bin",
+   "min": 0.01,
+   "max": 47.3,
+   "rain1h_max": 0.5,
+   "rain1h_mean": 0.236
+  },
+  {
+   "id": "2025-07-04T0830",
+   "time": "2025-07-04T13:30:00Z",
+   "kind": "forecast",
+   "url": "grids/2025-07-04T0830.bin",
+   "factors_url": "grids/2025-07-04T0830.factors.bin",
+   "min": 0.01,
+   "max": 45.6,
+   "rain1h_max": 0.4,
+   "rain1h_mean": 0.189
+  }
+ ]
+}

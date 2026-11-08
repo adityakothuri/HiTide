@@ -1,48 +1,4 @@
 .wordmark {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  white-space: nowrap;
-}
-
-.mark {
-  width: 26px;
-  height: 26px;
-  flex: none;
-}
-
-.shield {
-  fill: none;
-  stroke: var(--ink-strong);
-  stroke-width: 1.8;
-  stroke-linejoin: round;
-}
-
-.wave {
-  fill: none;
-  stroke: var(--water-4);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-}
-
-.text {
-  font-size: var(--text-md);
-  line-height: var(--lh-md);
-}
-
-.brand {
-  color: var(--brand-red);
-  font-weight: 700;
-}
-
-.product {
-  color: var(--ink-strong);
-  font-weight: 600;
-}
-
-.compact .text { font-size: var(--text-sm); }
-
-.compact .mark {
-  width: 22px;
-  height: 22px;
 }

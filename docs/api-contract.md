@@ -1,4 +1,4 @@
-# Flood Watch API contract (backend ⇄ frontend)
+# HiTide API contract (backend ⇄ frontend)
 
 > This contract covers the legacy driver-rescue REST/WebSocket workflow.
 > The new `/api/evidence/*` endpoints, operations polling, request examples, and
@@ -55,7 +55,7 @@ Every message has this envelope:
 | `snapshot` | `StateSnapshot` | Sent first on connect. Replace all state with it. |
 | `segments.update` | `{t_sim_s, river_wse_m, segments:[{edge_id, depth_in, status}]}` | Diff (changed segments only). Recolour roads. |
 | `drivers.update` | `{drivers:[{id,name,lat,lon,heading_deg,situation,is_demo,urgency}]}` | Move markers. `situation`: parked, planning, driving, stopped_in_water. `urgency` (0..1) is the case urgency for a driver with an open case, otherwise the latest pre-trip or turn-around score (includes the simulated profile), else 0. Shape unchanged. |
-| `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "Flood Watch active" status |
+| `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "HiTide active" status |
 | `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id,provider?,call_id?}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent; live sends report `mode: photon`. `provider` (`stable` or `photon2`) is present only on live sends. `call_id` (ElevenLabs conversation id) is present only on placed voice calls. Both are optional and additive. |
 | `turn_around` | `{driver_id,message,hazard_edge_id,hazard_depth_in,distance_m}` | **Driver view: full-screen red alert + `speechSynthesis.speak(message)`** |
 | `reroute` | `{driver_id,reason,route:GeoJSON LineString,blocked_edge_ids,distance_m}` | Draw the new route (green), mark blocked segments |
@@ -264,6 +264,10 @@ Outside the region only NWS polygon alerts apply, capped at `warning`, or `dange
 | POST | `/api/users/{id}/route` | Trusted origin. Body: `{points: [[lat, lon], ...]}` (2 to 2000 points), the planned trip. Every road on it is checked (a pre-trip warning). Returns `{edges_matched}`. |
 | POST | `/api/users/{id}/reply` | Trusted origin. Body: `{reply: safe\|need_help, by: driver\|emergency_contact\|parent}`. Manual or ops reply. Real replies also arrive by SMS or poll through `/api/photon/inbound` or the Photon 2.0 socket, in English or Spanish (SAFE/HELP/BIEN/AYUDA), matched by normalized phone. |
 | GET | `/api/region/gauges` | Added 2026-11-08 (additive). The region loop's gauge list only, without segments and points (~2 KB instead of ~140 KB): `[{site, name, waterway, lon, lat, online, stage_ft, observed_at (epoch s), flood_category\|null, rate_ft_per_hr}]`. Polled by the phone app. |
+| GET | `/api/region/flood-layer?bbox=minLon,minLat,maxLon,maxLat` | Added 2026-11-08. The phone's flood map. One window (max 0.6° each way, else 422): `{at, mode, bbox, segments: [{id, status, name, coords}], points: [{id, name, kind, status, lon, lat}], gauges: [...], alerts: [{id, headline, level, emergency}]}`. Segments are non-open roads only (open is the base map), directed pairs merged, worst status wins. Unknown points are `unknown`, never `open`. |
+| GET | `/api/users/{id}/directions` | Added 2026-11-08. A way to higher ground from the user's last position: `{text, kind: route\|stay\|none, road_names, length_m, coords: [[[lon,lat],...],...], avoid}`. Same router as the region's route-out (confirmed-flooded crossings removed). Never called "safe". |
+| POST | `/api/users/{id}/assistant` | Added 2026-11-08. Trusted origin (+ `SAFETY_API_KEY` if set). Prepares the inbound assistant line: with `HITIDE_ASSISTANT_LIVE=1` it writes the user's situation + directions into the ElevenLabs agent's default variables, returns `{mode: "live", phone, directions, response}` and watches the agent's conversations; a "need help" outcome flags responders. Otherwise `{mode: "mock", phone: null, ...}` and a simulated timeline entry. Timeline entries: `assistant call requested[ (simulated)]`, `assistant call: <summary>`, `assistant line unavailable`, `assistant call not detected`. |
+| GET | `/api/routes/options?start=lon,lat&end=lon,lat` | Added 2026-11-08. Up to 3 different ways (422 outside the region): `{at, options: [{id, label: Fastest\|Avoids confirmed flooding\|Another way, via, length_m, minutes, status: flooded\|likely\|clear, flooded, likely, unknown_roads, coords}]}`. Ordered least reported flooding first (clear, likely, flooded; then time). "Fastest" may cross water (shown, never hidden, and sorted down); the others drop confirmed-flooded roads and penalize likely/unknown, and differ by road. `clear` means "no flooding reported", never safe. |
 
 **Assessment**:
 - Top-level fields:

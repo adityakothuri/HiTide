@@ -1,0 +1,405 @@
+/* Situation panels: people, areas, drones, critical points. Colour only where it means danger. */
+.section {
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--d-line);
+}
+
+.section:last-child { border-bottom: 0; }
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--d-strong);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.aside {
+  flex: none;
+  color: var(--d-muted);
+  font-size: 12px;
+}
+
+.empty {
+  margin: 0 0 4px;
+  color: var(--d-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* Rows */
+.list {
+  display: grid;
+  gap: 1px;
+  margin: 0 -4px;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--d-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:hover { background: var(--d-hover); }
+.row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.row.on { background: var(--accent-tint); }
+
+.main {
+  display: grid;
+  min-width: 0;
+}
+
+.name,
+.sub {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.name {
+  color: var(--d-strong);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.sub {
+  color: var(--d-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sev-muted);
+}
+
+.dot.critical { background: var(--sev-critical); }
+.dot.warning { background: var(--sev-warning); }
+
+/* Areas draw as rings on the map; same here. */
+.ring {
+  border: 2px solid var(--sev-muted);
+  background: transparent;
+}
+
+.ring.critical { border-color: var(--sev-critical); background: transparent; }
+.ring.warning { border-color: var(--sev-warning); background: transparent; }
+
+.tag {
+  flex: none;
+  color: var(--d-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tag.critical { color: var(--d-critical); }
+.tag.warning { color: var(--d-caution); }
+
+.moreRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.more {
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Point detail */
+.detail { background: var(--d-raised); }
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--d-muted);
+  cursor: pointer;
+}
+
+.close:hover { background: var(--d-hover); }
+
+.facts {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 4px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.facts dt { color: var(--d-muted); }
+
+.facts dd {
+  margin: 0;
+  color: var(--d-text);
+}
+
+/* Person detail (Driver cases) */
+.personPanel {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  width: 340px;
+  border: 1px solid var(--d-line);
+  border-radius: var(--app-radius-panel);
+  box-shadow: var(--app-shadow-panel);
+  background: var(--d-panel);
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.personName {
+  margin: 0;
+  color: var(--d-strong);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.advice {
+  margin: 4px 0 0;
+  color: var(--d-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.flags li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--d-line-strong);
+  border-radius: 4px;
+  color: var(--d-text);
+  font-size: 12px;
+}
+
+.reasons {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding-left: 16px;
+  color: var(--d-text);
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.ladder {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0 0 0 14px;
+  list-style: none;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.ladder::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 3px;
+  border-left: 1px solid var(--d-line-strong);
+}
+
+.ladder li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.ladder li::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: -14px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.ladder time { color: var(--d-muted); }
+
+/* One-line rows: drones. */
+.lines {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 10px auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.lineMid {
+  overflow: hidden;
+  color: var(--d-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lineEnd { color: var(--d-muted); }
+
+.dot.flying { background: var(--drone); }
+
+/* Critical point marker, same diamond as the map. */
+.diamond {
+  width: 8px;
+  height: 8px;
+  margin: 0 1px;
+  border-radius: 1px;
+  background: var(--sev-muted);
+  transform: rotate(45deg);
+}
+
+.diamond.critical { background: var(--sev-critical); }
+.diamond.warning { background: var(--sev-warning); }
+
+/* Driver cases: counts by level in one line. */
+.counts {
+  display: flex;
+  gap: 14px;
+  margin: 0 0 8px;
+  color: var(--d-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.counts strong {
+  color: var(--d-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.counts strong.hot { color: var(--d-critical); }
+.counts strong.warm { color: var(--d-caution); }
+
+/* Someone told us they need help (text, poll or the HiTide call). */
+.tag.helpTag {
+  padding: 1px 6px;
+  border: 1px solid var(--sev-critical);
+  border-radius: 4px;
+  background: var(--critical-bg);
+}
+
+.helpBanner {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--sev-critical);
+  background: var(--critical-bg);
+  color: var(--d-text);
+  font-size: 12px;
+}
+
+.helpBanner strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--d-critical);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.helpBanner p {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+
+/* Section headings: a small tinted icon and a count tag, so each block reads at a glance. */
+.titleIcon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.iconDrone { color: var(--accent); }
+.iconCritical { color: var(--d-critical); }
+
+.badge {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: var(--d-bg);
+  color: var(--d-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.badgeDrone {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.badgeCritical {
+  background: var(--critical-bg);
+  color: var(--d-critical);
+}

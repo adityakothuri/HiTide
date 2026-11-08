@@ -66,6 +66,11 @@ def _note(s: ResponseState, now: float, what: str) -> tuple[tuple[float, str], .
     return (s.timeline + ((now, what),))[-TIMELINE_MAX:]
 
 
+def add_note(s: ResponseState, now: float, what: str) -> ResponseState:
+    """A timeline entry that changes no ladder state (e.g. the person phoned the assistant line)."""
+    return replace(s, timeline=_note(s, now, what))
+
+
 @dataclass(frozen=True)
 class _Timers:
     poll_to_call: float

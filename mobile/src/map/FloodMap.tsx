@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Icon } from '@/components/Icon';
+import type { LngLat } from '@/domain/types';
 import { color, edge, font, radius, shadow } from '@/theme/tokens';
 import { MapCanvas, supportsSatellite } from './MapCanvas';
 import type { MapScene } from './scene';
@@ -15,6 +16,10 @@ interface FloodMapProps {
   rounded?: boolean;
   bottomInset?: number;
   style?: StyleProp<ViewStyle>;
+  /** Tap-to-pick (Set location): called with the tapped position. */
+  onPressCoordinate?: (p: LngLat) => void;
+  /** A dropped pin to draw. */
+  pin?: LngLat | null;
 }
 
 export function FloodMap({
@@ -26,6 +31,8 @@ export function FloodMap({
   rounded = true,
   bottomInset = 0,
   style,
+  onPressCoordinate,
+  pin,
 }: FloodMapProps) {
   const [recenterToken, setRecenterToken] = useState(0);
   const [satellite, setSatellite] = useState(false);
@@ -37,7 +44,15 @@ export function FloodMap({
       accessibilityRole={interactive ? undefined : 'image'}
       accessibilityLabel={accessibilityLabel}
     >
-      <MapCanvas scene={scene} interactive={interactive} recenterToken={recenterToken} satellite={satellite} bottomInset={bottomInset} />
+      <MapCanvas
+        scene={scene}
+        interactive={interactive}
+        recenterToken={recenterToken}
+        satellite={satellite}
+        bottomInset={bottomInset}
+        onPressCoordinate={onPressCoordinate}
+        pin={pin}
+      />
       {chip ? (
         <View style={[styles.chip, shadow.control]} pointerEvents="none">
           <Icon name="pin" size={16} color={color.ink} />

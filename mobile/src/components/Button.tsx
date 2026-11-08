@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   large: { minHeight: 60 },
   content: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   label: { ...font.button, textAlign: 'center' },
-  largeLabel: { fontSize: 19, lineHeight: 24 },
+  largeLabel: { fontSize: font.buttonLarge.fontSize, lineHeight: font.buttonLarge.lineHeight },
   disabled: { opacity: 0.5 },
   callLink: {
     flexDirection: 'row',

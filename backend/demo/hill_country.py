@@ -190,11 +190,11 @@ class HillCountryDemo:
     async def _family(self, nid: str) -> None:
         await asyncio.sleep(FAMILY_DELAY_REAL_S)
         n = self.loop.nodes[nid]
-        body = (f"State Farm Flood Watch: your mother's area ({n['town']}) is cut off by floodwater and she is not answering. "
+        body = (f"HiTide: your mother's area ({n['town']}) is cut off by floodwater and she is not answering. "
                 f"We told her to go to high ground and flagged responders. Can you reach her? Do not drive there. {TURN_AROUND}")
         self.sent["C"] = {"node": nid}
         await self._send("C", "text", body)
-        await self._send("C", "voice", f"Hi, this is State Farm Flood Watch about Ruth in {n['town']}. Her roads are flooded and "
+        await self._send("C", "voice", f"Hi, this is HiTide about Ruth in {n['town']}. Her roads are flooded and "
                                        "she has not answered. Responders know where she is. Can you reach her?")
 
     async def _send(self, who: str, channel: Channel, body: str, options: tuple[str, ...] = ()) -> None:

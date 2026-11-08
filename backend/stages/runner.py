@@ -189,7 +189,7 @@ class StageRunner:
         names = sorted({e.town.segment_name(h.edge_id) for h in w.hits})[:2]
         alt = dry_route(e.town.graph, d.home_node, route.dest_node, e.closed_edges(), "safer") if w.blocking else None
         where = " and ".join(names)
-        body = (f"State Farm Flood Watch: Flash flood warning. Your usual route to {route.label} crosses flooded "
+        body = (f"HiTide: Flash flood warning. Your usual route to {route.label} crosses flooded "
                 f"roads at {where}. " + ("Use the safer route we sent to your app." if alt else
                                          "No dry route right now. Please delay your trip.") + " Turn around, don't drown.")
         self.world.pretrip_cards[d.id] = {"route_label": route.label, "flooded_roads": names, "blocking": w.blocking,
@@ -288,12 +288,12 @@ class StageRunner:
                                               call_variables(d.name, street, case.depth_in)))
             return self._note(case, elapsed, "Calling driver (voice)")
         if kind == "contact_family":
-            body = (f"State Farm Flood Watch: {d.name}'s car has stopped in floodwater near "
+            body = (f"HiTide: {d.name}'s car has stopped in floodwater near "
                     f"{case.location.lat:.4f}, {case.location.lon:.4f} and they haven't answered. Responders are "
                     f"being notified. Reply SAFE if you've reached them.")
             street, first = self._street_of(case.driver_id), first_name(d.name)
             family_vars = {**call_variables(d.name, street, case.depth_in), "call_purpose": "family"}
-            family_opening = (f"Hi, this is State Farm Flood Watch calling about {first}. {first}'s car has stopped in "
+            family_opening = (f"Hi, this is HiTide calling about {first}. {first}'s car has stopped in "
                               f"floodwater on {street}, and {first} hasn't answered our call. Have you been able to reach {first}?")
             ev, _ = await asyncio.gather(
                 self._send(d, "emergency_contact", "text", body, case.id),

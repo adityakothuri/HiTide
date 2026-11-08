@@ -1,4 +1,4 @@
-// Flood Watch primary database (SpacetimeDB 2.14, TypeScript module).
+// HiTide primary database (SpacetimeDB 2.14, TypeScript module).
 //
 // The Python FastAPI backend is the only writer: it calls these reducers over HTTP with the database owner's token,
 // and reads with SQL. Every write reducer checks that the caller is the owner recorded at first publish, so other
@@ -250,7 +250,7 @@ const SEED_SOURCES: Array<[string, string, string, string, number]> = [
 function requireOwner(ctx: Ctx): void {
   const cfg = ctx.db.config.id.find(1);
   if (!cfg) throw new SenderError('database not initialised');
-  if (!cfg.owner.isEqual(ctx.sender)) throw new SenderError('only the Flood Watch backend may write');
+  if (!cfg.owner.isEqual(ctx.sender)) throw new SenderError('only the HiTide backend may write');
 }
 
 function parseArray(json: string, what: string): any[] {

@@ -16,15 +16,15 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('operations evidence workflow', () => {
   it('shows provenance and keeps observation time separate from receipt time', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(initial))))
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(initial))))
     render(<Operations />)
-    await screen.findByRole('heading', { name: 'Road verification' })
+    await screen.findByRole('heading', { name: 'Inspections' })
     await screen.findByText('Last remaining possible exit')
     fireEvent.click(screen.getByRole('button', { name: /Exit B crossing/ }))
     expect(screen.getByRole('heading', { name: 'Exit B crossing' })).toBeDefined()
-    expect(screen.getByText(/^Observed .* · received /)).toBeDefined()
+    expect(screen.getByTitle(/^Observed .* · received /)).toBeDefined()
     expect(screen.getByText('Earlier report')).toBeDefined()
-    expect(screen.getByText('1 modeled exit remaining')).toBeDefined()
+    expect(screen.getByText(/1 modeled exit remaining/)).toBeDefined()
     expect(screen.getByText('Only modeled exit · Neighborhood A')).toBeDefined()
   })
 

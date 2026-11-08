@@ -1,4 +1,4 @@
-# State Farm Flood Watch
+# HiTide
 
 > **Presenting? Everything is in [`presentation/`](presentation/README.md):** charts, app screenshots, mockups, drone photos, demo videos and links to the deck and docs.
 
@@ -13,16 +13,16 @@ The monitor also includes decoded NOAA rainfall/runoff previews, NWPS river summ
 > limitations, and next milestones. The operations console is at `/console`.
 > MongoDB is now the default evidence store; start a replica set before the backend
 > (Windows: `powershell -NoProfile -File scripts/start-mongodb.ps1` after backend
-> dependency setup), or explicitly select `FLOODWATCH_DB_BACKEND=sqlite`.
+> dependency setup), or explicitly select `HITIDE_DB_BACKEND=sqlite`.
 > The driver-rescue simulation described below remains a separate workflow.
 
 HackUTD 2026: State Farm track ("The Worst Day, at Scale") + Photon track.
 
-**Most flood deaths happen in vehicles.** Flood Watch protects opted-in State Farm drivers during flash floods in three stages:
+**Most flood deaths happen in vehicles.** HiTide protects opted-in State Farm drivers during flash floods in three stages:
 
 1. **Before the trip:** drivers whose usual route crosses a flooded road get a text with a safer route. Teen drivers' parents get a copy.
 2. **During the trip:** a spoken "Flooded road ahead. Turn around." alert and a reroute on dry roads. Moving drivers never get texts.
-3. **Stopped in floodwater:** Flood Watch calls the driver, then their emergency contact, flags responders, and dispatches a drone whose vision reports the water level on the car and where people are.
+3. **Stopped in floodwater:** HiTide calls the driver, then their emergency contact, flags responders, and dispatches a drone whose vision reports the water level on the car and where people are.
 
 Outreach order uses data State Farm already has (age, time of day, rising water, vehicle type). It never affects pricing.
 
@@ -52,7 +52,7 @@ Add `--reload` for backend auto-reload while coding (off by default, so a teamma
 | Hill Country region | July 4, 2025 replay | live Texas feeds |
 | Ops weather map | July 4, 2025 replay | live Kerrville gauge, NWS alerts, IEM MRMS rain |
 | Texts and calls | mock | mock, unless `--live-outreach` |
-| Evidence DB | SQLite | SQLite (set `FLOODWATCH_DB_BACKEND=mongodb` for Mongo) |
+| Evidence DB | SQLite | SQLite (set `HITIDE_DB_BACKEND=mongodb` for Mongo) |
 
 How it works: `DATA_MODE=test|real` (`backend/app/data_mode.py`) fills in the individual settings before `.env` is
 read, so a stale value in `.env` can't leak into test mode, while a shell variable still overrides a single setting
@@ -86,7 +86,7 @@ uv run python -m scripts.replay_report        # drones vs gauges-only vs naive p
 REGION_MODE=live uv run uvicorn app.main:app   # or switch at runtime:
 curl -X POST -H 'Origin: http://localhost:5173' 'localhost:8000/api/region/mode?mode=live'
 curl localhost:8000/api/region/sources | jq   # each source: status, provenance, age of its newest data
-# evidence DB is SQLite by default; FLOODWATCH_DB_BACKEND=mongodb needs scripts/start-mongodb.ps1 (Windows)
+# evidence DB is SQLite by default; HITIDE_DB_BACKEND=mongodb needs scripts/start-mongodb.ps1 (Windows)
 RUN_SLOW=1 uv run pytest tests/test_replay_golden.py   # replay is bit-for-bit unchanged (~15 min)
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
@@ -168,7 +168,7 @@ Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted, plus API-
 |---|---|
 | `backend/` | FastAPI + WebSockets: flood sim, risk scoring, stages 1-3, outreach, drone, vision |
 | `frontend/` | React + Vite: driver app view + ops dashboard (teammates) |
-| `mobile/` | Expo consumer app: Flood Watch (white/royal blue). Live mode follows `/api/users/{id}/danger` (poll + WS), sample-data mode needs no backend |
+| `mobile/` | Expo consumer app: HiTide (white/royal blue). Live mode follows `/api/users/{id}/danger` (poll + WS), sample-data mode needs no backend |
 | `photon-sidecar/` | Node bridge to Photon Spectrum (`spectrum-ts`) |
 | `data/` | Cached town, synthetic drivers, feed snapshots, drone images |
 | `docs/api-contract.md` | Backend ⇄ frontend contract (REST + WS events) |

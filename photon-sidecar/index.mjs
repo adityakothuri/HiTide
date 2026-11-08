@@ -64,7 +64,7 @@ http.createServer(async (req, res) => {
 }).listen(PORT, "127.0.0.1", () => console.log(`[sidecar] listening on 127.0.0.1:${PORT}`));
 
 const OPT_IN_REPLY =
-  "State Farm Flood Watch: you're opted in. We'll only message you during an active flash flood warning. " +
+  "HiTide: you're opted in. We'll only message you during an active flash flood warning. " +
   "Reply SAFE or HELP if we ever check on you.";
 const welcomed = new Set(); // one confirmation per sender per run, so we never spam
 

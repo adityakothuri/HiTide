@@ -41,11 +41,11 @@
 
 .attrib {
   position: absolute;
-  right: 8px;
+  right: calc(var(--detail-w) + 16px);
   bottom: 4px;
   z-index: 1;
   color: var(--d-faint);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 14px;
   pointer-events: none;
 }
@@ -63,7 +63,7 @@
 /* stylelint-disable selector-pseudo-class-no-unknown */
 .wrap :global(.maplibregl-popup-content) {
   padding: 6px 8px;
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid var(--d-line-strong);
   border-radius: 4px;
   background: var(--d-panel);
   box-shadow: none;
@@ -81,7 +81,7 @@
 }
 
 .wrap :global(.maplibregl-ctrl-group) {
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid var(--d-line-strong);
   border-radius: 4px;
   background: var(--d-panel);
   box-shadow: none;
@@ -93,7 +93,28 @@
   height: 28px;
 }
 
-.wrap :global(.maplibregl-ctrl-group button + button) { border-top: 1px solid rgb(255 255 255 / 10%); }
+.wrap :global(.maplibregl-ctrl-group button + button) { border-top: 1px solid var(--d-line-strong); }
 .wrap :global(.maplibregl-ctrl-group button:hover) { background: var(--d-raised); }
-.wrap :global(.maplibregl-ctrl-icon) { filter: invert(1) brightness(0.85); }
+:global([data-scheme='dark']) .wrap :global(.maplibregl-ctrl-icon) { filter: invert(1) brightness(0.85); }
+
+/* Scale bar: bottom right, above the attribution line. */
+.wrap :global(.maplibregl-ctrl-bottom-right) {
+  right: calc(var(--detail-w) + 8px);
+  bottom: 20px;
+}
+
+.wrap :global(.maplibregl-ctrl-scale) {
+  border: 1.5px solid var(--d-text);
+  border-top: 0;
+  background: color-mix(in srgb, var(--d-panel) 80%, transparent);
+  color: var(--d-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
 /* stylelint-enable selector-pseudo-class-no-unknown */
+
+/* Fleet drones: the only blue on the situation map. */
+.fleet { color: var(--drone); }
+
+/* A drone parked at its base: same arrow, quieter, so flying drones stand out. */
+.parked { opacity: 0.55; }

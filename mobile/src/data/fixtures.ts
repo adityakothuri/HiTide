@@ -1,5 +1,8 @@
 import type {
+  Directions,
   EmergencyContact,
+  FloodLayer,
+  RouteChoice,
   FloodWarning,
   GaugeReading,
   LngLat,
@@ -99,6 +102,7 @@ export function buildWarning(nowIso: string): FloodWarning {
     source: 'National Weather Service (sample data)',
     issuedAt: minutesFrom(nowIso, -64),
     expiresAt: minutesFrom(nowIso, 240),
+    assessedAt: null,
     summary:
       'Heavy rain upstream may cause the Guadalupe River and low-water crossings near Kerrville to rise quickly.',
     guidance: 'Avoid low-water crossings. Never drive through floodwater. Turn around, don’t drown.',
@@ -165,9 +169,74 @@ export function buildGauge(nowIso: string, isRising: boolean): GaugeReading {
     name: 'Guadalupe River at Kerrville',
     stageFt: series[series.length - 1],
     actionStageFt: 12,
+    floodCategory: null,
     trend: isRising ? 'rising' : 'steady',
     series,
+    seriesStepMinutes: 60,
     observedAt: minutesFrom(nowIso, -6),
     source: 'USGS gauge (sample data)',
   };
+}
+
+/** Illustrative flood picture for sample-data mode: the closure on the usual route, labelled as sample. */
+export function sampleFloodLayer(nowIso: string): FloodLayer {
+  const route = geo.original.coords.map(toLngLat);
+  const near = route
+    .map((c, i) => ({ i, d: Math.hypot(c[0] - CLOSURE_POINT[0], c[1] - CLOSURE_POINT[1]) }))
+    .sort((a, b) => a.d - b.d)[0].i;
+  const SPAN = 3;
+  return {
+    at: minutesFrom(nowIso, -6),
+    roads: [
+      { id: 'sample-riverside', name: 'Riverside Drive', status: 'confirmed_flooded', coords: route.slice(Math.max(0, near - SPAN), near + SPAN) },
+      { id: 'sample-riverside-2', name: 'Riverside Drive', status: 'likely_flooded', coords: route.slice(near + SPAN - 1, near + SPAN * 3) },
+    ],
+    points: [{ id: 'sample-crossing', name: 'Riverside Drive crossing', kind: 'crossing', status: 'confirmed_flooded', at: CLOSURE_POINT }],
+    gauges: [{ site: '08166200', name: 'Guadalupe River at Kerrville', at: [-99.1634, 30.0533], stageFt: 9.6, category: null }],
+    alerts: ['Flash Flood Warning for Kerr County'],
+    sample: true,
+    replay: false,
+  };
+}
+
+/** Illustrative directions for sample-data mode (the alternate route's way north). */
+export function sampleDirections(): Directions {
+  return {
+    text: 'Head for higher ground by Memorial Blvd, about 1.2 km. This way avoids known flooding. Avoid Riverside Drive: water is reported there. If you see water on the road, turn around. (Sample data)',
+    kind: 'route',
+    roadNames: ['Memorial Blvd'],
+    lengthM: 1200,
+    lines: [geo.alternate.coords.slice(0, 40).map(toLngLat)],
+    avoid: ['Riverside Drive'],
+  };
+}
+
+/** Sample-mode route choices: the usual route (crossing the sample closure) and the alternate. */
+export function sampleRouteChoices(trip: Trip): RouteChoice[] {
+  const { original, alternate } = trip.routes;
+  const toM = (mi: number) => Math.round(mi * METERS_PER_MILE);
+  return [
+    {
+      id: 'original',
+      label: 'Usual route',
+      via: [original.via],
+      lengthM: toM(original.distanceMi),
+      minutes: original.durationMin,
+      status: trip.closure ? 'flooded' : 'clear',
+      flooded: trip.closure ? [trip.closure.road] : [],
+      likely: [],
+      lines: [original.coords],
+    },
+    {
+      id: 'alternate',
+      label: 'Avoids known flooding',
+      via: [alternate.via],
+      lengthM: toM(alternate.distanceMi),
+      minutes: alternate.durationMin,
+      status: 'clear',
+      flooded: [],
+      likely: [],
+      lines: [alternate.coords],
+    },
+  ];
 }

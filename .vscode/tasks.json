@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Flood Watch: MongoDB",
+      "label": "HiTide: MongoDB",
       "type": "shell",
       "command": "powershell -NoProfile -File scripts/start-mongodb.ps1",
       "problemMatcher": []
     },
     {
-      "label": "Flood Watch: backend",
-      "dependsOn": ["Flood Watch: MongoDB"],
+      "label": "HiTide: backend",
+      "dependsOn": ["HiTide: MongoDB"],
       "type": "shell",
       "command": "python -m uv run uvicorn app.main:app --host 127.0.0.1 --port 8000",
       "options": { "cwd": "${workspaceFolder}/backend" },
@@ -18,7 +18,7 @@
       "presentation": { "panel": "dedicated" }
     },
     {
-      "label": "Flood Watch: frontend",
+      "label": "HiTide: frontend",
       "type": "shell",
       "command": "npm.cmd run dev -- --host 127.0.0.1",
       "options": { "cwd": "${workspaceFolder}/frontend" },
@@ -27,8 +27,8 @@
       "presentation": { "panel": "dedicated" }
     },
     {
-      "label": "Flood Watch: start all",
-      "dependsOn": ["Flood Watch: backend", "Flood Watch: frontend"],
+      "label": "HiTide: start all",
+      "dependsOn": ["HiTide: backend", "HiTide: frontend"],
       "dependsOrder": "parallel",
       "problemMatcher": []
     },

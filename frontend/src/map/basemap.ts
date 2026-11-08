@@ -11,7 +11,7 @@ export type MapMode = 'tiles' | 'offline'
 // Keyless CARTO vector basemaps (OpenStreetMap data). Override with VITE_BASEMAP_DARK / VITE_BASEMAP_LIGHT.
 const STYLE_URL: Record<MapTheme, string> = {
   dark: (import.meta.env.VITE_BASEMAP_DARK as string | undefined) ?? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-  light: (import.meta.env.VITE_BASEMAP_LIGHT as string | undefined) ?? 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+  light: (import.meta.env.VITE_BASEMAP_LIGHT as string | undefined) ?? 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
 }
 
 export const BASEMAP_TIMEOUT_MS = 4000

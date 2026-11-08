@@ -1,0 +1,25 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 0 8px;
+  min-height: 20px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.test { color: var(--info); background: var(--info-bg); }
+.real { color: var(--safe); background: var(--safe-bg); }
+.live { color: var(--critical); background: var(--critical-bg); }
+.offline { color: var(--neutral-5); background: var(--neutral-1); }

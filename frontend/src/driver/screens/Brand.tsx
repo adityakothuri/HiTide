@@ -1,4 +1,4 @@
-/** Neutral shield mark used in the band, notifications and the claim pass. Not State Farm's logo. */
+/** Neutral shield mark used in the band, notifications and the claim pass. */
 export function ShieldMark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

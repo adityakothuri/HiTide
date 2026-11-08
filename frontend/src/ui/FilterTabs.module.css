@@ -1,4 +1,4 @@
-/* Underline tabs, after State Farm's tab pattern: white, 1px rule, red indicator on the active tab. */
+/* Underline tabs, white, 1px rule, brand indicator on the active tab. */
 .root {
   display: flex;
   flex-direction: column;

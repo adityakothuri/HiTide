@@ -1,4 +1,4 @@
-# Flood Watch image mockups
+# HiTide image mockups
 
 Generated November 8, 2026 with the built-in Imagegen tool. These are raster design concepts with illustrative data and geography, not implemented interfaces or validated live conditions. The user requested images first; application code has not been redesigned in this pass.
 
@@ -9,7 +9,7 @@ Generated November 8, 2026 with the built-in Imagegen tool. These are raster des
 3. `03-desktop-driver-cases.png`: laptop/desktop driver case queue, map, outreach history, simulated visual evidence.
 4. `04-ipad-flood-monitor.png`: tablet-specific regional monitor, source filters, touch controls, selected county sheet.
 
-The matching `.prompt.txt` files preserve the exact generation prompts. All four concepts use an independent Flood Watch identity with no State Farm name, logo, insurer navigation, or red brand treatment. Existing production source and historical documentation still contain the previous branding; removing it from the running app belongs to implementation after image review.
+The matching `.prompt.txt` files preserve the exact generation prompts. All four concepts use an independent HiTide identity with no State Farm name, logo, insurer navigation, or red brand treatment. Existing production source and historical documentation still contain the previous branding; removing it from the running app belongs to implementation after image review.
 
 ## Product understanding from the repository
 
@@ -36,13 +36,13 @@ Primary visual/product references reviewed:
 
 - [Apple Maps](https://www.apple.com/maps/) and [Apple's iPhone Maps guide](https://support.apple.com/guide/iphone/get-started-with-maps-iph6ef6ef377/ios): geographic context, a clear route action, native phone hierarchy. Adopt map-plus-action composition and readable navigation; keep hazard interpretation explicit.
 - [Linear features](https://linear.app/features) and [Linear concepts](https://linear.app/docs/conceptual-model): compact navigation, coherent selected rows, queue/detail hierarchy. Adopt disciplined density and progressive detail rather than oversized KPI cards.
-- [Samsara telematics](https://www.samsara.com/products/telematics) and [its fleet dashboard example](https://www.samsara.com/ca/customers/ghilotti-bros-inc): map-centered operations with a linked asset list. Adopt queue/map coordination while preserving Flood Watch's evidence and inspection semantics.
+- [Samsara telematics](https://www.samsara.com/products/telematics) and [its fleet dashboard example](https://www.samsara.com/ca/customers/ghilotti-bros-inc): map-centered operations with a linked asset list. Adopt queue/map coordination while preserving HiTide's evidence and inspection semantics.
 
 These are reference patterns, not copied screens or endorsements. The proposed visual choices are design judgments based on the workflows above.
 
 ## Proposed shared visual language
 
-- Retain the existing descriptive name Flood Watch; a small blue wave is an exploratory mark, not a finalized logo.
+- Retain the existing descriptive name HiTide; a small blue wave is an exploratory mark, not a finalized logo.
 - White and cool gray surfaces, slate text, restrained cobalt actions. Amber means caution/uncertainty; red is reserved for closures or urgent situations.
 - Precise sans-serif typography, thin rules, modest corners, consistent line icons. Use shape, icon and text as well as color for conditions.
 - Desktop: stable navigation plus queue/map/inspector. Larger screens gain map space, not giant cards. At narrower laptop widths, switch between queue and details instead of compressing all panes.

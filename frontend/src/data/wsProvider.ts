@@ -143,7 +143,7 @@ export class WsProvider implements DataProvider {
         }
         this.onEvent(e)
       } catch (err) {
-        console.error('Flood Watch: could not read a message from the backend', err)
+        console.error('HiTide: could not read a message from the backend', err)
       }
     }
     ws.onclose = () => {

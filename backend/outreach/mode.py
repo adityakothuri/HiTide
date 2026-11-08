@@ -8,11 +8,15 @@ from typing import Literal
 PhotonMode = Literal["mock", "stable", "photon2"]
 
 
-def photon_mode() -> PhotonMode:
+def parse_mode(raw: str | None) -> PhotonMode:
     """mock (default) | stable (Spectrum sidecar; "photon" is the legacy alias) | photon2."""
-    raw = os.environ.get("PHOTON_MODE", "").strip().lower()
-    if raw in ("stable", "photon"):
+    value = (raw or "").strip().lower()
+    if value in ("stable", "photon"):
         return "stable"
-    if raw == "photon2":
+    if value == "photon2":
         return "photon2"
     return "mock"
+
+
+def photon_mode() -> PhotonMode:
+    return parse_mode(os.environ.get("PHOTON_MODE"))

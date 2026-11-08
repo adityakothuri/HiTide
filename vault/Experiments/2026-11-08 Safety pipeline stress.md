@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, experiment, safety]
+tags: [hitide, experiment, safety]
 date: 2026-11-08
 code: backend/scripts/stress_safety.py
 data: data/experiments/safety_stress_*_2000.json, data/experiments/safety_load_*.json

@@ -1,4 +1,4 @@
-import { ChevronRight, CircleCheck } from 'lucide-react'
+import { CircleCheck } from 'lucide-react'
 import type { EvidenceState, Task } from '../types'
 import { accessChip, ageLabel, isHighPriority, latestDirect, type QueueTab, taskSummary, tasksFor } from './derive'
 import s from './ops.module.css'
@@ -23,14 +23,14 @@ export function Queue({ state, tab, onTab, selectedId, onSelect, now, onLoadDemo
   const tasks = tasksFor(state, tab)
   const completed = state.tasks.filter((t) => t.status === 'completed')
   return (
-    <section className={`${s.panel} ${s.queue}`} aria-labelledby="queue-heading">
-      <h2 id="queue-heading" className={s.panelTitle}>Inspection queue</h2>
-      <div className={s.tabs} role="tablist" aria-label="Queue">
+    <section className={s.queue} aria-labelledby="queue-heading">
+      <h2 id="queue-heading" className={s.srOnly}>Inspection queue</h2>
+      <div className={s.segmented} role="tablist" aria-label="Queue">
         {TABS.map((t) => {
           const count = tasksFor(state, t.id).length
           return (
-            <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} className={s.tab} onClick={() => onTab(t.id)}>
-              {t.label}<span className={s.tabCount}>{count}</span>
+            <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} className={s.segment} onClick={() => onTab(t.id)}>
+              {t.label}<span className={s.segmentCount}>{count}</span>
             </button>
           )
         })}
@@ -54,7 +54,7 @@ export function Queue({ state, tab, onTab, selectedId, onSelect, now, onLoadDemo
       )}
       {completed.length > 0 && (
         <details className={s.completed}>
-          <summary>Completed ({completed.length})</summary>
+          <summary>Completed <span className={s.num}>{completed.length}</span></summary>
           <ul className={s.queueList}>
             {completed.map((task) => (
               <QueueItem key={task.id} state={state} task={task} isSelected={task.road_id === selectedId} onSelect={onSelect} now={now} />
@@ -79,19 +79,21 @@ function QueueItem({ state, task, isSelected, onSelect, now }: ItemProps) {
   const chip = road ? accessChip(road) : null
   const latest = road ? latestDirect(state, road) : undefined
   const age = ageLabel(latest?.observed_at, now)
+  const urgent = isHighPriority(task) && task.status !== 'completed'
+  const reason = taskSummary(state, task)
   return (
     <li>
-      <button type="button" className={`${s.queueItem} ${isSelected ? s.queueItemOn : ''}`} aria-current={isSelected} onClick={() => onSelect(task.road_id)}>
+      <button type="button" className={`${s.queueItem} ${isSelected ? s.queueItemOn : ''}`} aria-current={isSelected} onClick={() => onSelect(task.road_id)}
+        title={age ? `Latest road evidence ${age === 'just now' ? 'just now' : `${age} old`}` : 'No direct road evidence'}>
         <span className={s.queueText}>
-          {isHighPriority(task) && task.status !== 'completed' && <span className={s.priorityTag}>High priority</span>}
-          <strong className={s.queueName}>{task.road_name}</strong>
-          <span className={s.queueReason}>{taskSummary(state, task)}</span>
-          <span className={s.queueMeta}>
-            <span>{age ? `Evidence ${age} old` : 'No direct evidence'}</span>
-            {chip && <span className={`${s.chip} ${s[`chip_${chip.tone}`]}`}>{chip.label}</span>}
+          <span className={s.queueName}>
+            {urgent && <span className={s.priorityDot} aria-hidden />}
+            {urgent && <span className={s.srOnly}>High priority: </span>}
+            {task.road_name}
           </span>
+          <span className={s.queueReason}>{reason}</span>
         </span>
-        <ChevronRight size={18} aria-hidden className={s.chevron} />
+        {chip && <span className={`${s.chip} ${s[`chip_${chip.tone}`]}`}>{chip.label}</span>}
       </button>
     </li>
   )

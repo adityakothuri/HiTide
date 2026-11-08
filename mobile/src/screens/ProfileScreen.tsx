@@ -1,13 +1,15 @@
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Linking, Pressable, ScrollView, type ScrollViewInstance, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, type ScrollViewInstance, StyleSheet, Switch, Text, View } from 'react-native';
 import { Appear } from '@/components/Motion';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
 import { ListRow } from '@/components/Rows';
+import { ConnectionBadge } from '@/components/ConnectionBadge';
 import { useAppState, useRepository } from '@/data/RepositoryProvider';
 import { speak, TEST_VOICE_TEXT } from '@/services/speech';
+import { formatLngLat } from './locationResultCopy';
 import { color, font, radius, space, touchTarget } from '@/theme/tokens';
 
 type LocationNotice = 'denied' | 'error' | null;
@@ -79,6 +81,19 @@ export function ProfileScreen() {
         </View>
 
         <Text style={styles.sectionTitle} accessibilityRole="header">
+          Your location
+        </Text>
+        <View style={styles.group}>
+          <ListRow
+            icon="pin"
+            title="Set location"
+            subtitle={state.lastPin ? `Pin at ${formatLngLat(state.lastPin.at)}` : 'Drop a pin on the flood map'}
+            onPress={() => router.push('/set-location')}
+            accessibilityHint="Opens a map to choose where you are"
+          />
+        </View>
+
+        <Text style={styles.sectionTitle} accessibilityRole="header">
           Location and alerts
         </Text>
         <View
@@ -97,7 +112,7 @@ export function ProfileScreen() {
             <View style={styles.notice} accessibilityLiveRegion="polite">
               <Text style={styles.noticeText}>
                 {locationNotice === 'denied'
-                  ? 'Location access is off. Flood Watch will use your saved area, Kerrville, Texas, instead.'
+                  ? 'Location access is off. HiTide will use your saved area, Kerrville, Texas, instead.'
                   : 'We couldn’t check location access. Your saved area will be used instead.'}
               </Text>
               {locationNotice === 'denied' ? (
@@ -120,9 +135,11 @@ export function ProfileScreen() {
 
         <View style={styles.about}>
           <Text style={styles.aboutTitle}>About this demo</Text>
+          <ConnectionBadge connection={state.connection} />
           <Text style={styles.aboutText}>
-            Flood Watch is shown with sample data. Warnings, closures, and help requests are simulated. It never places
-            calls or sends messages.
+            {state.connection.kind === 'live'
+              ? 'Warnings, closures, and check-ins come from the HiTide service. In the July 4, 2025 replay, calls and texts to you and your contact are simulated, and your contact edits stay on this phone.'
+              : 'HiTide is shown with sample data. Warnings, closures, and help requests are simulated. It never places calls or sends messages.'}
           </Text>
           {__DEV__ ? (
             <Pressable onPress={() => router.push('/dev')} accessibilityRole="button" hitSlop={8}>
@@ -134,6 +151,9 @@ export function ProfileScreen() {
     </View>
   );
 }
+
+/** react-native-web defaults the "on" thumb to teal; keep it on-brand. */
+const WEB_SWITCH_COLORS = Platform.OS === 'web' ? ({ activeThumbColor: color.white } as object) : {};
 
 interface SettingRowProps {
   title: string;
@@ -158,6 +178,7 @@ function SettingRow({ title, body, value, isDisabled, onChange }: SettingRowProp
         trackColor={{ true: color.primary, false: color.divider }}
         thumbColor={color.white}
         ios_backgroundColor={color.divider}
+        {...WEB_SWITCH_COLORS}
       />
     </View>
   );
@@ -176,9 +197,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bigAvatarText: { ...font.heading, fontSize: 20, color: color.white },
+  bigAvatarText: { ...font.heading, color: color.white },
   content: { padding: space.md, gap: space.xs, paddingBottom: space.xxl },
-  sectionTitle: { ...font.overline, color: color.secondary, textTransform: 'uppercase', marginTop: space.md, marginLeft: space.md },
+  sectionTitle: { ...font.overline, color: color.secondaryStrong, marginTop: space.md, marginLeft: space.md },
   group: { backgroundColor: color.white, borderRadius: radius.control, paddingHorizontal: space.md },
   panel: {
     gap: space.sm,
@@ -199,5 +220,5 @@ const styles = StyleSheet.create({
   about: { gap: 6, paddingTop: space.lg, paddingHorizontal: space.md },
   aboutTitle: { ...font.rowTitle, color: color.ink },
   aboutText: { ...font.small, color: color.secondary },
-  devLink: { ...font.small, color: color.primary, paddingVertical: space.xs },
+  devLink: { ...font.small, color: color.primary, minHeight: touchTarget, textAlignVertical: 'center', paddingVertical: space.sm },
 });

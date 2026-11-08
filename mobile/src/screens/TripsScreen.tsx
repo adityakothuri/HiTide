@@ -1,16 +1,18 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Avatar } from '@/components/BlueHeader';
-import { enterUp } from '@/components/Motion';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import Animated from 'react-native-reanimated';
 import { Button } from '@/components/Button';
-import { useAppState } from '@/data/RepositoryProvider';
+import { HeroMapScreen, heroChip } from '@/components/HeroMapScreen';
+import { Icon } from '@/components/Icon';
+import { Appear } from '@/components/Motion';
+import { useStatusBar } from '@/components/ScreenHeader';
+import { RouteChoiceList } from '@/components/RouteChoiceList';
+import { useAppState, useRepository } from '@/data/RepositoryProvider';
 import type { AppState } from '@/domain/types';
-import { FloodMap } from '@/map/FloodMap';
 import { buildScene } from '@/map/scene';
 import { formatTime } from '@/state/selectors';
-import { color, font, gutter, radius, shadow, space, tabular } from '@/theme/tokens';
+import { color, font, space, tabular } from '@/theme/tokens';
 
 interface SheetCopy {
   overline: string;
@@ -63,81 +65,122 @@ function sheetCopy(state: AppState): SheetCopy {
   };
 }
 
+function ChooseRoute({ state }: { state: AppState }) {
+  const repo = useRepository();
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const choose = async (id: string) => {
+    setError(null);
+    setPendingId(id);
+    try {
+      await repo.chooseRoute(id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Couldn’t check that route. Try again.');
+    } finally {
+      setPendingId(null);
+    }
+  };
+  const chosen = state.routeChoices.find((c) => c.id === state.selectedChoiceId);
+  return (
+    <>
+      <Text style={styles.overline}>{chosen ? 'Your route' : 'Choose a route'}</Text>
+      <RouteChoiceList choices={state.routeChoices} selectedId={state.selectedChoiceId} pendingId={pendingId} onChoose={(id) => void choose(id)} />
+      {error ? (
+        <Text style={styles.error} accessibilityRole="alert">
+          {error}
+        </Text>
+      ) : null}
+    </>
+  );
+}
+
 export function TripsScreen() {
   const state = useAppState();
   const copy = sheetCopy(state);
   const { trip, user } = state;
+  const hasChoices = state.routeChoices.length > 0;
+  useStatusBar('dark');
 
   return (
-    <View style={styles.screen}>
-      <ScreenHeader
-        title="Your trip"
-        subtitle={`${trip.from} → ${trip.to}`}
-        onBack={() => router.navigate('/')}
-        backLabel="Back to Home"
-        right={<Avatar initials={user.initials} onPress={() => router.navigate('/profile')} />}
-      />
-
-      <FloodMap
-        scene={buildScene(state, 'route')}
-        accessibilityLabel="Route map from home to work"
-        interactive
-        showControls
-        rounded={false}
-        bottomInset={radius.panel + 4}
-        style={styles.map}
-      />
-
-      <Animated.View entering={enterUp(1)} style={[styles.sheet, shadow.panel]}>
-        <View style={styles.handle} />
-        <Text style={styles.overline}>{copy.overline}</Text>
-        <Text style={styles.sheetTitle} accessibilityRole="header">
-          {copy.title}
+    <HeroMapScreen
+      scene={buildScene(state, 'route')}
+      mapLabel="Route map from home to work"
+      topBar={
+        <>
+          <Pressable
+            onPress={() => router.navigate('/')}
+            accessibilityRole="button"
+            accessibilityLabel="Back to Home"
+            style={heroChip.chip}
+          >
+            <Icon name="chevronLeft" size={20} color={color.primary} strokeWidth={2.2} />
+            <Text style={styles.backText}>Home</Text>
+          </Pressable>
+          <Avatar initials={user.initials} onPress={() => router.navigate('/profile')} />
+        </>
+      }
+      heroActions={
+        <Pressable
+          onPress={() => router.push('/flood-map')}
+          accessibilityRole="button"
+          accessibilityLabel="Open the flood map"
+          style={heroChip.chip}
+        >
+          <Icon name="layers" size={18} color={color.ink} />
+          <Text style={styles.chipText}>Flood map</Text>
+        </Pressable>
+      }
+    >
+      <Appear index={0}>
+        <Text style={styles.title} accessibilityRole="header">
+          Your trip
         </Text>
-        <Text style={styles.sheetBody}>{copy.body}</Text>
-        <View style={styles.facts}>
-          <Text style={styles.fact}>{copy.distanceMi.toFixed(1)} mi</Text>
-          <View style={styles.factRule} />
-          <Text style={styles.factMuted}>about {copy.durationMin} min · via {copy.via}</Text>
-        </View>
-        <Button
-          label={copy.action}
-          icon={copy.isPrimary ? 'navigate' : 'route'}
-          variant={copy.isPrimary ? 'primary' : 'outline'}
-          onPress={() => router.push('/route-details')}
-        />
+        <Text style={styles.subtitle}>
+          {trip.from} → {trip.to}
+        </Text>
+      </Appear>
+
+      <Appear index={1} style={styles.block}>
+        {hasChoices ? (
+          <ChooseRoute state={state} />
+        ) : (
+          <>
+            <Text style={styles.overline}>{copy.overline}</Text>
+            <Text style={styles.sheetTitle} accessibilityRole="header">
+              {copy.title}
+            </Text>
+            <Text style={styles.sheetBody}>{copy.body}</Text>
+            <View style={styles.facts}>
+              <Text style={styles.fact}>{copy.distanceMi.toFixed(1)} mi</Text>
+              <View style={styles.factRule} />
+              <Text style={styles.factMuted}>
+                about {copy.durationMin} min · via {copy.via}
+              </Text>
+            </View>
+            <Button
+              label={copy.action}
+              icon={copy.isPrimary ? 'navigate' : 'route'}
+              variant={copy.isPrimary ? 'primary' : 'outline'}
+              onPress={() => router.push('/route-details')}
+            />
+          </>
+        )}
         <Text style={styles.footnote}>
           Conditions can change. <Text style={styles.footnoteStrong}>Avoid floodwater.</Text>
         </Text>
-      </Animated.View>
-    </View>
+      </Appear>
+    </HeroMapScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.white },
-  title: { ...font.title, fontSize: 24, lineHeight: 29, color: color.white },
-  map: { flex: 1, minHeight: 180 },
-  sheet: {
-    marginTop: -radius.panel,
-    backgroundColor: color.white,
-    borderTopLeftRadius: radius.panel,
-    borderTopRightRadius: radius.panel,
-    paddingHorizontal: gutter,
-    paddingTop: space.xs,
-    paddingBottom: space.md,
-    gap: space.xs,
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: color.divider,
-    marginBottom: space.xs,
-  },
-  overline: { ...font.overline, color: color.secondary, textTransform: 'uppercase' },
-  sheetTitle: { ...font.title, color: color.ink },
+  title: { ...font.title, color: color.ink, marginTop: 2 },
+  subtitle: { ...font.body, color: color.secondary },
+  block: { gap: space.xs },
+  backText: { ...font.rowTitle, color: color.primary },
+  chipText: { ...font.small, fontWeight: '600', color: color.ink },
+  overline: { ...font.overline, color: color.secondary },
+  sheetTitle: { ...font.heading, color: color.ink },
   sheetBody: { ...font.body, color: color.secondary },
   facts: {
     flexDirection: 'row',
@@ -152,6 +195,7 @@ const styles = StyleSheet.create({
   fact: { ...font.rowTitle, ...tabular, color: color.ink },
   factRule: { width: 1, height: 18, backgroundColor: color.divider },
   factMuted: { ...font.body, color: color.secondary, flexShrink: 1 },
-  footnote: { ...font.caption, color: color.secondary, textAlign: 'center', marginTop: space.xxs },
+  error: { ...font.small, color: color.emergency, textAlign: 'center' },
+  footnote: { ...font.caption, color: color.secondary, textAlign: 'center', marginTop: space.xs },
   footnoteStrong: { color: color.ink, fontWeight: '600' },
 });

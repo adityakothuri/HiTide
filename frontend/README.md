@@ -1,6 +1,6 @@
-# Flood Watch frontend
+# HiTide frontend
 
-React 19 + Vite + TypeScript. Driver app, ops console and presentation mode for State Farm Flood Watch (concept prototype).
+React 19 + Vite + TypeScript. Driver app, ops console and presentation mode for HiTide (concept prototype).
 
 ```bash
 npm install

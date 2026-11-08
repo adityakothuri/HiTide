@@ -2,8 +2,8 @@
 
 Homes are drawn from the region's populated areas (data/region/hill_country/nodes.json), weighted by households,
 jittered ~200 m. Profiles reuse sim/profiles.build_profile; "frequent crossings" are the real critical points
-(low-water crossings, bridges) within 3 km of home. Phones: "sim:<id>" (never sendable) except the three demo
-personas, which use env:DEMO_PHONE_* refs (allowlisted teammates). Deterministic (seeded).
+(low-water crossings, bridges) within 3 km of home. Phones: "sim:<id>" (never sendable) except the demo personas,
+which use env:DEMO_PHONE_* refs (allowlisted teammates; hc-dana -> DEMO_PHONE_DANA, the live phone-app demo). Deterministic (seeded).
 
 Run: cd backend && uv run python scripts/gen_region_users.py [--n 250]
 """
@@ -43,14 +43,18 @@ PERSONAS: list[dict[str, Any]] = [
 # does not reshuffle the 250 generated users the stress figures were measured on. Home = the app's trip origin.
 APP_PERSONAS: list[dict[str, Any]] = [
     {"id": "hc-dana", "name": "Dana Whitfield", "age": 41, "vehicle": ("Toyota", "RAV4", "suv"),
-     "home": (30.01281, -99.1169), "phone": "sim:hc-dana", "contact_name": "Maria Whitfield",
-     "contact_phone": "sim:hc-dana-contact", "needs": [], "tags": ["demo", "commuter", "app"]},
+     "home": (30.01281, -99.1169), "phone": "env:DEMO_PHONE_DANA", "contact_name": "Maria Whitfield",
+     "contact_phone": "sim:hc-dana-contact", "needs": [], "tags": ["demo", "commuter", "app"],
+     # the live demo phone: danger calls her at once instead of polling first
+     "preferred_channel": "voice"},
 ]
 APP_SEED_OFFSET = 1
 
 
 def _persona_record(rng: random.Random, p: dict[str, Any], points: list[dict]) -> dict:
     prof = _profile(rng, p["id"], p["name"], p["age"], p["vehicle"], p["home"], points, p["needs"], "en")
+    if "preferred_channel" in p:   # per-persona override; draws nothing from rng, so other users are unchanged
+        prof["policy"]["preferred_channel"] = p["preferred_channel"]
     return {"id": p["id"], "name": p["name"], "age": p["age"], "phone": p["phone"],
             "home": {"lat": p["home"][0], "lon": p["home"][1]}, "contact_name": p["contact_name"],
             "contact_phone": p["contact_phone"], "parent_phone": p.get("parent_phone"),

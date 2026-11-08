@@ -32,4 +32,4 @@ export function stopSpeaking(): void {
   }
 }
 
-export const TEST_VOICE_TEXT = 'This is Flood Watch. Spoken alerts are on.';
+export const TEST_VOICE_TEXT = 'This is HiTide. Spoken alerts are on.';

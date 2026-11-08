@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from outreach.replies import parse_reply
+from outreach.replies import parse_spoken_reply
 
 Reply = Literal["safe", "need_help"]
 _UNANSWERED_STATUSES = frozenset({"failed"})
@@ -44,8 +44,9 @@ def _collected_status(conversation: dict[str, Any]) -> Reply | None:
 
 
 def _transcript_asks_help(turns: list[str]) -> bool:
-    """Transcript regex can only escalate. A bare "ok" (greeting, voicemail) must never close a flood case."""
-    return any(parse_reply(t) == "need_help" for t in turns)
+    """Transcript regex can only escalate. A bare "ok" (greeting, voicemail) must never close a flood case;
+    a bare "no" to "Are you okay?" escalates."""
+    return any(parse_spoken_reply(t) == "need_help" for t in turns)
 
 
 SUMMARY_MAX_CHARS = 160  # broadcast to every dashboard client: keep it short
@@ -97,7 +98,7 @@ def call_variables(driver_name: str, street: str, depth_in: float) -> dict[str, 
 
 
 def opening_line(first: str, street: str) -> str:
-    return (f"Hi {first}, this is State Farm Flood Watch. Your car looks stopped in floodwater on {street}. "
+    return (f"Hi {first}, this is HiTide. Your car looks stopped in floodwater on {street}. "
             "Are you safe?")
 
 
@@ -110,5 +111,5 @@ def follow_up_text(outcome: CallOutcome, street: str) -> str:
     if outcome.answered:
         return ("Following up on our call: we couldn't tell if you're okay. Reply SAFE if you are, or HELP "
                 "if you need us. Responders are being notified.")
-    return ("State Farm Flood Watch: we missed you on our call. Reply SAFE if you're okay, or HELP if you "
+    return ("HiTide: we missed you on our call. Reply SAFE if you're okay, or HELP if you "
             "need us. Responders are being notified.")

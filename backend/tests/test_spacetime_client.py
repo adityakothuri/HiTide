@@ -57,8 +57,8 @@ def test_call_sends_positional_json_and_bearer_token():
 
 
 def test_reducer_rejection_and_bad_sql_raise_with_message():
-    c = _client(lambda req: httpx.Response(530, text="only the Flood Watch backend may write"))
-    with pytest.raises(SpacetimeError, match="only the Flood Watch backend may write") as e:
+    c = _client(lambda req: httpx.Response(530, text="only the HiTide backend may write"))
+    with pytest.raises(SpacetimeError, match="only the HiTide backend may write") as e:
         c.call("kv_set", "k", "v")
     assert e.value.status == 530
     with pytest.raises(SpacetimeError, match="SQL failed"):

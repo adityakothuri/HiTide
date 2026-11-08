@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, module, safety]
+tags: [hitide, module, safety]
 status: done
 updated: 2026-11-08
 code: backend/safety/

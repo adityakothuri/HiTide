@@ -35,10 +35,12 @@ from vision.grid import BLOCKER, GROUND, Seg
 log = logging.getLogger("vision.demo_video")
 CDT = timezone(timedelta(hours=-5))
 HYDRO = DATA_DIR / "region" / "hill_country" / "hydrographs_2025-07-04.json"
-MONO = "/System/Library/Fonts/Menlo.ttc"
+FONTS = Path(__file__).parent / "fonts"            # B612 Mono: Airbus cockpit display face (OFL)
+MONO, BOLD = FONTS / "B612Mono-Regular.ttf", FONTS / "B612Mono-Bold.ttf"
+HUD = (150, 255, 190)                                 # RGB, HUD symbology
 M_TO_FT = 1 / M_PER_FT
 FT = M_PER_FT
-CYAN, AMBER, RED, GREY = (255, 220, 60), (40, 170, 255), (80, 80, 255), (200, 200, 200)   # BGR
+CYAN, AMBER, RED, GREY = (190, 255, 150), (40, 190, 255), (70, 70, 255), (200, 200, 200)   # BGR; CYAN = HUD green
 
 
 # ---------------------------------------------------------------- waterline -> elevation (model)
@@ -108,27 +110,25 @@ def gauge_estimate(gauge: GaugeSeries, window: tuple[float, float], source: str)
 
 # ---------------------------------------------------------------- drawing
 
-def _font(size: int):
+def _font(size: int, bold: bool = False):
     from PIL import ImageFont
 
     try:
-        return ImageFont.truetype(MONO, size)
+        return ImageFont.truetype(str(BOLD if bold else MONO), size)
     except OSError:
         return ImageFont.load_default()
 
 
 def _corners(img, box, col, t):
+    """Open corner brackets with a small centre tick, no full rectangle."""
     x1, y1, x2, y2 = (int(round(c)) for c in box)
-    L = max(8, int(0.22 * min(x2 - x1, y2 - y1)))
+    L = max(6, int(0.18 * min(x2 - x1, y2 - y1)))
     for (x, y, dx, dy) in ((x1, y1, 1, 1), (x2, y1, -1, 1), (x1, y2, 1, -1), (x2, y2, -1, -1)):
         cv2.line(img, (x, y), (x + dx * L, y), col, t, cv2.LINE_AA)
         cv2.line(img, (x, y), (x, y + dy * L), col, t, cv2.LINE_AA)
     cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-    cv2.line(img, (cx - 6, cy), (cx + 6, cy), col, 1, cv2.LINE_AA)
-    cv2.line(img, (cx, cy - 6), (cx, cy + 6), col, 1, cv2.LINE_AA)
-    overlay = img.copy()
-    cv2.rectangle(overlay, (x1, y1), (x2, y2), col, 1, cv2.LINE_AA)
-    cv2.addWeighted(overlay, 0.35, img, 0.65, 0, img)
+    cv2.line(img, (cx - 4, cy), (cx + 4, cy), col, 1, cv2.LINE_AA)
+    cv2.line(img, (cx, cy - 4), (cx, cy + 4), col, 1, cv2.LINE_AA)
 
 
 def draw_waterline(img: np.ndarray, p_water: np.ndarray) -> None:
@@ -141,8 +141,8 @@ def draw_waterline(img: np.ndarray, p_water: np.ndarray) -> None:
         if cv2.contourArea(c) < 0.004 * m.size:
             continue
         pts = c[:, 0, :]
-        for i in range(0, len(pts) - 6, 12):           # dash: 6 on, 6 off
-            seg = pts[i:i + 6]
+        for i in range(0, len(pts) - 4, 10):           # dash: 4 on, 6 off
+            seg = pts[i:i + 4]
             if (seg[:, 1] < 3).any() or (seg[:, 1] > h - 3).any():
                 continue
             cv2.polylines(img, [seg.reshape(-1, 1, 2)], False, CYAN, 2, cv2.LINE_AA)
@@ -155,8 +155,55 @@ class Tag:
     color: tuple[int, int, int]
 
 
+def _txt(d, xy, text, font, fill, anchor="la"):
+    """HUD text: no panel, a thin dark outline so it reads on any background."""
+    d.text(xy, text, font=font, fill=fill, anchor=anchor, stroke_width=2, stroke_fill=(0, 0, 0, 200))
+
+
+def _frame_brackets(d, W, H, s, col):
+    m, L = int(18 * s), int(46 * s)
+    w = max(1, int(1.5 * s))
+    for (x, y, dx, dy) in ((m, m, 1, 1), (W - m, m, -1, 1), (m, H - m, 1, -1), (W - m, H - m, -1, -1)):
+        d.line([x, y, x + dx * L, y], fill=col, width=w)
+        d.line([x, y, x, y + dy * L], fill=col, width=w)
+    cx, cy, g, r = W // 2, H // 2, int(8 * s), int(22 * s)           # boresight reticle
+    for a, b in (((cx - r, cy), (cx - g, cy)), ((cx + g, cy), (cx + r, cy)),
+                 ((cx, cy - r), (cx, cy - g)), ((cx, cy + g), (cx, cy + r))):
+        d.line([a, b], fill=(*col[:3], 120), width=1)
+
+
+def _tape(d, est: WaterEstimate, x, y0, y1, s, col, f_sm, f_md):
+    """Vertical elevation tape (avionics altitude-tape style): 1 ft ticks, CI95 bracket, value box."""
+    span = 8.0                                               # ft shown above and below the best estimate
+    mid = (y0 + y1) / 2
+    px_ft = (y1 - y0) / (2 * span)
+    yv = lambda ft: mid - (ft - est.best_ft) * px_ft         # noqa: E731
+    dim = (*col[:3], 150)
+    d.line([x, y0, x, y1], fill=dim, width=1)
+    for ft in range(int(np.floor(est.best_ft - span)), int(np.ceil(est.best_ft + span)) + 1):
+        y = yv(ft)
+        if not y0 <= y <= y1:
+            continue
+        major = ft % 5 == 0
+        d.line([x, y, x - int((12 if major else 6) * s), y], fill=dim if not major else col, width=1)
+        if major:
+            _txt(d, (x - int(16 * s), y), f"{ft}", f_sm, dim, "rm")
+    lo, hi = max(yv(est.lo_ft), y0), min(yv(est.hi_ft), y1)
+    bx = x + int(6 * s)
+    d.line([bx, hi, bx, lo], fill=col, width=max(2, int(2 * s)))
+    for yy in (hi, lo):
+        d.line([bx - int(3 * s), yy, bx + int(3 * s), yy], fill=col, width=1)
+    bw, bh = int(118 * s), int(26 * s)                       # pointer box with the value
+    bx0 = bx + int(10 * s)
+    d.polygon([(bx0 - int(8 * s), mid), (bx0, mid - bh / 2), (bx0 + bw, mid - bh / 2), (bx0 + bw, mid + bh / 2),
+               (bx0, mid + bh / 2)], fill=(0, 0, 0, 170), outline=col)
+    d.text((bx0 + int(6 * s), mid), f"{est.best_ft:.1f}", font=f_md, fill=(255, 255, 255, 255), anchor="lm")
+    _txt(d, (bx0 + bw // 2, y0 - int(8 * s)), "WSE FT", f_sm, col, "md")
+    _txt(d, (bx0 + bw // 2, y1 + int(8 * s)), "NAVD88", f_sm, dim, "mt")
+
+
 def render_frame(frame, p_water, tags: list[Tag], shore_px, est: WaterEstimate | None, telemetry: str,
-                 credit: str, place: str, waterline: bool = True) -> np.ndarray:
+                 credit: str, place: str, waterline: bool = True, t_s: float = 0.0) -> np.ndarray:
     from PIL import Image, ImageDraw
 
     img = frame.copy()
@@ -164,59 +211,78 @@ def render_frame(frame, p_water, tags: list[Tag], shore_px, est: WaterEstimate |
         draw_waterline(img, p_water)
     if shore_px is not None:
         for u, v in shore_px.astype(int):
-            cv2.drawMarker(img, (u, v), CYAN, cv2.MARKER_TILTED_CROSS, 7, 1, cv2.LINE_AA)
-    s = img.shape[1] / 1280 if img.shape[1] >= img.shape[0] else img.shape[1] / 720
+            cv2.drawMarker(img, (u, v), CYAN, cv2.MARKER_TILTED_CROSS, 5, 1, cv2.LINE_AA)
+    W0, H0 = img.shape[1], img.shape[0]
+    s = W0 / 1280 if W0 >= H0 else W0 / 720
     for t in tags:
-        _corners(img, t.box, t.color, max(2, int(2 * s)))
+        _corners(img, t.box, t.color, max(1, int(1.5 * s)))
     pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)).convert("RGBA")
     lay = Image.new("RGBA", pil.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(lay)
-    f_sm, f_md, f_lg, f_xl = _font(int(13 * s)), _font(int(15 * s)), _font(int(17 * s)), _font(int(34 * s))
+    f_xs, f_sm, f_md, f_lg = _font(int(11 * s)), _font(int(13 * s)), _font(int(16 * s), True), _font(int(30 * s), True)
     W, H = pil.size
-    # tags: monospace chips above each box
-    for t in tags:
-        x1, y1 = int(t.box[0]), int(t.box[1])
-        widest = max(d.textlength(line, font=f_md) for line in t.lines) + int(12 * s)
-        x1 = int(min(max(0, x1), W - widest))
-        rgb = t.color[::-1]
-        lh = int(19 * s)
-        y = max(0, y1 - lh * len(t.lines) - int(4 * s))
+    hud = (*HUD, 235)
+    dim = (*HUD, 150)
+    _frame_brackets(d, W, H, s, hud)
+    # target tags: leader line up-right from the box corner, text only; stacked so labels never overlap
+    placed: list[tuple[float, float, float, float]] = []
+    lh = int(15 * s)
+    for t in sorted(tags, key=lambda t: -t.box[2]):
+        x1, y1, x2, _ = (int(c) for c in t.box)
+        rgb = (*t.color[::-1], 255)
+        widest = max(d.textlength(line, font=f_sm) for line in t.lines)
+        th = lh * len(t.lines)
+        right = x2 + int(24 * s) + widest < W - int(10 * s)
+        tx = x2 + int(24 * s) if right else x1 - int(24 * s) - widest
+        ly = max(int(70 * s), y1 - int(14 * s))
+        for _ in range(12):
+            r = (tx, ly - lh / 2, tx + widest, ly - lh / 2 + th)
+            if not any(r[0] < q[2] and q[0] < r[2] and r[1] < q[3] and q[1] < r[3] for q in placed):
+                break
+            ly -= th + int(4 * s)
+        placed.append(r)
+        ax = x2 if right else x1
+        ex = tx - int(4 * s) if right else tx + widest + int(4 * s)
+        d.line([(ax, y1), (ax + (1 if right else -1) * int(10 * s), ly), (ex, ly)], fill=rgb, width=1)
         for i, line in enumerate(t.lines):
-            tw = d.textlength(line, font=f_md)
-            d.rectangle([x1, y + i * lh, x1 + tw + int(10 * s), y + (i + 1) * lh - 2], fill=(8, 12, 18, 190))
-            d.rectangle([x1, y + i * lh, x1 + int(3 * s), y + (i + 1) * lh - 2], fill=(*rgb, 255))
-            d.text((x1 + int(7 * s), y + i * lh + int(1 * s)), line, font=f_md, fill=(*rgb, 255))
-    # telemetry strip (top-right)
-    tw = d.textlength(telemetry, font=f_sm)
-    d.rectangle([W - tw - int(22 * s), int(10 * s), W - int(10 * s), int(30 * s)], fill=(8, 12, 18, 150))
-    d.text((W - tw - int(16 * s), int(13 * s)), telemetry, font=f_sm, fill=(170, 235, 255, 230))
-    # water-height key (bottom-left)
-    pad = int(14 * s)
-    kx, kw = pad, int(330 * s)
-    kh = int(122 * s)
-    ky = H - kh - int(36 * s)
-    d.rectangle([kx, ky, kx + kw, ky + kh], fill=(8, 12, 18, 200))
-    d.rectangle([kx, ky, kx + int(4 * s), ky + kh], fill=(*CYAN[::-1], 255))
-    d.line([kx + int(14 * s), ky + int(17 * s), kx + int(40 * s), ky + int(17 * s)], fill=(*CYAN[::-1], 255),
-           width=max(2, int(3 * s)))
-    d.text((kx + int(48 * s), ky + int(8 * s)), "WATER SURFACE", font=f_lg, fill=(220, 240, 250, 255))
+            _txt(d, (tx, ly + i * lh), line, f_sm if i == 0 else f_xs, rgb if i == 0 else (*t.color[::-1], 200), "lm")
+    # top-left: system + record + clock
+    m = int(30 * s)
+    _txt(d, (m, m), "HITIDE ISR", f_md, hud)
+    _txt(d, (m + d.textlength("HITIDE ISR ", font=f_md), m + int(3 * s)), "EO/CH1  " + telemetry.split("|")[0],
+         f_xs, dim)
+    if int(t_s * 2) % 2 == 0:
+        d.ellipse([m, m + int(26 * s), m + int(8 * s), m + int(34 * s)], fill=(255, 70, 60, 255))
+    _txt(d, (m + int(14 * s), m + int(24 * s)), f"REC  T+{t_s:06.2f}", f_sm, hud)
+    if place:
+        _txt(d, (m, m + int(42 * s)), place.upper(), f_xs, dim)
+    # top-right: model chain
+    for i, part in enumerate(telemetry.split("|")[1:]):
+        _txt(d, (W - m, m + i * int(16 * s)), part.strip(), f_xs if i else f_sm, hud if i == 0 else dim, "ra")
+    # right: elevation tape
+    if est is not None:
+        half = min(0.20 * H, 0.28 * W)
+        _tape(d, est, W - int(150 * s), int(H / 2 - half), int(H / 2 + half), s, hud, f_xs, f_md)
+    # bottom-left: readout
+    by = H - m
     if est is None:
-        d.text((kx + int(14 * s), ky + int(36 * s)), "--", font=f_xl, fill=(240, 240, 240, 255))
-        d.text((kx + int(14 * s), ky + int(82 * s)), "no estimate", font=f_md, fill=(170, 180, 190, 255))
+        _txt(d, (m, by - int(20 * s)), "WSE  ----.-  FT", f_lg, dim, "ls")
     else:
-        d.text((kx + int(14 * s), ky + int(32 * s)), f"{est.best_ft:,.1f} ft", font=f_xl, fill=(245, 250, 255, 255))
-        d.text((kx + int(14 * s) + d.textlength(f"{est.best_ft:,.1f} ft ", font=f_xl), ky + int(50 * s)), "NAVD88",
-               font=f_sm, fill=(150, 170, 185, 255))
-        conf_rgb = (90, 230, 140) if est.p_1ft >= 0.7 else (255, 200, 80) if est.p_1ft >= 0.35 else (255, 120, 100)
-        d.text((kx + int(14 * s), ky + int(76 * s)), f"CI95 {est.lo_ft:,.1f}–{est.hi_ft:,.1f}", font=f_md,
-               fill=(200, 215, 225, 255))
-        ptxt = f"P(±1ft) {est.p_1ft:.2f}"
-        d.text((kx + kw - d.textlength(ptxt, font=f_md) - int(10 * s), ky + int(76 * s)), ptxt, font=f_md,
-               fill=(*conf_rgb, 255))
-        d.text((kx + int(14 * s), ky + int(98 * s)), est.source, font=f_sm, fill=(150, 170, 185, 255))
-    d.text((kx, ky - int(20 * s)), place, font=f_sm, fill=(230, 235, 240, 220))
-    cw = d.textlength(credit, font=f_sm)
-    d.text((W - cw - int(12 * s), H - int(22 * s)), credit, font=f_sm, fill=(210, 210, 210, 170))
+        conf = (110, 255, 150, 255) if est.p_1ft >= 0.7 else (255, 205, 80, 255) if est.p_1ft >= 0.35 \
+            else (255, 110, 90, 255)
+        by -= int(16 * s)
+        _txt(d, (m, by - int(52 * s)), "WATER SURFACE ELEV", f_xs, dim, "ls")
+        _txt(d, (m, by - int(22 * s)), f"{est.best_ft:.1f}", f_lg, (255, 255, 255, 255), "ls")
+        x = m + d.textlength(f"{est.best_ft:.1f} ", font=f_lg)
+        _txt(d, (x, by - int(24 * s)), "FT NAVD88", f_sm, dim, "ls")
+        row = f"CI95 {est.lo_ft:.1f}/{est.hi_ft:.1f}   "
+        _txt(d, (m, by), row, f_sm, hud, "ls")
+        x = m + d.textlength(row, font=f_sm)
+        _txt(d, (x, by), f"P±1FT {est.p_1ft:.2f}", f_sm, conf, "ls")
+        x += d.textlength(f"P±1FT {est.p_1ft:.2f}   ", font=f_sm)
+        _txt(d, (m, by + int(16 * s)), "SRC " + est.source.upper(), f_xs, dim, "ls")
+    if credit:
+        _txt(d, (W - m, m + 3 * int(16 * s)), credit.upper(), f_xs, (220, 220, 220, 150), "ra")
     out = Image.alpha_composite(pil, lay).convert("RGB")
     return cv2.cvtColor(np.array(out), cv2.COLOR_RGB2BGR)
 
@@ -245,13 +311,13 @@ def _tags(dets, vehicles, people, water: np.ndarray, ocfg) -> list[Tag]:
     out = []
     for v in vehicles:
         ring = ring_water_fraction(v.box, water, float(ocfg["ring_expand"]))
-        lines = [f"VEH-{v.track_id:02d}  {v.type.upper()}  {conf.get(v.track_id, 0):.2f}"]
+        lines = [f"VEH-{v.track_id:02d} {v.type.upper()}", f"CONF {conf.get(v.track_id, 0):.2f}"]
         if v.in_water:
-            lines.append(f"IN WATER  {ring:.2f}")
+            lines.append(f"IN WATER {ring:.2f}")
         out.append(Tag(v.box, tuple(lines), AMBER if v.in_water else CYAN))
     for p in people:
         label = {"on_vehicle": "ON VEHICLE", "in_water": "IN WATER"}.get(p.situation, "")
-        lines = [f"PER-{p.track_id:02d}  PERSON  {conf.get(p.track_id, 0):.2f}"] + ([label] if label else [])
+        lines = [f"PER-{p.track_id:02d} PERSON", f"CONF {conf.get(p.track_id, 0):.2f}"] + ([label] if label else [])
         out.append(Tag(p.box, tuple(lines), RED))
     return out
 
@@ -271,7 +337,7 @@ def render(args: argparse.Namespace) -> None:
     if args.window and not args.site:
         a, b = args.window.split("/")
         g = GaugeSeries.load(Path(args.gauge_file) if args.gauge_file else HYDRO, args.gauge)
-        est = gauge_estimate(g, (epoch(a), epoch(b)), f"USGS {args.gauge} · gauge, {args.gauge_note}".rstrip(", "))
+        est = gauge_estimate(g, (epoch(a), epoch(b)), f"USGS {args.gauge} GAUGE {args.gauge_note}".strip())
 
     def prep(fr):
         fr = _crop(fr, args.crop)
@@ -341,12 +407,12 @@ def render(args: argparse.Namespace) -> None:
                 if z_hist and offs is not None and (k % int(fps) == 0 or est is None):
                     zc = float(np.median(z_hist))
                     samples = zc + offs + rng.normal(0, 0.10, len(offs))       # + lidar vertical error
-                    est = WaterEstimate.from_samples(samples * M_TO_FT, "MODEL · waterline × 1 m lidar")
+                    est = WaterEstimate.from_samples(samples * M_TO_FT, "MODEL WATERLINE x 1M LIDAR")
         trk = len(tags)
-        telemetry = (f"FLOODWATCH//VISION  SEG segformer-b0+clipseg  DET yolov8n·bytetrack  "
-                     f"T+{k / fps:05.1f}s  TRK {trk}")
+        telemetry = (f"FRM {k:05d}|TRK {trk:02d}  {args.proc_fps:.0f} HZ|SEG SEGFORMER-B0+CLIPSEG"
+                     f"|DET YOLOV8N/BYTETRACK")
         img = render_frame(frame, ema, tags, shore if fit is not None else None, est, telemetry, args.credit,
-                           args.place, waterline=not args.no_waterline)
+                           args.place, waterline=not args.no_waterline, t_s=k / fps)
         if enc is None:
             h, w = img.shape[:2]
             enc = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24",

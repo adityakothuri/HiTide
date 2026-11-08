@@ -14,8 +14,9 @@ import httpx
 from outreach import photon2, photon_spectrum, voice_elevenlabs
 from outreach.allowlist import resolve_phone
 from outreach.base import OutboundMessage
+from outreach.live_users import live_provider, live_users
 from outreach.log import DEFAULT_LOG_PATH, append_log
-from outreach.mode import photon_mode
+from outreach.mode import PhotonMode, photon_mode
 from sim.engine import now_iso
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,13 @@ def _is_blocked(msg: OutboundMessage, is_moving: Callable[[str], bool]) -> bool:
         and msg.channel in GUARDED_CHANNELS
         and is_moving(msg.driver_id)
     )
+
+
+def _effective_mode(msg: OutboundMessage) -> PhotonMode:
+    """HITIDE_LIVE_USERS go live via HITIDE_LIVE_PROVIDER whatever PHOTON_MODE says; everyone else follows PHOTON_MODE."""
+    if msg.driver_id in live_users():
+        return live_provider()
+    return photon_mode()
 
 
 def _spectrum_configured() -> bool:
@@ -88,12 +96,13 @@ class OutreachService:
             return _Result(msg.channel, msg.body, "mock", "blocked")
         if msg.channel == "tts_in_app":
             return _Result(msg.channel, msg.body, "mock", "sent")
-        mode = photon_mode()
+        mode = _effective_mode(msg)
         if mode == "mock":
             return _Result(msg.channel, msg.body, "mock", "sent")
         phone = resolve_phone(msg.phone, enrolled=msg.enrolled)
         if phone is None:  # live mode, but this number isn't allowlisted: say so, never a fake "sent"
             return _Result(msg.channel, msg.body, "mock", "suppressed")
+        logger.info("live %s to %s via %s", msg.channel, msg.driver_id, mode)
         return await self._send_live(msg, phone, mode)
 
     async def _send_live(self, msg: OutboundMessage, phone: str, mode: str) -> _Result:

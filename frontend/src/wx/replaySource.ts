@@ -48,13 +48,18 @@ async function getJson<T>(url: string): Promise<T> {
   return (await res.json()) as T
 }
 
-export async function loadReplaySource(): Promise<WxSource> {
+/** The cached replay files. The live source reuses them for gauge metadata, depth frames and legends. */
+export async function loadReplayData(): Promise<ReplayData> {
   const [mrms, depth, gauges] = await Promise.all([
     getJson<MrmsManifest>('/wx/mrms/manifest.json'),
     getJson<DepthManifest>('/wx/depth/manifest.json'),
     getJson<GaugesFile>('/wx/gauges.json'),
   ])
-  return replaySource({ mrms, depth, gauges })
+  return { mrms, depth, gauges }
+}
+
+export async function loadReplaySource(): Promise<WxSource> {
+  return replaySource(await loadReplayData())
 }
 
 /** Pure: builds the source from already-loaded files (tested directly). */

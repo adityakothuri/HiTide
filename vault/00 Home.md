@@ -1,10 +1,10 @@
 ---
-tags: [floodwatch, home, status]
+tags: [hitide, home, status]
 status: in-progress
 updated: 2026-11-08
 ---
 
-# State Farm Flood Watch
+# HiTide
 
 > **Current integration:** see [State of the Union](../docs/STATE_OF_THE_UNION.md)
 > and [[2026-11-07 Evidence milestone]]. The evidence-to-inspection workflow now
@@ -45,10 +45,10 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Drone vision | Water edge + elevation → water surface, depth at road with range, rise rate; YOLO + tracking for vehicles/people; alerts; spread; `POST /api/snapshots`. See [[Drone Vision]], [[2026-11-08 Drone vision accuracy]] | done 2026-11-08: 137 vision tests; Kerrville replay 16/16 inside range; 3 reviewers' HIGH findings fixed |
 | Tabletop model | 3D-printed downtown Kerrville tray (1:5455, 3× vertical) with real dyed water. The drone camera measures the rise; the CAD heightmap is the ground truth. ArUco pose, bathtub truth, pour table. Fusion 360 MCP registered in `.mcp.json`. See [[Tabletop Model]] | built + synthetic-validated 2026-11-08: Park St within 0.2 m, bridge ranges honest; 23 TDD tests. Left: Fusion pass (add-in not running), print, real pour run |
 | Driver profiles | Simulated State Farm profile (DSS, policy, claims, household, needs; `docs/driver-profile.md`) weights urgency in all 3 stages. See [[Risk Scoring]] | done 2026-11-08: colleague commit cherry-picked + baseline vulnerability score, TDD |
-| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Built: driver app, ops console and `/present`, rebranded to the independent Flood Watch identity 2026-11-08. Mobile app (`mobile/`, Expo SDK 58) polished: sentence case, AA contrast, no insurer content. 86 unit tests plus a full 7-step Playwright demo. Verified on the live backend. |
+| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Built: driver app, ops console and `/present`, rebranded to the independent HiTide identity 2026-11-08. Mobile app (`mobile/`, Expo SDK 58) polished: sentence case, AA contrast, no insurer content. 86 unit tests plus a full 7-step Playwright demo. Verified on the live backend. |
 | Risk surface | Continuous 0-100 Flood Risk Index (~60 m cells, HAND + waterway distance x MRMS rain) every 30 min of the July 4, 2025 replay, plus 2 persistence forecast frames, in `frontend/public/grids/`. See [[Risk Surface]] | backend done 2026-11-08: 19 TDD tests, offline build |
 | Test/real switch + bridge | `./dev.sh test\|real [--live-outreach]` starts backend + frontend in one mode. `DATA_MODE` preset (`backend/app/data_mode.py`) beats stale `.env`; outreach only goes live on explicit opt-in. UI badge on every screen from `/api/health.modes`; live weather source (Kerrville gauge, NWS, IEM MRMS); `POST /api/drones/{id}/command` implemented; SQLite is the default DB | done 2026-11-08: 7-step demo verified through the Vite proxy in test mode with 0 external requests; real mode verified (live gauge, outreach still mock). Hill Country `region.*` / safety `user.*` events still have no UI consumer |
-| Ops console redesign | Independent Flood Watch analyst console: sidebar shell (Flood monitor, Driver cases, Inspections, Sources), light Positron map with neutral night theme, Turbo flood risk surface with colorbar + hover readout, base-field radios, time bar, keyboard (arrows, Space, Esc, /). See [[Dashboard]], [[Design System]] §10, [[Risk Surface]] | done 2026-11-08: 122 frontend tests (19 risk TDD), build + contrast green; screenshots `Experiments/screenshots/after-*` |
+| Ops console redesign | Independent HiTide analyst console: sidebar shell (Flood monitor, Driver cases, Inspections, Sources), light Positron map with neutral night theme, Turbo flood risk surface with colorbar + hover readout, base-field radios, time bar, keyboard (arrows, Space, Esc, /). See [[Dashboard]], [[Design System]] §10, [[Risk Surface]] | done 2026-11-08: 122 frontend tests (19 risk TDD), build + contrast green; screenshots `Experiments/screenshots/after-*` |
 
 ## Checkpoints
 

@@ -213,5 +213,6 @@ export interface SegmentProps {
   highway?: string
 }
 
-export type DroneCommand = 'speak' | 'drop_jacket' | 'return'
+/** Drones only map and report cars in the water to emergency services; recall is the one command. */
+export type DroneCommand = 'return'
 export type Reply = 'safe' | 'need_help'

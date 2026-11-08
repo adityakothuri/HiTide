@@ -4,7 +4,7 @@ const OUT = process.env.SHOTS_DIR ?? '../vault/Experiments/screenshots'
 
 async function toStep(page: import('@playwright/test').Page, n: number) {
   for (let i = 0; i < n; i += 1) {
-    await page.evaluate(() => (window as unknown as { __floodwatch: { provider: { nextStep(): Promise<void> } } }).__floodwatch.provider.nextStep())
+    await page.evaluate(() => (window as unknown as { __hitide: { provider: { nextStep(): Promise<void> } } }).__hitide.provider.nextStep())
   }
   await page.waitForTimeout(1500)
 }

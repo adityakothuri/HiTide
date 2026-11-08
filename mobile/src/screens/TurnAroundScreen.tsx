@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { openDevControls } from '@/components/BlueHeader';
@@ -17,10 +17,13 @@ import { speakAlertOnce, stopSpeaking } from '@/services/speech';
 import { setFlowExit } from '@/state/flowGate';
 import { color, font, gutter, radius, space, touchTarget } from '@/theme/tokens';
 
-function UTurnArrow() {
+/** Below this height (e.g. iPhone SE, 667pt) the hero tightens so the action and voice status stay on screen. */
+const COMPACT_HEIGHT = 720;
+
+function UTurnArrow({ scale = 1 }: { scale?: number }) {
   return (
     <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden>
-      <Svg width={96} height={88} viewBox="0 0 96 88">
+      <Svg width={96 * scale} height={88 * scale} viewBox="0 0 96 88">
       <Path
         d="M70 84V38a24 24 0 0 0-48 0v12"
         stroke={color.white}
@@ -42,6 +45,7 @@ export function TurnAroundScreen() {
   const { alert, preferences, trip } = state;
   const voiceOn = preferences.spokenAlerts;
   const nudge = useNudge(5, 1600);
+  const isCompact = useWindowDimensions().height < COMPACT_HEIGHT;
   useStatusBar('light');
 
   useEffect(() => {
@@ -68,7 +72,7 @@ export function TurnAroundScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.top, isCompact && styles.topCompact, { paddingTop: insets.top + 8 }]}>
         <View style={styles.bar}>
           <Wordmark onLongPress={openDevControls} />
           <Pressable
@@ -82,16 +86,16 @@ export function TurnAroundScreen() {
             <Icon name={voiceOn ? 'speaker' : 'speakerOff'} size={28} color={color.white} />
           </Pressable>
         </View>
-        <View style={styles.hero} accessible accessibilityRole="alert" accessibilityLabel="Flooded road ahead. Turn around.">
+        <View style={[styles.hero, isCompact && styles.heroCompact]} accessible accessibilityRole="alert" accessibilityLabel="Flooded road ahead. Turn around.">
           <Animated.View entering={enterUp(0)}>
             <Pill label="Voice alert" tone="onBlue" />
           </Animated.View>
           <Animated.View entering={enterUp(1)}>
             <Animated.View style={nudge}>
-              <UTurnArrow />
+              <UTurnArrow scale={isCompact ? 0.7 : 1} />
             </Animated.View>
           </Animated.View>
-          <Animated.Text entering={enterUp(2)} style={styles.instruction} maxFontSizeMultiplier={1.3}>
+          <Animated.Text entering={enterUp(2)} style={[styles.instruction, isCompact && styles.instructionCompact]} maxFontSizeMultiplier={1.3}>
             Flooded road ahead.{'\n'}Turn around.
           </Animated.Text>
         </View>
@@ -119,15 +123,11 @@ const styles = StyleSheet.create({
   top: { paddingHorizontal: gutter, paddingBottom: space.xxl },
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: touchTarget },
   voiceButton: { width: touchTarget, height: touchTarget, alignItems: 'flex-end', justifyContent: 'center' },
+  topCompact: { paddingBottom: space.lg },
   hero: { alignItems: 'center', gap: space.md, marginTop: space.md },
-  instruction: {
-    fontSize: 38,
-    lineHeight: 44,
-    fontWeight: '700',
-    color: color.white,
-    textAlign: 'center',
-    letterSpacing: -0.6,
-  },
+  heroCompact: { gap: space.xs, marginTop: 0 },
+  instruction: { ...font.alert, color: color.white, textAlign: 'center' },
+  instructionCompact: { ...font.display },
   bottom: {
     flex: 1,
     backgroundColor: color.white,
@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
     paddingTop: space.md,
     gap: space.sm,
   },
-  map: { flex: 1, minHeight: 140 },
-  caption: { ...font.rowTitle, fontSize: 18, color: color.ink, textAlign: 'center', marginTop: space.xxs },
+  map: { flex: 1, minHeight: 120 },
+  caption: { ...font.rowTitle, color: color.ink, textAlign: 'center', marginTop: space.xxs },
   voiceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   voiceText: { ...font.small, color: color.secondary },
 });

@@ -1,6 +1,6 @@
 ---
 date: 2026-11-07
-tags: [floodwatch, experiment, photon]
+tags: [hitide, experiment, photon]
 changed: PHOTON_MODE=photon with real Spectrum creds; photon-sidecar running; 3 teammates enrolled on the shared line
 result: CHECKPOINT 2 + 3 pass on a real phone (texts, poll, inbound reply); voice still pending ElevenLabs
 ---

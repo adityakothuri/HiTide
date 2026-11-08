@@ -135,4 +135,20 @@ def test_call_variables_and_opening_line():
     v = call_variables("Margaret Hale", "Water St", 23.6)
     assert v == {"driver_first_name": "Margaret", "street": "Water St", "water_depth_in": "24", "call_purpose": "driver"}
     assert opening_line("Margaret", "Water St") == (
-        "Hi Margaret, this is State Farm Flood Watch. Your car looks stopped in floodwater on Water St. Are you safe?")
+        "Hi Margaret, this is HiTide. Your car looks stopped in floodwater on Water St. Are you safe?")
+
+
+@pytest.mark.parametrize("said", ["No.", "no", "Nope, the water's rising", "nah", "  No... it's coming in the doors"])
+def test_bare_no_to_are_you_okay_means_need_help(said):
+    """The agent asks "Are you okay?": a bare refusal is a request for help, even with no collected status."""
+    assert classify_call(_conv(users=[said])).reply == "need_help"
+
+
+@pytest.mark.parametrize("said", ["no, I'm fine", "No no, we're okay", "nope, all good", "no, I'm safe",
+                                  "No problem, I'm alright"])
+def test_no_followed_by_reassurance_is_not_need_help(said):
+    assert classify_call(_conv(users=[said])).reply != "need_help"
+
+
+def test_no_inside_a_sentence_is_not_a_refusal():
+    assert classify_call(_conv(users=["I don't know, there is no water here"])).reply is None

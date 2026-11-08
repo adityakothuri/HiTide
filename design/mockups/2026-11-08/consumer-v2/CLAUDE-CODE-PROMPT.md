@@ -1,4 +1,4 @@
-# Build the Flood Watch consumer app with React Native + Expo
+# Build the HiTide consumer app with React Native + Expo
 
 You are implementing the actual mobile app in this repository. Act as a senior React Native engineer with excellent native product design judgment. Build and run a polished, functional Expo consumer app that closely matches the supplied mockups. Do the work, inspect the result, and fix material issues; do not stop at a plan, scaffold, or static screen.
 
@@ -35,7 +35,7 @@ Important: each board contains three different app screens in presentation phone
 
 ## Product truth to preserve
 
-Flood Watch is an independent flood safety app for people traveling through flood-prone areas. It helps users review relevant flood information, reconsider affected trips, hear turn-around alerts, respond to safety check-ins, and see the status of a help request.
+HiTide is an independent flood safety app for people traveling through flood-prone areas. It helps users review relevant flood information, reconsider affected trips, hear turn-around alerts, respond to safety check-ins, and see the status of a help request.
 
 Inspect these existing files for domain behavior, not for visual styling:
 
@@ -57,7 +57,7 @@ Do not blindly carry over legacy insurer content, profile fields, or claims flow
 
 - Remove ALL State Farm branding from the new mobile app: names, logos, red brand styling, insurer disclaimers, insurance products, policies, claims, and insurer-specific navigation. Check visible text, accessibility labels, app metadata, splash screen, icons, sample notifications, and fixtures. Do not merely replace the logo while retaining the old insurer app structure.
 - Do not globally rewrite historical documentation or mutate existing backend message templates as a side effect. The new app must have no insurer branding in its own assets, metadata, fixtures, or rendered content.
-- App name: **Flood Watch**. Use one consistent, simple wave mark derived from the boards. Make it a lightweight vector asset or component, not a cropped bitmap.
+- App name: **HiTide**. Use one consistent, simple wave mark derived from the boards. Make it a lightweight vector asset or component, not a cropped bitmap.
 - Primary royal blue: `#2448E8`. White: `#FFFFFF`. Main ink: `#13203B`. Secondary text: `#6D7890`. Supporting pale blue: `#EEF3FF`. Use semantic tokens; tune a secondary color if required for readable contrast.
 - Royal blue and white should dominate. Amber is a small hazard accent; dark red is reserved for emergency-call affordances. No purple, turquoise, red brand header, ornamental gradients, glass effects, or dark dashboard styling.
 - Match the boards' composition: confident blue headers, large calm maps, strong type hierarchy, generous whitespace, precise iconography, and anchored route/action panels. Avoid filling every gap with another card or badge.
@@ -70,7 +70,7 @@ Do not blindly carry over legacy insurer content, profile fields, or claims flow
 
 ### 1. Home / overview
 
-Follow the first phone on board 1: blue header, Flood Watch mark, greeting for Dana, initials avatar, location, overlapping white warning strip, large muted map, and a restrained “Before you go” list.
+Follow the first phone on board 1: blue header, HiTide mark, greeting for Dana, initials avatar, location, overlapping white warning strip, large muted map, and a restrained “Before you go” list.
 
 - Warning strip opens warning details, including source and issued time.
 - The work-trip row opens route planning.

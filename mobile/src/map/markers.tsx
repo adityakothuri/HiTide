@@ -33,6 +33,18 @@ export function DestinationPin() {
   );
 }
 
+/** A location the person dropped on the map: an ink pin, distinct from the blue destination pin. */
+export function DropPin() {
+  return (
+    <View style={styles.dropPin}>
+      <Svg width={34} height={44} viewBox="0 0 34 44">
+        <Path d="M17 43s15-13.2 15-25.4A15 15 0 0 0 2 17.6C2 29.8 17 43 17 43z" fill={color.ink} stroke={color.white} strokeWidth={2} />
+        <Path d="M17 24a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z" fill={color.white} />
+      </Svg>
+    </View>
+  );
+}
+
 /** Road-closure barricade: amber and ink stripes, the one hazard accent on the map. */
 export function ClosureMarker({ size = 34 }: { size?: number }) {
   const h = size * 0.72;
@@ -83,4 +95,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pin: { width: 30, height: 38 },
+  dropPin: { width: 34, height: 44 },
+});
+
+const FLOOD_DOT = 11;
+const GAUGE_DOT = 14;
+
+/** A low-water crossing or bridge: a diamond in its status tone, exactly as the dashboard's region map draws it. */
+export function FloodDot({ fill }: { fill: string }) {
+  return <View style={[floodStyles.diamond, { backgroundColor: fill }]} />;
+}
+
+/** A river gauge: a ringed circle in its NWS category colour (the dashboard's gauge markers are circles too). */
+export function GaugeDot({ fill }: { fill: string }) {
+  return <View style={[floodStyles.circle, { backgroundColor: fill }]} />;
+}
+
+const floodStyles = StyleSheet.create({
+  diamond: {
+    width: FLOOD_DOT,
+    height: FLOOD_DOT,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: color.white,
+    transform: [{ rotate: '45deg' }],
+  },
+  circle: {
+    width: GAUGE_DOT,
+    height: GAUGE_DOT,
+    borderRadius: GAUGE_DOT / 2,
+    borderWidth: 2,
+    borderColor: color.white,
+  },
 });

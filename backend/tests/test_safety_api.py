@@ -17,7 +17,7 @@ def client(tmp_path_factory):
     mp = pytest.MonkeyPatch()
     mp.setenv("PHOTON_MODE", "mock")
     mp.setenv("EVIDENCE_POLL_SECONDS", "0")
-    mp.setenv("FLOODWATCH_DB_BACKEND", "sqlite")
+    mp.setenv("HITIDE_DB_BACKEND", "sqlite")
     mp.setenv("SAFETY_REGISTRY_PATH", str(tmp / "registry.json"))
     mp.setenv("SAFETY_STATE_PATH", str(tmp / "state.json"))
     from app.main import app
@@ -172,3 +172,41 @@ def test_phone_app_persona_is_enrolled_and_assessed(client):
     body = r.json()
     assert body["user_id"] == "hc-dana" and "response" in body
     assert "phone" not in str(body)
+
+
+def test_flood_layer_window_has_flooded_roads_with_geometry_at_the_crest(client):
+    _step(client, "07:20")
+    r = client.get("/api/region/flood-layer", params={"bbox": "-99.17,30.00,-99.10,30.06"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["segments"], "the July 4 crest floods roads in Kerrville"
+    assert all(s["status"] != "open" and len(s["coords"]) >= 2 for s in body["segments"])
+    assert body["points"] and all(p["status"] in ("open", "unknown", "likely_flooded", "confirmed_flooded") for p in body["points"])
+    assert client.get("/api/region/flood-layer", params={"bbox": "-100,29,-97,32"}).status_code == 422
+
+
+def test_directions_and_mock_assistant_line_for_the_app_user(client, monkeypatch):
+    monkeypatch.delenv("HITIDE_ASSISTANT_LIVE", raising=False)
+    _step(client, "07:20")
+    client.post("/api/users/hc-dana/location", json={"lat": 30.03785, "lon": -99.13361, "speed_mps": 0})
+    d = client.get("/api/users/hc-dana/directions")
+    assert d.status_code == 200 and d.json()["text"] and d.json()["kind"] in ("route", "stay", "none")
+    assert "safe route" not in d.json()["text"].lower()
+    a = client.post("/api/users/hc-dana/assistant")
+    assert a.status_code == 200 and a.json()["mode"] == "mock" and a.json()["phone"] is None
+    assert any("assistant call requested" in e["what"] for e in a.json()["response"]["timeline"])
+    assert client.post("/api/users/hc-dana/assistant", headers=UNTRUSTED).status_code == 403
+
+
+def test_route_options_for_the_app_trip(client):
+    _step(client, "07:20")
+    home, work = "-99.1169,30.01281", "-99.14057,30.04748"
+    r = client.get("/api/routes/options", params={"start": home, "end": work})
+    assert r.status_code == 200
+    opts = r.json()["options"]
+    assert 1 <= len(opts) <= 3 and any(o["label"] == "Fastest" for o in opts)
+    order = {"clear": 0, "likely": 1, "flooded": 2}
+    assert [order[o["status"]] for o in opts] == sorted(order[o["status"]] for o in opts)   # least flooding on top
+    assert all(o["status"] in ("flooded", "likely", "clear") and o["coords"] for o in opts)
+    assert client.get("/api/routes/options", params={"start": "0,0", "end": work}).status_code == 422
+    assert client.get("/api/routes/options", params={"start": "x", "end": work}).status_code == 422

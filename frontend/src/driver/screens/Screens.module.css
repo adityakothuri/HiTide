@@ -30,7 +30,7 @@
   letter-spacing: 0;
 }
 
-/* ---- Home: red State Farm band behind the large title; the first group overlaps it. ---- */
+/* ---- Home: brand band behind the large title; the first group overlaps it. ---- */
 .band {
   display: grid;
   gap: 16px;

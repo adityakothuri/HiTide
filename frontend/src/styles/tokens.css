@@ -1,10 +1,11 @@
 /* The only file allowed to contain hex colors (enforced by stylelint). See vault/Design System.md. */
 :root {
-  /* Brand: wordmark, primary buttons, selected states. Never danger. */
-  --brand-red: #d62311;
-  --brand-red-hover: #a11b13;
-  --brand-red-active: #701611;
-  --brand-red-tint: #fdf1ef;
+  /* Brand (HiTide cobalt): wordmark, primary buttons, selected states. Never danger, never data.
+     The token keeps its old name so existing components re-theme without edits. */
+  --brand-red: #2448e8;
+  --brand-red-hover: #1b39c4;
+  --brand-red-active: #142c99;
+  --brand-red-tint: #eef2ff;
 
   --ink: #403c3c;
   --ink-strong: #212121;
@@ -81,24 +82,89 @@
   --tap-min: 44px;
   --tap-primary: 56px;
 
-  /* ---- Dispatch palette (ops console). Slate-navy night taken from the basemap, not neutral black. ---- */
-  --d-bg: #0e1620;
-  --d-panel: #141e29;
-  --d-raised: #1b2734;
-  --d-hover: #223040;
-  --d-text: #e6edf3;
-  --d-strong: #f5f8fa;
-  --d-muted: #97a6b5;
-  --d-faint: #6f8193;
-  --d-critical: #e08a9f;
-  --d-caution: #d6b878;
-  --d-safe: #8dbfa3;
-  --d-info: #9bb8d6;
-  --d-water-1: #4f6a87;
-  --d-water-2: #6585a8;
-  --d-water-3: #7f9fc4;
-  --d-water-4: #a1bddc;
-  --d-water-5: #c9daee;
+  /* ---- Analyst palette (ops console). Light gray canvas, white panels, borders over shadows. ---- */
+
+  /* Matches the mobile app (mobile/src/theme/tokens.ts) so the dashboard and phone read as one product. */
+  --gray-1: #f6f8fc;
+  --gray-2: #eef1f6;
+  --gray-3: #e6eaf2;
+  --gray-4: #d3d9e4;
+  --gray-5: #8e97a8;
+  --gray-6: #626d85;
+  --gray-7: #3b4660;
+  --gray-8: #13203b;
+  --accent: #2448e8;
+  --accent-hover: #1b39c4;
+  --accent-tint: #eef3ff;
+  --accent-line: #d9e2fb;
+
+  /* Shape: the app's colours with the analyst console's restraint: hairlines, small radii, almost no shadow. */
+  --app-radius-card: 6px;
+  --app-radius-panel: 8px;
+  --app-radius-control: 6px;
+  --app-shadow-panel: 0 1px 2px rgb(19 32 59 / 6%);
+  --app-shadow-chip: 0 1px 2px rgb(19 32 59 / 8%);
+
+  /* Brand rail: the logo's navy shield and wave blue. Same in both schemes. */
+  --rail-bg: #0c234d;
+  --rail-line: rgb(255 255 255 / 10%);
+  --rail-strong: #fff;
+  --rail-text: #e6ecf5;
+  --rail-muted: #9fb0c8;
+  --rail-hover: rgb(255 255 255 / 7%);
+  --rail-active: rgb(255 255 255 / 12%);
+  --rail-mark: #3b8cff;
+
+  /* The app's blue bar (phone header and splash): top bar and intro. Same in both schemes. */
+  --brand-bar: #2448e8;
+  --on-bar: #fff;
+  --on-bar-muted: #dce4ff;
+  --on-bar-line: rgb(255 255 255 / 22%);
+  --on-bar-live: #7ff0b0;
+
+  /* Situation map: the only colours on it. Red = in danger now, amber = at risk, grey = watched, blue = drones. */
+  --sev-critical: #d92d20;
+  --sev-warning: #f08c00;
+  --sev-muted: #7a8594;
+  --drone: #2448e8;
+
+  /* Active warning pill in the header. */
+  --wx-warn-bg: #fff4e0;
+  --wx-warn-line: #f1cf8f;
+  --wx-warn-ink: #7a4500;
+  --d-bg: var(--gray-1);
+  --d-panel: #fff;
+  --d-raised: var(--gray-1);
+  --d-hover: var(--gray-2);
+  --d-line: var(--gray-3);
+  --d-line-strong: var(--gray-4);
+  --d-text: var(--gray-8);
+  --d-strong: #13203b;
+  --d-muted: var(--gray-6);
+  --d-faint: #626d85;
+  --d-critical: #b42318;
+  --d-caution: #8a5300;
+  --d-safe: #1e7a45;
+  --d-info: #1d4ed8;
+  --d-stale: #8a5300;
+  --d-water-1: #dcebf7;
+  --d-water-2: #a9cdeb;
+  --d-water-3: #5e9ed6;
+  --d-water-4: #2366a8;
+  --d-water-5: #0b2d52;
+
+  /* ---- Data scales: never reused for UI chrome. ---- */
+
+  /* Flood risk index 0..100: Turbo (Google, 2019), 9 stops. The canvas uses the full LUT in src/risk/turbo.ts. */
+  --turbo-0: #30123b;
+  --turbo-1: #4662d7;
+  --turbo-2: #36aaf9;
+  --turbo-3: #1ae4b6;
+  --turbo-4: #72fe5e;
+  --turbo-5: #c8ef34;
+  --turbo-6: #faba39;
+  --turbo-7: #f66b19;
+  --turbo-8: #7a0403;
 
   /* ---- Hydromet map (ops console). NWS flood-category convention; depth and rain ramps come from the data manifests. ---- */
   --wx-cat-below: #8b97a4;
@@ -107,8 +173,11 @@
   --wx-cat-moderate: #e5322b;
   --wx-cat-major: #b25fd9;
   --wx-cat-none: #4f5b68;
-  --wx-road-closed: #c0261d;
-  --wx-road-likely: #f28c28;
+  --wx-road-closed: #d6334a;
+  --wx-road-likely: #f2a33a;
+  --map-halo: #fff;
+  --map-mask: rgb(12 35 77 / 18%);
+  --map-outline: #34558a;
 
   /* ---- Phone (iOS grouped style) ---- */
   --ios-font: -apple-system, 'SF Pro Text', 'SF Pro Display', system-ui, 'Helvetica Neue', sans-serif;
@@ -153,41 +222,84 @@
 }
 
 /*
- * Ops console theme. Re-points the shared tokens so primitives (buttons, badges, tabs, timeline)
- * render correctly on dark panels without forks.
+ * Ops console theme (light analyst by default). Re-points the shared tokens so primitives
+ * (buttons, badges, tabs, timeline) render on console panels without forks.
  */
 [data-theme='dispatch'] {
-  color-scheme: dark;
+  color-scheme: light;
 
-  --font: 'IBM Plex Sans', system-ui, sans-serif;
+  --font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --surface: var(--d-panel);
   --surface-page: var(--d-bg);
-  --on-dark: #fff;
   --ink: var(--d-text);
   --ink-strong: var(--d-strong);
   --neutral-1: var(--d-raised);
-  --neutral-2: rgb(255 255 255 / 8%);
-  --neutral-3: rgb(255 255 255 / 16%);
+  --neutral-2: var(--d-line);
+  --neutral-3: var(--d-line-strong);
   --neutral-4: var(--d-faint);
   --neutral-5: var(--d-muted);
   --neutral-6: var(--d-text);
-  --border: 1px solid rgb(255 255 255 / 8%);
+  --border: 1px solid var(--d-line);
   --shadow-card: none;
-  --shadow-float: 0 12px 32px rgb(0 0 0 / 45%);
-  --brand-red-tint: rgb(214 35 17 / 16%);
+  --shadow-float: var(--app-shadow-chip);
+  --brand-red: var(--accent);
+  --brand-red-hover: var(--accent-hover);
+  --brand-red-active: var(--accent-hover);
+  --brand-red-tint: var(--accent-tint);
   --critical: var(--d-critical);
-  --critical-bg: rgb(224 138 159 / 12%);
+  --critical-bg: #fdecea;
   --caution: var(--d-caution);
-  --caution-mark: var(--d-caution);
-  --caution-bg: rgb(214 184 120 / 12%);
+  --caution-bg: #fdf3dc;
   --safe: var(--d-safe);
-  --safe-bg: rgb(141 191 163 / 12%);
+  --safe-bg: #e7f4ec;
   --info: var(--d-info);
-  --info-bg: rgb(155 184 214 / 12%);
+  --info-bg: var(--accent-tint);
   --water-1: var(--d-water-1);
   --water-2: var(--d-water-2);
   --water-3: var(--d-water-3);
   --water-4: var(--d-water-4);
   --water-5: var(--d-water-5);
-  --focus-ring: 2px solid var(--d-info);
+  --radius-pill: 4px;
+  --focus-ring: 2px solid var(--accent);
+}
+
+/* Night operations: neutral dark grays (not navy). Same layout and data scales. */
+[data-theme='dispatch'][data-scheme='dark'] {
+  color-scheme: dark;
+
+  --d-bg: #141618;
+  --d-panel: #1b1e21;
+  --d-raised: #23272b;
+  --d-hover: #2b3035;
+  --d-line: #2e3338;
+  --d-line-strong: #3d4349;
+  --d-text: #e7e9eb;
+  --d-strong: #f6f7f8;
+  --d-muted: #a2a9b1;
+  --d-faint: #8f97a0;
+  --d-critical: #f08a80;
+  --d-caution: #e2b25c;
+  --d-safe: #7cc79a;
+  --d-info: #8fb1ff;
+  --d-stale: #e2b25c;
+  --d-water-1: #4f6a87;
+  --d-water-2: #6585a8;
+  --d-water-3: #7f9fc4;
+  --d-water-4: #a1bddc;
+  --d-water-5: #c9daee;
+  --accent: #6aa2ff;
+  --accent-hover: #8db8ff;
+  --accent-tint: rgb(106 162 255 / 14%);
+  --rail-bg: #0a1a38;
+  --sev-critical: #f97066;
+  --sev-warning: #fdb022;
+  --sev-muted: #8f97a0;
+  --drone: #6aa2ff;
+  --wx-warn-bg: rgb(226 178 92 / 14%);
+  --wx-warn-line: rgb(226 178 92 / 40%);
+  --wx-warn-ink: #f0c47a;
+  --critical-bg: rgb(240 138 128 / 12%);
+  --caution-bg: rgb(226 178 92 / 12%);
+  --safe-bg: rgb(124 199 154 / 12%);
+  --shadow-float: 0 4px 16px rgb(0 0 0 / 45%);
 }

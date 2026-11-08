@@ -89,7 +89,7 @@ def client():
     mp = pytest.MonkeyPatch()
     mp.setenv("PHOTON_MODE", "mock")
     mp.setenv("EVIDENCE_POLL_SECONDS", "0")
-    mp.setenv("FLOODWATCH_DB_BACKEND", "sqlite")
+    mp.setenv("HITIDE_DB_BACKEND", "sqlite")
     from app.main import app
 
     with TestClient(app) as c:

@@ -47,8 +47,9 @@ export function WarningScreen() {
 
       <View style={styles.facts}>
         <Fact label="Source" value={warning.source} />
-        <Fact label="Issued" value={formatTime(warning.issuedAt)} />
-        <Fact label="Expires" value={formatTime(warning.expiresAt)} />
+        {warning.issuedAt ? <Fact label="Issued" value={formatTime(warning.issuedAt)} /> : null}
+        {warning.expiresAt ? <Fact label="Expires" value={formatTime(warning.expiresAt)} /> : null}
+        {warning.assessedAt ? <Fact label="Checked for you" value={formatTime(warning.assessedAt)} /> : null}
       </View>
 
       <Text style={sheetText.body}>{warning.summary}</Text>

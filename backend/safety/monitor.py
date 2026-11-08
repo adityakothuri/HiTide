@@ -28,7 +28,7 @@ from safety.levels import Level
 from safety.messages import render
 from safety.motion import MotionState, Ping, at_rest, update
 from safety.persist import SafetyPersistence, danger_row
-from safety.policy import Action, ResponseState, apply_call_result, apply_reply, decide
+from safety.policy import Action, ResponseState, add_note, apply_call_result, apply_reply, decide
 from safety.users import STATE_PATH, SafetyUser, UserRegistry, atomic_write_json
 
 log = logging.getLogger(__name__)
@@ -78,6 +78,7 @@ class SafetyMonitor:
         self.clock = clock
         self._last_persist = 0.0
         self._background: set[asyncio.Task] = set()
+        self._watchers: dict[str, set[asyncio.Task]] = {}   # uid -> call watchers, cancelled by reset_user
         self.epoch = 0                     # bumped by reset(); a context built before a reset is discarded
         # Primary database (SpacetimeDB): positions, ladders and the public danger table. Without it, the
         # legacy JSON position file is used (live mode only).
@@ -116,6 +117,20 @@ class SafetyMonitor:
                 else:
                     self.persist.wipe()
         for task in list(self._background):
+            task.cancel()
+
+    def reset_user(self, uid: str) -> None:
+        """Demo: forget one user's position, assessment and ladder, so their next ping alerts again.
+        Raises KeyError for unknown users. Their pending call watchers are cancelled (a late "no" from the
+        previous call must not flag responders on the fresh episode)."""
+        if self.users.get(uid) is None:
+            raise KeyError(uid)
+        with self.lock:
+            self.tracks[uid] = UserTrack()
+            self._touched.add(uid)
+            self._maybe_persist(self.now())
+            watchers = self._watchers.pop(uid, set())
+        for task in watchers:
             task.cancel()
 
     def _track(self, uid: str) -> UserTrack:
@@ -247,6 +262,14 @@ class SafetyMonitor:
             self._maybe_persist(self.now())
             return acts
 
+    def note(self, uid: str, what: str) -> None:
+        """Record an event on the user's timeline without changing the ladder."""
+        with self.lock:
+            t = self._track(uid)
+            t.response = add_note(t.response, self.now(), what)
+            self._touched.add(uid)
+            self._maybe_persist(self.now())
+
     def call_result(self, uid: str, answered: bool, reply: str | None, by: str) -> list[Action]:
         with self.lock:
             t = self._track(uid)
@@ -304,7 +327,7 @@ class SafetyMonitor:
             return
         call_id = res.get("call_id") if isinstance(res, dict) else None
         if act.kind == "voice" and call_id:
-            self._spawn(self._watch_call(u.id, act.recipient, call_id))
+            self._spawn(self._watch_call(u.id, act.recipient, call_id), uid=u.id)
         elif act.kind == "voice" and isinstance(res, dict) and res.get("status") == "failed":
             # a failed call counts as unanswered; a suppressed one (not allowlisted) never reached anyone's phone
             await self.dispatch_actions(u, self.call_result(u.id, False, None, act.recipient))
@@ -337,10 +360,18 @@ class SafetyMonitor:
         except Exception:
             log.exception("safety call watcher failed for %s", uid)
 
-    def _spawn(self, coro: Awaitable[None]) -> None:
+    def _spawn(self, coro: Awaitable[None], uid: str | None = None) -> None:
         task = asyncio.ensure_future(coro)
         self._background.add(task)
         task.add_done_callback(self._background.discard)
+        if uid is not None:
+            mine = self._watchers.setdefault(uid, set())
+            mine.add(task)
+            task.add_done_callback(mine.discard)
+
+    async def emit_event(self, typ: str, payload: dict[str, Any]) -> None:
+        """Public hook for collaborators (e.g. the assistant line) to publish on the same WS stream."""
+        await self._emit(typ, payload)
 
     async def _emit(self, typ: str, payload: dict[str, Any]) -> None:
         try:

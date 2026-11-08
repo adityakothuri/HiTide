@@ -1,0 +1,181 @@
+/* Operator shell. Borders over shadows; the map is the loudest thing on screen. */
+.shell {
+  display: grid;
+  grid-template: 'head head' 48px 'side main' minmax(0, 1fr) / 224px minmax(0, 1fr);
+  height: 100vh;
+  min-width: 1180px;
+  background: var(--d-bg);
+  color: var(--d-text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  left: 8px;
+  top: 8px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: var(--d-panel);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+}
+
+.sidebar {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 12px;
+  background: var(--d-panel);
+  border-right: 1px solid var(--d-line);
+}
+
+
+
+
+
+.nav {
+  display: grid;
+  gap: 2px;
+}
+
+/* Nav like the app's tab bar: secondary until active, then primary on a pale-blue pill. */
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--app-radius-control);
+  color: var(--d-text);
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.navItem svg { color: var(--d-muted); }
+
+.navItem:hover {
+  background: var(--d-bg);
+  color: var(--d-strong);
+}
+
+.navItem[aria-current='page'] {
+  position: relative;
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.navItem[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: -12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+.navItem[aria-current='page'] svg { color: var(--accent); }
+
+.navItem:focus-visible,
+.schemeBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.sideFoot {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--d-line);
+}
+
+.schemeBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--app-radius-control);
+  background: none;
+  color: var(--d-muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.schemeBtn:hover {
+  background: var(--d-bg);
+  color: var(--d-strong);
+}
+
+.note {
+  margin: 0;
+  padding: 0 12px;
+  color: var(--d-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.header {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: 0 16px;
+  background: var(--brand-bar);
+
+  /* Text on the blue bar: the app's white and pale-blue. Re-pointed here so the status pieces just work. */
+  --d-text: var(--on-bar);
+  --d-strong: var(--on-bar);
+  --d-muted: var(--on-bar-muted);
+  --d-faint: var(--on-bar-muted);
+  --d-line: var(--on-bar-line);
+  --d-safe: var(--on-bar-live);
+
+  color: var(--on-bar);
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--d-muted);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.crumbs strong {
+  color: var(--d-strong);
+  font-weight: 600;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.main {
+  grid-area: main;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  outline: none;
+}

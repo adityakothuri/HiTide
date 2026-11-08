@@ -47,7 +47,7 @@ export function ClaimsTab({ view }: { view: DriverView }) {
       {open ? (
         <ClaimPass view={view} />
       ) : (
-        <Section footer="If your car is damaged in a flood, we can start a claim for you from the Flood Watch alert.">
+        <Section footer="If your car is damaged in a flood, we can start a claim for you from the HiTide alert.">
           <Row icon={FileText} title="No open claims" />
         </Section>
       )}
