@@ -28,8 +28,10 @@ Flood Watch handles live location and personal data. These rules are shown in th
 | Rule | Code |
 |---|---|
 | Responder fields only | `backend/api/schemas.py` (`ResponderView`) |
-| Allowlist + log | `backend/outreach/` (planned) |
-| No texts to a moving driver | `backend/outreach/` guard + test (planned) |
+| Allowlist + log | `backend/outreach/allowlist.py`, `backend/outreach/log.py` (no numbers in the log) |
+| No texts to a moving driver | `backend/outreach/service.py` guard, `backend/tests/test_outreach_guard.py` |
+| Inbound replies only from allowlisted numbers, key-guarded | `backend/api/routes.py` `/api/photon/inbound`, `photon-sidecar/index.mjs` |
+| "not safe" never resolves a case | `backend/outreach/replies.py`, `backend/tests/test_reply_parse.py` |
 | Secrets via env | `.env.example`, `backend/app/main.py` (`load_dotenv`) |
 
 ## Security scan results
