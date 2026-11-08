@@ -1,0 +1,210 @@
+{
+  "images": {
+    "flood_01.jpg": {
+      "image_url": "/static/drone/flood_01.jpg",
+      "annotated_url": "/static/drone/flood_01_annotated.jpg",
+      "car_detected": true,
+      "water_level": "windows",
+      "water_level_source": "manual_label",
+      "people": [
+        {
+          "placement": "on_roof",
+          "box": [
+            564.1,
+            231.9,
+            607.4,
+            283.2
+          ],
+          "conf": 0.736
+        }
+      ]
+    },
+    "flood_02.jpg": {
+      "image_url": "/static/drone/flood_02.jpg",
+      "annotated_url": "/static/drone/flood_02_annotated.jpg",
+      "car_detected": true,
+      "water_level": "doors",
+      "water_level_source": "manual_label",
+      "people": [
+        {
+          "placement": "inside_unknown",
+          "box": [
+            439.8,
+            284.0,
+            476.2,
+            360.2
+          ],
+          "conf": 0.854
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            226.8,
+            227.7,
+            247.8,
+            285.3
+          ],
+          "conf": 0.809
+        },
+        {
+          "placement": "on_roof",
+          "box": [
+            478.3,
+            275.3,
+            537.4,
+            340.8
+          ],
+          "conf": 0.791
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            221.8,
+            244.3,
+            232.5,
+            287.0
+          ],
+          "conf": 0.404
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            254.7,
+            238.3,
+            270.3,
+            288.4
+          ],
+          "conf": 0.297
+        }
+      ]
+    },
+    "flood_03.jpg": {
+      "image_url": "/static/drone/flood_03.jpg",
+      "annotated_url": "/static/drone/flood_03_annotated.jpg",
+      "car_detected": true,
+      "water_level": "doors",
+      "water_level_source": "manual_label",
+      "people": [
+        {
+          "placement": "in_water",
+          "box": [
+            6.1,
+            171.0,
+            19.3,
+            216.9
+          ],
+          "conf": 0.668
+        },
+        {
+          "placement": "on_roof",
+          "box": [
+            475.0,
+            207.5,
+            513.1,
+            264.3
+          ],
+          "conf": 0.657
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            37.8,
+            167.1,
+            52.1,
+            215.6
+          ],
+          "conf": 0.543
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            389.9,
+            204.3,
+            404.4,
+            229.5
+          ],
+          "conf": 0.541
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            446.4,
+            202.8,
+            458.0,
+            230.3
+          ],
+          "conf": 0.43
+        },
+        {
+          "placement": "in_water",
+          "box": [
+            367.4,
+            196.2,
+            381.8,
+            224.0
+          ],
+          "conf": 0.329
+        }
+      ]
+    },
+    "flood_04.jpg": {
+      "image_url": "/static/drone/flood_04.jpg",
+      "annotated_url": "/static/drone/flood_04_annotated.jpg",
+      "car_detected": false,
+      "water_level": "windows",
+      "water_level_source": "manual_label",
+      "people": []
+    },
+    "flood_05.jpg": {
+      "image_url": "/static/drone/flood_05.jpg",
+      "annotated_url": "/static/drone/flood_05_annotated.jpg",
+      "car_detected": true,
+      "water_level": "windows",
+      "water_level_source": "manual_label",
+      "people": []
+    },
+    "flood_06.jpg": {
+      "image_url": "/static/drone/flood_06.jpg",
+      "annotated_url": "/static/drone/flood_06_annotated.jpg",
+      "car_detected": true,
+      "water_level": "doors",
+      "water_level_source": "manual_label",
+      "people": []
+    },
+    "flood_07.jpg": {
+      "image_url": "/static/drone/flood_07.jpg",
+      "annotated_url": "/static/drone/flood_07_annotated.jpg",
+      "car_detected": true,
+      "water_level": "wheels",
+      "water_level_source": "manual_label",
+      "people": []
+    },
+    "flood_08.jpg": {
+      "image_url": "/static/drone/flood_08.jpg",
+      "annotated_url": "/static/drone/flood_08_annotated.jpg",
+      "car_detected": true,
+      "water_level": "wheels",
+      "water_level_source": "manual_label",
+      "people": []
+    }
+  },
+  "demo_case": {
+    "image_url": "/static/drone/flood_01.jpg",
+    "annotated_url": "/static/drone/flood_01_annotated.jpg",
+    "car_detected": true,
+    "water_level": "windows",
+    "water_level_source": "manual_label",
+    "people": [
+      {
+        "placement": "on_roof",
+        "box": [
+          564.1,
+          231.9,
+          607.4,
+          283.2
+        ],
+        "conf": 0.736
+      }
+    ]
+  }
+}

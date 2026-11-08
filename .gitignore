@@ -18,3 +18,4 @@ __pycache__/
 .pytest_cache/
 data/outreach_log.jsonl
 data/drivers.local.json
+data/models/
