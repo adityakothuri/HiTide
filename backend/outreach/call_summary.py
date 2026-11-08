@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -49,11 +50,22 @@ def _transcript_reply(turns: list[str]) -> Reply | None:
     return "safe" if "safe" in replies else None
 
 
+SUMMARY_MAX_CHARS = 300
+_PHONE = re.compile(r"\+?\d[\d\s().-]{7,}\d")
+_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+
+
+def scrub(text: str) -> str:
+    """Summaries are LLM text from what callers said; they go to every dashboard client. Drop contact details."""
+    clean = _EMAIL.sub("[email]", _PHONE.sub("[number]", text)).strip()
+    return clean if len(clean) <= SUMMARY_MAX_CHARS else clean[: SUMMARY_MAX_CHARS - 1].rstrip() + "…"
+
+
 def _summary(conversation: dict[str, Any], status: str, answered: bool) -> str:
     analysis = conversation.get("analysis")
     text = analysis.get("transcript_summary") if isinstance(analysis, dict) else None
     if isinstance(text, str) and text.strip():
-        return text.strip()
+        return scrub(text)
     if not answered:
         return f"Call ended: no answer ({status or 'unknown'})"
     return "Call ended: driver answered, no summary available"
@@ -70,7 +82,9 @@ def classify_call(conversation: dict[str, Any]) -> CallOutcome:
     answered = bool(turns) and status not in _UNANSWERED_STATUSES and not voicemail
     if not answered:
         return CallOutcome(None, _summary(conversation, status, False), False)
-    reply = _collected_status(conversation) or _transcript_reply(turns)
+    # Danger beats ambiguity across BOTH signals: any need_help (collected or spoken) wins over a collected "safe".
+    signals = {_collected_status(conversation), _transcript_reply(turns)}
+    reply = "need_help" if "need_help" in signals else ("safe" if "safe" in signals else None)
     return CallOutcome(reply, _summary(conversation, status, True), True)
 
 

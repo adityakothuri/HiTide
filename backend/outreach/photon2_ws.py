@@ -92,13 +92,15 @@ class Photon2Inbound:
         self._on_message = on_message
         self._sio = self._build_client()
         self._worker = asyncio.create_task(self._work(), name="photon2-inbound-worker")
-        asyncio.create_task(self._connect(key, project), name="photon2-inbound-connect")
+        self._connector = asyncio.create_task(self._connect(key, project), name="photon2-inbound-connect")
 
     async def stop(self) -> None:
-        sio, worker = self._sio, self._worker
-        self._sio = self._worker = None
-        if worker:
-            worker.cancel()
+        sio, worker, connector = self._sio, self._worker, getattr(self, "_connector", None)
+        self._sio = self._worker = self._connector = None
+        tasks = [t for t in (connector, worker) if t]
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)  # nothing left half-connected after shutdown
         if sio:
             try:
                 await sio.disconnect()
@@ -123,7 +125,6 @@ class Photon2Inbound:
             except Exception as exc:
                 log.error("photon2 subscribe failed: %s", type(exc).__name__)
                 return  # the server closes an unsubscribed connection, and the client then reconnects
-                return
             ok = isinstance(result, dict) and result.get("ok") is True
             if not ok:
                 code = (result or {}).get("error", {}).get("code") if isinstance(result, dict) else None

@@ -34,6 +34,7 @@ async def lifespan(app: FastAPI):
     yield
     if inbound is not None:
         await inbound.stop()
+    runtime.runner.cancel_pending()
     await runtime.engine.stop()
 
 

@@ -23,9 +23,26 @@ def _conv(status="done", users=(), driver_status=None, summary="", termination="
             "metadata": {"termination_reason": termination}}
 
 
-def test_data_collection_safe_wins_over_transcript():
-    out = classify_call(_conv(users=["help me"], driver_status="safe", summary="She is fine."))
+def test_transcript_danger_beats_collected_safe():
+    """Safety: if the driver ever asked for help, an LLM-collected 'safe' must not de-escalate the case."""
+    out = classify_call(_conv(users=["I'm fine... actually no, I'm stuck, help"], driver_status="safe", summary="s"))
+    assert out.reply == "need_help"
+
+
+def test_collected_safe_and_transcript_safe_is_safe():
+    out = classify_call(_conv(users=["yes I'm safe, I got out"], driver_status="safe", summary="She is fine."))
     assert out == CallOutcome(reply="safe", summary="She is fine.", answered=True)
+
+
+def test_collected_need_help_beats_transcript_safe():
+    assert classify_call(_conv(users=["I'm ok"], driver_status="need_help")).reply == "need_help"
+
+
+def test_summary_scrubs_phone_numbers_and_emails_and_is_capped():
+    long = "Caller said call me at +1 (469) 389-6681 or 4693896681 or a@b.com. " + "x" * 600
+    out = classify_call(_conv(users=["help"], summary=long))
+    assert "6681" not in out.summary and "a@b.com" not in out.summary
+    assert len(out.summary) <= 300
 
 
 def test_data_collection_need_help():

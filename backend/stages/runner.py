@@ -68,7 +68,13 @@ class StageRunner:
 
     # ---- helpers -------------------------------------------------------
     def reset(self) -> None:
+        self.cancel_pending()  # a reset must not leave calls ringing or transcript watchers running
         self.world = World()
+
+    def cancel_pending(self) -> None:
+        for task in list(self._pending):
+            task.cancel()
+        self._pending.clear()
 
     def is_physically_moving(self, driver_id: str) -> bool:
         m = self.world.motions.get(driver_id)
@@ -249,7 +255,7 @@ class StageRunner:
             # background: the tick keeps running and the transcript watcher starts as soon as a call id arrives.
             self._spawn(self._call_then_watch(d, case.id, opening_line(first, street),
                                               call_variables(d.name, street, case.depth_in)))
-            return self._note(case, elapsed, "Calling driver (voice): ringing")
+            return self._note(case, elapsed, "Calling driver (voice)")
         if kind == "contact_family":
             body = (f"State Farm Flood Watch: {d.name}'s car has stopped in floodwater near "
                     f"{case.location.lat:.4f}, {case.location.lon:.4f} and they haven't answered. Responders are "
@@ -278,11 +284,30 @@ class StageRunner:
 
     async def _call_then_watch(self, d: Driver, case_id: str, opening: str, variables: dict[str, str]) -> None:
         world = self.world
-        msg = self._message(d, "driver", "voice", opening, d.phone, case_id, (), variables)
-        ev = await self.outreach.send(msg)  # no send budget here: this task never blocks the tick
-        call_id = ev.get("call_id")
-        if call_id and self.world is world:
-            await self._watch_call(case_id, str(call_id))
+        try:
+            msg = self._message(d, "driver", "voice", opening, d.phone, case_id, (), variables)
+            ev = await self.outreach.send(msg)  # no send budget here: this task never blocks the tick
+            if self.world is not world:
+                return
+            await self._note_call_result(case_id, ev)
+            call_id = ev.get("call_id")
+            if call_id:
+                await self._watch_call(case_id, str(call_id))
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 - background task: log loudly, never crash the sim
+            log.exception("voice call task for %s failed", case_id)
+
+    async def _note_call_result(self, case_id: str, ev: dict) -> None:
+        """Timeline says what really happened (placed, blocked, fell back to a poll, mock) instead of 'ringing'."""
+        case = self.world.cases.get(case_id)
+        if case is None:
+            return
+        what = "call placed" if ev.get("call_id") else f"{ev.get('channel', 'voice')} {ev.get('status', 'unknown')}"
+        elapsed = self.engine.t_sim_s - self.world.case_opened_s.get(case_id, self.engine.t_sim_s)
+        new = self._note(case, elapsed, f"Voice to driver ({ev.get('mode', 'mock')}): {what}")
+        self.world.cases[case_id] = new
+        await self.engine.emit("case.update", new.model_dump(mode="json"))
 
     def _spawn(self, coro) -> None:
         task = asyncio.create_task(coro)
