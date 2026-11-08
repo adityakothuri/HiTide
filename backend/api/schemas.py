@@ -92,6 +92,8 @@ class OutreachEvent(Frozen):
     mode: Literal["mock", "photon"]
     status: Literal["queued", "sent", "delivered", "read", "failed", "blocked"]
     case_id: str | None = None
+    provider: Literal["stable", "photon2"] | None = None  # set only for live sends
+    call_id: str | None = None  # ElevenLabs conversation_id for voice calls
 
 
 class TurnAround(Frozen):

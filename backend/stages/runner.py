@@ -8,13 +8,15 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import time
 from dataclasses import dataclass, field, replace
 from typing import Any, Literal
 
 from api.schemas import Case, TimelineEntry, VisionResult
 from app.config import settings
 from drone import dispatch
-from outreach import OutboundMessage, make_outreach
+from outreach import OutboundMessage, make_outreach, voice_elevenlabs
+from outreach.call_summary import call_variables, classify_call, first_name, follow_up_text, opening_line
 from scoring.risk import RiskInput, score
 from sim.drivers import Driver
 from sim.engine import Engine, now_iso
@@ -29,6 +31,9 @@ log = logging.getLogger(__name__)
 TURN_AROUND_MSG = "Flooded road ahead. Turn around."
 NIGHT_HOUR, DAY_HOUR = 23, 14
 WATER_LEVEL_IN = {"none": 0.0, "wheels": 12.0, "doors": 20.0, "windows": 30.0, "roof": 50.0}  # sedan, approx.
+CALL_POLL_INTERVAL_S = 3.0  # how often the post-call watcher asks ElevenLabs for the conversation
+CALL_WATCH_MAX_S = 180.0
+CALL_DONE_STATUSES = frozenset({"done", "failed"})
 SEND_BUDGET_S = 8.0  # a slow Photon/ElevenLabs call must never freeze the tick for long
 
 
@@ -94,11 +99,22 @@ class StageRunner:
         return 0.0 if not self.engine.flood.active or self.engine.flood.river_wse_m >= p.base_wse_m + p.max_rise_m \
             else p.rise_m_per_min * 39.37
 
+    @staticmethod
+    def _message(d: Driver, recipient: str, channel: str, body: str, phone: str, case_id: str | None,
+                 poll: tuple[str, ...], variables: dict[str, str] | None) -> OutboundMessage:
+        if not variables:
+            return OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll)
+        try:
+            return OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll, variables=variables)
+        except TypeError:  # OutboundMessage without a variables field: call still goes out, just without context
+            log.warning("OutboundMessage has no variables field; voice call placed without dynamic variables")
+            return OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll)
+
     async def _send(self, d: Driver, recipient: str, channel: str, body: str, case_id: str | None = None,
-                    poll: tuple[str, ...] = ()) -> dict:
+                    poll: tuple[str, ...] = (), variables: dict[str, str] | None = None) -> dict:
         phone = {"driver": d.phone, "parent": d.parent.phone if d.parent else "",
                  "emergency_contact": d.emergency_contact.phone}[recipient]
-        msg = OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll)
+        msg = self._message(d, recipient, channel, body, phone, case_id, poll, variables)
         task = asyncio.ensure_future(self.outreach.send(msg))
         try:
             return await asyncio.wait_for(asyncio.shield(task), SEND_BUDGET_S)
@@ -227,8 +243,13 @@ class StageRunner:
     async def _timer_action(self, e: Engine, case: Case, kind: str, elapsed: float) -> Case:
         d = self.drivers[case.driver_id]
         if kind == "call_driver":
-            ev = await self._send(d, "driver", "voice", "Are you okay? Is water around your car? "
-                                  "Reply: I'm safe / I need help.", case.id)
+            street = self._street_of(case.driver_id)
+            first = first_name(d.name)
+            ev = await self._send(d, "driver", "voice", opening_line(first, street), case.id,
+                                  variables=call_variables(d.name, street, case.depth_in))
+            call_id = ev.get("call_id")
+            if call_id:
+                self._spawn(self._watch_call(case.id, str(call_id)))
             return self._note(case, elapsed, f"Voice call to driver ({ev['mode']}, {ev['status']}): no answer yet")
         if kind == "contact_family":
             body = (f"State Farm Flood Watch: {d.name}'s car has stopped in floodwater near "
@@ -248,9 +269,52 @@ class StageRunner:
             return self._note(case, elapsed, f"Drone launched from {dcfg['station']['name']}, ETA {drone.flight_s:.0f} s (simulated)")
         return case
 
-    def _note(self, case: Case, t: float, text: str) -> Case:
-        entry = TimelineEntry(ts=now_iso(), t_case_s=round(t, 1), kind="outreach", text=text)
+    def _note(self, case: Case, t: float, text: str, kind: str = "outreach") -> Case:
+        entry = TimelineEntry(ts=now_iso(), t_case_s=round(t, 1), kind=kind, text=text)
         return case.model_copy(update={"timeline": [*case.timeline, entry]})
+
+    def _spawn(self, coro) -> None:
+        task = asyncio.create_task(coro)
+        self._pending.add(task)
+        task.add_done_callback(self._pending.discard)
+
+    def _street_of(self, driver_id: str) -> str:
+        m = self.world.motions.get(driver_id)
+        return self.engine.town.segment_name(current_edge(m, self.lengths)) if m else "your location"
+
+    # ---- post-call memory: voice call result -> case + text follow-up ----
+    async def _poll_conversation(self, call_id: str) -> dict[str, Any] | None:
+        deadline = time.monotonic() + CALL_WATCH_MAX_S
+        while True:
+            conv = await voice_elevenlabs.get_conversation(call_id)
+            if conv and conv.get("status") in CALL_DONE_STATUSES:
+                return conv
+            if time.monotonic() >= deadline:
+                return None
+            await asyncio.sleep(CALL_POLL_INTERVAL_S)
+
+    async def _watch_call(self, case_id: str, call_id: str) -> None:
+        """Wait for the call to end, record it on the case, apply the driver's answer, then text a follow-up."""
+        world = self.world
+        try:
+            conv = await self._poll_conversation(call_id)
+            if conv is None or self.world is not world:
+                return
+            case = world.cases.get(case_id)
+            if case is None:
+                return
+            outcome = classify_call(conv)
+            elapsed = self.engine.t_sim_s - world.case_opened_s[case_id]
+            world.cases[case_id] = self._note(case, elapsed, f"Call summary: {outcome.summary}", kind="call")
+            await self.engine.emit("case.update", world.cases[case_id].model_dump(mode="json"))
+            if outcome.reply:
+                await self.reply(case_id, outcome.reply, "driver")
+            if self.world is not world:
+                return
+            d = self.drivers[world.cases[case_id].driver_id]
+            await self._send(d, "driver", "text", follow_up_text(outcome, self._street_of(d.id)), case_id)
+        except Exception:  # never raise out of a background task
+            log.exception("call watcher failed for %s", case_id)
 
     async def reply(self, case_id: str, kind: Literal["safe", "need_help"],
                     by: Literal["driver", "emergency_contact"] = "driver") -> Case | None:

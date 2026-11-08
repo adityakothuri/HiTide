@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
 Recipient = Literal["driver", "parent", "emergency_contact"]
@@ -18,6 +19,8 @@ class OutboundMessage:
     phone: str  # raw from driver data: "env:DEMO_PHONE_A" or "+1830555xxxx"
     case_id: str | None = None
     poll_options: tuple[str, ...] = ()
+    # Dynamic variables for the voice agent (e.g. driver_name); excluded from hash/eq.
+    variables: Mapping[str, str] = field(default_factory=dict, hash=False, compare=False)
 
 
 class Outreach(Protocol):

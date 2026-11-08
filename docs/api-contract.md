@@ -44,7 +44,7 @@ Every message has this envelope:
 | `segments.update` | `{t_sim_s, river_wse_m, segments:[{edge_id, depth_in, status}]}` | Diff (changed segments only). Recolour roads. |
 | `drivers.update` | `{drivers:[{id,name,lat,lon,heading_deg,situation,is_demo,urgency}]}` | Move markers. `situation`: parked, planning, driving, stopped_in_water. |
 | `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "Flood Watch active" status |
-| `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent. |
+| `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id,provider?,call_id?}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent; live sends report `mode: photon`. `provider` (`stable` or `photon2`) is present only on live sends. `call_id` (ElevenLabs conversation id) is present only on placed voice calls. Both are optional and additive. |
 | `turn_around` | `{driver_id,message,hazard_edge_id,hazard_depth_in,distance_m}` | **Driver view: full-screen red alert + `speechSynthesis.speak(message)`** |
 | `reroute` | `{driver_id,reason,route:GeoJSON LineString,blocked_edge_ids,distance_m}` | Draw the new route (green), mark blocked segments |
 | `case.update` | `Case` (full object, see below) | Upsert into the case queue, then sort by `urgency` |
@@ -98,3 +98,7 @@ At night (`night_mode: true`), `image_url` points to a **simulated thermal** fra
 The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outreach.mode == "mock"`, and `water_level_source == "manual_label"`.
 
 **Privacy:** the responder panel shows only `responder_view` (location, people count, water depth). Age and vehicle appear only inside `urgency_reasons` on the State Farm ops case card.
+
+## Outreach provider note
+
+`PHOTON_MODE` selects the sender: `mock` (default), `stable` (Photon Spectrum sidecar) or `photon2` (Photon 2.0 API). All live sends keep `outreach.mode == "photon"`; use the optional `provider` field to tell them apart. Frontends should treat `provider` and `call_id` as optional and ignore them if absent.

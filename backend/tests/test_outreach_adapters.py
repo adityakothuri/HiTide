@@ -82,7 +82,7 @@ def el_env(monkeypatch):
 @pytest.mark.asyncio
 async def test_place_call_request_shape(el_env):
     t, seen = _transport()
-    assert await voice_elevenlabs.place_call("+1830", "Hello, are you okay?", transport=t) == "sent"
+    assert (await voice_elevenlabs.place_call("+1830", "Hello, are you okay?", transport=t)).status == "sent"
     r = seen[0]
     assert str(r.url) == "https://api.elevenlabs.io/v1/convai/sip-trunk/outbound-call"
     assert r.headers["xi-api-key"] == "key123"
@@ -98,19 +98,19 @@ async def test_place_call_request_shape(el_env):
 @pytest.mark.parametrize("status", [401, 422, 500])
 async def test_place_call_errors_failed(el_env, status):
     t, _ = _transport(status)
-    assert await voice_elevenlabs.place_call("+1", "hi", transport=t) == "failed"
+    assert (await voice_elevenlabs.place_call("+1", "hi", transport=t)).status == "failed"
 
 
 @pytest.mark.asyncio
 async def test_place_call_network_error_failed(el_env):
     t, _ = _transport(exc=httpx.ConnectError("x"))
-    assert await voice_elevenlabs.place_call("+1", "hi", transport=t) == "failed"
+    assert (await voice_elevenlabs.place_call("+1", "hi", transport=t)).status == "failed"
 
 
 @pytest.mark.asyncio
 async def test_place_call_success_false_in_body_is_failed(el_env):
     t = httpx.MockTransport(lambda r: httpx.Response(200, json={"success": False, "message": "no"}))
-    assert await voice_elevenlabs.place_call("+1", "hi", transport=t) == "failed"
+    assert (await voice_elevenlabs.place_call("+1", "hi", transport=t)).status == "failed"
 
 
 def test_voice_configured(monkeypatch, el_env):

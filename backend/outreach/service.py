@@ -5,15 +5,17 @@ from __future__ import annotations
 import logging
 import os
 import uuid
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 import httpx
 
-from outreach import photon_spectrum, voice_elevenlabs
+from outreach import photon2, photon_spectrum, voice_elevenlabs
 from outreach.allowlist import resolve_phone
 from outreach.base import OutboundMessage
 from outreach.log import DEFAULT_LOG_PATH, append_log
+from outreach.mode import photon_mode
 from sim.engine import now_iso
 
 logger = logging.getLogger(__name__)
@@ -33,8 +35,18 @@ def _is_blocked(msg: OutboundMessage, is_moving: Callable[[str], bool]) -> bool:
     )
 
 
-def _photon_enabled() -> bool:
-    return os.environ.get("PHOTON_MODE", "").strip().lower() == "photon"
+def _spectrum_configured() -> bool:
+    return all(os.environ.get(k, "").strip() for k in ("SPECTRUM_PROJECT_ID", "SPECTRUM_PROJECT_SECRET"))
+
+
+@dataclass(frozen=True)
+class _Result:
+    channel: str
+    body: str
+    mode: str
+    status: str
+    provider: str | None = None
+    call_id: str | None = None
 
 
 class OutreachService:
@@ -51,53 +63,88 @@ class OutreachService:
         self._transport = transport
 
     async def send(self, msg: OutboundMessage) -> dict:
-        channel, body, mode, status = await self._decide(msg)
+        res = await self._decide(msg)
         payload = {
             "id": uuid.uuid4().hex[:12],
             "ts": now_iso(),
             "driver_id": msg.driver_id,
             "recipient": msg.recipient,
-            "channel": channel,
-            "body": body,
-            "mode": mode,
-            "status": status,
+            "channel": res.channel,
+            "body": res.body,
+            "mode": res.mode,
+            "status": res.status,
             "case_id": msg.case_id,
         }
+        if res.provider is not None:
+            payload["provider"] = res.provider
+        if res.call_id is not None:
+            payload["call_id"] = res.call_id
         await self._record(payload)
         return payload
 
-    async def _decide(self, msg: OutboundMessage) -> tuple[str, str, str, str]:
+    async def _decide(self, msg: OutboundMessage) -> _Result:
         if _is_blocked(msg, self._is_moving):
             logger.warning("blocked %s to moving driver %s", msg.channel, msg.driver_id)
-            return msg.channel, msg.body, "mock", "blocked"
+            return _Result(msg.channel, msg.body, "mock", "blocked")
         if msg.channel == "tts_in_app":
-            return msg.channel, msg.body, "mock", "sent"
+            return _Result(msg.channel, msg.body, "mock", "sent")
         phone = resolve_phone(msg.phone)
-        if phone is None or not _photon_enabled():
-            return msg.channel, msg.body, "mock", "sent"
-        return await self._send_photon(msg, phone)
+        mode = photon_mode()
+        if phone is None or mode == "mock":
+            return _Result(msg.channel, msg.body, "mock", "sent")
+        return await self._send_live(msg, phone, mode)
 
-    async def _send_photon(self, msg: OutboundMessage, phone: str) -> tuple[str, str, str, str]:
-        t = self._transport
+    async def _send_live(self, msg: OutboundMessage, phone: str, mode: str) -> _Result:
         if msg.channel == "text":
-            status = await photon_spectrum.send_text(phone, msg.body, transport=t)
-            return "text", msg.body, "photon", status
+            status, provider = await self._text(phone, msg.body, mode)
+            return _Result("text", msg.body, "photon", status, provider)
         if msg.channel == "poll":
             options = msg.poll_options or SAFETY_OPTIONS
-            status = await photon_spectrum.send_poll(phone, msg.body, options, transport=t)
-            return "poll", msg.body, "photon", status
-        return await self._send_voice(msg, phone)
+            status, provider = await self._poll(phone, msg.body, options, mode)
+            return _Result("poll", msg.body, "photon", status, provider)
+        return await self._send_voice(msg, phone, mode)
 
-    async def _send_voice(self, msg: OutboundMessage, phone: str) -> tuple[str, str, str, str]:
+    async def _text(self, phone: str, body: str, mode: str) -> tuple[str, str]:
+        t = self._transport
+        if mode == "photon2":
+            status = await photon2.send_text(phone, body, transport=t)
+            if status == "sent" or not _spectrum_configured():
+                return status, "photon2"
+            logger.warning("photon2 text failed; retrying once via stable")
+        return await photon_spectrum.send_text(phone, body, transport=t), "stable"
+
+    async def _poll(
+        self, phone: str, question: str, options: Sequence[str], mode: str
+    ) -> tuple[str, str]:
+        t = self._transport
+        if mode == "photon2":
+            status = await photon2.send_poll(phone, question, options, transport=t)
+            if status == "sent" or not _spectrum_configured():
+                return status, "photon2"
+            logger.warning("photon2 poll failed; retrying once via stable")
+        return await photon_spectrum.send_poll(phone, question, options, transport=t), "stable"
+
+    async def _place_call(self, msg: OutboundMessage, phone: str) -> tuple[str, str | None]:
+        try:
+            result = await voice_elevenlabs.place_call(
+                phone, msg.body, msg.variables, transport=self._transport
+            )
+        except Exception:  # noqa: BLE001 - a broken voice adapter must not break the caller
+            logger.exception("voice call raised")
+            return "failed", None
+        return result.status, result.conversation_id
+
+    async def _send_voice(self, msg: OutboundMessage, phone: str, mode: str) -> _Result:
         if voice_elevenlabs.voice_configured():
-            status = await voice_elevenlabs.place_call(phone, msg.body, transport=self._transport)
-            return "voice", msg.body, "photon", status
-        logger.warning("voice env missing; falling back to safety poll")
+            status, call_id = await self._place_call(msg, phone)
+            if status == "sent":
+                return _Result("voice", msg.body, "photon", status, call_id=call_id)
+            logger.warning("voice call failed; falling back to safety poll")
+        else:
+            logger.warning("voice env missing; falling back to safety poll")
         body = f"[Voice unavailable, sent poll] {SAFETY_QUESTION} Reply: I'm safe / I need help. ({msg.body})"
-        status = await photon_spectrum.send_poll(
-            phone, SAFETY_QUESTION, SAFETY_OPTIONS, transport=self._transport
-        )
-        return "poll", body, "photon", status
+        status, provider = await self._poll(phone, SAFETY_QUESTION, SAFETY_OPTIONS, mode)
+        return _Result("poll", body, "photon", status, provider)
 
     async def _record(self, payload: dict) -> None:
         append_log(payload, self._log_path)
