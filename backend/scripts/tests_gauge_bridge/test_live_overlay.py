@@ -41,3 +41,18 @@ def test_no_frame_reports_unavailable():
     result = LiveAnalysis(lambda: None, lambda *a, **kw: None).status()
     assert result["polygons"] == []
     assert result["age_s"] is None
+
+
+
+def test_boxes_acquire_without_a_depth_reading_and_reject_collapsed_tray():
+    from live_overlay import FrameOverlay
+    renderer = FrameOverlay()
+    frame = np.full((720, 960, 3), 150, np.uint8)
+    geometry = {"tray_polygon": [[200, 400], [300, 300], [550, 350], [550, 500]],
+                "car_polygon": [[370, 380], [400, 380], [400, 400], [370, 400]]}
+    renderer.seed_geometry(frame, geometry)
+    assert set(renderer.regions) == {"car", "tray"}
+    rejected = FrameOverlay()
+    geometry["tray_polygon"] = [[760, 520], [850, 630], [920, 710], [830, 600]]
+    rejected.seed_geometry(frame, geometry)
+    assert rejected.regions == {}

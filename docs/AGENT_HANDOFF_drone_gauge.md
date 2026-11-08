@@ -299,3 +299,9 @@ pose seeded both car and tray regions; a blank frame cleared boxes and returned 
 video depth caption is removed. Blank/stale output suppresses the manual gauge value.
 Automatic approval rejected restarting the live dashboard. Source and desktop package are updated,
 but the old live process needs restarting before these changes are active.
+Bounding-box follow-up after initial push: geometry acquisition no longer requires a valid water depth.
+A pose with at least 1500 visible CAD cells can seed boxes even when level fitting withholds. The renderer
+rejects small or collapsed tray quadrilaterals before acquiring car/tray regions. Regression test reproduces
+the latest skinny false pose and confirms it is rejected; valid geometry with no depth acquires both boxes.
+44 bridge tests pass. Latest saved hardware frame showed people instead of the tray, so hardware placement
+could not be validated from that frame.

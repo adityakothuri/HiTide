@@ -89,6 +89,16 @@ class FrameOverlay:
 
     def seed_geometry(self, frame_bgr, geometry):
         """Use a validated gauge pose to acquire boxes before local frame tracking."""
+        tray = np.asarray(geometry.get("tray_polygon", []), np.float32)
+        if tray.shape != (4, 2) or not np.isfinite(tray).all():
+            return
+        area = abs(cv2.contourArea(tray))
+        sides = np.linalg.norm(tray - np.roll(tray, -1, axis=0), axis=1)
+        # A collapsed square on a wall/face is a failed pose, not a visible tray.
+        if area < frame_bgr.shape[0] * frame_bgr.shape[1] * 0.01 or sides.min() < 12:
+            return
+        if area / max(float(sides.max()) ** 2, 1) < 0.08:
+            return
         with self.lock:
             updated = False
             for kind in ("car", "tray"):

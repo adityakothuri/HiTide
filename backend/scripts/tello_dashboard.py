@@ -427,7 +427,7 @@ class GaugeService:
             self._record_error("Reader", exc)
             return
         record_event("reading", frame=frame_bgr, overlay=jpeg, estimate=data, corners=self.corners)
-        if self._geometry_sink and data.get("ft") is not None and not data.get("reason"):
+        if self._geometry_sink and (data.get("visible_cells") or 0) >= 1500:
             self._geometry_sink(frame_bgr, geometry)
         self.geometry = jsonable(geometry)
         self.estimate = data

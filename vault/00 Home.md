@@ -71,3 +71,4 @@ Demo depth standard deviation is configurable in the Drone tab and dashboard. Th
 Gauge presentation update verified with browser screenshots. Manual depth now feeds the Water gauge card,
 with default empty state on blank video. Valid gauge poses automatically seed tracked car/tray boxes.
 Live restart was blocked by automatic approval and remains pending.
+Bounding boxes can acquire independently of depth fitting, with degenerate tray-pose rejection.
