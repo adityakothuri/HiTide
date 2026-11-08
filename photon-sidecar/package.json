@@ -5,5 +5,5 @@
   "version": "0.1.0",
   "description": "Tiny HTTP bridge: Python backend -> Photon Spectrum (spectrum-ts) for iMessage texts and polls, plus inbound replies -> backend.",
   "scripts": { "start": "node --env-file-if-exists=../.env index.mjs" },
-  "dependencies": { "spectrum-ts": "*" }
+  "dependencies": { "spectrum-ts": "^12.15.0" }
 }
