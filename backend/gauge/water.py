@@ -297,7 +297,8 @@ class GaugeReader:
     def _rim_view(self, frame: np.ndarray) -> tuple[_View | None, str | None]:
         """Tag-free view: reuse the locked pose while the camera is still, else re-solve (rate-limited)."""
         lock = self._rim_lock
-        if lock is not None and self._camera_still(frame, lock):
+        if (lock is not None and time.time() - self._last_rim_attempt < 2.0
+                and self._camera_still(frame, lock)):
             return lock.view, None
         now = time.time()
         if self._rim_problem is not None and now - self._last_rim_attempt < RESOLVE_MIN_SECONDS:
@@ -567,6 +568,33 @@ class GaugeReader:
         return self._smoothed(est, None)
 
     # ---------------------------------------------------------------- overlay
+    def scene_geometry(self, frame: np.ndarray) -> dict:
+        """Locate the known printed car using the current accepted tray pose."""
+        analysis = self._analyse(frame)
+        if analysis.view is None:
+            return {"car_polygon": [], "reason": analysis.problem}
+        view = analysis.view
+        model = self.model
+        ys, xs = np.indices(model.height_mm.shape)
+        x, y = xs * model.res_mm, ys * model.res_mm
+        cx, cy = model.car.centre_mm
+        mask = ((abs(x - cx) < 14) & (abs(y - cy) < 14) &
+                (np.isclose(model.height_mm, model.car.body_top_mm, atol=0.08) |
+                 np.isclose(model.height_mm, model.car.roof_mm, atol=0.08)))
+        if not mask.any():
+            return {"car_polygon": [], "reason": "Car footprint missing from CAD"}
+        xmin, xmax = x[mask].min(), x[mask].max()
+        ymin, ymax = y[mask].min(), y[mask].max()
+        corners = np.array([[xx, yy, zz] for xx in (xmin, xmax)
+                            for yy in (ymin, ymax) for zz in (model.car.road_mm, model.car.roof_mm)])
+        pixels, depth = project(corners, view.cam, view.fix.pose)
+        if (depth <= 0).any() or not np.isfinite(pixels).all():
+            return {"car_polygon": [], "reason": "Car is outside the camera view"}
+        hull = cv2.convexHull(pixels.astype(np.float32)).reshape(-1, 2)
+        tray = self._tray_outline_px(view.fix, view.cam)[4:]
+        return {"tray_polygon": tray.tolist(), "car_polygon": hull.tolist(), "source": "CAD car footprint projected through measured tray pose",
+                "pose_source": analysis.source}
+
     def overlay(self, frame: np.ndarray, estimate: WaterEstimate) -> np.ndarray:
         """Frame with tags outlined, cells predicted wet tinted and the reading as text."""
         out = frame.copy()

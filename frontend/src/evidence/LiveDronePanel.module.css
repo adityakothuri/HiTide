@@ -85,3 +85,7 @@
 .depthWet th[scope="row"] { color: var(--water-5); }
 .depthRise { color: var(--critical-deep); font-weight: 700; }
 .depthHouses summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--info); padding: 4px 0; }
+.overlayControls { margin: 24px 22px; padding: 20px; border-top: var(--border); display: grid; gap: 14px; }
+.overlayOptions { display: flex; flex-wrap: wrap; gap: 18px; }
+.overlayControls input[type="number"] { width: 120px; margin-left: 12px; padding: 8px; color: var(--text); background: var(--surface); border: var(--border); }
+.overlayControls p { font-size: 12px; }

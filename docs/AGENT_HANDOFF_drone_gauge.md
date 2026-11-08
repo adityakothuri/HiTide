@@ -15,7 +15,7 @@ Owner: the user (Windows laptop `ayush_aw7x`). Hackathon: HackUTD 2026, submissi
   heights (before), vision measures the water surface (now), depth = surface - ground, change = now - before.**
 - The tray's **ArUco tags printed badly; the demo has NO tags**. Pose comes from (a) **4 clicked rim corners**
   (reliable), or (b) **automatic outline** using the placement rule **"FLOOD WATCH edge faces the drone"**
-  (safe but often withholds when the drone is dead-centre; see section 9, the main open problem).
+  (straight-on stand fit validated synthetically; see section 9).
 - The user wants an **isolated, lightweight demo integrated in the drone dashboard** only. Build it with
   `python backend/scripts/make_drone_demo.py` -> `dist/drone-demo/` + `dist/drone-demo.zip` (149 KB). A copy is
   kept at `C:\Users\ayush_aw7x\OneDrive\Desktop\HiTide-drone-demo.zip`. Do not depend on the FastAPI backend
@@ -174,7 +174,16 @@ zip to the Desktop. Verified from an isolated unzip with `python -I` and a fake 
 - Docs: `docs/gauge-water-level-plan.md`, `docs/gauge-tray-setup.md`, `docs/tello-drone-handoff.md`.
 - Old helper scripts: `tello_check/stream/fly/battery/selftest/diagnose.py`, `gauge_tag_sheet.py`.
 
-## 9. OPEN PROBLEM #1 (do this next): automatic outline fails dead-centre
+## 9. Straight-on outline detection (updated)
+
+The dashboard now tries a level-camera fit seeded from the stand dimensions. It checks the direction and
+position of all four top rim edges and their alignment with the CAD terrain, then falls back to the original
+outline solver if the fit is poor. The original 56-case sweep with PYTHONHASHSEED=0 returned 53 correct,
+3 withheld and 0 wrong, including 35/35 correct on the level stand. With the camera 155 mm above the rim,
+418 mm back and PYTHONHASHSEED=1, the sweep returned 52 correct, 4 withheld and 0 wrong. These are synthetic
+results. Testing the physical print is the next step.
+
+### Original diagnosis
 Symptom: level camera straight in front of the FLOOD WATCH edge (side 0 / -10 / +15 deg) -> pose found but the
 reader withholds ("view too shallow (11 deg down)") or no pose. Root cause (diagnosed): `_hypotheses()` assigns
 the near-edge outline corners either z = rim top or z = 0; straight-on, the visible near silhouette is the front
@@ -208,3 +217,85 @@ Acceptance: dead-centre level views read correctly, still 0 wrong.
   stopped (bridge via POST /shutdown with JSON header; others via taskkill of PIDs we started).
 - Ports: real dashboard 8765; tests used 8799 (bridge), 8010 (backend), 5180 (Vite). A test dashboard on 8765 will
   take over (shut down) the user's running dashboard; warn them if you do that.
+
+
+## Demo overlay repair
+The Demo boxes feature had a JavaScript startup error. pollDemo() ran before let demoOn was
+initialized, so tracking requests stopped even after a successful anchor. Startup now initializes
+the toggle before polling. Anchor enables the boxes and the panel shows tracking/lost status.
+The tracker processes each camera frame once so a frozen video becomes stale. Anchors save the
+reference image and transform requests save homography, inliers and age in events.jsonl.
+Verified in headless Edge through the real bridge and Anchor button with synthetic camera motion.
+A 35 px horizontal / 20 px vertical video shift moved the car box by the same amount, with no
+browser errors. All 40 bridge tests passed. The desktop extracted latest folder and ZIP are updated.
+Physical movement still needs verification. Overlay coordinates and water-depth labels are preset
+in DEMO_OVERLAY and anchoring preserves their initial alignment.
+Image tracking proof used the recorded drone photo from 10:08 and four known geometric transformations with blur, brightness and JPEG degradation. All four cases passed a maximum 3 px error threshold. Worst measured error was 0.295 px across eight manually marked reference points. Frozen-frame age and blank-view hold behavior also passed. Visual proof and machine-readable results are in artifacts/overlay-proof. These tests use simulated motion applied to a real image. Live handheld 3D motion remains unverified.
+Demo overlay controls now sit after the main dashboard, below the initial viewport. Independent water,
+vehicle and label toggles persist across refreshes. Labels identify flood water and the vehicle.
+The water polygon and labels follow the same tracked transformation as the car. Fixed SVG visibility
+by toggling the actual hidden attribute. Browser test checked visible shapes, each toggle, persistence,
+labels, and water motion from (300,430) to (335,450.1) after a known (35,20) image shift.
+The demo panel top was 1532 px in a 900 px viewport. No browser errors. Desktop latest and ZIP updated.
+Demo water shape and depths remain preset, and camera-motion tracking carries that outline with the view.
+The preset overlay has been replaced in the dashboard by /analysis/status and live_overlay.py.
+It segments blue/cyan dyed-water candidates on each new camera frame, returns contour rings with holes,
+image coverage, timestamp and age, and logs the source frames and results. The browser draws these contours
+and clears them on stale or missing video. All fixed depth labels and preset car boxes have been removed.
+Depth still requires the calibrated GaugeReader. Colour segmentation can match other blue objects.
+Vehicle box is disabled because this colour analysis does not locate vehicles. Controls remain below the fold.
+43 bridge tests passed including water appearing, moving and disappearing with no anchor and frozen video aging.
+Browser test detected a region at (300,200), then (335,220) after image shift, with no anchor or fixed depth labels
+and no browser errors. Desktop extracted latest and ZIP updated.
+Depth and geometry are now connected to /analysis/status. Gauge reading auto-starts at launch.
+scene_geometry projects the CAD car body/roof footprint and tray rim through the current accepted pose.
+A two-second pose refresh prevents slow movement retaining an old locked pose. The live panel renders
+tray outline, car polygon, measured water-level range and measured local depth at the car. Missing or stale
+measurements clear the geometry or show the actual gauge reason. All shapes and labels have visibility toggles.
+Browser integration with synthetic camera images returned GAUGE TRAY, WATER LEVEL 3–4 FT, and
+VEHICLE DEPTH 2.0 FT (roof). Car and tray geometry followed a changed camera viewpoint.
+Security review found and fixed oversized POST truncation (now 413), invalid controls (400), cross-port
+browser Origins (403), missing socket read timeout, and framing protection (DENY plus CSP frame-ancestors).
+Browser checks verified the security responses and no JavaScript errors. Live desktop copy and ZIP updated.
+Physical camera accuracy is still pending a connected drone test.
+Frame-synchronous overlay update
+The encoder now calls FrameOverlay.render on each video frame before JPEG encoding. Both the dashboard
+and console receive the same annotated MJPEG. Water contours use half-resolution colour segmentation.
+Vehicle and tray regions are aligned with user clicks and tracked between frames using local optical flow
+plus a robust affine fit. The inaccurate CAD-projected overlay is no longer drawn on the live feed.
+Vehicle labels contain no depth. Water regions contain no blue-dye label.
+Bottom controls include visibility, Align vehicle (two opposite corners), Align tray (four rim corners),
+and a manual demo depth field. That value is visibly labelled DEMO and varies smoothly within 0.03 ft.
+The console's Kerrville live-drone panel contains the same controls and alignment workflow.
+Backend relay routes added. Stopping the existing console backend was rejected by automatic approval,
+so the Vite development proxy routes /api/live-drone/analysis directly to the local bridge using the
+bridge's same-origin identity. Verified this console relay returns 200 and the depth input works.
+A 60-frame real-image motion test measured median render time 7.17 ms, p95 11.08 ms and 2.24 px car
+position error. This measures processing cost, not actual drone video FPS. 43 bridge tests, 33 relay
+tests and 81 frontend tests pass. TypeScript compiles. Live drone frame availability is still required
+for hardware tracking validation.
+A new /drone console route and Drone navigation tab contain the shared LiveDronePanel only, including
+live video, flight controls, telemetry, water gauge and bottom overlay/alignment/demo-depth controls.
+It works independently of the Kerrville evidence state and omits road maps, source health and inspection
+queues. Navigation added to Texas and Kerrville tabs. TypeScript builds, all 81 frontend tests pass,
+and browser navigation from Texas to Drone passed with no JavaScript errors.
+Demo depth standard deviation is now configurable in both interfaces (default 0.02 ft, 0 means steady).
+Smooth Gaussian noise replaces the fixed sine fluctuation. A 600-sample check at sigma 0.12 measured
+0.120 ft sample standard deviation. Physical depth display remains nonnegative, so values near zero
+are clipped and have a smaller observed standard deviation. Large Drone page heading removed.
+Console static-feed bug was a 404 from its old backend live-drone routes. Vite now proxies all
+/api/live-drone routes directly to the same bridge as the Tello dashboard, with /gauge mapped to
+/gauge/status. Raw bridge status is normalized by the console. Stale real video stays displayed with
+a Video stale notice instead of switching to a cached sample. Verified status and gauge through console.
+No aligned regions were present in the running renderer, and the drone link was disconnected with
+video stale. Vehicle/tray alignment requires fresh video and user corner selection.
+Visible depth label changed to WATER DEPTH at the user's request. The value remains user-entered
+with configured Gaussian variation, so this label change does not make it a measured depth.
+Browser proof for gauge presentation and automatic regions is saved in artifacts/overlay-proof/
+console-gauge-and-boxes.png and console-blank-state.png. Tests use a simulated camera image through
+the real GaugeService, FrameOverlay, bridge API and console React page with API routing to the test
+bridge. Filling the UI depth field with 2.5 and stddev with 0 yielded Water gauge 2.50 ft. Valid gauge
+pose seeded both car and tray regions; a blank frame cleared boxes and returned ft=null. The separate
+video depth caption is removed. Blank/stale output suppresses the manual gauge value.
+Automatic approval rejected restarting the live dashboard. Source and desktop package are updated,
+but the old live process needs restarting before these changes are active.

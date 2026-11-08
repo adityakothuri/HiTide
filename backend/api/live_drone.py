@@ -161,3 +161,29 @@ async def gauge_overlay() -> Response:
     if response.is_error or not response.headers.get("content-type", "").startswith(JPEG_TYPE):
         raise HTTPException(status_code=503, detail="Tello bridge has no gauge overlay")
     return Response(content=response.content, media_type=JPEG_TYPE, headers=NO_STORE)
+class OverlayConfigIn(BaseModel):
+    enabled: bool | None = None
+    water: bool | None = None
+    car: bool | None = None
+    tray: bool | None = None
+    labels: bool | None = None
+    demo_depth: float | None = Field(None, ge=0, le=100)
+    demo_stddev: float = Field(0.02, ge=0, le=100)
+    car_points: list[tuple[float, float]] | None = Field(None, min_length=4, max_length=4)
+    tray_points: list[tuple[float, float]] | None = Field(None, min_length=4, max_length=4)
+
+
+@router.post("/analysis/config", dependencies=[Depends(require_trusted_origin)])
+async def overlay_config(body: OverlayConfigIn) -> dict[str, Any]:
+    return await _forward("/analysis/config", body.model_dump(exclude_unset=True))
+
+
+@router.get("/analysis/render-status")
+async def overlay_status() -> dict[str, Any]:
+    try:
+        async with _client(STATUS_TIMEOUT) as client:
+            response = await client.get("/analysis/render-status")
+            response.raise_for_status()
+            return response.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail="Live analysis unavailable") from exc

@@ -202,3 +202,10 @@ POSTs use the trusted-origin guard and return 503 when the bridge is offline, or
 - `car_level`: `none`, `wheels`, `doors`, `windows` or `roof` (the `VisionResult.water_level` vocabulary), or null.
 - `confidence`: 0 to 1; capped lower when `has_baseline` is false (dye-hue only).
 - `simulated`: true when the frame was synthetic (`gauge.synth`); label it "SIMULATED" in the UI.
+## Frame-synchronous live overlay
+GET /api/live-drone/analysis/render-status returns processing_ms and aligned region names.
+POST /api/live-drone/analysis/config forwards enabled, water, car, tray, labels, demo_depth (null or
+0..100 ft), and car_points/tray_points (four camera-pixel corners) to the local bridge. Manual depth
+is displayed as DEMO and has a bounded 0.03 ft animation. Vehicle labels contain no depth.
+Overlay config also accepts demo_stddev in ft (0..100, default 0.02). The demo depth follows smooth
+Gaussian variation with this long-run standard deviation, clipped to a nonnegative displayed depth.

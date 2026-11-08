@@ -55,7 +55,19 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 
 Next: Phase 2/3 per the planner breakdown. Shared world state and routing, movement, outreach guard (TDD), pre-trip route check (TDD), en-route lookahead, stop detection and escalation (TDD), then the demo scenario. Frontend team: see `docs/api-contract.md`. The live data is ready.
 
+The tag-free drone gauge now reads straight-on stand views in simulation. Physical-print verification is pending. See section 9 of [the drone gauge handoff](../docs/AGENT_HANDOFF_drone_gauge.md).
+
 ## Related
 
 - [[Decisions]] for the dated log
 - `vault/Experiments/` folder for runs and what broke
+
+Demo overlay tracking startup fixed and verified through the browser Anchor button with moving frames. See the drone gauge handoff.
+Live drone overlay now combines per-frame blue-dye regions with gauge-measured depth, CAD car projection and tray outline. Automatic gauge start and periodic pose refresh added. Local dashboard security audit fixes applied. See the drone gauge handoff.
+Console and drone dashboard now share frame-synchronous annotations, user-aligned vehicle/tray tracking,
+visibility controls and explicitly labelled manual demo depth. See drone gauge handoff for timings and validation.
+Dedicated Drone tab is live at /drone, with just the drone workflow and shared controls.
+Demo depth standard deviation is configurable in the Drone tab and dashboard. The large Drone heading was removed.
+Gauge presentation update verified with browser screenshots. Manual depth now feeds the Water gauge card,
+with default empty state on blank video. Valid gauge poses automatically seed tracked car/tray boxes.
+Live restart was blocked by automatic approval and remains pending.

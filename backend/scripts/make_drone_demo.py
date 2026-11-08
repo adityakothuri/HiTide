@@ -84,7 +84,7 @@ def build(out: Path = DEFAULT_OUT) -> Path:
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
-    for name in ("tello_dashboard.py", "tello_dashboard.html"):
+    for name in ("tello_dashboard.py", "tello_dashboard.html", "live_overlay.py"):
         shutil.copy2(SCRIPTS / name, out / name)
     shutil.copytree(GAUGE, out / "gauge", ignore=shutil.ignore_patterns("tests", "__pycache__", "*.pyc"))
     (out / "tray").mkdir()

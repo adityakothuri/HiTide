@@ -133,6 +133,8 @@
   .depth-table td.rise { color: var(--magenta); font-weight: 700; }
   .depths details summary { cursor: pointer; margin-top: 6px; font: 600 11px var(--display); letter-spacing: 1px;
                             color: var(--cyan); }
+  main { min-height: 100vh; }
+  #demo-controls { margin: 16px 24px 32px; }
   .demo-boxes { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
   .demo-boxes[hidden] { display: none; }
   .demo-water { fill: rgb(0 240 255 / 22%); stroke: var(--cyan); stroke-width: 3; filter: drop-shadow(0 0 6px var(--cyan)); }
@@ -295,9 +297,11 @@
         <span id="ov-lift" hidden></span>
         <span class="rec">LIVE</span>
       </div>
-      <!-- Hardcoded demo overlay. viewBox = the 960x720 frame; "meet" matches the video's object-fit: contain. -->
+      <!-- Live water contours in camera coordinates. -->
       <svg class="demo-boxes" id="demo-boxes" viewBox="0 0 960 720" preserveAspectRatio="xMidYMid meet" hidden>
-        <polygon class="demo-water" id="demo-water"></polygon>
+        <polygon id="demo-tray" fill="none" stroke="#00f0ff" stroke-width="2"></polygon>
+        <text id="demo-tray-label" class="demo-label water"></text>
+        <path class="demo-water" id="demo-water" fill-rule="evenodd"></path>
         <text class="demo-label water" id="demo-water-label"></text>
         <polygon class="demo-car" id="demo-car"></polygon>
         <text class="demo-label car" id="demo-car-label"></text>
@@ -312,14 +316,6 @@
   </section>
 
   <aside class="side">
-    <div class="card" aria-labelledby="demo-h">
-      <h2 id="demo-h">Demo overlay</h2>
-      <div class="buttons">
-        <button id="demo-toggle" title="Show the car box and water outline (key B)">Demo boxes: off</button>
-        <button class="alt" id="demo-anchor" title="Line the boxes up on this view first; they then follow the tray as the drone moves">Anchor boxes</button>
-      </div>
-      <p class="help">1) Demo boxes on (or press B). 2) With the tray in view, Anchor boxes. 3) Fly: the boxes follow the tray.</p>
-    </div>
     <div class="card">
       <h2>Power cell</h2>
       <div class="battery-row">
@@ -419,6 +415,29 @@
     </div>
   </aside>
 </main>
+    <section id="demo-controls" class="card" aria-labelledby="demo-h">
+      <h2 id="demo-h">Live image analysis</h2>
+      <p id="demo-status" role="status">Waiting for live analysis</p>
+      <div class="buttons">
+        <button id="demo-toggle" title="Show live water analysis (key B)">Demo boxes: off</button>
+        <button class="alt" id="demo-anchor">Analyze now</button>
+        <button class="alt" id="align-car">Align vehicle</button>
+        <button class="alt" id="align-tray">Align tray</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="demo-show-tray" checked> Tray outline</label>
+      <label class="toggle"><input type="checkbox" id="demo-show-water" checked> Water outline</label>
+      <label class="toggle"><input type="checkbox" id="demo-show-car" checked> Vehicle box</label>
+      <label class="toggle"><input type="checkbox" id="demo-show-labels" checked> Labels</label>
+      <label class="toggle">Water depth (ft)
+        <input id="demo-depth" type="number" min="0" max="100" step="0.01" placeholder="Enter water depth">
+      </label>
+      <label class="toggle">Standard deviation (ft)
+        <input id="demo-stddev" type="number" min="0" max="100" step="0.01" value="0.02">
+      </label>
+      <p class="help">Set standard deviation to 0 for a steady value. Clear the field to hide it. Align vehicle with two opposite corners. Align tray with four corners.</p>
+      <p class="help">Blue-dyed water is segmented in each camera frame. Depth requires the calibrated Water gauge above. Blue objects can also match the dye colour.</p>
+    </section>
+
 
 <script>
 const JSON_HEADERS = { "Content-Type": "application/json" };  // the bridge refuses non-JSON POSTs (CSRF guard)
@@ -460,6 +479,7 @@ function addLocalLog(text) {
 }
 
 document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea, select")) return;
   if (AXES[e.code]) { e.preventDefault(); if (!held.has(e.code)) press(e.code, true); return; }
   if (e.repeat) return;
   if (e.code === "KeyT") action("takeoff");
@@ -642,75 +662,107 @@ function renderDepths(g) {
   const depths = Array.isArray(g.depths) && g.ft != null ? g.depths : [];
   $("g-depths").hidden = depths.length === 0;
   const houses = depths.filter((d) => d.id.startsWith("house_"));
-  $("g-depth-main").replaceChildren(...depths.filter((d) => !d.id.startsWith("house_")).map(depthRow));
+  $("g-depth-main").replaceChildren(...depths.filter((d) => d.id !== "car" && !d.id.startsWith("house_")).map(depthRow));
   $("g-depth-houses").replaceChildren(...houses.map(depthRow));
   $("g-depth-houses-label").textContent = `Houses (${houses.filter((d) => d.flooded).length} of ${houses.length} flooded)`;
 }
 
-// ---------- Hardcoded demo overlay ----------
-// EDIT HERE to match your camera framing. Coordinates are frame pixels (960 x 720, top-left origin).
-const DEMO_OVERLAY = {
-  car: { x: 500, y: 455, w: 80, h: 48 },                                    // bounding box on the tiny car
-  carLabel: "VEHICLE  //  WATER 1.0 FT  (DOORS)",
-  water: [[300, 430], [470, 400], [700, 415], [760, 505], [600, 590], [330, 565]],  // water outline
-  waterLabel: "FLOOD WATER  //  2.5 FT DEEP",
+// ---------- Live blue-dye analysis ----------
+const demoVisibility = { tray: true, water: true, car: true, labels: true };
+try {
+  const saved = JSON.parse(localStorage.getItem("demoVisibility") || "{}");
+  for (const key of Object.keys(demoVisibility)) {
+    if (typeof saved[key] === "boolean") demoVisibility[key] = saved[key];
+  }
+} catch { /* defaults when storage is unavailable */ }
+function applyDemoVisibility() {
+  for (const kind of ["tray", "water", "car"]) {
+    $(`demo-${kind}`).style.display = demoVisibility[kind] ? "" : "none";
+    $(`demo-${kind}-label`).style.display = demoVisibility[kind] && demoVisibility.labels ? "" : "none";
+  }
+  configureOverlay(demoVisibility);
+  try { localStorage.setItem("demoVisibility", JSON.stringify(demoVisibility)); } catch {}
+}
+for (const key of Object.keys(demoVisibility)) {
+  const checkbox = $(`demo-show-${key}`);
+  checkbox.checked = demoVisibility[key];
+  checkbox.onchange = () => { demoVisibility[key] = checkbox.checked; applyDemoVisibility(); };
+}
+applyDemoVisibility();
+const DEMO_POLL_MS = 500;
+async function configureOverlay(settings) {
+  try {
+    const response = await fetch("/analysis/config", {method: "POST", headers: JSON_HEADERS, body: JSON.stringify(settings)});
+    if (!response.ok) throw new Error("Settings refused");
+  } catch { $("demo-status").textContent = "Could not update overlay settings"; }
+}
+$("demo-depth").oninput = () => {
+  const field = $("demo-depth");
+  if (field.value === "" || field.validity.valid) configureOverlay({demo_depth: field.value === "" ? null : Number(field.value)});
 };
-
-// The boxes are defined on the anchored view; demoH (homography from the bridge) maps them onto the
-// current view so they stay on the car and water while the drone moves.
-let demoH = null;
-function warp([x, y]) {
-  if (!demoH) return [x, y];
-  const h = demoH, w = h[2][0] * x + h[2][1] * y + h[2][2];
-  return [(h[0][0] * x + h[0][1] * y + h[0][2]) / w, (h[1][0] * x + h[1][1] * y + h[1][2]) / w];
+$("demo-stddev").oninput = () => {
+  const field = $("demo-stddev");
+  if (field.value !== "" && field.validity.valid) configureOverlay({demo_stddev: Number(field.value)});
+};
+let regionPicking = null;
+for (const kind of ["car", "tray"]) {
+  $(`align-${kind}`).onclick = () => {
+    regionPicking = {kind, points: []};
+    document.querySelector(".video").scrollIntoView({block:"center"});
+    $("demo-status").textContent = kind === "car" ? "Click two opposite vehicle corners" : "Click four tray corners around its edge";
+    document.querySelector(".video").classList.add("picking");
+    releaseAll();
+  };
 }
-const pts = (list) => list.map((p) => warp(p).map((v) => v.toFixed(1)).join(",")).join(" ");
-function drawDemoOverlay() {
-  const o = DEMO_OVERLAY, c = o.car;
-  const water = o.water.map(warp);
-  $("demo-water").setAttribute("points", pts(o.water));
-  const top = water.reduce((a, p) => (p[1] < a[1] ? p : a));
-  const wl = $("demo-water-label");
-  wl.setAttribute("x", top[0] - 40); wl.setAttribute("y", top[1] - 14); wl.textContent = o.waterLabel;
-  const carPts = [[c.x, c.y], [c.x + c.w, c.y], [c.x + c.w, c.y + c.h], [c.x, c.y + c.h]];
-  $("demo-car").setAttribute("points", pts(carPts));
-  const base = carPts.map(warp).reduce((a, p) => (p[1] > a[1] ? p : a));
-  const cl = $("demo-car-label");
-  cl.setAttribute("x", base[0] - 80); cl.setAttribute("y", base[1] + 26); cl.textContent = o.carLabel;
+document.querySelector(".video").addEventListener("click", async event => {
+  if (!regionPicking) return;
+  const point = framePoint(event);
+  if (!point) return;
+  regionPicking.points.push(point);
+  addDot(event, regionPicking.points.length);
+  const {kind, points} = regionPicking;
+  if (points.length < (kind === "car" ? 2 : 4)) return;
+  let polygon = points;
+  if (kind === "car") {
+    const [[x1,y1],[x2,y2]] = points;
+    polygon = [[Math.min(x1,x2),Math.min(y1,y2)], [Math.max(x1,x2),Math.min(y1,y2)],
+               [Math.max(x1,x2),Math.max(y1,y2)], [Math.min(x1,x2),Math.max(y1,y2)]];
+  }
+  await configureOverlay({[kind + "_points"]: polygon});
+  regionPicking = null;
+  clearDots();
+  document.querySelector(".video").classList.remove("picking");
+});
+function drawLiveAnalysis(t) {
+  $("demo-status").textContent = `Frame analysis ${t.processing_ms.toFixed(1)} ms · aligned ${t.regions.join(", ") || "none"}`;
 }
-const DEMO_POLL_MS = 300, DEMO_STALE_S = 1.5;
 async function pollDemo() {
   if (demoOn) {
     try {
-      const t = await (await fetch("/demo/transform")).json();
-      demoH = t.anchored ? t.H : null;
-      $("demo-boxes").classList.toggle("stale", Boolean(t.anchored && t.age_s > DEMO_STALE_S));
-      drawDemoOverlay();
-    } catch { /* bridge busy: keep the last overlay */ }
+      const response = await fetch("/analysis/render-status");
+      if (!response.ok) throw new Error("Analysis unavailable");
+      drawLiveAnalysis(await response.json());
+    } catch {
+      $("demo-status").textContent = "Waiting for live analysis";
+    }
   }
   setTimeout(pollDemo, DEMO_POLL_MS);
 }
-pollDemo();
-$("demo-anchor").onclick = async () => {
-  try {
-    const r = await fetch("/demo/anchor", { method: "POST", headers: JSON_HEADERS, body: "{}" });
-    const { result } = await r.json();
-    gaugeMessage(result === "ok" ? "Demo boxes anchored: they now follow the tray" : `Anchor failed: ${result}`, result === "ok");
-  } catch { gaugeMessage("No connection to the dashboard program", false); }
-};
-let demoOn = false;
-try { demoOn = localStorage.getItem("demoBoxes") === "1"; } catch { /* storage unavailable: default off */ }
+$("demo-anchor").onclick = () => setDemo(true);
+let demoOn = true;
+try { demoOn = localStorage.getItem("liveAnalysis") !== "0"; } catch { /* storage unavailable: default off */ }
 function setDemo(on) {
   demoOn = on;
-  $("demo-boxes").hidden = !on;
-  $("demo-toggle").textContent = `Demo boxes: ${on ? "on" : "off"}`;
-  try { localStorage.setItem("demoBoxes", on ? "1" : "0"); } catch { /* ignore */ }
+  $("demo-boxes").setAttribute("hidden", "");
+  configureOverlay({enabled: on});
+  $("demo-toggle").textContent = `Live analysis: ${on ? "on" : "off"}`;
+  try { localStorage.setItem("liveAnalysis", on ? "1" : "0"); } catch { /* ignore */ }
 }
-drawDemoOverlay();
 setDemo(demoOn);
+pollDemo();
 $("demo-toggle").onclick = () => setDemo(!demoOn);
 document.addEventListener("keydown", (e) => {  // B toggles the demo boxes
-  if (e.code === "KeyB" && !e.repeat && !picking) setDemo(!demoOn);
+  if (e.code === "KeyB" && !e.target.closest("input, textarea, select") && !e.repeat && !picking) setDemo(!demoOn);
 });
 
 function poseText(g) {

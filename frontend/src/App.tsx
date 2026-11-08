@@ -6,6 +6,7 @@ import { Wordmark } from './ui/Wordmark'
 import { Disclaimer } from './ui/Footer'
 import { TexasMonitor } from './evidence/TexasMonitor'
 import { Operations } from './evidence/Operations'
+import { Drone } from './evidence/Drone'
 
 function Index() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
   const path = window.location.pathname.replace(/\/+$/, '')
   if (path === '' || path === '/texas') return <TexasMonitor />
   if (path === '/console') return <Operations />
+  if (path === '/drone') return <Drone />
   return (
     <StoreProvider>
       <TipProvider>

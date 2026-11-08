@@ -274,6 +274,77 @@ def _faces(model: TrayModel, pose: Pose, facing: str | None) -> bool:
     return cam[1] < d / 2 and off_axis <= FACING_TOLERANCE_DEG
 
 
+def _oriented_distances(gray: np.ndarray, edges: np.ndarray) -> np.ndarray:
+    """Distance to edges parallel to each candidate projected rim direction."""
+    gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0)
+    gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1)
+    normal = np.arctan2(gy, gx)
+    bins = 12
+    oriented = []
+    for angle in np.arange(bins) * np.pi / bins:
+        aligned = (edges > 0) & (np.abs(np.sin(normal - angle)) > np.cos(np.radians(20)))
+        oriented.append(np.minimum(cv2.distanceTransform((~aligned).astype(np.uint8), cv2.DIST_L2, 3),
+                                   CHAMFER_CAP_PX))
+    return np.stack(oriented)
+
+
+def _stand_fit(frame: np.ndarray, model: TrayModel, cam: Intrinsics) -> tuple[float, Pose]:
+    """Fit the level stand setup, using all four sides of the elevated rim."""
+    gray = cv2.GaussianBlur(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (5, 5), 0)
+    edges = cv2.Canny(gray, 8, 24)
+    dt = np.minimum(cv2.distanceTransform(255 - edges, cv2.DIST_L2, 3), CHAMFER_CAP_PX)
+    oriented = _oriented_distances(gray, edges)
+    bins = len(oriented)
+    # Subsample the terrain during the search. The winning pose gets a full-resolution score.
+    terrain = _edge_points(model)[::6]
+    outline = _outline(model, model.rim_top_mm)
+    centre = np.array([*np.divide(model.size_mm[:2], 2), model.rim_top_mm])
+
+    def evaluate(params):
+        angle, back, height, lateral = params
+        a = np.radians(angle)
+        forward = np.array([np.cos(a), np.sin(a), 0.])
+        right = np.array([np.sin(a), -np.cos(a), 0.])
+        rotation = np.stack((right, [0., 0., -1.], forward))
+        position = centre - back * forward + np.array([0., 0., height]) + lateral * right
+        pose = Pose(cv2.Rodrigues(rotation)[0].ravel(), -rotation @ position)
+        px, _ = project(outline, cam, pose)
+        xy = np.rint(px).astype(int)
+        h, w = dt.shape
+        visible = (xy[:, 0] >= 0) & (xy[:, 0] < w) & (xy[:, 1] >= 0) & (xy[:, 1] < h)
+        cost = np.full(len(xy), CHAMFER_CAP_PX)
+        corners = px[::BOUNDARY_POINTS_PER_SIDE]
+        vectors = np.roll(corners, -1, axis=0) - corners
+        directions = np.rint(np.arctan2(vectors[:, 1], vectors[:, 0]) * bins / np.pi).astype(int) % bins
+        side_bins = np.repeat(directions, BOUNDARY_POINTS_PER_SIDE)
+        cost[visible] = oriented[side_bins[visible], xy[visible, 1], xy[visible, 0]]
+        # Penalize the worst side so a sharp front wall alone cannot win.
+        sides = cost.reshape(4, -1).mean(axis=1)
+        return sides.mean() + sides.max() + _score(dt, terrain, cam, pose), pose
+
+    # Seed from the demo stand dimensions (mm), then fit distance, height and lateral offset.
+    starts = [np.array([az, back, back * slope, 0.])
+              for az in range(35, 146, 5) for back in (410., 430., 450.)
+              for slope in (0.35, 160. / 430., 0.39)]
+    best = None
+    for params in sorted(starts, key=lambda p: evaluate(p)[0])[:4]:
+        score, pose = evaluate(params)
+        for step in (4., 2., 1., 0.5):
+            for _ in range(6):
+                previous = score
+                for offset in np.diag([step, step * 2, step, step]):
+                    for sign in (-1, 1):
+                        trial = params + sign * offset
+                        value, candidate = evaluate(trial)
+                        if value < score:
+                            params, pose, score = trial, candidate, value
+                if previous == score:
+                    break
+        if best is None or score < best[0]:
+            best = score, pose
+    return best
+
+
 def solve_rim_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
                    corners_px: np.ndarray | None = None, dt: np.ndarray | None = None,
                    facing: str | None = None) -> RimFit | None:
@@ -287,6 +358,12 @@ def solve_rim_pose(frame_bgr: np.ndarray, model: TrayModel, cam: Intrinsics,
         return solve_clicked_pose(frame_bgr, model, cam, corners_px)
     dt = edge_distance(frame_bgr) if dt is None else dt
     pts = _edge_points(model)
+    if facing == "flood_watch":
+        outline_cost, stand = _stand_fit(frame_bgr, model, cam)
+        if outline_cost < 8.0:
+            score = _score(dt, pts, cam, stand)
+            if score <= MAX_MEAN_CHAMFER_PX:
+                return RimFit(PoseFix(stand, score, (), camera_position_mm(stand)), cam, score, float("inf"), "rim")
     quads = detect_tray_quads(frame_bgr)
     candidates = []
     for quad in quads:

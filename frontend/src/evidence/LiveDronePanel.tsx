@@ -1,3 +1,4 @@
+import { LiveOverlayControls, configureLiveOverlay } from './LiveOverlayControls'
 import { useEffect, useRef, useState } from 'react'
 import { Battery, Camera, Crosshair, Droplets, ExternalLink, Gauge, OctagonX, PlaneLanding, PlaneTakeoff, Play, Radio, Square, Thermometer, Timer } from 'lucide-react'
 import s from './LiveDronePanel.module.css'
@@ -24,6 +25,7 @@ export type CarLevel = 'none' | 'wheels' | 'doors' | 'windows' | 'roof'
 
 /** Contract: docs/api-contract.md, "Gauge tray water level". Estimate fields are null until the first reading. */
 export type GaugeStatus = {
+  depth_source?: 'manual'
   gauge: 'online' | 'offline' | 'unavailable'
   enabled?: boolean
   running?: boolean
@@ -175,7 +177,7 @@ function DepthRow({ depth }: { depth: LocationDepth }) {
 
 /** Same logic as the real system: before = CAD ground at normal pool, now = measured surface minus ground. */
 function DepthTable({ depths }: { depths: LocationDepth[] }) {
-  const main = depths.filter((d) => !d.id.startsWith('house_'))
+  const main = depths.filter((d) => d.id !== 'car' && !d.id.startsWith('house_'))
   const houses = depths.filter((d) => d.id.startsWith('house_'))
   const head = (
     <thead><tr><th scope="col">Place</th><th scope="col">Before</th><th scope="col">Now</th><th scope="col">Change</th></tr></thead>
@@ -229,7 +231,7 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
   const note = gaugeNote(gauge)
   const stale = online && isStale(gauge)
   const { startRef, stopRef, handOffFrom } = useHandOffFocus(gauge.enabled)
-  const reading = hasLevel ? `${feet(gauge.ft ?? 0)} ft` : '— ft'
+  const reading = hasLevel ? `${gauge.depth_source === 'manual' ? (gauge.ft ?? 0).toFixed(2) : feet(gauge.ft ?? 0)} ft` : '— ft'
   const range = hasLevel ? rangeText(gauge.ft_range) : 'No reading'
   const crossing = gauge.crossing_flooded == null ? '—' : gauge.crossing_flooded ? 'Flooded' : 'Clear'
   const houses = gauge.houses_flooded == null ? '—' : `${gauge.houses_flooded} / ${gauge.houses_total ?? '?'}`
@@ -290,6 +292,10 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
 function feedState(status: LiveDroneStatus | null) {
   if (!status || status.bridge === 'offline') return { live: false, label: 'Cached footage', note: 'No live drone connected. Start the Tello bridge to stream the real drone.' }
   if (status.bridge === 'outdated') return { live: false, label: 'Bridge outdated', note: 'Restart the Tello dashboard so it reports connection state.' }
+  if (status.video_age != null && status.video_age >= VIDEO_STALE_S) return {
+    live: true, label: 'Video stale', note: 'Showing the last drone frame. Waiting for live video to resume.',
+  }
+  if (status.video_age != null && status.video_age < VIDEO_STALE_S) return {live: true, label: 'Live', note: ''}
   if (!status.connected) return { live: false, label: 'Link lost', note: 'Bridge running, no telemetry from the drone. Is the laptop on the TELLO Wi-Fi and the drone on?' }
   const videoFresh = status.video_age != null && status.video_age < VIDEO_STALE_S
   return videoFresh ? { live: true, label: 'Live', note: '' } : { live: false, label: 'Acquiring video', note: 'Drone connected. Waiting for the camera feed.' }
@@ -309,6 +315,7 @@ export function LiveDronePanel() {
   const [brokenOverlayTs, setBrokenOverlayTs] = useState<number | null>(null)
   const [picks, setPicks] = useState<{ frame: [number, number]; dot: [number, number] }[] | null>(null)
   const feedImage = useRef<HTMLImageElement>(null)
+  const [aligning, setAligning] = useState<{kind: 'car' | 'tray'; points: [number, number][]} | null>(null)
 
   useEffect(() => {
     if (!picks) return undefined
@@ -327,6 +334,7 @@ export function LiveDronePanel() {
         const response = await fetch('/api/live-drone/status', { signal: controller.signal, cache: 'no-store' })
         if (response.ok) {
           const next = await response.json() as LiveDroneStatus
+          if (typeof next.connected === 'boolean' && !next.bridge) next.bridge = 'online'
           // Reopen the MJPEG stream whenever the feed comes back, so a reconnect shows fresh video.
           const live = feedState(next).live
           if (live && !wasLive.current) setStreamKey((key) => key + 1)
@@ -394,6 +402,27 @@ export function LiveDronePanel() {
 
   async function pickAt(event: React.MouseEvent<HTMLDivElement>) {
     const img = feedImage.current
+    if (aligning && img) {
+      const point = framePoint(img, event.clientX, event.clientY)
+      if (!point) return
+      const points = [...aligning.points, point]
+      if (points.length < (aligning.kind === 'car' ? 2 : 4)) {
+        setAligning({ ...aligning, points })
+        return
+      }
+      let polygon = points
+      if (aligning.kind === 'car') {
+        const [[x1,y1],[x2,y2]] = points
+        polygon = [[Math.min(x1,x2),Math.min(y1,y2)], [Math.max(x1,x2),Math.min(y1,y2)],
+          [Math.max(x1,x2),Math.max(y1,y2)], [Math.min(x1,x2),Math.max(y1,y2)]]
+      }
+      try {
+        await configureLiveOverlay({ [aligning.kind + '_points']: polygon })
+        setGaugeMessage('Aligned to the live view')
+      } catch { setGaugeMessage('Could not align the live overlay') }
+      setAligning(null)
+      return
+    }
     if (!picks || !img) return
     const point = framePoint(img, event.clientX, event.clientY)
     if (!point) return
@@ -423,7 +452,7 @@ export function LiveDronePanel() {
         <span className={feed.live ? s.liveTag : s.cachedTag}><Radio size={13} />{feed.label}</span>
       </div>
       <div className={s.body}>
-        <div className={`${s.feed} ${picks ? s.feedPicking : ''}`} onClick={(event) => void pickAt(event)}>
+        <div className={`${s.feed} ${picks || aligning ? s.feedPicking : ''}`} onClick={(event) => void pickAt(event)}>
           {picks?.map((p, i) => <span key={i} className={s.cornerDot} style={{ left: p.dot[0], top: p.dot[1] }}>{i + 1}</span>)}
           {showOverlay
             ? <img src={`/api/live-drone/gauge/overlay.jpg?t=${gauge.ts}`} alt="Gauge tray overlay: detected tags and flooded cells tinted"
@@ -431,7 +460,7 @@ export function LiveDronePanel() {
             : feed.live
             ? <img ref={feedImage} key={streamKey} src="/api/live-drone/video" alt="Live camera feed from the drone" />
             : <img src={status?.fallback_image_url ?? '/static/drone/flood_03.jpg'} alt="Cached drone image of a flooded road (not live)" />}
-          {!feed.live && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
+          {feed.label !== 'Live' && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
         </div>
         <div className={s.side}>
           <dl className={s.telemetry}>
@@ -459,6 +488,13 @@ export function LiveDronePanel() {
             onPickCorners={startPicking} onClearCorners={() => void clearCorners()} />
         </div>
       </div>
+      <LiveOverlayControls onAlign={kind => {
+        setOverlayWanted(false)
+        setPicks(null)
+        setAligning({kind, points: []})
+        setGaugeMessage(kind === 'car' ? 'Click two opposite vehicle corners' : 'Click four tray corners around the rim')
+        feedImage.current?.scrollIntoView({block: 'center'})
+      }} />
     </section>
   )
 }

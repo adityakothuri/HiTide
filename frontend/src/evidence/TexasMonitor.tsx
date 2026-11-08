@@ -171,7 +171,7 @@ export function TexasMonitor() {
     <a className={s.skip} href="#texas-main">Skip to Texas monitoring</a>
     <header className={s.header}>
       <a href="/" className={s.brand}><span className={s.brandMark}><img src="/hitide-logo.png" alt="" width={44} height={44} /></span><span>HiTide<span className={s.brandSub}>HACKUTD 2026</span></span></a>
-      <nav aria-label="Main"><a href="/texas" aria-current="page">Texas monitor</a><a href="/console">Kerrville test case</a></nav>
+      <nav aria-label="Main"><a href="/texas" aria-current="page">Texas monitor</a><a href="/console">Kerrville test case</a><a href="/drone">Drone</a></nav>
     </header>
     <main id="texas-main" className={s.main}>
       <div className={s.pageHeading}><div><h1>Texas flood monitor</h1>

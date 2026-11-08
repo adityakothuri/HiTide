@@ -190,3 +190,20 @@ def test_clicks_going_round_either_way_are_accepted(tray, az):
         fit = rim.solve_rim_pose(frame, tray, camera.tello_default(), corners_px=clicks)
         assert fit is not None and rim.rim_problem(fit) is None
         assert _image_error_px(tray, cam, pose, fit) < 3.0
+
+
+@pytest.mark.parametrize("az", [80, 90, 105])
+def test_automatic_stand_reads_from_front(tray, az):
+    cam = camera.tello_default()
+    pose = _level_pose(tray, 160, 430, az)
+    reader = GaugeReader(tray, facing="flood_watch")
+
+    def frame(ft, seed):
+        level = None if ft is None else model.level_mm(tray, ft)
+        return synth.render(tray, cam, pose, level, draw_tags=False, noise=synth.Noise.modest(),
+                            rng=np.random.default_rng(seed))
+
+    assert reader.set_baseline(frame(None, 40))[0]
+    for ft in (1.5, 3.5, 4.5):
+        estimate = reader.read(frame(ft, int(ft) + 41))
+        assert estimate.ft == ft, (az, ft, estimate.reason)

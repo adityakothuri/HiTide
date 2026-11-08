@@ -239,9 +239,10 @@ class GaugeService:
     def __init__(self, frame_source: Callable[[], np.ndarray | None], note: Callable[[str], None],
                  reader_factory: Callable[[], GaugeReaderLike] = default_gauge_reader,
                  encoder: Callable[[np.ndarray], bytes | None] = encode_jpeg,
-                 interval: float = 1 / GAUGE_HZ) -> None:
+                 interval: float = 1 / GAUGE_HZ, geometry_sink=None) -> None:
         self._frame_source = frame_source  # RGB frames, as djitellopy delivers them
         self._note = note
+        self._geometry_sink = geometry_sink
         self._reader_factory = reader_factory
         self._encoder = encoder
         self._interval = interval
@@ -255,6 +256,7 @@ class GaugeService:
         self.enabled = False
         self.has_baseline = False
         self.corners: list[list[float]] | None = None  # clicked tray corners (frame px), tag-free pose
+        self.geometry: dict[str, Any] = {}
         self.estimate: dict[str, Any] = {}
         self.overlay_jpeg: bytes | None = None
         self.error: str | None = None
@@ -416,6 +418,8 @@ class GaugeService:
             with self._reader_lock:
                 estimate = reader.update(frame_bgr)
                 overlay = reader.overlay(frame_bgr, estimate)
+                geometry_reader = getattr(reader, "scene_geometry", None)
+                geometry = geometry_reader(frame_bgr) if geometry_reader else {}
             data = jsonable(estimate.to_dict())
             jpeg = self._encoder(overlay)
         except Exception as exc:  # noqa: BLE001 - contain reader faults
@@ -423,6 +427,9 @@ class GaugeService:
             self._record_error("Reader", exc)
             return
         record_event("reading", frame=frame_bgr, overlay=jpeg, estimate=data, corners=self.corners)
+        if self._geometry_sink and data.get("ft") is not None and not data.get("reason"):
+            self._geometry_sink(frame_bgr, geometry)
+        self.geometry = jsonable(geometry)
         self.estimate = data
         self.overlay_jpeg = jpeg  # None on an encode failure: never pair an old overlay with a new estimate
         if jpeg is None:
@@ -454,6 +461,7 @@ class GaugeService:
         ts = estimate["ts"]
         fresh_ts = isinstance(ts, (int, float)) and not isinstance(ts, bool) and ts > 0
         return {
+            "scene": self.geometry,
             "gauge": "online" if self._reader is not None else "unavailable",
             "enabled": self.enabled,
             "running": self.running,
@@ -760,7 +768,9 @@ class Drone:
                 if frame is not None and frame is not last_frame:
                     last_frame = frame
                     self.frame_at = time.time()
-                    ok, buf = cv2.imencode(".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR), params)
+                    renderer = getattr(self, "live_overlay", None)
+                    image = renderer.render(frame) if renderer else cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                    ok, buf = cv2.imencode(".jpg", image, params)
                     if ok:
                         self.jpeg = buf.tobytes()
             except Exception as exc:
@@ -1016,6 +1026,7 @@ class DemoTracker:
         self._ref: tuple[Any, np.ndarray] | None = None
         self._h: np.ndarray | None = None
         self._ts = 0.0
+        self._matched_frame = None
         self._inliers = 0
         self._last: tuple[Any, np.ndarray, np.ndarray] | None = None  # last tracked frame + its H
 
@@ -1031,7 +1042,9 @@ class DemoTracker:
             return "not enough detail in view to track"
         with self._lock:
             self._ref, self._h, self._ts, self._inliers = (kp, des), np.eye(3), time.time(), len(kp)
+            self._matched_frame = frame
             self._last = (kp, des, np.eye(3))
+            record_event("demo_anchor_frame", frame=rgb_to_bgr(frame), features=len(kp))
         return "ok"
 
     def transform(self) -> dict[str, Any]:
@@ -1039,10 +1052,14 @@ class DemoTracker:
             if self._ref is None:
                 return {"anchored": False}
             frame = self._frames()
-            if frame is not None:
+            if frame is not None and frame is not self._matched_frame:
+                self._matched_frame = frame
                 self._match(frame)
-            return {"anchored": True, "H": None if self._h is None else self._h.tolist(),
+            result = {"anchored": True, "H": None if self._h is None else self._h.tolist(),
                     "inliers": self._inliers, "age_s": round(time.time() - self._ts, 2)}
+
+            record_event("demo_transform", **result)
+            return result
 
     def _match(self, frame: np.ndarray) -> None:
         kp, des = self._features(frame)
@@ -1076,8 +1093,31 @@ class DemoTracker:
         return h, int(mask.sum())
 
 
+def displayed_gauge(gauge, drone):
+    status = gauge.status()
+    renderer = getattr(drone, "live_overlay", None)
+    if renderer is None:
+        return status
+    visible, value = renderer.gauge_value()
+    if not visible:
+        status.update({key: None for key in ESTIMATE_FIELDS})
+        status["reason"] = "Waiting for visible tray or water"
+    elif value is not None:
+        status.update({key: None for key in ESTIMATE_FIELDS})
+        status.update(ft=round(value, 2), ts=time.time(), age_s=0, reason=None, depth_source="manual")
+    return status
+
+
 def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTracker | None = None):
+    from live_overlay import LiveAnalysis, FrameOverlay
+    if drone is not None and not hasattr(drone, "live_overlay"):
+        drone.live_overlay = FrameOverlay()
+    analysis = LiveAnalysis(lambda: drone.latest_frame(), record_event)
     class Handler(BaseHTTPRequestHandler):
+        def setup(self):
+            super().setup()
+            self.connection.settimeout(3.0)
+
         def log_message(self, *args) -> None:  # keep the console readable
             pass
 
@@ -1086,6 +1126,8 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTrac
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Frame-Options", "DENY")
+            self.send_header("Content-Security-Policy", "frame-ancestors 'none'")
             self.end_headers()
             self.wfile.write(body)
 
@@ -1094,12 +1136,10 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTrac
 
         def _refused(self, is_post: bool) -> bool:
             problem = request_problem(self.headers, is_post)
+            origin = self.headers.get("Origin")
+            if origin and urlsplit(origin).port != self.server.server_address[1]:
+                problem = (403, "origin port not allowed")
             if problem:
-                if is_post:  # read the (small) body first: closing with unread data resets the socket on Windows
-                    try:
-                        self.rfile.read(max(0, min(int(self.headers.get("Content-Length", 0)), MAX_BODY_BYTES)))
-                    except (ValueError, OSError):
-                        pass
                 self._json({"error": problem[1]}, problem[0])
             return problem is not None
 
@@ -1118,6 +1158,14 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTrac
                 self._stream_video()
             elif route.startswith("/gauge/"):
                 self._gauge_get(route)
+            elif route == "/analysis/render-status":
+                renderer = drone.live_overlay
+                with renderer.lock:
+                    self._json({"processing_ms": renderer.ms, "regions": list(renderer.regions)})
+            elif route == "/analysis/status":
+                result = analysis.status()
+                result["gauge"] = displayed_gauge(gauge, drone) if gauge else {}
+                self._json(result)
             elif route == "/demo/transform":
                 self._json(demo.transform() if demo else {"anchored": False})
             else:
@@ -1128,7 +1176,7 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTrac
                 return self._json({"error": "gauge not running in this dashboard"}, 503)
             if route == "/gauge/status":
                 try:
-                    return self._json(gauge.status())
+                    return self._json(displayed_gauge(gauge, drone))
                 except Exception as exc:  # noqa: BLE001
                     return self._json({"error": str(exc)}, 503)
             if route == "/gauge/overlay.jpg":
@@ -1140,14 +1188,41 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTrac
             if self._refused(is_post=True):
                 return None
             try:
-                length = max(0, min(int(self.headers.get("Content-Length", 0)), MAX_BODY_BYTES))
+                length = int(self.headers.get("Content-Length", 0))
+                if not 0 <= length <= MAX_BODY_BYTES:
+                    return self._json({"error": "request body too large"}, 413)
                 body = json.loads(self.rfile.read(length) or b"{}")
             except ValueError:
                 return self._json({"error": "bad json"}, 400)
             if not isinstance(body, dict):
                 return self._json({"error": "body must be a JSON object"}, 400)
             route = urlsplit(self.path).path  # same routing as GET: a ?query never changes the target
+            if route == "/analysis/config":
+                allowed = {"enabled", "water", "car", "tray", "labels", "demo_depth", "demo_stddev", "car_points", "tray_points"}
+                if set(body) - allowed:
+                    return self._json({"error": "unknown setting"}, 400)
+                for key, value in body.items():
+                    if key.endswith("_points"):
+                        count = 4
+                        if (not isinstance(value, list) or len(value) != count or
+                            any(not isinstance(p, list) or len(p) != 2 or
+                                any(isinstance(v, bool) or not isinstance(v, (int, float)) or
+                                    not math.isfinite(v) or not 0 <= v <= 4096 for v in p) for p in value)):
+                            return self._json({"error": "send four finite image points"}, 400)
+                    elif key in ("demo_depth", "demo_stddev"):
+                        if (value is None and key == "demo_stddev") or value is not None and (isinstance(value, bool) or not isinstance(value, (int, float))
+                                                  or not math.isfinite(value) or not 0 <= value <= 100):
+                            return self._json({"error": "depth must be between 0 and 100"}, 400)
+                    elif not isinstance(value, bool):
+                        return self._json({"error": "visibility settings must be boolean"}, 400)
+                drone.live_overlay.configure(body)
+                record_event("overlay_config", settings=body)
+                return self._json({"result": "ok"})
             if route == "/rc":
+                values = [body.get(key, 0) for key in ("lr", "fb", "ud", "yaw")]
+                if any(isinstance(value, bool) or not isinstance(value, (int, float)) or
+                       not math.isfinite(value) for value in values):
+                    return self._json({"error": "controls must be finite numbers"}, 400)
                 drone.set_rc(body)
                 return self._json({"result": "ok"})
             if route == "/shutdown":  # a newer dashboard is taking over (localhost only)
@@ -1155,7 +1230,9 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTrac
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return None
             if route == "/demo/anchor":
-                return self._json({"result": demo.anchor() if demo else "demo tracking not running"})
+                result = demo.anchor() if demo else "demo tracking not running"
+                record_event("demo_anchor", result=result)
+                return self._json({"result": result})
             if route.startswith("/gauge/"):
                 data, code = gauge_action(gauge, route.removeprefix("/gauge/"), body)
                 record_event("gauge_action", route=route, request=body, response=data, status=code)
@@ -1230,10 +1307,17 @@ def main() -> None:
     drone = Drone(Tello())
     write_log("Connecting to the drone...")
     drone.start()
-    gauge = GaugeService(frame_source=drone.latest_frame, note=drone.note)
+    from live_overlay import FrameOverlay
+    drone.live_overlay = FrameOverlay()
+    gauge = GaugeService(frame_source=drone.latest_frame, note=drone.note,
+                         geometry_sink=drone.live_overlay.seed_geometry)
     done = threading.Event()
     threading.Thread(target=record_telemetry, args=(drone, done), daemon=True).start()
     gauge.preload()
+    def begin_gauge():
+        gauge._ensure_reader()
+        gauge.start()
+    threading.Thread(target=begin_gauge, daemon=True).start()
     server.RequestHandlerClass = make_handler(drone, gauge, DemoTracker(drone.latest_frame))
     url = f"http://{HOST}:{PORT}"
     print(f"Dashboard running at {url}  (press Ctrl+C here to stop)")

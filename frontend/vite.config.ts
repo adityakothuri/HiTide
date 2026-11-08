@@ -9,6 +9,15 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      '/api/live-drone': {
+        target: 'http://127.0.0.1:8765',
+        changeOrigin: true,
+        rewrite: path => {
+          const bridgePath = path.replace('/api/live-drone', '')
+          return bridgePath === '/gauge' ? '/gauge/status' : bridgePath
+        },
+        headers: { Origin: 'http://127.0.0.1:8765' },
+      },
       '/api': BACKEND,
       '/static': BACKEND,
       '/ws': { target: BACKEND.replace(/^http/, 'ws'), ws: true },
