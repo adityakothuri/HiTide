@@ -1,0 +1,26 @@
+{
+  "action": "Get",
+  "copyright": "Houston TranStar",
+  "apiVersion": "v1.12",
+  "callTimestamp": "10/11/2021 9:36:44 AM",
+  "status": "OK",
+  "result": {
+    "laneclosures": [
+      {
+        "location": "FM-1495 Northbound and southbound at Pine Street Bridge in Freeport ",
+        "roadway": "FM-1495",
+        "lanes": "Total Closure",
+        "duration": "Closed nightly 8:00 PM to 5:00 AM from Monday, October 11 to Thursday, December 16",
+        "detour": "Follow signs for detour.",
+        "status": "Inactive",
+        "agency": "TxDOT",
+        "hotspot": "N",
+        "project": "",
+        "lat": "-1",
+        "lng": "-1",
+        "starttime": "10/11/2021 8:00:00 PM",
+        "endtime": "12/16/2021 5:00:00 AM"
+      }
+    ]
+  }
+}

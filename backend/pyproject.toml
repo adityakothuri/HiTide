@@ -18,6 +18,7 @@ dependencies = [
     "uvicorn[standard]>=0.54.0",
     "pymongo>=4.19.0",
     "scipy>=1.18.1",
+    "rasterio>=1.5.2",
 ]
 
 [project.optional-dependencies]
