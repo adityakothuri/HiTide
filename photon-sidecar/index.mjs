@@ -63,18 +63,31 @@ http.createServer(async (req, res) => {
   }
 }).listen(PORT, "127.0.0.1", () => console.log(`[sidecar] listening on 127.0.0.1:${PORT}`));
 
-for await (const [, message] of app.messages) {
+const OPT_IN_REPLY =
+  "State Farm Flood Watch: you're opted in. We'll only message you during an active flash flood warning. " +
+  "Reply SAFE or HELP if we ever check on you.";
+const welcomed = new Set(); // one confirmation per sender per run, so we never spam
+
+for await (const [space, message] of app.messages) {
   const c = message.content ?? {};
   const text = c.type === "text" ? c.text : c.type === "poll_option" && c.selected ? (c.option?.title ?? c.title ?? "") : null;
   if (!text) continue;
+  const sender = message.sender?.id ?? "";
   try {
     const res = await fetch(`${BACKEND_URL}/api/photon/inbound`, {
       method: "POST", headers: { "content-type": "application/json", "x-sidecar-key": SIDECAR_KEY },
-      body: JSON.stringify({ from: message.sender?.id ?? "", text }),
+      body: JSON.stringify({ from: sender, text }),
       signal: AbortSignal.timeout(5000),
     });
-    if (!res.ok) console.error(`[sidecar] backend rejected inbound reply: HTTP ${res.status}`);
+    if (!res.ok) { console.error(`[sidecar] backend rejected inbound reply: HTTP ${res.status}`); continue; }
+    const body = await res.json().catch(() => ({}));
+    if (body.matched) { console.log(`[sidecar] inbound reply applied to ${body.case_id}: ${body.reply}`); continue; }
+    if (!welcomed.has(sender)) {
+      welcomed.add(sender);
+      await space.send(OPT_IN_REPLY);
+      console.log("[sidecar] sent opt-in confirmation");
+    }
   } catch (err) {
-    console.error(`[sidecar] forward inbound failed: ${redact(err?.message ?? err)}`);
+    console.error(`[sidecar] inbound handling failed: ${redact(err?.message ?? err)}`);
   }
 }
