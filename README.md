@@ -32,6 +32,13 @@ uv run pytest -q                              # core logic tests
 curl -X POST localhost:8000/api/demo/start
 curl -X POST localhost:8000/api/demo/reset
 
+# Hill Country: drones to critical crossings, replaying the real July 4, 2025 flood (Hunt -> Ingram -> Kerrville)
+curl -X POST 'localhost:8000/api/demo/start?scenario=hill_country&speed=150'   # ~2.5 min, 7 beats
+curl localhost:8000/api/region/state | jq '.critical_points[0], .nodes[0].risk'
+uv run python -m scripts.replay_report        # drones vs gauges-only vs naive patrol (two full replays)
+# rebuild the region cache (needs network once): uv sync --extra data-build
+#   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
+
 # frontend (driver view + ops dashboard)
 cd frontend && npm install && npm run dev
 ```
@@ -55,6 +62,7 @@ Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted. Every oth
 | `photon-sidecar/` | Node bridge to Photon Spectrum (`spectrum-ts`) |
 | `data/` | Cached town, synthetic drivers, feed snapshots, drone images |
 | `docs/api-contract.md` | Backend ⇄ frontend contract (REST + WS events) |
+| `docs/drone-critical-points.md` | The drone critical-point math: chokepoints, priority, tours, area risk |
 | `vault/` | Obsidian docs: problem, architecture, decisions, experiments, demo script |
 
 Built with Claude Code + [Everything Claude Code](https://github.com/affaan-m/everything-claude-code). See `vault/Tooling.md`.

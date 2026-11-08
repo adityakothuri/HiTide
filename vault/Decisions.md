@@ -76,3 +76,28 @@ A transcript regex alone matched "okay... hello?" and voicemail greetings as saf
 
 ## 2026-11-07: Claims figure = TDI Harvey average paid auto loss
 $19,943 (Texas Dept. of Insurance data call, about 203k Harvey auto claims). It's Texas and flood-driven, so it fits Kerrville better than a national comprehensive average (about $2.7k across all comp claims). The 10% "would have driven in" share is still our assumption and is labelled as one.
+
+## 2026-11-08: Hill Country replay of the real July 4, 2025 flood
+Area Hunt → Ingram → Kerrville (user choice): rural single-exit communities plus a dense town. The replay uses real USGS gauge series and the real NWS warning times. Camps and RV parks get **generic labels** on screen (user choice). The real event is cited only in the pitch and vault.
+
+## 2026-11-08: Truth vs belief are separate models
+Truth is the gauges with the dead Hunt gauge's outages bridged from the downstream gauge, plus modeled ungauged creeks. Belief is **causal**: only readings already reported, never a future or a dead gauge (python-reviewer findings #1 and #2). Drones are the only way truth enters belief. Without this split the demo couldn't show why drones matter.
+
+## 2026-11-08: Exact chokepoints = k-route intersection + cut test
+Overview §8.2 defines unavoidable points via the routes. The colleague's analysis uses a remove-one reachability test. We use the routes as a superset and the cut test to make it exact.
+
+## 2026-11-08: Terrain-following flight, not ridge + clearance
+Flying at the highest terrain on a leg + 60 m would exceed the 400 ft (122 m) AGL limit over Hill Country valleys. The drones follow the terrain at 80 m AGL and pay climb time instead.
+
+## 2026-11-08: Indirect evidence is capped at "likely"
+The overview's additive evidence could reach 0.95 from rain + gauges + model alone. We cap it at 0.85, so only direct evidence (drone, closure, impact point) can say "confirmed".
+
+## 2026-11-08: Information value decays from now when there's no deadline
+Without it the planner was indifferent to visiting order and minimized flight time instead of checking the most valuable point first (found by `test_highest_value_per_second_goes_first`).
+
+## 2026-11-08: Area risk score; objective "move low to high"
+User request: every area gets a 0–100 risk score (access, water, ground height, vulnerability). People move from low, high-risk ground to high ground: every route-out ends at a destination at least 12 m above the nearest waterway, and areas are listed highest risk first.
+
+## 2026-11-08: Region data is committed
+`data/region/hill_country/` is about 12 MB, so the demo is fully offline. The osmnx HTTP cache (`backend/cache/`) is gitignored.
+

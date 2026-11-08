@@ -5,7 +5,7 @@ from __future__ import annotations
 import hmac
 import logging
 import os
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
@@ -49,18 +49,26 @@ async def feeds() -> dict[str, Any]:
     return await all_feeds()
 
 
-SCENARIOS = ("kerrville", "hill_country")
+Scenario = Literal["kerrville", "hill_country"]
+
+
+async def _stop_hill(request: Request) -> None:
+    if getattr(request.app.state, "hill_task", None) is not None and request.app.state.hill_task.done():
+        hill = await get_hill(request.app)
+        await hill.demo.reset()
+        await request.app.state.runtime.hub.emit("region.reset", {"scenario": "hill_country"})
 
 
 @router.post("/api/demo/start", dependencies=[Depends(require_trusted_origin)])
-async def demo_start(request: Request, scenario: str = Query("kerrville"),
+async def demo_start(request: Request, scenario: Scenario = "kerrville",
                      speed: float = Query(150.0, ge=10.0, le=1000.0)) -> dict[str, Any]:
-    if scenario not in SCENARIOS:
-        raise HTTPException(status_code=422, detail=f"scenario must be one of {SCENARIOS}")
+    """One scenario at a time: starting either stops the other. `speed` applies to hill_country."""
     if scenario == "hill_country":
         hill = await get_hill(request.app)
-        hill.demo.start(speed=speed)
+        await rt(request).reset()
+        await hill.demo.start(speed=speed)
         return {"ok": True, "scenario": scenario, "speed": speed}
+    await _stop_hill(request)
     r = rt(request)
     await r.reset()
     r.demo.start()
@@ -68,12 +76,10 @@ async def demo_start(request: Request, scenario: str = Query("kerrville"),
 
 
 @router.post("/api/demo/reset", dependencies=[Depends(require_trusted_origin)])
-async def demo_reset(request: Request, scenario: str = Query("kerrville")) -> dict[str, Any]:
-    if scenario not in SCENARIOS:
-        raise HTTPException(status_code=422, detail=f"scenario must be one of {SCENARIOS}")
+async def demo_reset(request: Request, scenario: Scenario = "kerrville") -> dict[str, Any]:
     if scenario == "hill_country":
         hill = await get_hill(request.app)
-        hill.demo.reset()
+        await hill.demo.reset()
         await request.app.state.runtime.hub.emit("region.reset", {"scenario": scenario})
         return {"ok": True, "scenario": scenario}
     await rt(request).reset()

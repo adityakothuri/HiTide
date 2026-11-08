@@ -54,3 +54,21 @@ Close: "Pre-trip, en route, stopped. Three chances to keep someone out of the wa
 ## Backup
 
 > [!todo] Record a full backup video of a run (ECC `ui-demo` skill).
+
+## Demo B: Hill Country critical points (replay of July 4, 2025)
+
+`curl -X POST 'localhost:8000/api/demo/start?scenario=hill_country&speed=150'` replays 01:00 → 07:30 CDT in about 2.5 min. Beats are detected from the data, not hard-coded. Times below are from the 2026-11-08 run. See [[Critical Point Drones]].
+
+| # | Sim time (CDT) | Beat | What the audience sees |
+|---|---|---|---|
+| 1 | 01:14 | Real Flash Flood Warning | `region.alert`. Crossings near the forks turn unknown. There's no gauge on the South Fork |
+| 2 | 01:14 | Critical point #1 with its score breakdown, plus the top single-exit chokepoint (SH 39 over Cypress Creek: 138 households, 2 camps) | `critical_points.ranked` "why" panel |
+| 3 | ~02:36 | Drone confirms water on a South Fork camp road | `snapshot.created`, a drone path on the map |
+| 4 | ~02:40–02:50 | A riverside camp area is cut off: shelter in place, responders flagged, truck route or boat required | `node.updated`, area risk goes **severe** |
+| 5 | 05:41 | The Hunt gauge goes dark (real: last reading a record 37.52 ft at 05:10) | `gauge.status` offline; drones re-plan |
+| 6 | ~03:00–04:30 | Instructions: Kerrville area gets a route out to high ground (text + poll, Teammate A); cut-off older resident gets a shelter call (Teammate B, "Ruth"); 15 s later her daughter gets a text + call (Teammate C) | Phones; `outreach` |
+| 7 | 07:30 | Counters, including households by risk band | `region.counters` |
+
+**Line to land:** "In this replay the system cut off its first camp area and told it to shelter about 87 minutes before the real Flash Flood Emergency for Hunt went out."
+
+**Say also:** this is a replay on real terrain, real gauges and real warning times. People, flights and snapshots are simulated, and the snapshots are generated from the flood model.

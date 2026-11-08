@@ -33,7 +33,7 @@ async def test_replay_emits_reset_warning_beat_and_drone_flights():
         events.append((t, p))
 
     demo = HillCountryDemo(loop, emit, _Outreach())
-    demo.start(speed=900.0)  # 01:00 -> 01:14 warning in ~1 s of wall time
+    await demo.start(speed=900.0)  # 01:00 -> 01:14 warning in ~1 s of wall time
     try:
         for _ in range(120):
             await asyncio.sleep(0.1)
@@ -41,7 +41,7 @@ async def test_replay_emits_reset_warning_beat_and_drone_flights():
                     t == "drones.update" and any(d["status"] == "flying" for d in p["drones"]) for t, p in events):
                 break
     finally:
-        demo.cancel()
+        await demo.stop()
     types = {t for t, _ in events}
     assert "region.reset" in types and "region.alert" in types
     assert any(t == "demo.step" and p["step"] == 1 for t, p in events)

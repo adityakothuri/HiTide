@@ -8,6 +8,7 @@ Beats are detected from the loop's state, not hard-coded times, so the run follo
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import time
 from typing import Any, Awaitable, Callable
@@ -46,28 +47,42 @@ class HillCountryDemo:
         self.beats: set[int] = set()
         self.sent: dict[str, dict] = {}
         self.background: set[asyncio.Task] = set()
+        self.attempted_a: set[str] = set()
+        # Road names for route messages, built once (review #4: was rebuilt every tick over 8k features).
+        self.names = {f["properties"]["edge_id"]: f["properties"]["name"] for f in loop.region.segments_fc["features"]}
 
     # ---- control --------------------------------------------------------
-    def start(self, speed: float = DEFAULT_SPEED) -> None:
-        self.cancel()
+    async def start(self, speed: float = DEFAULT_SPEED) -> None:
+        await self.stop()
         self.speed = speed
         self.task = asyncio.create_task(self._run())
         self.task.add_done_callback(_log_failure)
 
-    def cancel(self) -> None:
-        for t in [self.task, *self.background]:
-            if t and not t.done():
-                t.cancel()
+    async def stop(self) -> None:
+        """Cancel and wait, so no worker-thread step is still writing when the caller resets."""
+        tasks = [t for t in [self.task, *self.background] if t and not t.done()]
+        for t in tasks:
+            t.cancel()
+        for t in tasks:
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await t
         self.background.clear()
         self.running = False
 
-    def reset(self) -> None:
-        self.cancel()
-        self._clear()
+    def cancel(self) -> None:
+        """Sync best effort for shutdown paths that can't await."""
+        for t in [self.task, *self.background]:
+            if t and not t.done():
+                t.cancel()
+        self.running = False
 
-    def _clear(self) -> None:
-        self.loop.reset_state()
-        self.t, self.beats, self.sent = None, set(), {}
+    async def reset(self) -> None:
+        await self.stop()
+        await self._clear()
+
+    async def _clear(self) -> None:
+        await asyncio.to_thread(self.loop.reset_state)  # takes the loop lock: waits for any in-flight step
+        self.t, self.beats, self.sent, self.attempted_a = None, set(), {}, set()
 
     # ---- run ------------------------------------------------------------
     async def _beat(self, n: int, title: str, detail: str) -> None:
@@ -81,18 +96,24 @@ class HillCountryDemo:
     async def _run(self) -> None:
         replay = self.loop.region.cfg["replay"]
         start, end = epoch(replay["start_local"]), epoch(replay["end_local"])
-        self._clear()  # not reset(): that cancels the task we are running in
+        await self._clear()  # not reset(): that would cancel the task we are running in
         self.running = True
         self.t = start
         await self.emit("region.reset", {"scenario": "hill_country", "sim_time": iso(start)})
         real0 = time.monotonic()
         try:
             while self.t <= end:
-                events = await asyncio.to_thread(self.loop.step, self.t)
-                for typ, payload in events:
-                    await self.emit(typ, {"scenario": "hill_country", **payload})
-                await self.emit("region.counters", {"scenario": "hill_country", "sim_time": iso(self.t), **self.loop.counters()})
-                await self._beats(events)
+                try:
+                    events = await asyncio.to_thread(self.loop.step, self.t)
+                    for typ, payload in events:
+                        await self.emit(typ, {"scenario": "hill_country", **payload})
+                    counters = self.loop.snapshot.get("counters", {})
+                    await self.emit("region.counters", {"scenario": "hill_country", "sim_time": iso(self.t), **counters})
+                    await self._beats(events)
+                except asyncio.CancelledError:
+                    raise
+                except Exception:  # one bad tick must not freeze the demo (review #5)
+                    log.exception("hill country tick failed at %s; continuing", iso(self.t))
                 await asyncio.sleep(TICK_REAL_S)
                 self.t = start + (time.monotonic() - real0) * self.speed  # wall clock: a slow step = bigger dt
             await self._beat(7, "Counters", "Households warned, routes sent, communities cut off, crossings checked by drone.")
@@ -139,13 +160,14 @@ class HillCountryDemo:
     # ---- persona outreach (overview 20, step 5-7) -------------------------
     async def _outreach(self) -> None:
         loop = self.loop
-        names = {e: p["name"] for p in loop.points.values() for e in p["edge_ids"]}
-        names.update({f["properties"]["edge_id"]: f["properties"]["name"] for f in loop.region.segments_fc["features"]})
         if "A" not in self.sent:
-            nid = next((n for n, st in loop.node_state.items()
-                        if st.instruction == "route_out" and loop.nodes[n]["town"] == "Kerrville"), None)
+            nid = next((n for n, st in loop.node_state.items() if st.instruction == "route_out"
+                        and loop.nodes[n]["town"] == "Kerrville" and n not in self.attempted_a), None)
             if nid:
-                route = route_out(loop.graph, loop.nodes[nid]["road_node"], loop.safe, loop.point_of, loop.status, names)
+                self.attempted_a.add(nid)  # try each area once; a None route is not retried every tick
+                status = dict(loop.status)
+                route = await asyncio.to_thread(route_out, loop.graph, loop.nodes[nid]["road_node"], loop.safe,
+                                                loop.point_of, status, self.names)
                 if route:
                     self.sent["A"] = {"node": nid}
                     await self._send("A", "poll", route_message(loop.nodes[nid]["name"], route), ("I'm safe", "I need help", "I've left"))

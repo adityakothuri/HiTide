@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 import random
+import threading
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -19,18 +20,19 @@ import yaml
 
 from app.config import BACKEND_DIR, DATA_DIR, fusion_settings
 from critical.access import NodeAccess, node_access, truck_access
+from critical.area_risk import AreaInputs, area_risk
 from critical.score import Breakdown, NodeUse, PointInput, rank
 from drone.dispatch import distance_m
 from drone.planner import DroneState, FleetProfile, Station, Target, leg, plan
 from fusion.segment_status import DroneObs, Signals, p_flooded, status
-from population.nodes import access_graph
+from population.nodes import access_graph, segment_hand
 from sim.region import Region
 from sim.region_flood import RegionFlood, epoch
 
 WET_IN = 2.0             # water visibly on the road surface
 TRUCK_MAX_IN = 24.0      # high-clearance truck limit (NWS: 2 ft of moving water carries away SUVs/pickups)
 TOP_N = 12
-NEARBY_M = 8000.0     # cut tests only consider flooded points this close to a node (far roads rarely change its exits)
+NEARBY_M = 15000.0    # cut tests consider avoided points this close to a node (region is 34 km wide; review #8)
 EPS_PRIORITY = 0.05
 OPEN_P = 0.15         # below this a point is 'open'; a flight there would not change any instruction
 IMAGES = {"none": "/static/drone/flood_08.jpg", "wheels": "/static/drone/flood_07.jpg",
@@ -62,7 +64,8 @@ class Snapshot:
 @dataclass
 class DroneSim:
     id: str
-    station: Station
+    station: Station                        # where it lands next (nearest station after a tour)
+    home: Station
     lon: float
     lat: float
     battery_s: float
@@ -108,12 +111,17 @@ def load_fleet(profile: str = "production") -> tuple[FleetProfile, float, list[d
 
 
 class CriticalLoop:
-    def __init__(self, region: Region, flood: RegionFlood, profile: str = "production", seed: int = 7):
+    def __init__(self, region: Region, flood: RegionFlood, profile: str = "production", seed: int = 7,
+                 policy: str = "priority"):
         self.region, self.flood = region, flood
+        self.policy = policy          # "priority" (overview 8.4) or "patrol" (baseline: round-robin, same fleet)
+        self.lock = threading.RLock()  # step / reset / snapshot run in worker threads; API reads the snapshot
+        self.snapshot: dict[str, Any] = {}
         data = json.loads((DATA_DIR / "region" / region.id / "nodes.json").read_text())
         self.points = {p["id"]: p for p in data["points"]}
         self.nodes = {n["id"]: n for n in data["nodes"]}
         self.safe = set(data["safe_nodes"])
+        self.households_total = int(data.get("households_total", 0))
         self.point_of = {e: p["id"] for p in self.points.values() for e in p["edge_ids"]}
         self.graph = access_graph(region)
         self.nearby = {nid: frozenset(pid for pid, p in self.points.items()
@@ -124,19 +132,30 @@ class CriticalLoop:
         self.cfg = cfg
         self.stations = [Station(f["station"], f["lon"], f["lat"]) for f in fleet]
         self.station_nodes = {self._snap(s.lon, s.lat) for s in self.stations}
-        self.drones = {f["id"]: DroneSim(f["id"], st, st.lon, st.lat, endurance) for f, st in zip(fleet, self.stations)}
-        self.rng = random.Random(seed)
-        self.reset_state()
+        self.drones = {f["id"]: DroneSim(f["id"], st, st, st.lon, st.lat, endurance) for f, st in zip(fleet, self.stations)}
+        self.seed = seed
+        self.access_cache: dict[tuple, NodeAccess] = {}   # deterministic: kept across resets (review #3)
+        self.truck_cache: dict[tuple, object] = {}
+        self._area_inputs_static()
+        self._reset_state()
+        self.snapshot = self.build_snapshot()
 
     def reset_state(self) -> None:
+        with self.lock:
+            self._reset_state()
+            self.snapshot = self.build_snapshot()
+
+    def _reset_state(self) -> None:
         self.t: float | None = None
+        self.seg_depth: dict[str, float] = {}
         self.obs: dict[str, Snapshot] = {}
         self.p: dict[str, float] = {}
         self.status: dict[str, str] = {}
         self.node_state: dict[str, NodeState] = {nid: NodeState(unavoidable=tuple(n["unavoidable"]), optional=tuple(n["optional"]))
                                                  for nid, n in self.nodes.items()}
-        self.access_cache: dict[tuple, NodeAccess] = {}
-        self.truck_cache: dict[tuple, object] = {}
+        self.rng = random.Random(self.seed)
+        self.any_rising = False
+        self.belief_now: np.ndarray = np.zeros(len(self.region.edge_ids))
         self.ranked: list[Breakdown] = []
         self.alerts: list[dict] = []
         self.gauges_online: dict[str, bool] = {}
@@ -145,8 +164,22 @@ class CriticalLoop:
         self.seg_status: dict[str, str] = {}
         self.points_checked: set[str] = set()
         for d in self.drones.values():
-            d.lon, d.lat, d.state, d.target, d.tour, d.path, d.km_flown = d.station.lon, d.station.lat, "idle", None, (), (), 0.0
-            d.battery_s = FLEET_ENDURANCE[0]
+            d.station = d.home
+            d.lon, d.lat, d.state, d.target, d.tour, d.path, d.km_flown = d.home.lon, d.home.lat, "idle", None, (), (), 0.0
+            d.battery_s, d.hover_until = FLEET_ENDURANCE[0], 0.0
+
+    def _area_inputs_static(self) -> None:
+        """Per node: height above the nearest waterway and its own road segments (for the area risk score)."""
+        hand, _, _ = segment_hand(self.region)
+        by_node: dict[str, list[int]] = {}
+        for i, f in enumerate(self.region.segments_fc["features"]):
+            for end in (str(f["properties"]["u"]), str(f["properties"]["v"])):
+                by_node.setdefault(end, []).append(i)
+        self.node_segments = {nid: by_node.get(n["road_node"], []) for nid, n in self.nodes.items()}
+        self.node_hand = {}
+        for nid, idx in self.node_segments.items():
+            vals = [float(hand[i]) for i in idx if np.isfinite(hand[i])]
+            self.node_hand[nid] = float(np.median(vals)) if vals else math.inf
 
     def _snap(self, lon: float, lat: float) -> str:
         g = self.region.graph
@@ -253,8 +286,10 @@ class CriticalLoop:
     def _advance_drones(self, t: float, dt: float, truth: np.ndarray, truth_prev: np.ndarray) -> list[tuple[str, dict]]:
         events = []
         for d in self.drones.values():
-            if d.state in ("flying", "returning", "snapshot"):
-                d.battery_s = max(0.0, d.battery_s - dt)
+            if d.state in ("flying", "returning"):
+                d.battery_s = max(0.0, d.battery_s - min(dt, max(0.0, d.leg_start + d.leg_time - (t - dt))))
+            elif d.state == "snapshot":
+                d.battery_s = max(0.0, d.battery_s - min(dt, max(0.0, d.hover_until - (t - dt))))
             if d.state in ("flying", "returning"):
                 frac = min(1.0, (t - d.leg_start) / d.leg_time)
                 lon = d.leg_from[0] + (d.leg_to[0] - d.leg_from[0]) * frac
@@ -278,18 +313,23 @@ class CriticalLoop:
 
     def _replan(self, t: float) -> None:
         busy = {d.target for d in self.drones.values() if d.state in ("flying", "snapshot") and d.target}
-        rising = any(self.gauges_online.values())
-        fresh_window = fusion_settings()["fusion"]["decay_half_life_s"]["rising" if rising else "steady"]  # overview 8.6
+        fresh_window = fusion_settings()["fusion"]["decay_half_life_s"]["rising" if self.any_rising else "steady"]  # 8.6
         targets = [Target(b.point_id, self.points[b.point_id]["lon"], self.points[b.point_id]["lat"], b.priority,
                           t + 900 if b.urgency > 1 else None,
                           self.cfg["waterline_hold_s"] if b.urgency > 1 else 0.0)
                    for b in self.ranked[:20]
                    if b.priority > EPS_PRIORITY and b.point_id not in busy
                    and not (b.point_id in self.obs and t - self.obs[b.point_id].t < fresh_window)]
+        if self.policy == "patrol":  # baseline: same fleet sweeps every floodable point, stalest first
+            targets = [Target(pid, p["lon"], p["lat"],
+                              1.0 + (t - self.obs[pid].t if pid in self.obs else 10 * 3600) / 3600.0)
+                       for pid, p in self.points.items() if pid not in busy
+                       and not (pid in self.obs and t - self.obs[pid].t < fresh_window)]
         if not self.alerts:  # drones fly only when there is a warning and real uncertainty (overview 1, 9.1)
             targets = []
         truck = {tp for st in self.node_state.values() for tp in st.truck_points}
-        targets = [tg for tg in targets if self.p.get(tg.point_id, 0.0) >= OPEN_P or tg.point_id in truck]
+        if self.policy == "priority":
+            targets = [tg for tg in targets if self.p.get(tg.point_id, 0.0) >= OPEN_P or tg.point_id in truck]
         free = [d for d in self.drones.values() if d.state == "idle"]
         states = [DroneState(d.id, d.lon, d.lat, d.battery_s) for d in free]
         tours = {tr.drone_id: tr for tr in plan(t, states, targets, self.stations, self.prof, self.region.terrain)} if states else {}
@@ -307,6 +347,23 @@ class CriticalLoop:
 
     # ---- one step -----------------------------------------------------
     def step(self, t: float) -> list[tuple[str, dict]]:
+        with self.lock:
+            events = self._step(t)
+            self.snapshot = self.build_snapshot()
+            return events
+
+    def build_snapshot(self) -> dict[str, Any]:
+        """Immutable view for the REST API (built under the lock, so GETs never see a half-written step)."""
+        t = self.t
+        return json.loads(json.dumps({
+            "sim_time": None if t is None else iso(t), "alerts": list(self.alerts),
+            "gauges": self.flood.gauge_status(t) if t else [],
+            "segments": [{"edge_id": e, "status": st, "belief_depth_in": self.seg_depth.get(e, 0.0)}
+                         for e, st in self.seg_status.items() if st != "open"],
+            "critical_points": self.ranked_public(), "nodes": self.areas_ranked(),
+            "drones": [d.public(t or 0.0) for d in self.drones.values()], "counters": self.counters()}))
+
+    def _step(self, t: float) -> list[tuple[str, dict]]:
         events: list[tuple[str, dict]] = []
         dt = 0.0 if self.t is None else max(0.0, t - self.t)
         self.t = t
@@ -323,9 +380,12 @@ class CriticalLoop:
                 self.force_replan = True
                 events.append(("gauge.status", {**g, "change": "online" if g["online"] else "offline", "at": iso(t)}))
             self.gauges_online[g["site"]] = g["online"]
+        rate = fusion_settings()["fusion"]["rising_ft_per_hr"]
+        self.any_rising = any(g["online"] and (g["rate_ft_per_hr"] or 0) >= rate for g in gauges)  # same test as fusion
         truth, truth_prev = self.flood.truth_depth_in(t), self.flood.truth_depth_in(t - max(dt, 60.0))
         events += self._advance_drones(t, dt, truth, truth_prev)
         belief = self.flood.belief_depth_in(t)
+        self.belief_now = belief
         signals = self._point_signals(t, belief, gauges, warning=bool(self.alerts))
         self.p = {pid: round(p_flooded(s), 3) for pid, s in signals.items()}
         self.status = {pid: status(p) for pid, p in self.p.items()}
@@ -356,8 +416,20 @@ class CriticalLoop:
             s = point_status.get(eid) or ("likely_flooded" if belief[i] >= 6 else "open")
             if self.seg_status.get(eid, "open") != s:
                 self.seg_status[eid] = s
+                self.seg_depth[eid] = round(float(belief[i]), 1)
                 out.append({"edge_id": eid, "status": s, "belief_depth_in": round(float(belief[i]), 1)})
         return out
+
+    def external_snapshot(self, point_id: str, drone_id: str, water_on_road: bool, cover_pct: int) -> dict[str, Any]:
+        """A real (Tello) observation replaces the simulated one for that point; the loop re-plans next step."""
+        with self.lock:
+            t = self.t or 0.0
+            snap = Snapshot(point_id, drone_id, iso(t), t, water_on_road, cover_pct, 0.0, "visual", False, 0,
+                            "medium", self.obs[point_id].image_url if point_id in self.obs else IMAGES["none"], simulated=False)
+            self.obs[point_id] = snap
+            self.points_checked.add(point_id)
+            self.force_replan = True
+            return asdict(snap)
 
     # ---- public views -------------------------------------------------
     def point_public(self, b: Breakdown) -> dict[str, Any]:
@@ -372,12 +444,30 @@ class CriticalLoop:
     def ranked_public(self) -> list[dict[str, Any]]:
         return [self.point_public(b) for b in self.ranked[:TOP_N]]
 
+    def area_risk(self, nid: str):
+        n, st = self.nodes[nid], self.node_state[nid]
+        exits = st.unavoidable + st.optional
+        own = self.node_segments.get(nid, [])
+        return area_risk(AreaInputs(
+            hand_m=self.node_hand.get(nid, math.inf), status=st.status,
+            max_exit_p=max((self.p.get(x, 0.0) for x in exits), default=0.0),
+            own_road_flooded=bool(own) and float(self.belief_now[own].max()) >= WET_IN,
+            older_share=n["older_share"], one_story_share=n["one_story_share"], cars_home_share=n["cars_home_share"]))
+
     def node_public(self, nid: str) -> dict[str, Any]:
         n, st = self.nodes[nid], self.node_state[nid]
+        r = self.area_risk(nid)
+        hand = self.node_hand.get(nid, math.inf)
         return {"id": nid, "name": n["name"], "kind": n["kind"], "town": n["town"], "lon": n["lon"], "lat": n["lat"],
                 "households": n["households"], "status": st.status, "instruction": st.instruction,
+                "risk": {"score": r.score, "band": r.band, "ground": r.ground, "factors": r.factors,
+                         "height_above_water_m": None if math.isinf(hand) else round(max(0.0, hand), 1)},
                 "unavoidable_points": list(st.unavoidable), "optional_points": list(st.optional),
                 "rescue": st.rescue, "reasons": list(st.reasons)}
+
+    def areas_ranked(self) -> list[dict[str, Any]]:
+        """Every area by risk, highest first: the order to move people from low to high ground."""
+        return sorted((self.node_public(n) for n in self.nodes), key=lambda a: (-a["risk"]["score"], a["id"]))
 
     def counters(self) -> dict[str, Any]:
         sts = list(self.node_state.items())
@@ -388,4 +478,13 @@ class CriticalLoop:
                 "households_cut_off": hh(lambda s: s.status == "cut_off"),
                 "points_checked": len(self.points_checked),
                 "drone_km": round(sum(d.km_flown for d in self.drones.values()), 1),
-                "boat_required": sum(1 for _, s in sts if s.rescue == "boat_required")}
+                "boat_required": sum(1 for _, s in sts if s.rescue == "boat_required"),
+                "households_by_risk": self._households_by_risk()}
+
+    def _households_by_risk(self) -> dict[str, int]:
+        out = {"low": 0, "moderate": 0, "high": 0, "severe": 0}
+        for nid, n in self.nodes.items():
+            out[self.area_risk(nid).band] += n["households"]
+        # Homes with no floodable point on any exit sit on high ground: low risk by construction.
+        out["low"] += max(0, self.households_total - sum(n["households"] for n in self.nodes.values() if n["kind"] == "homes"))
+        return out

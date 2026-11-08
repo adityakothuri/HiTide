@@ -20,3 +20,12 @@ priority:
   vulnerability: {older: 0.5, one_story: 0.3, cars_home: 0.3}
   urgency_rising: 1.5
   forecast_horizon_s: 3600
+
+# Area (community) risk score 0-100 (user request 2026-11-08): move people from low, high-risk ground to high ground.
+area_risk:
+  weights: {access: 0.35, water: 0.25, ground: 0.25, vulnerability: 0.15}
+  access: {cut_off: 1.0, at_risk: 0.7, partially_cut_off: 0.4, ok: 0.0}
+  ground_full_m: 15.0      # height above the nearest creek/river at which ground exposure reaches 0
+  low_ground_m: 5.0        # below: "low ground"
+  high_ground_m: 12.0      # at or above: "high ground" (same threshold as safe destinations)
+  bands: {low: 25, moderate: 50, high: 75}   # < low -> low, < moderate -> moderate, < high -> high, else severe

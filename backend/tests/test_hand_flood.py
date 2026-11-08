@@ -70,3 +70,21 @@ def test_vector_interpolation_matches_scalar_including_gaps():
         for sv, v in zip(s, vec):
             scalar = interp_rise_m([dead, DOWN], float(sv), t, C)
             assert (scalar is None and np.isnan(v)) or v == pytest.approx(scalar)
+
+
+def test_fill_gap_fills_a_mid_series_outage_like_the_real_hunt_gauge():
+    """Real data: Hunt dies at 05:10 CDT, then resumes ~34 h later. The fill must cover the gap, not the end."""
+    hunt = _g("hunt", 0.0, [0, 1, 2, 40, 41], [2, 12, 22, 4, 3])
+    filled = fill_gap(hunt, DOWN, lag_s=H, until_s=41 * H)
+    assert list(filled.times) == sorted(filled.times)
+    assert interp_rise_m([filled], 0.0, 3 * H, C) is not None  # inside the outage: now known (truth)
+    assert interp_rise_m([filled], 0.0, 40 * H, C) == pytest.approx(2 * FT_TO_M)  # real later reading untouched
+
+
+def test_belief_is_causal_never_reads_a_gauge_from_the_future():
+    # A point 9 km upstream of DOWN would read DOWN 30 min ahead; a causal (belief) read must not.
+    late = _g("late", 18_000.0, [0, 1, 2, 3], [2, 2, 2, 30])  # jumps at 3 h
+    assert interp_rise_m([late], 9_000.0, 2.4 * H, C) > 0                 # truth: wave already passing
+    assert interp_rise_m([late], 9_000.0, 2.4 * H, C, causal=True) == 0.0  # belief: only what's been reported
+    vec = interp_rise_vec([late], np.array([9_000.0]), 2.4 * H, C, causal=True)
+    assert vec[0] == pytest.approx(0.0)

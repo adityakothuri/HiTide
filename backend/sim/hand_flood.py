@@ -35,6 +35,13 @@ class Gauge:
     stage_ft: np.ndarray
     base_ft: float            # pre-event stage
 
+    def reported_rise_m(self, t: float) -> float | None:
+        """Belief: the last reading at or before t (no interpolation toward a reading that doesn't exist yet)."""
+        k = int(np.searchsorted(self.times, t, side="right")) - 1
+        if k < 0 or t - self.times[k] > MAX_GAP_S:
+            return None
+        return max(0.0, float(self.stage_ft[k]) - self.base_ft) * FT_TO_M
+
     def rise_m(self, t: float) -> float | None:
         if self.times.size == 0 or t < self.times[0] - MAX_GAP_S or t > self.times[-1] + MAX_GAP_S:
             return None
@@ -44,6 +51,13 @@ class Gauge:
             return None
         stage = float(np.interp(t, self.times, self.stage_ft))
         return max(0.0, stage - self.base_ft) * FT_TO_M
+
+    def reported_rise_m_vec(self, ts: np.ndarray) -> np.ndarray:
+        ts = np.asarray(ts, dtype=float)
+        k = np.searchsorted(self.times, ts, side="right") - 1
+        ok = (k >= 0) & (ts - self.times[np.clip(k, 0, None)] <= MAX_GAP_S)
+        rise = np.maximum(0.0, self.stage_ft[np.clip(k, 0, None)] - self.base_ft) * FT_TO_M
+        return np.where(ok, rise, np.nan)
 
     def rise_m_vec(self, ts: np.ndarray) -> np.ndarray:
         """Vector form of rise_m: NaN where there is no reading within MAX_GAP_S."""
@@ -59,11 +73,14 @@ class Gauge:
         return np.where(gap <= MAX_GAP_S, rise, np.nan)
 
 
-def interp_rise_m(gauges: Sequence[Gauge], s: float, t: float, celerity_mps: float) -> float | None:
-    """Rise above base at chainage s: blend the two bracketing reporting gauges, each read with travel lag."""
+def interp_rise_m(gauges: Sequence[Gauge], s: float, t: float, celerity_mps: float,
+                  causal: bool = False) -> float | None:
+    """Rise above base at chainage s: blend the two bracketing reporting gauges, each read with travel lag.
+    causal=True (belief): never read a gauge later than now, and only values it has actually reported."""
     readings = []
     for g in gauges:
-        r = g.rise_m(t - (s - g.s_m) / celerity_mps)
+        read_t = t - (s - g.s_m) / celerity_mps
+        r = g.reported_rise_m(min(read_t, t)) if causal else g.rise_m(read_t)
         if r is not None:
             readings.append((g.s_m, r))
     if not readings:
@@ -78,14 +95,18 @@ def interp_rise_m(gauges: Sequence[Gauge], s: float, t: float, celerity_mps: flo
     return (above[-1] if above else below[0])[1]
 
 
-def interp_rise_vec(gauges: Sequence[Gauge], s: np.ndarray, t: float, celerity_mps: float) -> np.ndarray:
+def interp_rise_vec(gauges: Sequence[Gauge], s: np.ndarray, t: float, celerity_mps: float,
+                    causal: bool = False) -> np.ndarray:
     """Vector form of interp_rise_m over many chainages; NaN where no gauge reports."""
     s = np.asarray(s, dtype=float)
     ordered = sorted(gauges, key=lambda g: g.s_m)
     if not ordered:
         return np.full(s.shape, np.nan)
     gs = np.array([g.s_m for g in ordered])
-    reads = np.vstack([g.rise_m_vec(t - (s - g.s_m) / celerity_mps) for g in ordered])  # (G, N)
+    def read(g: Gauge) -> np.ndarray:
+        read_t = t - (s - g.s_m) / celerity_mps
+        return g.reported_rise_m_vec(np.minimum(read_t, t)) if causal else g.rise_m_vec(read_t)
+    reads = np.vstack([read(g) for g in ordered])  # (G, N)
     out = np.full(s.shape, np.nan)
     for n in range(s.size):
         ok = ~np.isnan(reads[:, n])
@@ -103,19 +124,27 @@ def interp_rise_vec(gauges: Sequence[Gauge], s: np.ndarray, t: float, celerity_m
 
 
 def fill_gap(dead: Gauge, donor: Gauge, lag_s: float, until_s: float, step_s: float = 900.0) -> Gauge:
-    """Truth only: continue a dead gauge with the donor's shape, read `lag_s` later, scaled to match at failure."""
-    last_t = float(dead.times[-1])
-    last_rise = dead.rise_m(last_t) or 0.0
-    donor_at_fail = donor.rise_m(last_t + lag_s) or 0.0
-    scale = last_rise / donor_at_fail if donor_at_fail > 0 else 1.0
+    """Truth only: bridge every outage of a dead gauge with the donor's shape (read `lag_s` later), scaled to
+    match the last reading before each outage. An outage is a gap > max(30 min, 3x normal spacing), or the
+    end of the series up to `until_s`. Real readings are never changed."""
+    spacing = np.diff(dead.times)
+    outage_s = max(MAX_GAP_S, 3 * float(np.median(spacing))) if spacing.size else MAX_GAP_S
+    spans = [(float(dead.times[k]), float(dead.times[k + 1])) for k in np.flatnonzero(spacing > outage_s)]
+    if dead.times.size and dead.times[-1] < until_s:
+        spans.append((float(dead.times[-1]), until_s + step_s))
     extra_t, extra_stage = [], []
-    for t in np.arange(last_t + step_s, until_s + step_s, step_s):
-        r = donor.rise_m(float(t) + lag_s)
-        if r is not None:
-            extra_t.append(float(t))
-            extra_stage.append(dead.base_ft + r * scale / FT_TO_M)
-    return replace(dead, times=np.concatenate([dead.times, extra_t]),
-                   stage_ft=np.concatenate([dead.stage_ft, extra_stage]))
+    for last_t, resume_t in spans:
+        last_rise = dead.rise_m(last_t) or 0.0
+        donor_at_fail = donor.rise_m(last_t + lag_s) or 0.0
+        scale = last_rise / donor_at_fail if donor_at_fail > 0 else 1.0
+        for t in np.arange(last_t + step_s, min(resume_t, until_s + step_s), step_s):
+            r = donor.rise_m(float(t) + lag_s)
+            if r is not None:
+                extra_t.append(float(t))
+                extra_stage.append(dead.base_ft + r * scale / FT_TO_M)
+    times = np.concatenate([dead.times, extra_t])
+    order = np.argsort(times, kind="stable")
+    return replace(dead, times=times[order], stage_ft=np.concatenate([dead.stage_ft, extra_stage])[order])
 
 
 def road_depth_in(ref_z_m: float, rise_m: float | None, road_z_m: float) -> float:

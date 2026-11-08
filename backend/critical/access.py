@@ -50,18 +50,26 @@ def build_graph(roads: Iterable[Road]) -> nx.MultiGraph:
     return g
 
 
-def _view(g: nx.MultiGraph, point_of: dict[str, str], removed: frozenset[str], cars: bool) -> nx.MultiGraph:
-    hidden = [(u, v, k) for u, v, k, d in g.edges(keys=True, data=True)
+_SINKED: dict[tuple[int, frozenset[str]], nx.MultiGraph] = {}
+
+
+def with_sink(g: nx.MultiGraph, targets: set[str]) -> nx.MultiGraph:
+    """g plus a super-sink joined to every target. Built once per (graph, targets) and reused: copying an
+    8k-edge graph per query was the main cost of the live loop."""
+    key = (id(g), frozenset(targets))
+    if key not in _SINKED:
+        h = nx.MultiGraph(g)
+        for t in targets:
+            if t in h:
+                h.add_edge(t, SINK, key=f"sink-{t}", length=0.0, truck_only=False)
+        _SINKED[key] = h
+    return _SINKED[key]
+
+
+def _view(h: nx.MultiGraph, point_of: dict[str, str], removed: frozenset[str], cars: bool) -> nx.MultiGraph:
+    hidden = [(u, v, k) for u, v, k, d in h.edges(keys=True, data=True)
               if point_of.get(k) in removed or (cars and d["truck_only"])]
-    return nx.restricted_view(g, [], hidden)
-
-
-def _with_sink(view: nx.MultiGraph, targets: set[str]) -> nx.MultiGraph:
-    h = nx.MultiGraph(view)
-    for t in targets:
-        if t in h:
-            h.add_edge(t, SINK, key=f"sink-{t}", length=0.0, truck_only=False)
-    return h
+    return nx.restricted_view(h, [], hidden)
 
 
 def _path_edges(h: nx.MultiGraph, nodes: list[str], weight: dict) -> tuple[str, ...]:
@@ -98,7 +106,7 @@ def _connected(h: nx.MultiGraph, origin: str, point_of: dict[str, str], blocked:
 
 def node_access(g: nx.MultiGraph, origin: str, safe: set[str], point_of: dict[str, str],
                 removed: frozenset[str] = frozenset()) -> NodeAccess:
-    h = _with_sink(_view(g, point_of, removed, cars=True), safe)
+    h = _view(with_sink(g, safe), point_of, removed, cars=True)
     if origin not in h or not nx.has_path(h, origin, SINK):
         return NodeAccess("cut_off", frozenset(), frozenset(), ())
     routes = _routes(h, origin)
@@ -112,7 +120,7 @@ def node_access(g: nx.MultiGraph, origin: str, safe: set[str], point_of: dict[st
 def truck_access(g: nx.MultiGraph, origin: str, stations: set[str], point_of: dict[str, str],
                  impassable: frozenset[str]) -> TruckRoute | None:
     """Can a high-clearance truck (< 24 in of water) reach a cut-off node? None means boat required."""
-    h = _with_sink(_view(g, point_of, impassable, cars=False), stations)
+    h = _view(with_sink(g, stations), point_of, impassable, cars=False)
     if origin not in h or not nx.has_path(h, origin, SINK):
         return None
     nodes = nx.shortest_path(h, origin, SINK, weight="length")

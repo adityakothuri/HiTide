@@ -10,8 +10,9 @@ from dataclasses import dataclass
 
 import networkx as nx
 
+from critical.access import SINK, with_sink
+
 PENALTY = {"open": 1.0, "unknown": 3.0, "likely_flooded": 50.0}
-SINK = "__safe__"
 TURN_AROUND = "If you see water on the road, turn around."
 
 
@@ -24,20 +25,17 @@ class RouteOut:
 
 def route_out(g: nx.MultiGraph, origin: str, safe: set[str], point_of: dict[str, str],
               point_status: dict[str, str], names: dict[str, str]) -> RouteOut | None:
-    def cost(_a: str, _b: str, d: dict) -> float | None:
-        best = None
-        for k, attrs in d.items():
-            st = point_status.get(point_of.get(k, ""), "open")
-            if st == "confirmed_flooded":
-                continue
-            c = attrs.get("length", 0.0) * PENALTY.get(st, 1.0)
-            best = c if best is None or c < best else best
-        return best  # None hides the edge from Dijkstra
+    def edge_cost(k: str, attrs: dict) -> float | None:
+        st = point_status.get(point_of.get(k, ""), "open")
+        if st == "confirmed_flooded":
+            return None
+        return attrs.get("length", 0.0) * PENALTY.get(st, 1.0)
 
-    h = nx.MultiGraph(g)
-    for s in safe:
-        if s in h:
-            h.add_edge(s, SINK, key=f"sink-{s}", length=0.0)
+    def cost(_a: str, _b: str, d: dict) -> float | None:
+        costs = [c for k, attrs in d.items() if (c := edge_cost(k, attrs)) is not None]
+        return min(costs) if costs else None  # None hides the edge from Dijkstra
+
+    h = with_sink(g, safe)  # shared, built once: no 8k-edge copy per call
     try:
         nodes = nx.shortest_path(h, origin, SINK, weight=cost)
     except (nx.NetworkXNoPath, nx.NodeNotFound):
@@ -46,7 +44,8 @@ def route_out(g: nx.MultiGraph, origin: str, safe: set[str], point_of: dict[str,
     for a, b in zip(nodes, nodes[1:]):
         if b == SINK:
             break
-        k = min((k for k in h[a][b]), key=lambda k: h[a][b][k].get("length", 0.0))
+        usable = [(c, k) for k, attrs in h[a][b].items() if (c := edge_cost(k, attrs)) is not None]
+        _, k = min(usable)  # same cost as the search, so a flooded parallel edge is never chosen
         edges.append(k)
         length += h[a][b][k].get("length", 0.0)
     ordered_names: list[str] = []
@@ -59,7 +58,7 @@ def route_out(g: nx.MultiGraph, origin: str, safe: set[str], point_of: dict[str,
 
 def route_message(node_name: str, route: RouteOut) -> str:
     via = ", then ".join(route.road_names[:3]) or "the nearest main road"
-    return (f"State Farm Flood Watch: flash flooding near {node_name}. Leave now by {via}. "
+    return (f"State Farm Flood Watch: flash flooding near {node_name}. Leave now for high ground by {via}. "
             f"This route avoids known flooding. {TURN_AROUND} Reply SAFE, HELP, or LEFT.")
 
 

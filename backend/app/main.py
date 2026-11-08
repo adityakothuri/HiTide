@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from api.routes import router
 from api.routes_region import router as region_router
 from app.config import DATA_DIR
+from app.hill_runtime import warm
 from app.runtime import build_runtime
 from app.security import ORIGIN_RE
 from evidence.factory import open_store
@@ -53,14 +54,16 @@ async def lifespan(app: FastAPI):
         if interval_s:
             worker = asyncio.create_task(poll_evidence(app.state.evidence, interval_s))
         runtime.engine.start()
+        warm(app)  # Hill Country region loads in the background (~5 s)
         if os.environ.get("PHOTON_MODE") == "photon2":
             inbound = Photon2Inbound()
             await inbound.start(lambda s, t: handle_inbound(runtime, s, t))
         yield
     finally:
         runtime.demo.cancel()
-        if getattr(app.state, "hill", None) is not None:
-            app.state.hill.demo.cancel()
+        hill_task = getattr(app.state, "hill_task", None)
+        if hill_task is not None and hill_task.done() and not hill_task.cancelled() and hill_task.exception() is None:
+            await hill_task.result().demo.stop()
         if inbound is not None:
             await inbound.stop()
         runtime.runner.cancel_pending()

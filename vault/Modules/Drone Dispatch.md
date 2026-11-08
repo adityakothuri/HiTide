@@ -6,6 +6,8 @@ updated: 2026-11-07
 
 # Drone Dispatch
 
+> [!info] Multi-drone critical-point tours over the Hill Country replay live in [[Critical Point Drones]].
+
 Sends a drone from a fixed station to a stopped driver. Path and arrival are simulated.
 
 ## Behavior

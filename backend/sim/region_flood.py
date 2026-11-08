@@ -108,7 +108,7 @@ class RegionFlood:
         chain = self.region.chains[name]
         gauges = (self.belief_gauges if belief else self.truth_gauges).get(name)
         if gauges:
-            return interp_rise_vec(gauges, chain.s_m, t, self.celerity)
+            return interp_rise_vec(gauges, chain.s_m, t, self.celerity, causal=belief)
         if belief or name not in self.region.cfg.get("ungauged", {}):
             return np.full(chain.s_m.shape, np.nan)
         return np.full(chain.s_m.shape, self._ungauged_rise(name, t))

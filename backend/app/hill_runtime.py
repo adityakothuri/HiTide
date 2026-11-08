@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from dataclasses import dataclass
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from critical.loop import CriticalLoop
 from demo.hill_country import HillCountryDemo
@@ -24,7 +25,7 @@ class HillCountry:
     flood: RegionFlood
     loop: CriticalLoop
     demo: HillCountryDemo
-    static: dict[str, Any]
+    static_json: bytes          # /api/region body, encoded once (about 3.5 MB)
 
 
 def _static(region: Region, flood: RegionFlood, loop: CriticalLoop) -> dict[str, Any]:
@@ -51,26 +52,28 @@ def _build(emit) -> HillCountry:
     flood = RegionFlood(region)
     loop = CriticalLoop(region, flood)
     outreach = make_outreach(emit, lambda _driver_id: False)  # nobody in this scenario is a moving driver
-    return HillCountry(region, flood, loop, HillCountryDemo(loop, emit, outreach), _static(region, flood, loop))
+    static = json.dumps(_static(region, flood, loop)).encode()
+    return HillCountry(region, flood, loop, HillCountryDemo(loop, emit, outreach), static)
+
+
+def warm(app: FastAPI) -> None:
+    """Start building in the background at startup so the first request doesn't wait ~5 s.
+    HILL_COUNTRY_WARM=0 defers it to first use (the test suite sets this)."""
+    if os.environ.get("HILL_COUNTRY_WARM", "1") == "0" and not hasattr(app.state, "hill_task"):
+        return
+    app.state.hill_task = asyncio.create_task(asyncio.to_thread(_build, app.state.runtime.hub.emit))
 
 
 async def get_hill(app: FastAPI) -> HillCountry:
-    if getattr(app.state, "hill", None) is None:
-        async with _lock:
-            if getattr(app.state, "hill", None) is None:
-                app.state.hill = await asyncio.to_thread(_build, app.state.runtime.hub.emit)
-    return app.state.hill
+    async with _lock:
+        task = getattr(app.state, "hill_task", None)
+        if task is None or (task.done() and (task.cancelled() or task.exception() is not None)):
+            app.state.hill_task = task = asyncio.create_task(asyncio.to_thread(_build, app.state.runtime.hub.emit))
+    try:
+        return await asyncio.shield(task)  # a cancelled request never orphans the build
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Hill Country scenario failed to load; see server log") from exc
 
 
-def state(h: HillCountry) -> dict[str, Any]:
-    loop, t = h.loop, h.loop.t
-    return {"scenario_running": h.demo.running, "sim_time": None if t is None else iso_or_none(t),
-            "alerts": loop.alerts, "gauges": h.flood.gauge_status(t) if t else [],
-            "segments": [{"edge_id": e, "status": s} for e, s in loop.seg_status.items() if s != "open"],
-            "critical_points": loop.ranked_public(), "nodes": [loop.node_public(n) for n in loop.nodes],
-            "drones": [d.public(t or 0.0) for d in loop.drones.values()], "counters": loop.counters()}
-
-
-def iso_or_none(t: float | None) -> str | None:
-    from critical.loop import iso
-    return None if t is None else iso(t)
+def state_json(h: HillCountry) -> bytes:
+    return json.dumps({**h.loop.snapshot, "scenario_running": h.demo.running}).encode()

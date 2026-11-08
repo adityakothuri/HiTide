@@ -35,5 +35,11 @@ def test_confirmed_flooded_is_removed_and_no_path_means_none():
 
 def test_message_never_says_safe_road_and_ends_with_turn_around():
     msg = route_message("Kerrville homes", _route("likely_flooded"))
-    assert "avoids known flooding" in msg and TURN_AROUND in msg
+    assert "avoids known flooding" in msg and TURN_AROUND in msg and "high ground" in msg
     assert "safe road" not in msg.lower() and "road is safe" not in msg.lower()
+
+
+def test_never_reconstructs_over_a_flooded_parallel_edge():
+    g = build_graph([Road("flooded", "home", "safe", 10), Road("dry", "home", "safe", 400)])
+    r = route_out(g, "home", {"safe"}, {"flooded": "F"}, {"F": "confirmed_flooded"}, {})
+    assert r is not None and r.edge_ids == ("dry",)
