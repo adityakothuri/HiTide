@@ -26,4 +26,4 @@ async function worker() {
 }
 await Promise.all([worker(), worker()]);
 mkdirSync('bench/results/viability', { recursive: true });
-writeFileSync('bench/results/viability/live-replay-input.json', JSON.stringify({ fetchedAt: new Date().toISOString(), hero, matches }, null, 2)+'\n');
+writeFileSync(process.env.REPLAY_INPUT_OUT ?? 'bench/results/viability/live-replay-input.json', JSON.stringify({ fetchedAt: new Date().toISOString(), hero, matches }, null, 2)+'\n');

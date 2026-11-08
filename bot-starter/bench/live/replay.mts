@@ -5,7 +5,7 @@ import { CHOICES } from '../../src/strategy.js';
 import { sampleStartingRacks, replayMatch, type ArchivedMatch } from '../../src/replay.js';
 import { mulberry32 } from '../../src/sim.js';
 const started = performance.now();
-const input = JSON.parse(readFileSync('bench/results/viability/live-replay-input.json','utf8'));
+const input = JSON.parse(readFileSync(process.env.REPLAY_IN ?? 'bench/results/viability/live-replay-input.json','utf8'));
 const samples = Number(process.env.REPLAY_DEALS ?? 8);
 const strategies = (process.env.REPLAY_STRATEGIES ?? 'market7v,market7vf,market7vb,market7vc,portfolioTuned').split(',');
 if (!Number.isInteger(samples) || samples<1 || strategies.some(s=>!CHOICES[s])) throw new Error('Invalid replay configuration');
@@ -14,6 +14,7 @@ const opt = (v:any):number|null => Array.isArray(v) && v[0]===0 ? Number(v[1]) :
 const timestamp = (v:any):number => Number(Array.isArray(v) ? v[0] : v);
 const matches: ArchivedMatch[] = [], skipped: {id:number;reason:string}[] = [];
 for (const raw of input.matches) {
+  if (Number(raw.state.id) <= Number(process.env.REPLAY_AFTER ?? 0)) continue;
   try {
     if (raw.state.auction_type[0]!==1) throw new Error('Only Vickrey rival bids are identifiable');
     const tops = new Map(raw.tops.map((a:any)=>[Number(a.auction_id),Number(a.top_bid)]));
@@ -72,5 +73,5 @@ const result={hero:input.hero,archiveMatches:matches.length,skipped,dealsPerMatc
     'Tie/reserve cases are sensitivity scenarios, not rigorous score bounds.',
     'Intervals resample matches after averaging rack samples; they quantify archive variability, not causal live superiority.',
     'No network latency or end-to-end event processing is modeled. No live win rate is inferred.'],scenarios:all};
-writeFileSync('bench/results/viability/live-replay-results.json',JSON.stringify(result,null,2)+'\n');
+writeFileSync(process.env.REPLAY_OUT ?? 'bench/results/viability/live-replay-results.json',JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify({...result,scenarios:undefined}));

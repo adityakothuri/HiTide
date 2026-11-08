@@ -1,0 +1,68 @@
+{
+  "total": 110,
+  "exact": 98,
+  "reward": 106,
+  "length": 107,
+  "mismatch": [
+    {
+      "match": 45368,
+      "actual": "WHACKER",
+      "predicted": "HACKAMORE"
+    },
+    {
+      "match": 45352,
+      "actual": "TRUNK",
+      "predicted": "KNAUR"
+    },
+    {
+      "match": 45336,
+      "actual": "POGONIA",
+      "predicted": "LOOPING"
+    },
+    {
+      "match": 45272,
+      "actual": "FLUXING",
+      "predicted": "FLEXING"
+    },
+    {
+      "match": 45264,
+      "actual": "AI",
+      "predicted": "AE"
+    },
+    {
+      "match": 45216,
+      "actual": "WEFT",
+      "predicted": "WAFT"
+    },
+    {
+      "match": 45224,
+      "actual": "FORD",
+      "predicted": "FEOD"
+    },
+    {
+      "match": 45201,
+      "actual": "HOTBOX",
+      "predicted": "HOOFBEAT"
+    },
+    {
+      "match": 45165,
+      "actual": "KAFFIRS",
+      "predicted": "ROCKFALLS"
+    },
+    {
+      "match": 45165,
+      "actual": "EXTOLL",
+      "predicted": "CORTEX"
+    },
+    {
+      "match": 45158,
+      "actual": "GAEN",
+      "predicted": "ANGA"
+    },
+    {
+      "match": 45151,
+      "actual": "GAUNT",
+      "predicted": "AGENT"
+    }
+  ]
+}

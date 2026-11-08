@@ -1,6 +1,6 @@
 ScrabbleBot
 
-`npm start` runs **Market7VF**: Market7V pricing, seven-letter targets and value-scaled pacing, plus completion funding and a first-price affordability cap. The live strategy is selected in `src/strategy.ts`. Experiments and live results are recorded in [bench/EXPERIMENTS.md](bench/EXPERIMENTS.md).
+`npm start` runs **LexForgeObserved**, a behavior-based reconstruction of LexForge-Base-v1 (bot 224). It targets 7+ letter words worth 45+ points, recovers with 5+ letter words below 15 coins, and starts liquidation one auction early. Its fitted bids use public historical observations. The original source is unavailable, so this is not an exact code copy. See [bench/LEXFORGE.md](bench/LEXFORGE.md) for the complete matchup study and evaluation.
 
 Install and run from `bot-starter/`:
 
@@ -16,6 +16,7 @@ BOT_NAME=bot BOT_TOKEN='<your-token>' npm start
 BOT_NAME=bot npm start
 
 # Select a strategy explicitly.
+BOT_NAME=bot STRATEGY=lexforge npm start
 BOT_NAME=bot STRATEGY=market7vb npm start
 BOT_NAME=bot STRATEGY=market7vc npm start
 BOT_NAME=bot STRATEGY=market7vf npm start
@@ -31,13 +32,14 @@ For CLI nonce authentication, use `BOT_NONCE='<nonce>'` instead of `BOT_TOKEN` o
 | `market7v` | Seven-letter targets, market prices, value-scaled pacing | Previous default; live baseline |
 | `market7vb` | Market7V plus 4+ letter cash-in below 35 coins | Live cash-flow experiment; unresolved |
 | `market7vc` | Market7Vb plus immediate seven-letter/high-yield six-letter cash-in, endgame liquidation and completion funding | New candidate; requires live validation |
-| `market7vf` | Market7V word decisions plus completion funding and first-price affordability cap | Default; live validation ongoing |
+| `lexforge` | Fitted LexForge-Base-v1 bids, high-score primary words, low-cash recovery | Default; version 2 live deployment |
+| `market7vf` | Market7V word decisions plus completion funding and first-price affordability cap | Previous default; rollback baseline |
 | `portfolioTuned` | Earlier portfolio valuation and cash-in regimes | Implemented; simulator evidence only |
 | `ha2`, `l1`, `final` | Earlier heuristic/planner strategies | Retained for comparisons; `final` is historical P1, not the default |
 
 Market7VF isolates completion funding while preserving Market7V word decisions. Market7VC carries forward the earlier model's useful cash-in and completion-funding ideas. It keeps Market7V's pricing, caps extra completion spending by current cash and market valuation, and leaves leftover-potential word selection off. It uses an opponent-budget cap in first-price auctions. Before the final auction it respects the seven-letter limit even during emergency cash-in; the final window can liquidate longer words. Its name does not imply that it is better than the live baseline.
 
-The 60-game simulator screen gave Market7V a mean place of 1.70, Market7VC 2.48 and Market7VF 1.67. Market7VF’s difference was too small to establish improvement; Market7VF was subsequently selected for live deployment; this screen alone does not establish an improvement. See E13 for the commands and limitations.
+The 60-game simulator screen gave Market7V a mean place of 1.70, Market7VC 2.48 and Market7VF 1.67. Market7VF’s difference was too small to establish improvement; Market7VF was subsequently tested live and is retained as the baseline. See E13 for the commands and limitations.
 
 Local checks and comparisons:
 
@@ -65,7 +67,7 @@ npm run replay
 REPLAY_STRATEGIES=market7v,market7vf REPLAY_DEALS=8 npm run replay
 ```
 
-The replay uses identical observed letter sequences and rival bid thresholds for each candidate. Hidden starting racks are sampled from the aggregate dealt tile pool, constrained by public word/win history, with 2,000 feasible tile swaps to reduce allocation-order bias. Two tie/reserve assumptions test sensitivity. Results and caveats are saved to `bench/results/viability/live-replay-results.json`. Opponents are frozen and cannot react to changed purchases, so these are conditional replay scores, not predicted live win rates. The 20-match screen favors Market7VF by about 2.5–5.8 points, but its uncertainty does not establish improvement under both assumptions. Market7VF is now the user-selected default; live superiority remains unproven.
+The replay uses identical observed letter sequences and rival bid thresholds for each candidate. Hidden starting racks are sampled from the aggregate dealt tile pool, constrained by public word/win history, with 2,000 feasible tile swaps to reduce allocation-order bias. Two tie/reserve assumptions test sensitivity. Results and caveats are saved to `bench/results/viability/live-replay-results.json`. Opponents are frozen and cannot react to changed purchases, so these are conditional replay scores, not predicted live win rates. The 20-match screen favors Market7VF by about 2.5–5.8 points, but its uncertainty does not establish improvement under both assumptions. The later LexForge-based reconstruction supersedes it; measured live superiority remains unproven.
 
 Simulator results are screening evidence. They previously overrated P1 and do not establish a live winner. Compare candidates for at least 15 completed live matches each on similar tables, recording opponent strength, points per tile, cash starvation and late bids. At the inspection checkpoint, four completed Market7Vb matches in the local log averaged 55.5 points; that sample does not settle the cash-flow question.
 

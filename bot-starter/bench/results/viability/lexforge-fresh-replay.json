@@ -1,0 +1,470 @@
+{
+  "hero": 224,
+  "archiveMatches": 10,
+  "skipped": [],
+  "dealsPerMatch": 8,
+  "strategies": [
+    "market7vf",
+    "lexforge"
+  ],
+  "elapsedSeconds": 14.187626375,
+  "caveats": [
+    "Frozen rival bids and public income: rivals cannot react to changed tile allocation.",
+    "Private starting racks are sampled subject to public prefix constraints, not observed or an exact posterior.",
+    "Tie/reserve cases are sensitivity scenarios, not rigorous score bounds.",
+    "Intervals resample matches after averaging rack samples; they quantify archive variability, not causal live superiority.",
+    "No network latency or end-to-end event processing is modeled. No live win rate is inferred."
+  ],
+  "scenarios": [
+    {
+      "scenario": "ties-lose/reserve-1",
+      "summaries": [
+        {
+          "strategy": "market7vf",
+          "score": 59.9,
+          "tilesWon": 9.9,
+          "spent": 144.6,
+          "starvedRounds": 11.4,
+          "tilesLeft": 2,
+          "pointsPerPlayedTile": 4.604687067318647
+        },
+        {
+          "strategy": "lexforge",
+          "score": 80.1,
+          "tilesWon": 12.4,
+          "spent": 171.3,
+          "starvedRounds": 8.3,
+          "tilesLeft": 1.5,
+          "pointsPerPlayedTile": 4.975243122890182
+        }
+      ],
+      "comparisons": [
+        {
+          "strategy": "lexforge",
+          "scoreDifference": 20.2,
+          "matchClusterBootstrap95": [
+            7.9,
+            34.6
+          ]
+        }
+      ],
+      "byMatch": [
+        {
+          "matchId": 45489,
+          "market7vf": {
+            "score": 40,
+            "tilesWon": 8,
+            "spent": 116,
+            "starvedRounds": 16,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4
+          },
+          "lexforge": {
+            "score": 55,
+            "tilesWon": 12,
+            "spent": 155,
+            "starvedRounds": 3,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 3.928571428571428
+          }
+        },
+        {
+          "matchId": 45480,
+          "market7vf": {
+            "score": 96,
+            "tilesWon": 17,
+            "spent": 192,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.052631578947369
+          },
+          "lexforge": {
+            "score": 95,
+            "tilesWon": 17,
+            "spent": 185,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.523809523809525
+          }
+        },
+        {
+          "matchId": 45471,
+          "market7vf": {
+            "score": 65,
+            "tilesWon": 8,
+            "spent": 160,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.416666666666666
+          },
+          "lexforge": {
+            "score": 73,
+            "tilesWon": 10,
+            "spent": 162,
+            "starvedRounds": 21,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 4.866666666666666
+          }
+        },
+        {
+          "matchId": 45463,
+          "market7vf": {
+            "score": 69,
+            "tilesWon": 9,
+            "spent": 144,
+            "starvedRounds": 10,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          },
+          "lexforge": {
+            "score": 133,
+            "tilesWon": 12,
+            "spent": 216,
+            "starvedRounds": 10,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 7.823529411764705
+          }
+        },
+        {
+          "matchId": 45455,
+          "market7vf": {
+            "score": 51,
+            "tilesWon": 8,
+            "spent": 145,
+            "starvedRounds": 14,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "lexforge": {
+            "score": 48,
+            "tilesWon": 9,
+            "spent": 133,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4
+          }
+        },
+        {
+          "matchId": 45447,
+          "market7vf": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 164,
+            "starvedRounds": 16,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "lexforge": {
+            "score": 80,
+            "tilesWon": 12,
+            "spent": 174,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.333333333333333
+          }
+        },
+        {
+          "matchId": 45439,
+          "market7vf": {
+            "score": 34,
+            "tilesWon": 7,
+            "spent": 111,
+            "starvedRounds": 9,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 3.3999999999999995
+          },
+          "lexforge": {
+            "score": 72,
+            "tilesWon": 13,
+            "spent": 168,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.235294117647059
+          }
+        },
+        {
+          "matchId": 45431,
+          "market7vf": {
+            "score": 53,
+            "tilesWon": 10,
+            "spent": 136,
+            "starvedRounds": 9,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.076923076923077
+          },
+          "lexforge": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 150,
+            "starvedRounds": 8,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.230769230769231
+          }
+        },
+        {
+          "matchId": 45413,
+          "market7vf": {
+            "score": 66,
+            "tilesWon": 10,
+            "spent": 146,
+            "starvedRounds": 8,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.714285714285714
+          },
+          "lexforge": {
+            "score": 78,
+            "tilesWon": 14,
+            "spent": 172,
+            "starvedRounds": 13,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.588235294117646
+          }
+        },
+        {
+          "matchId": 45422,
+          "market7vf": {
+            "score": 60,
+            "tilesWon": 12,
+            "spent": 132,
+            "starvedRounds": 14,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4
+          },
+          "lexforge": {
+            "score": 112,
+            "tilesWon": 15,
+            "spent": 198,
+            "starvedRounds": 1,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.222222222222222
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "ties-win/reserve-0",
+      "summaries": [
+        {
+          "strategy": "market7vf",
+          "score": 58.5,
+          "tilesWon": 9.7,
+          "spent": 140.4,
+          "starvedRounds": 14,
+          "tilesLeft": 1.5,
+          "pointsPerPlayedTile": 4.593071895424837
+        },
+        {
+          "strategy": "lexforge",
+          "score": 70.9,
+          "tilesWon": 12.4,
+          "spent": 160,
+          "starvedRounds": 6.9,
+          "tilesLeft": 1.4,
+          "pointsPerPlayedTile": 4.411770371441425
+        }
+      ],
+      "comparisons": [
+        {
+          "strategy": "lexforge",
+          "scoreDifference": 12.4,
+          "matchClusterBootstrap95": [
+            1.8,
+            25.9
+          ]
+        }
+      ],
+      "byMatch": [
+        {
+          "matchId": 45489,
+          "market7vf": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 12,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.583333333333333
+          },
+          "lexforge": {
+            "score": 67,
+            "tilesWon": 12,
+            "spent": 145,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.785714285714286
+          }
+        },
+        {
+          "matchId": 45480,
+          "market7vf": {
+            "score": 81,
+            "tilesWon": 14,
+            "spent": 178,
+            "starvedRounds": 19,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5
+          },
+          "lexforge": {
+            "score": 88,
+            "tilesWon": 16,
+            "spent": 176,
+            "starvedRounds": 7,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.3999999999999995
+          }
+        },
+        {
+          "matchId": 45471,
+          "market7vf": {
+            "score": 62,
+            "tilesWon": 9,
+            "spent": 143,
+            "starvedRounds": 13,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 4.42857142857143
+          },
+          "lexforge": {
+            "score": 54,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.153846153846154
+          }
+        },
+        {
+          "matchId": 45463,
+          "market7vf": {
+            "score": 71,
+            "tilesWon": 9,
+            "spent": 146,
+            "starvedRounds": 7,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 5.07142857142857
+          },
+          "lexforge": {
+            "score": 88,
+            "tilesWon": 11,
+            "spent": 175,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.866666666666666
+          }
+        },
+        {
+          "matchId": 45455,
+          "market7vf": {
+            "score": 51,
+            "tilesWon": 5,
+            "spent": 107,
+            "starvedRounds": 16,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 7.285714285714286
+          },
+          "lexforge": {
+            "score": 42,
+            "tilesWon": 9,
+            "spent": 128,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 3.5
+          }
+        },
+        {
+          "matchId": 45447,
+          "market7vf": {
+            "score": 57,
+            "tilesWon": 10,
+            "spent": 138,
+            "starvedRounds": 17,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 3.8000000000000003
+          },
+          "lexforge": {
+            "score": 65,
+            "tilesWon": 13,
+            "spent": 160,
+            "starvedRounds": 5,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 3.611111111111111
+          }
+        },
+        {
+          "matchId": 45439,
+          "market7vf": {
+            "score": 45,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 9,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 3.75
+          },
+          "lexforge": {
+            "score": 74,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 10,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 4.111111111111111
+          }
+        },
+        {
+          "matchId": 45431,
+          "market7vf": {
+            "score": 57,
+            "tilesWon": 12,
+            "spent": 147,
+            "starvedRounds": 23,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 3.352941176470588
+          },
+          "lexforge": {
+            "score": 62,
+            "tilesWon": 11,
+            "spent": 153,
+            "starvedRounds": 7,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.133333333333334
+          }
+        },
+        {
+          "matchId": 45413,
+          "market7vf": {
+            "score": 66,
+            "tilesWon": 11,
+            "spent": 156,
+            "starvedRounds": 14,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.714285714285714
+          },
+          "lexforge": {
+            "score": 67,
+            "tilesWon": 14,
+            "spent": 166,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.1875
+          }
+        },
+        {
+          "matchId": 45422,
+          "market7vf": {
+            "score": 40,
+            "tilesWon": 8,
+            "spent": 108,
+            "starvedRounds": 10,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.444444444444444
+          },
+          "lexforge": {
+            "score": 102,
+            "tilesWon": 16,
+            "spent": 195,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.368421052631579
+          }
+        }
+      ]
+    }
+  ]
+}

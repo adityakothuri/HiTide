@@ -16,9 +16,9 @@ export const CONVERSION_PARAMS = {
   firstPriceShade: 0.8,
 };
 
-export function conversion(overrides: Partial<typeof CONVERSION_PARAMS> = {}, name = 'Market7VC'): Policy {
+export function conversion(overrides: Partial<typeof CONVERSION_PARAMS> = {}, name = 'Market7VC', marketOverrides: Partial<MarketParams> = {}): Policy {
   const p = { ...CONVERSION_PARAMS, ...overrides };
-  const settings = { ...MARKET7V_PARAMS, brokeBalance: p.cashBalance, brokeMinLength: p.cashMinLength };
+  const settings = { ...MARKET7V_PARAMS, ...marketOverrides, plan: { ...MARKET7V_PARAMS.plan, ...marketOverrides.plan }, brokeBalance: p.cashBalance, brokeMinLength: p.cashMinLength };
   const base = market(settings, `${name}-base`);
   // Removes only the pacing cap, retaining market valuation, budget share,
   // duplicates, vowel balance and first-price shading.

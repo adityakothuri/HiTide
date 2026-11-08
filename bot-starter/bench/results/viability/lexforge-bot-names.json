@@ -1,0 +1,882 @@
+[
+  {
+    "id": 1,
+    "name": "Cheapo-sim"
+  },
+  {
+    "id": 2,
+    "name": "Valor-sim"
+  },
+  {
+    "id": 3,
+    "name": "Brutus-sim"
+  },
+  {
+    "id": 4,
+    "name": "Hagrid-sim"
+  },
+  {
+    "id": 5,
+    "name": "Maverick-sim"
+  },
+  {
+    "id": 6,
+    "name": "Snippet-sim"
+  },
+  {
+    "id": 7,
+    "name": "bot"
+  },
+  {
+    "id": 8,
+    "name": "LetterShark"
+  },
+  {
+    "id": 9,
+    "name": "SookraBot"
+  },
+  {
+    "id": 10,
+    "name": "dev-voices"
+  },
+  {
+    "id": 11,
+    "name": "code"
+  },
+  {
+    "id": 12,
+    "name": "slow-n-dumb"
+  },
+  {
+    "id": 13,
+    "name": "YeziShanYang"
+  },
+  {
+    "id": 14,
+    "name": "tinytung"
+  },
+  {
+    "id": 15,
+    "name": "podzemski"
+  },
+  {
+    "id": 16,
+    "name": "Orpheus"
+  },
+  {
+    "id": 17,
+    "name": "mexicanpepper"
+  },
+  {
+    "id": 18,
+    "name": "LUCENT"
+  },
+  {
+    "id": 19,
+    "name": "TileShark"
+  },
+  {
+    "id": 20,
+    "name": "Doppio"
+  },
+  {
+    "id": 21,
+    "name": "keanu_reeves"
+  },
+  {
+    "id": 22,
+    "name": "Chinese Dante"
+  },
+  {
+    "id": 23,
+    "name": "james"
+  },
+  {
+    "id": 24,
+    "name": "Lex Maxima"
+  },
+  {
+    "id": 25,
+    "name": "coconut"
+  },
+  {
+    "id": 26,
+    "name": "ramsay"
+  },
+  {
+    "id": 27,
+    "name": "MagnusBot"
+  },
+  {
+    "id": 28,
+    "name": "LexMax"
+  },
+  {
+    "id": 29,
+    "name": "BotAlpha"
+  },
+  {
+    "id": 30,
+    "name": "scrabbler"
+  },
+  {
+    "id": 31,
+    "name": "LexForge"
+  },
+  {
+    "id": 32,
+    "name": "ChoiCube84"
+  },
+  {
+    "id": 33,
+    "name": "adi"
+  },
+  {
+    "id": 66,
+    "name": "Cashu"
+  },
+  {
+    "id": 36,
+    "name": "SkyScrabble"
+  },
+  {
+    "id": 41,
+    "name": "0x3f"
+  },
+  {
+    "id": 39,
+    "name": "benx"
+  },
+  {
+    "id": 40,
+    "name": "jawn"
+  },
+  {
+    "id": 42,
+    "name": "LexOracle"
+  },
+  {
+    "id": 43,
+    "name": "scrappybot"
+  },
+  {
+    "id": 44,
+    "name": "marcellinus"
+  },
+  {
+    "id": 45,
+    "name": "PathAndLight"
+  },
+  {
+    "id": 48,
+    "name": "polarbear"
+  },
+  {
+    "id": 47,
+    "name": "swanbot"
+  },
+  {
+    "id": 49,
+    "name": "William Chenyin"
+  },
+  {
+    "id": 50,
+    "name": "Megabot"
+  },
+  {
+    "id": 51,
+    "name": "varr-bot"
+  },
+  {
+    "id": 52,
+    "name": "postturing"
+  },
+  {
+    "id": 53,
+    "name": "Heidi"
+  },
+  {
+    "id": 54,
+    "name": "Fable"
+  },
+  {
+    "id": 55,
+    "name": "guesser"
+  },
+  {
+    "id": 74,
+    "name": "Karthik"
+  },
+  {
+    "id": 58,
+    "name": "sardine"
+  },
+  {
+    "id": 59,
+    "name": "Nijello"
+  },
+  {
+    "id": 60,
+    "name": "atlas"
+  },
+  {
+    "id": 75,
+    "name": "havrais"
+  },
+  {
+    "id": 62,
+    "name": "maverick-bot"
+  },
+  {
+    "id": 63,
+    "name": "hinsonloo"
+  },
+  {
+    "id": 64,
+    "name": "Ally"
+  },
+  {
+    "id": 65,
+    "name": "LexForge-DP"
+  },
+  {
+    "id": 67,
+    "name": "bro"
+  },
+  {
+    "id": 68,
+    "name": "swrj"
+  },
+  {
+    "id": 69,
+    "name": "TaylorMason"
+  },
+  {
+    "id": 71,
+    "name": "newBose"
+  },
+  {
+    "id": 72,
+    "name": "Morei"
+  },
+  {
+    "id": 73,
+    "name": "testbot"
+  },
+  {
+    "id": 120,
+    "name": "LetterSharkUltra"
+  },
+  {
+    "id": 77,
+    "name": "Lambi Lambiii"
+  },
+  {
+    "id": 78,
+    "name": "HenryLoo"
+  },
+  {
+    "id": 79,
+    "name": "Calliope"
+  },
+  {
+    "id": 80,
+    "name": "Daphne"
+  },
+  {
+    "id": 81,
+    "name": "Echo"
+  },
+  {
+    "id": 82,
+    "name": "Fern"
+  },
+  {
+    "id": 83,
+    "name": "Gaia"
+  },
+  {
+    "id": 85,
+    "name": "Metheny"
+  },
+  {
+    "id": 87,
+    "name": "varr2.0"
+  },
+  {
+    "id": 88,
+    "name": "Lala"
+  },
+  {
+    "id": 89,
+    "name": "triplo"
+  },
+  {
+    "id": 90,
+    "name": "Menice"
+  },
+  {
+    "id": 91,
+    "name": "Minjae"
+  },
+  {
+    "id": 92,
+    "name": "wordchoice"
+  },
+  {
+    "id": 93,
+    "name": "Zephyr"
+  },
+  {
+    "id": 94,
+    "name": "James_Bond_007"
+  },
+  {
+    "id": 96,
+    "name": "Spartans"
+  },
+  {
+    "id": 97,
+    "name": "BlackSwan"
+  },
+  {
+    "id": 98,
+    "name": "Dwight"
+  },
+  {
+    "id": 99,
+    "name": "Torch"
+  },
+  {
+    "id": 100,
+    "name": "Srinivas"
+  },
+  {
+    "id": 101,
+    "name": "bee"
+  },
+  {
+    "id": 102,
+    "name": "prestoshi"
+  },
+  {
+    "id": 103,
+    "name": "Sher"
+  },
+  {
+    "id": 104,
+    "name": "Ambees"
+  },
+  {
+    "id": 105,
+    "name": "tatum"
+  },
+  {
+    "id": 106,
+    "name": "Hamilton"
+  },
+  {
+    "id": 107,
+    "name": "Lionel"
+  },
+  {
+    "id": 108,
+    "name": "chad"
+  },
+  {
+    "id": 109,
+    "name": "cortado"
+  },
+  {
+    "id": 110,
+    "name": "ClaudeLab"
+  },
+  {
+    "id": 111,
+    "name": "Mark Robbins"
+  },
+  {
+    "id": 112,
+    "name": "tosh_lupoi"
+  },
+  {
+    "id": 113,
+    "name": "MeniceLab"
+  },
+  {
+    "id": 114,
+    "name": "Bron"
+  },
+  {
+    "id": 115,
+    "name": "MeniceLab2"
+  },
+  {
+    "id": 116,
+    "name": "scrabby"
+  },
+  {
+    "id": 117,
+    "name": "yann"
+  },
+  {
+    "id": 118,
+    "name": "triplov2"
+  },
+  {
+    "id": 119,
+    "name": "Calebot"
+  },
+  {
+    "id": 121,
+    "name": "daddy"
+  },
+  {
+    "id": 122,
+    "name": "swrjlab"
+  },
+  {
+    "id": 123,
+    "name": "67"
+  },
+  {
+    "id": 124,
+    "name": "eskeetit"
+  },
+  {
+    "id": 125,
+    "name": "adfa fdas df. as"
+  },
+  {
+    "id": 126,
+    "name": "richard"
+  },
+  {
+    "id": 127,
+    "name": "K-13"
+  },
+  {
+    "id": 128,
+    "name": "Tessera"
+  },
+  {
+    "id": 129,
+    "name": "Nigel"
+  },
+  {
+    "id": 130,
+    "name": "dan"
+  },
+  {
+    "id": 131,
+    "name": "BuySpellRepeat-bot"
+  },
+  {
+    "id": 132,
+    "name": "dwade"
+  },
+  {
+    "id": 133,
+    "name": "Jobs"
+  },
+  {
+    "id": 134,
+    "name": "nigel's dad"
+  },
+  {
+    "id": 135,
+    "name": "Nigel xLSTM Bidder"
+  },
+  {
+    "id": 136,
+    "name": "robbot"
+  },
+  {
+    "id": 137,
+    "name": "Derg"
+  },
+  {
+    "id": 138,
+    "name": "Waupus"
+  },
+  {
+    "id": 139,
+    "name": "ace_bot"
+  },
+  {
+    "id": 140,
+    "name": "kuromi"
+  },
+  {
+    "id": 141,
+    "name": "goat"
+  },
+  {
+    "id": 142,
+    "name": "ericbot"
+  },
+  {
+    "id": 143,
+    "name": "timefactories"
+  },
+  {
+    "id": 145,
+    "name": "Afterword"
+  },
+  {
+    "id": 146,
+    "name": "GrantBot"
+  },
+  {
+    "id": 147,
+    "name": "bradley"
+  },
+  {
+    "id": 148,
+    "name": "zoronbot"
+  },
+  {
+    "id": 149,
+    "name": "here for free swag"
+  },
+  {
+    "id": 150,
+    "name": "cancodexcarry"
+  },
+  {
+    "id": 151,
+    "name": "allin-bot"
+  },
+  {
+    "id": 152,
+    "name": "STM"
+  },
+  {
+    "id": 153,
+    "name": "testbot2"
+  },
+  {
+    "id": 154,
+    "name": "Skone"
+  },
+  {
+    "id": 155,
+    "name": "zzbot"
+  },
+  {
+    "id": 156,
+    "name": "IzzyBot"
+  },
+  {
+    "id": 157,
+    "name": "MangoPotato"
+  },
+  {
+    "id": 158,
+    "name": "chaski"
+  },
+  {
+    "id": 159,
+    "name": "saketh"
+  },
+  {
+    "id": 160,
+    "name": "ragazoor"
+  },
+  {
+    "id": 161,
+    "name": "Bot"
+  },
+  {
+    "id": 162,
+    "name": "Barracuda"
+  },
+  {
+    "id": 163,
+    "name": "Binter"
+  },
+  {
+    "id": 164,
+    "name": "Tow57-Auctioneer"
+  },
+  {
+    "id": 165,
+    "name": "cosine"
+  },
+  {
+    "id": 166,
+    "name": "SoapConsumers"
+  },
+  {
+    "id": 167,
+    "name": "Jaeger"
+  },
+  {
+    "id": 168,
+    "name": "Malicious"
+  },
+  {
+    "id": 169,
+    "name": "Abhi-AuctionLab"
+  },
+  {
+    "id": 170,
+    "name": "Sepcis"
+  },
+  {
+    "id": 171,
+    "name": "GodOfThudner"
+  },
+  {
+    "id": 172,
+    "name": "Odysseus's Voyage"
+  },
+  {
+    "id": 173,
+    "name": "megatron pro max plus ultra 3000"
+  },
+  {
+    "id": 174,
+    "name": "benoit"
+  },
+  {
+    "id": 175,
+    "name": "wordgoat"
+  },
+  {
+    "id": 176,
+    "name": "Titan"
+  },
+  {
+    "id": 177,
+    "name": "Babbler"
+  },
+  {
+    "id": 178,
+    "name": "gas"
+  },
+  {
+    "id": 179,
+    "name": "exzell"
+  },
+  {
+    "id": 180,
+    "name": "StickBot"
+  },
+  {
+    "id": 181,
+    "name": "LexiconWarrior"
+  },
+  {
+    "id": 182,
+    "name": "scrabblemaxxing"
+  },
+  {
+    "id": 183,
+    "name": "QuertyBot"
+  },
+  {
+    "id": 184,
+    "name": "clud"
+  },
+  {
+    "id": 185,
+    "name": "monkey"
+  },
+  {
+    "id": 186,
+    "name": "Lucy"
+  },
+  {
+    "id": 187,
+    "name": "TileHoarder"
+  },
+  {
+    "id": 188,
+    "name": "peanuts"
+  },
+  {
+    "id": 189,
+    "name": "RackPilot"
+  },
+  {
+    "id": 190,
+    "name": "Karppa"
+  },
+  {
+    "id": 191,
+    "name": "Primey"
+  },
+  {
+    "id": 192,
+    "name": "aipom"
+  },
+  {
+    "id": 193,
+    "name": "RackMaw"
+  },
+  {
+    "id": 194,
+    "name": "NigelBot"
+  },
+  {
+    "id": 195,
+    "name": "Como Se Dice I Want to Scrabble"
+  },
+  {
+    "id": 196,
+    "name": "Vector Blast"
+  },
+  {
+    "id": 197,
+    "name": "76ers"
+  },
+  {
+    "id": 198,
+    "name": "Mr. Turkey"
+  },
+  {
+    "id": 199,
+    "name": "Lexicoin"
+  },
+  {
+    "id": 200,
+    "name": "Milo :3"
+  },
+  {
+    "id": 201,
+    "name": "Lbender"
+  },
+  {
+    "id": 202,
+    "name": "Rowin'Boats"
+  },
+  {
+    "id": 203,
+    "name": "CasualThinker"
+  },
+  {
+    "id": 204,
+    "name": "bot1717"
+  },
+  {
+    "id": 205,
+    "name": "Nigel \"Bidderson\" Richards"
+  },
+  {
+    "id": 206,
+    "name": "Nhat"
+  },
+  {
+    "id": 207,
+    "name": "LexForge-1107"
+  },
+  {
+    "id": 208,
+    "name": "Pegasus"
+  },
+  {
+    "id": 209,
+    "name": "N1gel"
+  },
+  {
+    "id": 210,
+    "name": "scrapgoat"
+  },
+  {
+    "id": 211,
+    "name": "evol"
+  },
+  {
+    "id": 212,
+    "name": "Astronaut"
+  },
+  {
+    "id": 213,
+    "name": "GoatBot"
+  },
+  {
+    "id": 214,
+    "name": "sas"
+  },
+  {
+    "id": 215,
+    "name": "SevenUp"
+  },
+  {
+    "id": 216,
+    "name": "Momone Momo"
+  },
+  {
+    "id": 217,
+    "name": "Cruds"
+  },
+  {
+    "id": 218,
+    "name": "rp00087c"
+  },
+  {
+    "id": 219,
+    "name": "Sigma"
+  },
+  {
+    "id": 220,
+    "name": "rackpilot-live"
+  },
+  {
+    "id": 221,
+    "name": "CoolBotYay"
+  },
+  {
+    "id": 222,
+    "name": "scrabblefish"
+  },
+  {
+    "id": 223,
+    "name": "saketh-apex"
+  },
+  {
+    "id": 224,
+    "name": "LexForge-Base-v1"
+  },
+  {
+    "id": 225,
+    "name": "Lexiconda"
+  },
+  {
+    "id": 226,
+    "name": "Mavvy"
+  },
+  {
+    "id": 227,
+    "name": "TitanUTD"
+  },
+  {
+    "id": 228,
+    "name": "Bcrabble Sot"
+  },
+  {
+    "id": 229,
+    "name": "moody"
+  },
+  {
+    "id": 230,
+    "name": "Jake"
+  },
+  {
+    "id": 231,
+    "name": "dumpling"
+  },
+  {
+    "id": 232,
+    "name": "RackForge"
+  },
+  {
+    "id": 233,
+    "name": "LexForge-Shade-v1"
+  },
+  {
+    "id": 234,
+    "name": "LexForge-Cash-v1"
+  }
+]

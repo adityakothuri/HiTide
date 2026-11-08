@@ -1,6 +1,8 @@
 // The strategy the live bot plays. Chosen by the experiments in
 // bench/EXPERIMENTS.md; swap it with STRATEGY=<name> for comparisons.
 
+import { lexforge } from "./strategies/lexforge.js";
+import { rush } from "./strategies/rush.js";
 import { conversion } from "./strategies/conversion.js";
 import { portfolio, TUNED_PARAMS } from "./strategies/portfolio.js";
 export { PARAMS, TUNED_PARAMS, decideBid, chooseWord } from "./strategies/portfolio.js";
@@ -36,6 +38,12 @@ export const L1_PARAMS = {
 };
 
 export const CHOICES: Record<string, () => Policy> = {
+  lexforge: () => lexforge(),
+  lexforgeTrees: () => lexforge({ useTrees: 1 }, "LexForgeTrees"),
+  lexforgeMean: () => lexforge({ noise: 0 }, "LexForgeMean"),
+  lexforgeHalfNoise: () => lexforge({ noise: .5 }, "LexForgeHalfNoise"),
+  rush: () => rush(),
+  rush4: () => rush({}, "MarketRush4", 4),
   // Research candidate: Market7V + bounded cash-in and completion funding.
   market7vc: () => conversion(),
   market7vf: () => conversion({ cashInRegimes: 0, cashBalance: 12, cashMinLength: 5 }, "Market7VF"),
@@ -63,4 +71,4 @@ export const CHOICES: Record<string, () => Policy> = {
   report: () => reportHybrid(REPORT_PARAMS),
 };
 
-export const STRATEGY: Policy = (CHOICES[process.env.STRATEGY ?? "market7vf"] ?? CHOICES.market7vf!)();
+export const STRATEGY: Policy = (CHOICES[process.env.STRATEGY ?? "lexforge"] ?? CHOICES.lexforge!)();

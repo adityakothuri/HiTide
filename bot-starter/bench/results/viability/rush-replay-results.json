@@ -1,0 +1,850 @@
+{
+  "hero": 208,
+  "archiveMatches": 20,
+  "skipped": [],
+  "dealsPerMatch": 8,
+  "strategies": [
+    "market7vf",
+    "rush"
+  ],
+  "elapsedSeconds": 12.927530500000001,
+  "caveats": [
+    "Frozen rival bids and public income: rivals cannot react to changed tile allocation.",
+    "Private starting racks are sampled subject to public prefix constraints, not observed or an exact posterior.",
+    "Tie/reserve cases are sensitivity scenarios, not rigorous score bounds.",
+    "Intervals resample matches after averaging rack samples; they quantify archive variability, not causal live superiority.",
+    "No network latency or end-to-end event processing is modeled. No live win rate is inferred."
+  ],
+  "scenarios": [
+    {
+      "scenario": "ties-lose/reserve-1",
+      "summaries": [
+        {
+          "strategy": "market7vf",
+          "score": 61.1,
+          "tilesWon": 10.0375,
+          "spent": 133.8375,
+          "starvedRounds": 15.08125,
+          "tilesLeft": 2.44375,
+          "pointsPerPlayedTile": 4.864707211191586
+        },
+        {
+          "strategy": "rush",
+          "score": 24.84375,
+          "tilesWon": 8.28125,
+          "spent": 118.7125,
+          "starvedRounds": 40.20625,
+          "tilesLeft": 2.45,
+          "pointsPerPlayedTile": 2.301385628260628
+        }
+      ],
+      "comparisons": [
+        {
+          "strategy": "rush",
+          "scoreDifference": -36.25625,
+          "matchClusterBootstrap95": [
+            -41.75,
+            -31.6
+          ]
+        }
+      ],
+      "byMatch": [
+        {
+          "matchId": 45251,
+          "market7vf": {
+            "score": 69,
+            "tilesWon": 12,
+            "spent": 132,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.92857142857143
+          },
+          "rush": {
+            "score": 23,
+            "tilesWon": 7,
+            "spent": 117,
+            "starvedRounds": 42,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 2.0909090909090904
+          }
+        },
+        {
+          "matchId": 45243,
+          "market7vf": {
+            "score": 102,
+            "tilesWon": 14,
+            "spent": 158,
+            "starvedRounds": 14,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6
+          },
+          "rush": {
+            "score": 28,
+            "tilesWon": 7,
+            "spent": 120,
+            "starvedRounds": 50,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.8000000000000003
+          }
+        },
+        {
+          "matchId": 45236,
+          "market7vf": {
+            "score": 52,
+            "tilesWon": 9,
+            "spent": 116,
+            "starvedRounds": 18,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.333333333333333
+          },
+          "rush": {
+            "score": 23,
+            "tilesWon": 8,
+            "spent": 114,
+            "starvedRounds": 36,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 2.5555555555555554
+          }
+        },
+        {
+          "matchId": 45220,
+          "market7vf": {
+            "score": 49,
+            "tilesWon": 9,
+            "spent": 122,
+            "starvedRounds": 24,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.083333333333333
+          },
+          "rush": {
+            "score": 19,
+            "tilesWon": 7,
+            "spent": 114,
+            "starvedRounds": 40,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 2.375
+          }
+        },
+        {
+          "matchId": 45228,
+          "market7vf": {
+            "score": 64,
+            "tilesWon": 10,
+            "spent": 131,
+            "starvedRounds": 17,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.923076923076923
+          },
+          "rush": {
+            "score": 24,
+            "tilesWon": 8,
+            "spent": 119,
+            "starvedRounds": 37,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 2.6666666666666665
+          }
+        },
+        {
+          "matchId": 45212,
+          "market7vf": {
+            "score": 87,
+            "tilesWon": 14,
+            "spent": 173,
+            "starvedRounds": 16,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.833333333333333
+          },
+          "rush": {
+            "score": 35,
+            "tilesWon": 10,
+            "spent": 133,
+            "starvedRounds": 27,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.692307692307693
+          }
+        },
+        {
+          "matchId": 45205,
+          "market7vf": {
+            "score": 75,
+            "tilesWon": 12,
+            "spent": 150,
+            "starvedRounds": 13,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.769230769230768
+          },
+          "rush": {
+            "score": 33,
+            "tilesWon": 8,
+            "spent": 125,
+            "starvedRounds": 53,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 2.75
+          }
+        },
+        {
+          "matchId": 45198,
+          "market7vf": {
+            "score": 65,
+            "tilesWon": 10.75,
+            "spent": 148.75,
+            "starvedRounds": 10.625,
+            "tilesLeft": 2.875,
+            "pointsPerPlayedTile": 5.110085227272727
+          },
+          "rush": {
+            "score": 40.875,
+            "tilesWon": 10.625,
+            "spent": 133.25,
+            "starvedRounds": 36.125,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.9896978021978025
+          }
+        },
+        {
+          "matchId": 45191,
+          "market7vf": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 134,
+            "starvedRounds": 15,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "rush": {
+            "score": 23,
+            "tilesWon": 8,
+            "spent": 122,
+            "starvedRounds": 27,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 2.3000000000000003
+          }
+        },
+        {
+          "matchId": 45183,
+          "market7vf": {
+            "score": 48,
+            "tilesWon": 7,
+            "spent": 130,
+            "starvedRounds": 18,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.333333333333333
+          },
+          "rush": {
+            "score": 23,
+            "tilesWon": 8,
+            "spent": 120,
+            "starvedRounds": 34,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 1.9166666666666665
+          }
+        },
+        {
+          "matchId": 45176,
+          "market7vf": {
+            "score": 54,
+            "tilesWon": 9,
+            "spent": 133,
+            "starvedRounds": 14,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.153846153846154
+          },
+          "rush": {
+            "score": 27,
+            "tilesWon": 9,
+            "spent": 125,
+            "starvedRounds": 30,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.25
+          }
+        },
+        {
+          "matchId": 45169,
+          "market7vf": {
+            "score": 66,
+            "tilesWon": 10,
+            "spent": 128,
+            "starvedRounds": 19,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6
+          },
+          "rush": {
+            "score": 34,
+            "tilesWon": 10,
+            "spent": 129,
+            "starvedRounds": 37,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 2.833333333333333
+          }
+        },
+        {
+          "matchId": 45155,
+          "market7vf": {
+            "score": 56,
+            "tilesWon": 10,
+            "spent": 119,
+            "starvedRounds": 10,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.3076923076923075
+          },
+          "rush": {
+            "score": 20,
+            "tilesWon": 10,
+            "spent": 114,
+            "starvedRounds": 37,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 1.4285714285714286
+          }
+        },
+        {
+          "matchId": 45148,
+          "market7vf": {
+            "score": 52,
+            "tilesWon": 10,
+            "spent": 137,
+            "starvedRounds": 29,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.333333333333333
+          },
+          "rush": {
+            "score": 15,
+            "tilesWon": 7,
+            "spent": 104,
+            "starvedRounds": 46,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 1.5
+          }
+        },
+        {
+          "matchId": 45162,
+          "market7vf": {
+            "score": 48,
+            "tilesWon": 6,
+            "spent": 115,
+            "starvedRounds": 14,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.333333333333333
+          },
+          "rush": {
+            "score": 24,
+            "tilesWon": 9,
+            "spent": 117,
+            "starvedRounds": 47,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2
+          }
+        },
+        {
+          "matchId": 45141,
+          "market7vf": {
+            "score": 45,
+            "tilesWon": 10,
+            "spent": 136,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 3.75
+          },
+          "rush": {
+            "score": 22,
+            "tilesWon": 8,
+            "spent": 118,
+            "starvedRounds": 48,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 2.75
+          }
+        },
+        {
+          "matchId": 45128,
+          "market7vf": {
+            "score": 51,
+            "tilesWon": 9,
+            "spent": 130,
+            "starvedRounds": 12,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "rush": {
+            "score": 18,
+            "tilesWon": 7,
+            "spent": 111,
+            "starvedRounds": 58,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 1.8000000000000003
+          }
+        },
+        {
+          "matchId": 45134,
+          "market7vf": {
+            "score": 46,
+            "tilesWon": 7,
+            "spent": 106,
+            "starvedRounds": 16,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.111111111111111
+          },
+          "rush": {
+            "score": 13,
+            "tilesWon": 7,
+            "spent": 104,
+            "starvedRounds": 43,
+            "tilesLeft": 6,
+            "pointsPerPlayedTile": 2.1666666666666665
+          }
+        },
+        {
+          "matchId": 45122,
+          "market7vf": {
+            "score": 63,
+            "tilesWon": 12,
+            "spent": 148,
+            "starvedRounds": 11,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.9375
+          },
+          "rush": {
+            "score": 23,
+            "tilesWon": 7,
+            "spent": 115,
+            "starvedRounds": 38,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 2.0909090909090904
+          }
+        },
+        {
+          "matchId": 45115,
+          "market7vf": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 130,
+            "starvedRounds": 18,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.416666666666666
+          },
+          "rush": {
+            "score": 29,
+            "tilesWon": 10,
+            "spent": 120,
+            "starvedRounds": 38,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 2.0714285714285716
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "ties-win/reserve-0",
+      "summaries": [
+        {
+          "strategy": "market7vf",
+          "score": 64.5875,
+          "tilesWon": 10.9875,
+          "spent": 143.71875,
+          "starvedRounds": 17.25,
+          "tilesLeft": 2.4,
+          "pointsPerPlayedTile": 4.729935619935621
+        },
+        {
+          "strategy": "rush",
+          "score": 23.275,
+          "tilesWon": 8.2,
+          "spent": 118.7375,
+          "starvedRounds": 45.1375,
+          "tilesLeft": 3.03125,
+          "pointsPerPlayedTile": 2.2960557844932845
+        }
+      ],
+      "comparisons": [
+        {
+          "strategy": "rush",
+          "scoreDifference": -41.3125,
+          "matchClusterBootstrap95": [
+            -48.15,
+            -34.35
+          ]
+        }
+      ],
+      "byMatch": [
+        {
+          "matchId": 45251,
+          "market7vf": {
+            "score": 49,
+            "tilesWon": 9,
+            "spent": 138,
+            "starvedRounds": 23,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.454545454545454
+          },
+          "rush": {
+            "score": 21,
+            "tilesWon": 7,
+            "spent": 118,
+            "starvedRounds": 45,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 2.3333333333333335
+          }
+        },
+        {
+          "matchId": 45243,
+          "market7vf": {
+            "score": 78,
+            "tilesWon": 13,
+            "spent": 155,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.57142857142857
+          },
+          "rush": {
+            "score": 28,
+            "tilesWon": 7,
+            "spent": 120,
+            "starvedRounds": 50,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.8000000000000003
+          }
+        },
+        {
+          "matchId": 45236,
+          "market7vf": {
+            "score": 56,
+            "tilesWon": 13,
+            "spent": 133,
+            "starvedRounds": 16,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.294117647058823
+          },
+          "rush": {
+            "score": 33,
+            "tilesWon": 9,
+            "spent": 124,
+            "starvedRounds": 36,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.75
+          }
+        },
+        {
+          "matchId": 45220,
+          "market7vf": {
+            "score": 61,
+            "tilesWon": 12,
+            "spent": 145,
+            "starvedRounds": 23,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.066666666666666
+          },
+          "rush": {
+            "score": 14,
+            "tilesWon": 6,
+            "spent": 114,
+            "starvedRounds": 52,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 2.3333333333333335
+          }
+        },
+        {
+          "matchId": 45228,
+          "market7vf": {
+            "score": 69,
+            "tilesWon": 13,
+            "spent": 151,
+            "starvedRounds": 11,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.0588235294117645
+          },
+          "rush": {
+            "score": 25,
+            "tilesWon": 8,
+            "spent": 123,
+            "starvedRounds": 40,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 2.5
+          }
+        },
+        {
+          "matchId": 45212,
+          "market7vf": {
+            "score": 79,
+            "tilesWon": 14,
+            "spent": 174,
+            "starvedRounds": 31,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.647058823529412
+          },
+          "rush": {
+            "score": 23,
+            "tilesWon": 9,
+            "spent": 121,
+            "starvedRounds": 36,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 2.5555555555555554
+          }
+        },
+        {
+          "matchId": 45205,
+          "market7vf": {
+            "score": 91,
+            "tilesWon": 14,
+            "spent": 173,
+            "starvedRounds": 26,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.055555555555556
+          },
+          "rush": {
+            "score": 35,
+            "tilesWon": 9,
+            "spent": 128,
+            "starvedRounds": 40,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 2.5
+          }
+        },
+        {
+          "matchId": 45198,
+          "market7vf": {
+            "score": 96.75,
+            "tilesWon": 14.75,
+            "spent": 175.375,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.383928571428572
+          },
+          "rush": {
+            "score": 33.5,
+            "tilesWon": 9,
+            "spent": 125.75,
+            "starvedRounds": 41.75,
+            "tilesLeft": 1.625,
+            "pointsPerPlayedTile": 2.717147435897436
+          }
+        },
+        {
+          "matchId": 45191,
+          "market7vf": {
+            "score": 50,
+            "tilesWon": 10,
+            "spent": 131,
+            "starvedRounds": 11,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.166666666666667
+          },
+          "rush": {
+            "score": 26,
+            "tilesWon": 9,
+            "spent": 123,
+            "starvedRounds": 32,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 2.1666666666666665
+          }
+        },
+        {
+          "matchId": 45183,
+          "market7vf": {
+            "score": 64,
+            "tilesWon": 9,
+            "spent": 151,
+            "starvedRounds": 13,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.818181818181819
+          },
+          "rush": {
+            "score": 21,
+            "tilesWon": 9,
+            "spent": 121,
+            "starvedRounds": 44,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 1.75
+          }
+        },
+        {
+          "matchId": 45176,
+          "market7vf": {
+            "score": 70,
+            "tilesWon": 11,
+            "spent": 157,
+            "starvedRounds": 13,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "rush": {
+            "score": 21,
+            "tilesWon": 8,
+            "spent": 117,
+            "starvedRounds": 40,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 2.3333333333333335
+          }
+        },
+        {
+          "matchId": 45169,
+          "market7vf": {
+            "score": 104,
+            "tilesWon": 11,
+            "spent": 143,
+            "starvedRounds": 23,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 7.42857142857143
+          },
+          "rush": {
+            "score": 31,
+            "tilesWon": 10,
+            "spent": 130,
+            "starvedRounds": 57,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 3.1000000000000005
+          }
+        },
+        {
+          "matchId": 45155,
+          "market7vf": {
+            "score": 63,
+            "tilesWon": 10,
+            "spent": 121,
+            "starvedRounds": 17,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5
+          },
+          "rush": {
+            "score": 18,
+            "tilesWon": 10,
+            "spent": 117,
+            "starvedRounds": 40,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 1.5
+          }
+        },
+        {
+          "matchId": 45148,
+          "market7vf": {
+            "score": 52,
+            "tilesWon": 9,
+            "spent": 137,
+            "starvedRounds": 31,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.333333333333333
+          },
+          "rush": {
+            "score": 15,
+            "tilesWon": 7,
+            "spent": 104,
+            "starvedRounds": 46,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 1.5
+          }
+        },
+        {
+          "matchId": 45162,
+          "market7vf": {
+            "score": 53,
+            "tilesWon": 10,
+            "spent": 133,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.076923076923077
+          },
+          "rush": {
+            "score": 19,
+            "tilesWon": 8,
+            "spent": 114,
+            "starvedRounds": 53,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 2.111111111111111
+          }
+        },
+        {
+          "matchId": 45141,
+          "market7vf": {
+            "score": 67,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.466666666666668
+          },
+          "rush": {
+            "score": 22,
+            "tilesWon": 8,
+            "spent": 118,
+            "starvedRounds": 48,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 2.75
+          }
+        },
+        {
+          "matchId": 45128,
+          "market7vf": {
+            "score": 51,
+            "tilesWon": 9,
+            "spent": 130,
+            "starvedRounds": 12,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "rush": {
+            "score": 18,
+            "tilesWon": 7,
+            "spent": 111,
+            "starvedRounds": 58,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 1.8000000000000003
+          }
+        },
+        {
+          "matchId": 45134,
+          "market7vf": {
+            "score": 25,
+            "tilesWon": 7,
+            "spent": 110,
+            "starvedRounds": 25,
+            "tilesLeft": 6,
+            "pointsPerPlayedTile": 4.166666666666667
+          },
+          "rush": {
+            "score": 13,
+            "tilesWon": 7,
+            "spent": 104,
+            "starvedRounds": 43,
+            "tilesLeft": 6,
+            "pointsPerPlayedTile": 2.1666666666666665
+          }
+        },
+        {
+          "matchId": 45122,
+          "market7vf": {
+            "score": 30,
+            "tilesWon": 6,
+            "spent": 96,
+            "starvedRounds": 22,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.285714285714286
+          },
+          "rush": {
+            "score": 19,
+            "tilesWon": 7,
+            "spent": 117,
+            "starvedRounds": 50,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 2.111111111111111
+          }
+        },
+        {
+          "matchId": 45115,
+          "market7vf": {
+            "score": 83,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.1875
+          },
+          "rush": {
+            "score": 30,
+            "tilesWon": 10,
+            "spent": 125,
+            "starvedRounds": 51,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 2.142857142857143
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -360,3 +360,63 @@ strategy banner, subscription readiness, Pegasus identity and lobby join.
 Log: `bench/results/live-bot-v2-market7vf.log` (local, not committed).
 Build and all 26 tests pass. E14's replay results remain screening evidence;
 version-2 live results should be measured separately.
+
+## E16 — Rejected immediate-word rush and bounded acquisition tuning
+
+User requested greater aggression and immediate cash-in, then asked to
+return to the prior strategy after the fast check. The experimental `rush`
+mode (1.35x anchors, paceK 24, 85% bid share, any valid word immediately)
+scored 23.3–24.8 on the 20-match locked-market replay, versus Market7VF
+61.1–64.6. A four-letter minimum scored about 30. Neither was deployed.
+Artifacts: `rush-replay-results.json`, `rush4-replay-results.json`.
+
+A separate 32-configuration bid/pacing search retained Market7VF play.
+Training: original 20 market histories, two deals each; validation: 13
+newer histories, eight deals each. Best validated pricing candidate scored
+63.3/67.0 versus baseline 58.5/58.9; evidence did not establish a 100-point
+mean. This search was superseded by the user's LexForge-Base-v1 request;
+none of its candidates was deployed. `bench/live/tune-funding.mts` and
+`bench/results/viability/funding-tune.json` preserve the actual runs.
+
+## E17 — LexForge-Base-v1 reconstruction and live deployment
+
+User specified **LexForge-Base-v1 (224)** and authorized a thorough public
+matchup study. Original code and losing sealed bids are unavailable; this
+is an observed-behavior reconstruction, not an exact source-code copy.
+Full findings and opponent breakdown: `bench/LEXFORGE.md`.
+
+Source study: 34 finished real matches, 2,312 auctions and 110 word plays.
+Actual target mean 107.68, mean place 1.735, 17 first-place finishes, 5.756
+points per played tile. 33/34 initial racks are forced by public prefix
+constraints. Target does play 8/9-letter words; a seven-letter maximum
+would copy the wrong bot. Word rules: normally 7+ letters and 45+ points;
+below 15 balance, 5+ letter recovery; dump any valid word at <=1 auction
+remaining after the open auction. Primary utility is reward minus 3 per
+tile, ties shorter. Reconstruction matches exact word in 98/110 states,
+reward in 106/110 and length in 107/110.
+
+Bid model: censored normal fit with exact winning bids and upper bounds
+on losing bids, 24 oldest matches train, 10 newest validate. Conditional
+features include letter, balance, cash per remaining auction, rack counts,
+vowel deficit, long-word marginal value and primary cash-in completion.
+Residual scale 6; held-out winning-bid MAE 5.12 coins. State-seeded residual
+is repeatable for identical decisions. This does not recover the original
+private algorithm or its true randomization.
+
+Original 10-match bid holdout replay: reconstruction 82.1/85.5 points,
+Market7VF 59.5/58.0. Final newer-game check (ten games 45413–45489, not used
+to fit source rules/linear coefficients): 80.1/70.9 vs 59.9/58.5. Paired
+newer-game gains +20.2 [7.9,34.6] and +12.4 [1.8,25.9], descriptive 95%
+match-bootstrap intervals. Frozen rivals, approximate private-rack sampling
+and tie sensitivity still limit inference. These are not live averages.
+
+A nonlinear fit slightly improved bid likelihood but replay 69.7/78.9 did
+not consistently beat the linear reconstruction. Full-residual linear
+model retained; half-residual and mean-only variants remain comparisons.
+Newer-game model selection leaves future live matches as the independent
+test. Neither model has demonstrated our bot averaging 100.
+
+Saved default: `STRATEGY=lexforge` (LexForgeObserved). Prior Market7VF
+remains selectable. Build and 35 tests pass. The running process is handed
+off at a match boundary with existing Pegasus credentials and version 2;
+no new version reducer is called. Logs: `bench/results/live-bot-v2-lexforge.log`.
