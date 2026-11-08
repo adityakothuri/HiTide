@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import time
 from collections import deque
 from dataclasses import asdict, dataclass, replace
@@ -28,7 +29,11 @@ WIDTH_OK_MM, WIDTH_SPAN_MM = 2.5, 4.0
 CELLS_FOR_FULL_CONFIDENCE = 2000
 THREE_TAG_FACTOR = 0.85
 REPROJ_OK_PX, REPROJ_SPAN_PX = 1.5, 3.0
-BASELINE_MOVE_MM, BASELINE_MOVE_DEG = 12.0, 4.0
+BASELINE_MOVE_MM, BASELINE_MOVE_DEG = 25.0, 8.0
+BASELINE_LEAVE_FRACTION = 0.7
+INVALID_STREAK_TO_CLEAR = 3
+INTRINSICS_SCALE_TOLERANCE = 0.02
+OVERLAY_TEXT_PAD_PX = 2
 WET_THRESHOLD = 0.5
 FOCAL_SAMPLES = 15
 FOCAL_MIN_RATIO, FOCAL_MAX_RATIO = 0.5, 2.0
@@ -74,7 +79,16 @@ class WaterEstimate:
         for key in ("level_mm_range", "ft_range"):
             if data[key] is not None:
                 data[key] = list(data[key])
-        return data
+        return {key: _finite_or_none(value) for key, value in data.items()}
+
+
+def _finite_or_none(value: Any) -> Any:
+    """NaN and infinity become None (JSON has no representation for them)."""
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, list):
+        return [_finite_or_none(v) for v in value]
+    return value
 
 
 def car_level_index(model: TrayModel, level: float) -> int:
@@ -104,6 +118,8 @@ def _apply_car_hysteresis(model: TrayModel, level: float, previous: int | None) 
 def _step_interval(model: TrayModel, lo: float, hi: float) -> tuple[float, tuple[float, float], float, tuple[float, float]]:
     """Snap an equivalent-level plateau to the 1 ft step it lies in: (level, range, ft, ft_range)."""
     k = int(np.floor(((lo + hi) / 2.0 - model.pool_mm) / model.step_mm + 1e-9))
+    last_step = max(0, int(np.ceil((model.rim_top_mm - model.pool_mm) / model.step_mm - 1e-9)) - 1)
+    k = min(k, last_step)
     if k < 0:
         return model.pool_mm, (max(model.floor_mm, model.pool_mm + k * model.step_mm), model.pool_mm), 0.0, (0.0, 0.0)
     low = model.pool_mm + k * model.step_mm
@@ -126,6 +142,16 @@ class _View:
     cell_idx: np.ndarray  # indices into the grid of the visible, in-frame cells
 
 
+@dataclass(frozen=True, eq=False)
+class _Analysis:
+    """Tag detection and visibility for one frame object (kept alive so ``frame is`` identifies it)."""
+    frame: np.ndarray
+    shape: tuple[int, ...]
+    seen: dict[int, np.ndarray]
+    tags: int
+    view: _View | None
+
+
 class GaugeReader:
     """Reads the flood level from tray frames. Not thread-safe: use one reader per thread."""
 
@@ -140,10 +166,37 @@ class GaugeReader:
         self._buffer: deque[WaterEstimate] = deque(maxlen=SMOOTH_WINDOW)
         self._car_idx: int | None = None
         self._drops = 0
+        self._invalid_streak = 0
+        self._moved = False
+        self._analysis: _Analysis | None = None
+        self._rescale_logged: set[tuple[int, int]] = set()
 
     # ---------------------------------------------------------------- geometry
     def _guess_for(self, shape: tuple[int, int]) -> Intrinsics:
-        return self._cam_guess if self._cam_guess is not None else tello_default(shape[1], shape[0])
+        """Intrinsics for a frame of this (h, w); a guess made for another size is rescaled to fit."""
+        cam = self._cam_guess
+        if cam is None:
+            return tello_default(shape[1], shape[0])
+        height, width = shape
+        sx, sy = width / (2.0 * cam.cx), height / (2.0 * cam.cy)
+        if abs(sx - 1.0) <= INTRINSICS_SCALE_TOLERANCE and abs(sy - 1.0) <= INTRINSICS_SCALE_TOLERANCE:
+            return cam
+        if (width, height) not in self._rescale_logged:
+            self._rescale_logged.add((width, height))
+            logger.info("frame %dx%d differs from the camera's implied %dx%d: rescaling intrinsics",
+                        width, height, round(2 * cam.cx), round(2 * cam.cy))
+        return replace(cam, fx=cam.fx * sx, fy=cam.fy * sy, cx=cam.cx * sx, cy=cam.cy * sy)
+
+    def _analyse(self, frame: np.ndarray) -> _Analysis:
+        """Detect tags and compute the view once per frame object; update() and overlay() share it."""
+        cached = self._analysis
+        if cached is not None and cached.frame is frame and cached.shape == frame.shape:
+            return cached
+        seen = self._detect(frame)
+        tags = len([i for i in seen if i in self.model.tag_corners_mm])
+        view = self._view(frame, seen) if tags >= MIN_TAGS else None
+        self._analysis = _Analysis(frame, frame.shape, seen, tags, view)
+        return self._analysis
 
     def _solve(self, seen: dict[int, np.ndarray], shape: tuple[int, int]) -> tuple[PoseFix, Intrinsics] | None:
         """Pose with the given intrinsics and with a tag-derived focal; keep the better fit."""
@@ -185,13 +238,26 @@ class GaugeReader:
             return False, "pose rejected (tags inconsistent or reprojection error too high)"
         if len(view.cell_idx) < MIN_VISIBLE_CELLS:
             return False, f"only {len(view.cell_idx)} tray cells visible"
+        lab_obs = sample_lab(to_lab(frame), view.px)
+        if self._shows_water(lab_obs, view):
+            return False, "tray already has water; capture the baseline dry"
         lab = np.full((len(self._grid.height_mm), 3), np.nan, dtype=np.float32)
-        lab[view.cell_idx] = sample_lab(to_lab(frame), view.px)
+        lab[view.cell_idx] = lab_obs
         self._baseline = _Baseline(view.fix.pose, view.fix.camera_mm, lab)
+        self.reset()
+        self._moved = False
         return True, "ok"
+
+    def _shows_water(self, lab_obs: np.ndarray, view: _View) -> bool:
+        """True when the dye colour alone shows a clear waterline above the floor."""
+        wet = wetness_from_dye(lab_obs, self._direction)
+        fit = fit_level(self._grid.height_mm[view.cell_idx], wet, self._grid.quality[view.cell_idx],
+                        self.model.floor_mm, self.model.rim_top_mm)
+        return fit.contrast >= MIN_CONTRAST and fit.level_hi_mm > self.model.floor_mm + 0.5
 
     def clear_baseline(self) -> None:
         self._baseline = None
+        self._moved = False
 
     def _baseline_shift(self, fix: PoseFix) -> tuple[float, float]:
         base = self._baseline
@@ -200,6 +266,14 @@ class GaugeReader:
         axis_a, axis_b = base.pose.rotation[2], fix.pose.rotation[2]
         angle = float(np.degrees(np.arccos(np.clip(axis_a @ axis_b, -1.0, 1.0))))
         return move, angle
+
+    def _update_moved(self, dist: float, angle: float) -> bool:
+        """Moved-state with hysteresis: enter above the threshold, leave only below 70% of it."""
+        if dist > BASELINE_MOVE_MM or angle > BASELINE_MOVE_DEG:
+            self._moved = True
+        elif dist < BASELINE_LEAVE_FRACTION * BASELINE_MOVE_MM and angle < BASELINE_LEAVE_FRACTION * BASELINE_MOVE_DEG:
+            self._moved = False
+        return self._moved
 
     # ---------------------------------------------------------------- reading
     def _none(self, reason: str, **kw: Any) -> WaterEstimate:
@@ -230,11 +304,10 @@ class GaugeReader:
         """One-frame estimate (no smoothing)."""
         if frame is None or getattr(frame, "ndim", 0) != 3:
             return self._none("no frame")
-        seen = self._detect(frame)
-        tags = len([i for i in seen if i in self.model.tag_corners_mm])
+        analysis = self._analyse(frame)
+        tags, view = analysis.tags, analysis.view
         if tags < MIN_TAGS:
             return self._none(f"only {tags} of 4 tags visible", tags_seen=tags)
-        view = self._view(frame, seen)
         if view is None:
             return self._none("pose rejected: tags inconsistent or reprojection error too high", tags_seen=tags)
         return self._estimate(frame, view, tags)
@@ -245,9 +318,11 @@ class GaugeReader:
         if len(view.cell_idx) < MIN_VISIBLE_CELLS:
             return self._none("too few tray cells visible", **base_kw)
         moved, note = False, None
-        if self._baseline is not None:
+        if self._baseline is None:
+            self._moved = False
+        else:
             dist, angle = self._baseline_shift(view.fix)
-            moved = dist > BASELINE_MOVE_MM or angle > BASELINE_MOVE_DEG
+            moved = self._update_moved(dist, angle)
             if moved:
                 note = (f"baseline invalid: camera moved {dist:.0f} mm / {angle:.1f} deg since capture; "
                         "using dye colour only")
@@ -281,6 +356,7 @@ class GaugeReader:
         self._buffer.clear()
         self._car_idx = None
         self._drops = 0
+        self._invalid_streak = 0
 
     def _implausible(self, est: WaterEstimate) -> bool:
         if len(self._buffer) < MIN_HISTORY_FOR_JUMP_CHECK:
@@ -310,7 +386,15 @@ class GaugeReader:
         """Smoothed estimate: median of the last valid frames; occluded or implausible frames are dropped."""
         est = self.read(frame)
         if not est.valid:
-            return self._smoothed(est, est.reason) if self._buffer and est.tags_seen < MIN_TAGS else est
+            if est.tags_seen < MIN_TAGS:  # occluded: keep the history, hold the last good reading
+                return self._smoothed(est, est.reason) if self._buffer else est
+            self._drops = 0
+            self._invalid_streak += 1
+            if self._invalid_streak >= INVALID_STREAK_TO_CLEAR:
+                self._buffer.clear()
+                self._car_idx = None
+            return est
+        self._invalid_streak = 0
         if self._implausible(est) and self._drops < MAX_CONSECUTIVE_DROPS:
             self._drops += 1
             return self._smoothed(est, "frame dropped: wet fraction jumped implausibly")
@@ -324,10 +408,10 @@ class GaugeReader:
     def overlay(self, frame: np.ndarray, estimate: WaterEstimate) -> np.ndarray:
         """Frame with tags outlined, cells predicted wet tinted and the reading as text."""
         out = frame.copy()
-        seen = self._detect(frame)
-        for corners in seen.values():
+        analysis = self._analyse(frame)
+        for corners in analysis.seen.values():
             cv2.polylines(out, [corners.astype(np.int32).reshape(-1, 1, 2)], True, (0, 255, 0), 2)
-        view = self._view(frame, seen) if len(seen) >= MIN_TAGS else None
+        view = analysis.view
         if view is not None and estimate.level_mm is not None:
             wet = self._grid.height_mm[view.cell_idx] < estimate.level_mm
             mask = np.zeros(frame.shape[:2], dtype=np.uint8)
@@ -337,8 +421,7 @@ class GaugeReader:
             tint = np.array(OVERLAY_TINT_BGR, dtype=np.float32)
             out[mask] = (out[mask] * (1 - OVERLAY_ALPHA) + tint * OVERLAY_ALPHA).astype(np.uint8)
         for row, text in enumerate(self._overlay_lines(estimate)):
-            cv2.putText(out, text, (10, 24 + 24 * row), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 3)
-            cv2.putText(out, text, (10, 24 + 24 * row), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+            _draw_label(out, text, (10, 24 + 24 * row))
         return out
 
     @staticmethod
@@ -351,3 +434,13 @@ class GaugeReader:
                 f"crossing {'FLOODED' if est.crossing_flooded else 'clear'}  car {est.car_level}  "
                 f"houses {est.houses_flooded}/{est.houses_total}"]
 
+
+
+def _draw_label(img: np.ndarray, text: str, origin: tuple[int, int]) -> None:
+    """White text on a dark box, laid out once so the backing and glyphs always align."""
+    font, scale, thickness = cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1
+    (width, height), baseline = cv2.getTextSize(text, font, scale, thickness)
+    x, y = origin
+    pad = OVERLAY_TEXT_PAD_PX
+    cv2.rectangle(img, (x - pad, y - height - pad), (x + width + pad, y + baseline + pad), (0, 0, 0), cv2.FILLED)
+    cv2.putText(img, text, origin, font, scale, (255, 255, 255), thickness, cv2.LINE_AA)

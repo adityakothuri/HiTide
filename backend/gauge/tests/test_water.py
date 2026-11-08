@@ -13,7 +13,7 @@ from gauge.synth import Noise, look_at_pose, render  # noqa: E402
 from gauge.tests.sweep import (EXACT_FT, HOVER_FT, HOVER_POSES, MID_STEP_FT, NOISE, STAND_POSES,  # noqa: E402
                                none_rate, rate, run_sweep)
 from gauge.water import (CAR_LEVELS, GaugeReader, WaterEstimate, _apply_car_hysteresis,  # noqa: E402
-                         car_level_index, describe_level)
+                         _step_interval, car_level_index, describe_level)
 
 CAM = tello_default()
 
@@ -258,3 +258,155 @@ def test_overlay_marks_frame_and_keeps_input(model):
     assert out.shape == frame.shape and not np.array_equal(out, frame)
     assert np.array_equal(frame, original)
     assert reader.overlay(frame, WaterEstimate(reason="no frame")).shape == frame.shape
+
+
+# ------------------------------------------------------------------ review fixes
+def _extent(mask):
+    ys, xs = np.nonzero(mask)
+    return xs.min(), ys.min(), xs.max(), ys.max()
+
+
+def test_overlay_text_layout_is_single_pass(model):
+    """Dark backing and light glyph extents of each line coincide (no misaligned double pass)."""
+    reader = GaugeReader(model, CAM)
+    gray = np.full((300, 960, 3), 128, np.uint8)
+    est = replace(fake_estimate(model, 3.5, 0.5), crossing_flooded=True, car_level="doors", houses_flooded=4)
+    out = reader.overlay(gray, est)
+    lines = reader._overlay_lines(est)
+    assert len(lines) == 3
+    value = out[:, :, 0].astype(int)
+    for row in range(3):
+        y0, y1 = 24 * row + 2, 24 * row + 28
+        light = np.zeros_like(value, bool)
+        dark = np.zeros_like(value, bool)
+        light[y0:y1] = value[y0:y1] > 200
+        dark[y0:y1] = value[y0:y1] < 60
+        lx0, ly0, lx1, ly1 = _extent(light)
+        dx0, dy0, dx1, dy1 = _extent(dark)
+        # glyphs sit inside the backing box, within padding plus glyph side bearings of its edges
+        assert dx0 <= lx0 and dx1 >= lx1 and dy0 <= ly0 and dy1 >= ly1, row
+        assert lx0 - dx0 <= 8 and dx1 - lx1 <= 8 and ly0 - dy0 <= 8 and dy1 - ly1 <= 8, row
+        width = cv2.getTextSize(lines[row], cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)[0][0]
+        assert abs((dx1 - dx0) - width) <= 6, row  # backing box matches the single thickness-1 layout
+
+
+def test_invalid_frames_with_tags_clear_stale_levels(model):
+    good = fake_estimate(model, 5.5, 0.70)
+    dry = WaterEstimate(reason="no water detected", tags_seen=4)
+    new = fake_estimate(model, 1.5, 0.30)
+    reader = scripted_reader(model, [good] * 4 + [dry] * 3 + [new] * 2)
+    results = [reader.update(None) for _ in range(9)]
+    assert all(r.ft is None for r in results[4:7])
+    assert results[7].ft == pytest.approx(1.5) and results[8].ft == pytest.approx(1.5)
+
+
+def test_short_invalid_run_keeps_history_and_resets_drops(model):
+    good = fake_estimate(model, 3.5, 0.50)
+    dry = WaterEstimate(reason="no clear waterline", tags_seen=4)
+    reader = scripted_reader(model, [good] * 4 + [dry, good])
+    for _ in range(4):
+        reader.update(None)
+    reader._drops = 2
+    reader.update(None)
+    assert reader._drops == 0 and len(reader._buffer) == 4
+    assert reader.update(None).ft == pytest.approx(3.5)
+
+
+def test_small_hover_drift_keeps_baseline_large_move_flags(model):
+    rng = np.random.default_rng(4)
+    reader = GaugeReader(model, CAM)
+    assert reader.set_baseline(render(model, CAM, look_at_pose(model, 380, 50, 20), None,
+                                      noise=Noise.modest(), rng=rng))[0]
+    drift = look_at_pose(model, 395, 50, 20)  # about 15 mm
+    est = reader.read(render(model, CAM, drift, level_mm(model, 3.5), noise=Noise.modest(), rng=rng))
+    assert est.has_baseline and not est.baseline_moved
+    far = look_at_pose(model, 430, 50, 20)  # about 50 mm
+    assert reader.read(render(model, CAM, far, level_mm(model, 3.5), noise=Noise.modest(), rng=rng)).baseline_moved
+
+
+def test_baseline_moved_has_hysteresis(model):
+    rng = np.random.default_rng(5)
+    reader = GaugeReader(model, CAM)
+    assert reader.set_baseline(render(model, CAM, look_at_pose(model, 380, 50, 20), None,
+                                      noise=Noise.modest(), rng=rng))[0]
+
+    def moved_at(dist):
+        frame = render(model, CAM, look_at_pose(model, dist, 50, 20), level_mm(model, 3.5),
+                       noise=Noise.modest(), rng=rng)
+        return reader.read(frame).baseline_moved
+
+    assert not moved_at(380 + 21)   # below the enter threshold
+    assert moved_at(380 + 40)       # enter
+    assert moved_at(380 + 21)       # between leave (70%) and enter thresholds: stays moved
+    assert not moved_at(380 + 5)    # leaves
+
+
+def test_baseline_rejected_when_tray_has_water(model):
+    rng = np.random.default_rng(6)
+    reader = GaugeReader(model, CAM)
+    wet = render(model, CAM, look_at_pose(model, 380, 50, 20), level_mm(model, 4.5), noise=Noise.modest(), rng=rng)
+    ok, reason = reader.set_baseline(wet)
+    assert not ok and "already has water" in reason
+    assert reader.read(wet).has_baseline is False
+
+
+def test_baseline_accepted_dry_and_clears_smoothing(model):
+    rng = np.random.default_rng(7)
+    reader = GaugeReader(model, CAM)
+    reader._buffer.append(fake_estimate(model, 3.5, 0.5))
+    reader._drops = 2
+    dry = render(model, CAM, look_at_pose(model, 380, 50, 20), None, noise=Noise.modest(), rng=rng)
+    assert reader.set_baseline(dry) == (True, "ok")
+    assert len(reader._buffer) == 0 and reader._drops == 0
+
+
+def test_overlay_after_update_reuses_detection_and_view(model, monkeypatch):
+    pose = look_at_pose(model, 380, 50, 20)
+    frame = render(model, CAM, pose, level_mm(model, 4.5), noise=NOISE, rng=np.random.default_rng(3))
+    reader = GaugeReader(model, CAM)
+    calls = {"view": 0, "detect": 0}
+    view, detect = reader._view, reader._detect
+
+    def counting_view(*a, **k):
+        calls["view"] += 1
+        return view(*a, **k)
+
+    def counting_detect(*a, **k):
+        calls["detect"] += 1
+        return detect(*a, **k)
+
+    monkeypatch.setattr(reader, "_view", counting_view)
+    monkeypatch.setattr(reader, "_detect", counting_detect)
+    est = reader.update(frame)
+    cached = reader.overlay(frame, est)
+    assert calls == {"view": 1, "detect": 1}
+    assert np.array_equal(cached, GaugeReader(model, CAM).overlay(frame, est))
+    reader.overlay(frame.copy(), est)  # a different frame object is analysed again
+    assert calls["view"] == 2
+
+
+def test_frame_smaller_than_intrinsics_is_rescaled(model):
+    pose = look_at_pose(model, 300, 50, 20)
+    small = tello_default(480, 360)
+    frame = render(model, small, pose, level_mm(model, 3.5), noise=Noise.modest())
+    assert frame.shape[:2] == (360, 480)
+    est = GaugeReader(model, CAM).read(frame)  # intrinsics describe 960x720
+    native = GaugeReader(model, small).read(frame)
+    assert est.ft == pytest.approx(3.5) and est.reproj_err_px is not None and est.reproj_err_px < 3.0
+    assert est.reproj_err_px == pytest.approx(native.reproj_err_px, abs=0.05)
+
+
+def test_step_interval_clamps_at_rim(model):
+    top = model.rim_top_mm
+    level, mm_range, ft, _ = _step_interval(model, top, top + 5.0)
+    assert mm_range[1] <= top + 1e-9 and mm_range[0] < mm_range[1] and level <= top
+    assert ft <= (top - model.pool_mm) / model.step_mm
+
+
+def test_to_dict_has_fields_and_no_non_finite(model):
+    est = replace(fake_estimate(model, 3.5, 0.5), confidence=float("nan"), reproj_err_px=float("inf"),
+                  ft_range=(float("-inf"), 4.0), baseline_moved=True)
+    data = est.to_dict()
+    assert data["baseline_moved"] is True and data["wet_fraction"] == 0.5
+    assert data["confidence"] is None and data["reproj_err_px"] is None and data["ft_range"] == [None, 4.0]
+    json.dumps(data, allow_nan=False)
