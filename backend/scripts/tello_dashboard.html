@@ -312,6 +312,14 @@
   </section>
 
   <aside class="side">
+    <div class="card" aria-labelledby="demo-h">
+      <h2 id="demo-h">Demo overlay</h2>
+      <div class="buttons">
+        <button id="demo-toggle" title="Show the car box and water outline (key B)">Demo boxes: off</button>
+        <button class="alt" id="demo-anchor" title="Line the boxes up on this view first; they then follow the tray as the drone moves">Anchor boxes</button>
+      </div>
+      <p class="help">1) Demo boxes on (or press B). 2) With the tray in view, Anchor boxes. 3) Fly: the boxes follow the tray.</p>
+    </div>
     <div class="card">
       <h2>Power cell</h2>
       <div class="battery-row">
@@ -364,8 +372,6 @@
         <button class="alt" id="g-stop">Stop</button>
         <button class="alt" id="g-corners" title="Click the 4 tray corners on the video: the pose comes from these, no tags needed">Set tray corners</button>
         <button class="alt" id="g-corners-clear">Clear corners</button>
-        <button class="alt" id="demo-toggle" title="Show the car box and water outline for the demo">Demo boxes: off</button>
-        <button class="alt" id="demo-anchor" title="Line the boxes up on this view first; they then follow the tray as the drone moves">Anchor demo boxes</button>
       </div>
       <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
       <p class="gauge-msg" id="g-msg" role="status" aria-live="polite"></p>
