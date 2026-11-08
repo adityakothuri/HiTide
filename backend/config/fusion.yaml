@@ -1,0 +1,22 @@
+# Evidence fusion + critical-point priority (overview.md sections 6.3, 6.4, 8.4). Tune here, not in code.
+fusion:
+  prior_in_warning: 0.30        # floodable segment inside an active warning
+  prior_outside: 0.02
+  add_gauge_rising: 0.15        # nearest upstream reporting gauge rising fast
+  add_model_above_road: 0.15    # gauge-interpolated stage is above the road (belief model, gauges only)
+  add_heavy_rain: 0.15          # > 1 in/hr at the nearest rain gauge
+  add_driver_signals: 0.20      # Drive Safe & Save stops / U-turns at the segment (synthetic in the demo)
+  drone_wet: 0.95
+  drone_dry: 0.10               # never 0: we never declare a road safe
+  indirect_cap: 0.85            # without direct evidence (drone, closure, impact point) never reach "confirmed"
+  bands: {open: 0.15, unknown: 0.50, likely: 0.90}   # p < open -> open, < unknown -> unknown, < likely -> likely, else confirmed
+  rising_ft_per_hr: 2.0         # "rising fast"
+  decay_half_life_s: {rising: 1800, steady: 7200}
+
+priority:
+  unavoidable_weight: 1.0
+  optional_weight: 0.3
+  truck_access_weight: 0.5      # a cut-off node's rescue approach (can a high-clearance truck still get in?)
+  vulnerability: {older: 0.5, one_story: 0.3, cars_home: 0.3}
+  urgency_rising: 1.5
+  forecast_horizon_s: 3600

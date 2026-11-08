@@ -1,0 +1,72 @@
+"""HAND-style replay flood: gauge stage interpolated along a waterway with travel-time lag; truth vs belief."""
+
+from __future__ import annotations
+
+import numpy as np
+import pytest
+
+from sim.hand_flood import FT_TO_M, Gauge, crossing_depth_in, fill_gap, interp_rise_m, interp_rise_vec, road_depth_in
+
+H = 3600.0
+
+
+def _g(site, s_m, times_h, stage_ft, base=2.0):
+    return Gauge(site, s_m, np.array(times_h, dtype=float) * H, np.array(stage_ft, dtype=float), base)
+
+
+UP = _g("up", 0.0, [0, 1, 2, 3], [2, 12, 22, 12])
+DOWN = _g("down", 18_000.0, [0, 1, 2, 3, 4], [2, 2, 12, 22, 12])
+C = 5.0  # m/s -> 18 km = 1 h lag
+
+
+def test_rise_at_a_gauge_is_its_own_reading_above_base():
+    assert interp_rise_m([UP, DOWN], 0.0, 2 * H, C) == pytest.approx(20 * FT_TO_M)
+
+
+def test_midway_point_blends_both_gauges_with_travel_time_lag():
+    # s = 9 km: UP seen 30 min later (t - 0.5 h), DOWN seen 30 min earlier (t + 0.5 h); equal weights.
+    r = interp_rise_m([UP, DOWN], 9_000.0, 2.5 * H, C)
+    up = np.interp(2.0, [0, 1, 2, 3], [0, 10, 20, 10])
+    down = np.interp(3.0, [0, 1, 2, 3, 4], [0, 0, 10, 20, 10])
+    assert r == pytest.approx(0.5 * (up + down) * FT_TO_M)
+
+
+def test_beyond_the_last_gauge_uses_the_nearest_one_shifted():
+    r = interp_rise_m([UP, DOWN], 27_000.0, 3.5 * H, C)  # 9 km below DOWN -> DOWN 30 min earlier
+    assert r == pytest.approx(np.interp(3.0, [0, 1, 2, 3, 4], [0, 0, 10, 20, 10]) * FT_TO_M)
+
+
+def test_offline_gauge_is_unknown_in_belief_and_the_other_gauge_carries_on():
+    dead = _g("dead", 0.0, [0, 1, 2], [2, 12, 30])  # stops reporting after 2 h
+    assert interp_rise_m([dead], 0.0, 3 * H, C) is None
+    assert interp_rise_m([dead, DOWN], 0.0, 3 * H, C) == pytest.approx(
+        np.interp(2.0, [0, 1, 2, 3, 4], [0, 0, 10, 20, 10]) * FT_TO_M)
+
+
+def test_fill_gap_uses_downstream_shape_scaled_to_the_last_reading():
+    dead = _g("dead", 0.0, [0, 1, 2], [2, 12, 22])
+    filled = fill_gap(dead, DOWN, lag_s=H, until_s=4 * H)
+    assert filled.times[-1] >= 3 * H
+    assert interp_rise_m([filled], 0.0, 2 * H, C) == pytest.approx(20 * FT_TO_M)  # real data untouched
+    assert interp_rise_m([filled], 0.0, 3 * H, C) is not None
+
+
+def test_road_depth_is_water_surface_minus_road_never_negative():
+    assert road_depth_in(ref_z_m=500.0, rise_m=2.0, road_z_m=501.0) == pytest.approx(1.0 * 39.3701)
+    assert road_depth_in(ref_z_m=500.0, rise_m=0.5, road_z_m=501.0) == 0.0
+    assert road_depth_in(ref_z_m=500.0, rise_m=None, road_z_m=499.0) == 0.0
+
+
+def test_low_water_crossing_floods_before_a_bridge():
+    assert crossing_depth_in(rise_m=1.0, bridge=False) > 0
+    assert crossing_depth_in(rise_m=1.0, bridge=True) == 0.0
+
+
+def test_vector_interpolation_matches_scalar_including_gaps():
+    dead = _g("dead", 0.0, [0, 1, 2], [2, 12, 30])
+    s = np.array([0.0, 4_000.0, 9_000.0, 18_000.0, 27_000.0])
+    for t in (0.5 * H, 2.5 * H, 3.5 * H, 9 * H):
+        vec = interp_rise_vec([dead, DOWN], s, t, C)
+        for sv, v in zip(s, vec):
+            scalar = interp_rise_m([dead, DOWN], float(sv), t, C)
+            assert (scalar is None and np.isnan(v)) or v == pytest.approx(scalar)

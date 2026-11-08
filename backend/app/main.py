@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from api.routes import router
+from api.routes_region import router as region_router
 from app.config import DATA_DIR
 from app.runtime import build_runtime
 from app.security import ORIGIN_RE
@@ -58,6 +59,8 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         runtime.demo.cancel()
+        if getattr(app.state, "hill", None) is not None:
+            app.state.hill.demo.cancel()
         if inbound is not None:
             await inbound.stop()
         runtime.runner.cancel_pending()
@@ -78,4 +81,5 @@ app.add_middleware(
 )
 app.include_router(router)
 app.include_router(evidence_router)
+app.include_router(region_router)
 app.mount("/static/drone", StaticFiles(directory=DATA_DIR / "drone_samples"), name="drone")

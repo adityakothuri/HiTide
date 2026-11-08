@@ -124,3 +124,44 @@ The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outr
 | `StateSnapshot` | `reroutes: Reroute[]`, `turn_arounds: TurnAround[]` | A driver view that reconnects mid-trip can restore its route and alert | Lost on reconnect |
 
 The **feed status** keys returned by `GET /api/feeds` are `nws_alerts`, `usgs_gage`, `usgs_flood_impacts` (each with `source` and `fetched_at`), not `nws` / `flood_impacts` as written in the REST table above. The frontend reads the actual keys.
+
+## Hill Country scenario: critical points and drone tours (2026-11-08)
+
+A second, separate demo replays the **real July 4, 2025 flood** over Hunt → Ingram → Kerrville (overview.md §8, math in `docs/drone-critical-points.md`). It doesn't touch the Kerrville driver-rescue demo.
+
+| Real | Simulated (label it) |
+|---|---|
+| OSM roads (8,372 edges), USGS 3DEP terrain, USGS gauge readings (the Hunt gauge dies at 05:10 CDT), NWS warning times, fire-station locations | Households and their attributes, drone flights, snapshots (generated from the replay), outreach, ungauged creeks ("modeled") |
+
+### REST
+| Method | Path | Returns |
+|---|---|---|
+| GET | `/api/region` | `{id, name, bbox, segments (GeoJSON FC: edge_id, name, highway, bridge), waterways (GeoJSON FC: name, role), gauges[], stations[]}`. Static; fetch once. |
+| GET | `/api/region/state` | `{scenario_running, sim_time, alerts[], gauges[], segments: [{edge_id, status, belief_depth_in}] (non-open only), critical_points[] (top 12), nodes[], drones[], counters}` |
+| GET | `/api/region/critical-points` | Ranked critical points (below) |
+| GET | `/api/region/nodes` | All population nodes (below) |
+| GET | `/api/region/drones/plan` | Drones with their current planned tour |
+| POST | `/api/demo/start?scenario=hill_country&speed=150` | Starts the replay (01:00 → 07:30 CDT; about 2.5 min at 150×). `scenario` defaults to the Kerrville demo. |
+| POST | `/api/demo/reset?scenario=hill_country` | Stops and clears the replay |
+
+### WS events (same `/ws`, envelope `{type, seq, ts, payload}`; every payload has `scenario: "hill_country"`)
+| type | payload |
+|---|---|
+| `region.reset` | `{sim_time}`: clear Hill Country layers |
+| `region.alert` | `{id, event, headline, active, simulated: true, at}`: the real NWS timeline, labelled REPLAY |
+| `gauge.status` | `{site, name, waterway, lon, lat, online, stage_ft, observed_at, rate_ft_per_hr, change: online/offline}` |
+| `region.segments` | `{segments: [{edge_id, status, belief_depth_in}]}`: only changed edges. Status is `open \| unknown \| likely_flooded \| confirmed_flooded` (belief, never truth) |
+| `critical_points.ranked` | `{t, points: [CriticalPoint]}` |
+| `node.updated` | `Node` |
+| `drones.update` | `{t, drones: [Drone]}`: every tick |
+| `snapshot.created` | `Snapshot` (overview §9.5) |
+| `region.counters` | `{sim_time, households_warned, households_route_out, nodes_cut_off, households_cut_off, points_checked, drone_km, boat_required}` |
+| `demo.step` | `{scenario, step 1-7, title, detail, sim_time}` |
+
+**CriticalPoint**: `{id, name, kind: crossing|bridge|low_spot, waterway, lon, lat, p_flooded, status, priority, breakdown: {dependency, vulnerability, p_weight, uncertainty, urgency}, node_ids[], last_snapshot: Snapshot|null}`. Show the breakdown as the "why this point" panel: priority = dependency × vulnerability × p_weight × uncertainty × urgency.
+
+**Node**: `{id, name, kind: homes|camp|rv_park, town, lon, lat, households, status: ok|at_risk|partially_cut_off|cut_off, instruction: none|route_out|shelter_in_place|wait_for_check, unavoidable_points[], optional_points[], rescue: truck_route|boat_required|null, reasons[]}`. Camps and RV parks use **generic labels** ("Riverside youth camp A, Hunt"). Never show real camp names.
+
+**Drone**: `{id, station, lat, lon, status: idle|flying|snapshot|returning, target, eta_s, battery_pct, tour: [point_id], path: [[lon,lat],...] (planned: drone → stops → station), km_flown, simulated: true}`. Draw `path` dashed (plan) and the trail solid.
+
+**Snapshot**: `{point_id, drone_id, time, water_on_road, road_covered_pct, est_depth_in, depth_method: car_reference|visual, rising, people_seen, confidence, image_url, simulated: true}`.

@@ -1,0 +1,10 @@
+# Drone fleet for the Hill Country region (simulated flights; DRONE_MODE=tello flies the first leg for real).
+profiles:
+  production: {cruise_mps: 15.0, climb_mps: 4.0, agl_m: 80.0, hover_s: 15.0, reserve_frac: 0.2, tau_s: 1200.0, endurance_s: 2100}
+  tello:      {cruise_mps: 8.0,  climb_mps: 1.0, agl_m: 1.0,  hover_s: 15.0, reserve_frac: 0.2, tau_s: 1200.0, endurance_s: 780}
+waterline_hold_s: 25          # extra hover at an urgent (rising) point, overview 9.3 step 4
+replan_every_s: 300           # sim seconds, plus after every snapshot / gauge outage / warning
+fleet:                        # stations at real OSM fire stations (places.json)
+  - {id: drone-hunt,      station: "Hunt Volunteer Fire Department",   lon: -99.33800, lat: 30.07141}
+  - {id: drone-ingram,    station: "Ingram Volunteer Fire Department", lon: -99.23920, lat: 30.07318}
+  - {id: drone-kerrville, station: "Kerrville Central Fire Station",   lon: -99.13652, lat: 30.04219}

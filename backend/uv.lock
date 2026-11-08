@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform == 'win32'",
@@ -1159,6 +1159,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "python-socketio", extra = ["asyncio-client"] },
     { name = "pyyaml" },
+    { name = "scipy" },
     { name = "shapely" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -1201,6 +1202,7 @@ requires-dist = [
     { name = "python-socketio", extras = ["asyncio-client"], specifier = ">=5.18.1" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rioxarray", marker = "extra == 'data-build'", specifier = ">=0.23.0" },
+    { name = "scipy", specifier = ">=1.18.1" },
     { name = "shapely", specifier = ">=2.2.0" },
     { name = "ultralytics", marker = "extra == 'vision'", specifier = ">=8.4.207" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54.0" },

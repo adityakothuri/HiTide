@@ -29,3 +29,6 @@ frontend/playwright-report/
 coverage.xml
 data/models/
 htmlcov/
+
+# osmnx Overpass HTTP cache (build scripts)
+backend/cache/
