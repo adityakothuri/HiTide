@@ -19,3 +19,5 @@ __pycache__/
 data/outreach_log.jsonl
 data/drivers.local.json
 data/models/
+.coverage
+htmlcov/
