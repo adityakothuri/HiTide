@@ -122,6 +122,17 @@
   }
   .video .novideo[hidden] { display: none; }
   .video.picking { cursor: crosshair; outline: 2px dashed var(--yellow); outline-offset: -2px; }
+  .depths { margin-top: 12px; }
+  .depths .label { font: 600 10px var(--display); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .depth-table { width: 100%; margin-top: 6px; border-collapse: collapse; font: 12px/1.4 var(--mono);
+                 font-variant-numeric: tabular-nums; }
+  .depth-table th, .depth-table td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+  .depth-table th:first-child, .depth-table td:first-child { text-align: left; }
+  .depth-table thead th { font: 600 10px var(--display); letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .depth-table td.wet { color: var(--cyan); }
+  .depth-table td.rise { color: var(--magenta); font-weight: 700; }
+  .depths details summary { cursor: pointer; margin-top: 6px; font: 600 11px var(--display); letter-spacing: 1px;
+                            color: var(--cyan); }
   .corner-dot {
     position: absolute; z-index: 6; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none;
     display: grid; place-items: center; border-radius: 50%; background: var(--magenta); color: var(--void);
@@ -325,11 +336,18 @@
         <div class="stat wide"><div class="label">Confidence <span id="g-conf-v"></span></div>
           <div class="conf"><div id="g-conf"></div></div></div>
       </div>
+      <div class="depths" id="g-depths" hidden>
+        <div class="label">Depth by place (ft) // CAD ground vs measured surface</div>
+        <table class="depth-table"><thead><tr><th>Place</th><th>Before</th><th>Now</th><th>Change</th></tr></thead>
+          <tbody id="g-depth-main"></tbody></table>
+        <details><summary id="g-depth-houses-label">Houses</summary>
+          <table class="depth-table"><tbody id="g-depth-houses"></tbody></table></details>
+      </div>
       <div class="gauge-buttons">
         <button class="alt" id="g-baseline" title="Before pouring: capture the dry tray from this exact camera pose">Capture dry baseline</button>
         <button id="g-start">Start</button>
         <button class="alt" id="g-stop">Stop</button>
-        <button class="alt" id="g-corners" title="No readable tags? Click the 4 tray corners on the video">Set tray corners</button>
+        <button class="alt" id="g-corners" title="Click the 4 tray corners on the video: the pose comes from these, no tags needed">Set tray corners</button>
         <button class="alt" id="g-corners-clear">Clear corners</button>
       </div>
       <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
@@ -582,6 +600,30 @@ function baselineText(g) {
 }
 $("g-overlay").onchange = (e) => setOverlay(e.target.checked);
 
+// Depth by place: the CAD gives each place's ground height (before = at normal pool); vision gives the
+// water surface; depth now = surface - ground. Built with textContent only (no HTML from the network).
+function depthRow(d) {
+  const tr = document.createElement("tr");
+  const cells = [d.label, d.before_ft.toFixed(1), d.now_ft.toFixed(1), `${d.change_ft > 0 ? "+" : ""}${d.change_ft.toFixed(1)}`];
+  cells.forEach((text, i) => {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (i === 0 && d.flooded) td.className = "wet";
+    if (i === 3 && d.change_ft > 0) td.className = "rise";
+    if (i === 2) td.title = `range ${d.now_ft_range[0].toFixed(1)}-${d.now_ft_range[1].toFixed(1)} ft`;
+    tr.append(td);
+  });
+  return tr;
+}
+function renderDepths(g) {
+  const depths = Array.isArray(g.depths) && g.ft != null ? g.depths : [];
+  $("g-depths").hidden = depths.length === 0;
+  const houses = depths.filter((d) => d.id.startsWith("house_"));
+  $("g-depth-main").replaceChildren(...depths.filter((d) => !d.id.startsWith("house_")).map(depthRow));
+  $("g-depth-houses").replaceChildren(...houses.map(depthRow));
+  $("g-depth-houses-label").textContent = `Houses (${houses.filter((d) => d.flooded).length} of ${houses.length} flooded)`;
+}
+
 function poseText(g) {
   if (g.pose_source === "tags") return `tags (${g.tags_seen})`;
   if (g.pose_source === "corners") return "clicked corners";
@@ -684,6 +726,7 @@ function renderGauge(g) {
   cross.className = "value" + (g.crossing_flooded ? " lvl-roof" : g.crossing_flooded === false ? " lvl-none" : "");
   $("g-houses").textContent = g.houses_flooded == null ? "--" : `${g.houses_flooded} / ${g.houses_total}`;
   $("g-tags").textContent = poseText(g);
+  renderDepths(g);
   $("g-base").textContent = baselineText(g);
   $("g-base").style.color = g.baseline_moved ? "var(--yellow)" : "";
   const conf = Math.round((g.confidence ?? 0) * 100);

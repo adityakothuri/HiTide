@@ -90,11 +90,14 @@ class TrayModel:
 
 
 def default_tray_dir() -> Path:
-    """Directory from ``GAUGE_TRAY_DIR`` or the repo's 160 mm build."""
+    """Directory from ``GAUGE_TRAY_DIR``, else the repo's 160 mm build, else ``tray/`` beside the package
+    (the standalone drone demo build)."""
     env = os.environ.get(TRAY_DIR_ENV)
     if env:
         return Path(env)
-    return Path(__file__).resolve().parents[2] / "data" / DEFAULT_TRAY_NAME
+    here = Path(__file__).resolve()
+    repo = here.parents[2] / "data" / DEFAULT_TRAY_NAME
+    return repo if repo.is_dir() else here.parents[1] / "tray"
 
 
 def _readonly(array: np.ndarray) -> np.ndarray:

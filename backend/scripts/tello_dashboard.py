@@ -118,7 +118,9 @@ def save_profile(profile: dict) -> None:
 
 # ---------- gauge tray water level (docs/gauge-water-level-plan.md, "Integration") ----------
 
-BACKEND_DIR = Path(__file__).resolve().parents[1]  # holds the `gauge` package
+_HERE = Path(__file__).resolve().parent
+# The `gauge` package: next to this file in the standalone demo build, else backend/ in the repo.
+BACKEND_DIR = _HERE if (_HERE / "gauge").is_dir() else _HERE.parent
 GAUGE_HZ = 2
 GAUGE_DYE_DEFAULT = "blue"
 GAUGE_LOADING = "loading the gauge model"
