@@ -1,18 +1,19 @@
 /* The only file allowed to contain hex colors (enforced by stylelint). See vault/Design System.md. */
 :root {
-  /* Brand: wordmark, primary buttons, selected states. Never danger. */
-  --brand-red: #b3121f;
-  --brand-red-hover: #960f1a;
+  /* Brand: wordmark, primary buttons, selected states. Never danger.
+     HiTide palette (royal blue + navy). The token keeps its old name so no consumer changes. */
+  --brand-red: #2448e8;
+  --brand-red-hover: #1b39c4;
 
-  --ink: #24272b;
-  --neutral-1: #f0f2f4;
-  --neutral-2: #dde1e5;
-  --neutral-3: #bcc3ca;
+  --ink: #13203b;
+  --neutral-1: #f3f5f8;
+  --neutral-2: #e3e7ef;
+  --neutral-3: #c9cfdb;
   --neutral-4: #838c95;
-  --neutral-5: #5f6870;
+  --neutral-5: #5d6882;
   --neutral-6: #3e454c;
   --surface: #fff;
-  --surface-page: #f4f6f8;
+  --surface-page: #f7f8fb;
   --on-dark: #fff;
 
   /* Water depth scale */
@@ -31,8 +32,8 @@
   --critical: #931566;
   --critical-bg: #fbe9f3;
   --critical-deep: #7a0f46;
-  --info: #3a5a82;
-  --info-bg: #e8eef6;
+  --info: #2448e8;
+  --info-bg: #eef3ff;
 
   /* Type */
   --font: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -75,16 +76,4 @@
   /* Touch */
   --tap-min: 44px;
   --tap-primary: 56px;
-
-  /* HiTide ops console palette (royal blue + navy, from the HiTide frontend). Applied to the
-     console by re-pointing the tokens above inside .app; see Operations.module.css. */
-  --ops-primary: #2448e8;
-  --ops-primary-hover: #1b39c4;
-  --ops-ink: #13203b;
-  --ops-muted: #5d6882;
-  --ops-line: #e3e7ef;
-  --ops-line-strong: #c9cfdb;
-  --ops-pale: #eef3ff;
-  --ops-page: #f7f8fb;
-  --ops-land: #f3f5f8;
 }

@@ -4,25 +4,23 @@
   gap: var(--space-1);
 }
 
-.mark {
-  width: 24px;
-  height: 24px;
+.mark,
+.markCompact {
+  width: 28px;
+  height: 28px;
   flex: none;
+  object-fit: contain;
 }
 
-.mark rect { fill: var(--ink); }
-
-.mark path {
-  fill: none;
-  stroke: var(--on-dark);
-  stroke-width: 2.5;
-  stroke-linecap: round;
+.markCompact {
+  width: 22px;
+  height: 22px;
 }
 
 .text,
 .textCompact {
-  color: var(--brand-red);
-  font-weight: 700;
+  color: var(--ink);
+  font-weight: 800;
   font-size: var(--text-md);
   line-height: var(--lh-md);
   white-space: nowrap;

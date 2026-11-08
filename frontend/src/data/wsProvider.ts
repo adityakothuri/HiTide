@@ -120,7 +120,7 @@ export class WsProvider implements DataProvider {
         if (e.type === 'case.update') this.cases.set(e.payload.id, e.payload)
         this.onEvent(e)
       } catch (err) {
-        console.error('Flood Watch: could not read a message from the backend', err)
+        console.error('HiTide: could not read a message from the backend', err)
       }
     }
     ws.onclose = () => {

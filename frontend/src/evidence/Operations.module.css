@@ -1,19 +1,4 @@
-/* HiTide colour scheme: re-point the shared tokens for the console only, so every existing rule
-   (buttons, tags, borders, the Live drone panel) picks up the palette without layout changes.
-   Status colours (safe, caution, critical) are deliberately left as they are. */
 .app {
-  --brand-red: var(--ops-primary);
-  --brand-red-hover: var(--ops-primary-hover);
-  --ink: var(--ops-ink);
-  --neutral-1: var(--ops-land);
-  --neutral-2: var(--ops-line);
-  --neutral-3: var(--ops-line-strong);
-  --neutral-5: var(--ops-muted);
-  --surface-page: var(--ops-page);
-  --info: var(--ops-primary);
-  --info-bg: var(--ops-pale);
-  --border: 1px solid var(--ops-line);
-
   min-height: 100%;
   background: var(--surface-page);
   color: var(--ink);
