@@ -8,11 +8,16 @@ road_status_in:
   boat: 24       # >=24 in: boat only (sweeps away SUVs and trucks)
 
 flood:
-  river_base_wse_m: null      # null = derive from lowest road elevation near the river
-  rise_m_per_min: 0.06        # simulated rate of rise (sim minutes)
-  max_rise_m: 4.0
+  base_wse_m: 478.0           # just below the lowest road near the river (DEM min ~476 m)
+  rise_m_per_min: 0.2         # sim minutes; 13 m crest in ~65 sim min (Jul 2025 crest at Kerrville was >10 m)
+  max_rise_m: 13.0
   decay_m_per_km: 3.0         # water surface drop per km away from the river centerline
-  reach_km: 1.2               # beyond this distance from the river, no flooding
+  reach_km: 1.5               # beyond this distance from the river, no flooding
+  # calibrated 2026-11-07: ~36 closed segments at 30 min, ~240 (6%) at crest; see vault/Experiments
+
+clock:
+  tick_real_s: 1.0
+  demo_speed: 60              # sim seconds per real second in demo mode
 
 risk:
   weights:
