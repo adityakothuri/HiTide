@@ -129,6 +129,21 @@ async def gauge_status() -> dict[str, Any]:
     return data
 
 
+class CornersIn(BaseModel):
+    """Four clicked tray corners in frame pixels (tag-free pose), or clear=true to forget them."""
+    points: list[tuple[float, float]] | None = Field(None, min_length=4, max_length=4)
+    clear: bool = False
+
+
+# Declared before /gauge/{command}: FastAPI doesn't fall through to the next route on a 422.
+@router.post("/gauge/corners", dependencies=[Depends(require_trusted_origin)])
+async def gauge_corners(body: CornersIn) -> dict[str, Any]:
+    if not body.clear and body.points is None:
+        raise HTTPException(status_code=422, detail="send 4 points or clear=true")
+    payload = {"clear": True} if body.clear else {"points": [list(p) for p in body.points or []]}
+    return await _forward("/gauge/corners", payload, GAUGE_COMMAND_TIMEOUT)
+
+
 @router.post("/gauge/{command}", dependencies=[Depends(require_trusted_origin)])
 async def gauge_command(command: Literal["baseline", "start", "stop"]) -> dict[str, Any]:
     return await _forward(f"/gauge/{command}", {}, GAUGE_COMMAND_TIMEOUT)

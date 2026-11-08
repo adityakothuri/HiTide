@@ -172,6 +172,7 @@ POSTs use the same trusted-origin guard as the other state-changing routes.
 | GET | `/api/live-drone/gauge` | `GaugeStatus` (below). Poll about once a second. Always 200. |
 | POST | `/api/live-drone/gauge/baseline` | Captures the dry baseline from the current frame (pour no water yet, same camera pose as the readings). Returns `{"result": "ok"}` or `{"result": "<why it was refused>"}`, for example `"tray already has water; capture the baseline dry"`. UIs show "Dry baseline captured" or the refusal reason. |
 | POST | `/api/live-drone/gauge/start` | Starts reading at about 2 Hz. Returns `{"result": "ok"}` or a reason (for example the gauge module is unavailable). |
+| POST | `/api/live-drone/gauge/corners` | **Tag-free pose.** Body `{"points": [[x, y], [x, y], [x, y], [x, y]]}` (the 4 rim-top corners in frame pixels, starting at the left end of the FLOOD WATCH edge and going round) or `{"clear": true}`. Returns `{"result": "ok"}` or why it was refused. 422 for a malformed body. |
 | POST | `/api/live-drone/gauge/stop` | Stops reading; the last estimate stays visible. Returns `{"result": "ok"}`. |
 | GET | `/api/live-drone/gauge/overlay.jpg` | The latest annotated frame (tags, wet cells tinted, level text) as `image/jpeg`, `Cache-Control: no-store`. 404 before the first reading, 503 when the bridge is offline. Reload with a cache-busting query (`?t=...`). |
 
@@ -184,12 +185,14 @@ POSTs use the trusted-origin guard and return 503 when the bridge is offline, or
  "level_mm": 9.0, "level_mm_range": [8.0, 10.0], "ft": 2.5, "ft_range": [2.0, 3.0], "confidence": 0.82,
  "crossing_flooded": true, "car_level": "doors", "houses_flooded": 4, "houses_total": 10,
  "visible_cells": 18240, "wet_cells": 6120, "wet_fraction": 0.34, "tags_seen": 4, "reproj_err_px": 0.9,
- "has_baseline": true, "baseline_moved": false, "simulated": false, "reason": null, "ts": 1762600000.0}
+ "has_baseline": true, "baseline_moved": false, "simulated": false, "reason": null, "ts": 1762600000.0,
+ "pose_source": "tags", "corners": null}
 ```
 
 - `gauge`: `online` (the bridge answered and the gauge module loaded), `unavailable` (the bridge runs but `backend/gauge` failed to import; `error` says why; video and flight still work), or `offline` (no bridge; every other field is absent).
 - `enabled`: reading was started with `/gauge/start`. `running`: the reader thread is alive and producing estimates.
 - `error`: the last import, reader or overlay-encode error, or null. On a reader error the last estimate stays in the payload; `age_s` grows, so the UI shows it as stale.
+- `pose_source`: where the camera pose came from: `tags` (ArUco), `corners` (the 4 clicked rim corners) or `rim` (the automatically detected tray outline, accepted only when one orientation clearly fits). Null when there is no pose. Tags win when at least 3 are readable. `corners`: the clicked points, or null.
 - `age_s`: seconds since `ts` (the last reading), or null before any reading. **When `age_s` > 5 or `running` is false, dim the reading and show "Last reading Ns ago"**: it is not live.
 - Estimate fields are null until the first reading. **`ft` is null when the evidence is weak** (fewer than 3 tags, high reprojection error, too few visible cells, flat score) and `reason` then says why: show the reason, never a guess. `reason` can also be set on a valid reading (a caveat); **show `reason` whenever it is non-null.**
 - **Always show the range** (`ft_range`) next to `ft`. Each tray terrace step is 1 ft of rise above the normal pool. The reading resolves which step the water is in: `ft_range` is that step's bounds and `ft` is its centre (water between the 2 ft and 3 ft terraces reads `"ft": 2.5, "ft_range": [2.0, 3.0]`).

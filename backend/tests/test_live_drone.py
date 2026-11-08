@@ -193,3 +193,30 @@ def test_gauge_overlay_404_before_first_reading(client, monkeypatch):
 
 def test_gauge_overlay_503_when_bridge_offline(client, offline):
     assert client.get("/api/live-drone/gauge/overlay.jpg").status_code == 503
+
+
+CORNERS = [[100.0, 400.0], [700.0, 420.0], [620.0, 180.0], [180.0, 170.0]]
+
+
+def test_gauge_corners_forward_the_points(client, bridge):
+    response = client.post("/api/live-drone/gauge/corners", json={"points": CORNERS})
+    assert response.status_code == 200 and response.json() == {"result": "ok"}
+    sent = bridge[-1]
+    assert sent.url.path == "/gauge/corners" and b"700.0" in sent.content
+
+
+def test_gauge_corners_clear(client, bridge):
+    assert client.post("/api/live-drone/gauge/corners", json={"clear": True}).status_code == 200
+    assert b'"clear"' in bridge[-1].content
+
+
+@pytest.mark.parametrize("body", [{}, {"points": CORNERS[:3]}, {"points": [[1, 2]] * 5}, {"points": "abc"}])
+def test_gauge_corners_rejects_bad_bodies_without_reaching_bridge(client, bridge, body):
+    assert client.post("/api/live-drone/gauge/corners", json=body).status_code == 422
+    assert bridge == []
+
+
+def test_untrusted_origin_cannot_set_corners(client, bridge):
+    response = client.post("/api/live-drone/gauge/corners", json={"points": CORNERS},
+                           headers={"Origin": "https://evil.example"})
+    assert response.status_code == 403 and bridge == []

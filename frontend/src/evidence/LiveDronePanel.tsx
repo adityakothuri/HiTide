@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Battery, Camera, Droplets, ExternalLink, Gauge, OctagonX, PlaneLanding, PlaneTakeoff, Play, Radio, Square, Thermometer, Timer } from 'lucide-react'
+import { Battery, Camera, Crosshair, Droplets, ExternalLink, Gauge, OctagonX, PlaneLanding, PlaneTakeoff, Play, Radio, Square, Thermometer, Timer } from 'lucide-react'
 import s from './LiveDronePanel.module.css'
 
 /** Contract: docs/api-contract.md, "Live drone". Fields after controls_url exist only when bridge is online. */
@@ -45,11 +45,22 @@ export type GaugeStatus = {
   /** The camera moved since the dry baseline, so the reading uses dye colour only. */
   baseline_moved?: boolean | null
   wet_fraction?: number | null
+  /** Where the camera pose came from: the tags, the 4 clicked corners, or the detected tray outline. */
+  pose_source?: 'tags' | 'corners' | 'rim' | null
+  /** The 4 clicked tray corners (frame px), when set. */
+  corners?: [number, number][] | null
 }
 
 type GaugeCommand = 'baseline' | 'start' | 'stop'
 
 const OFFLINE_GAUGE: GaugeStatus = { gauge: 'offline' }
+const CORNER_PROMPTS = [
+  'Click corner 1 on the video: the LEFT end of the FLOOD WATCH edge',
+  'Corner 2: the RIGHT end of the FLOOD WATCH edge',
+  'Corner 3: the next corner going round (far right)',
+  'Corner 4: the last corner (far left)',
+]
+const FRAME_FALLBACK = { width: 960, height: 720 }
 const CAR_SEVERITY: Record<CarLevel, string> = { none: 'sevNone', wheels: 'sevLow', doors: 'sevMid', windows: 'sevHigh', roof: 'sevHigh' }
 
 const POLL_MS = 1_000
@@ -106,6 +117,24 @@ function rangeText(range: [number, number] | null | undefined) {
   return range[0] === range[1] ? 'At or below normal pool' : `${feet(range[0])}–${feet(range[1])} ft range`
 }
 
+function poseText(gauge: GaugeStatus) {
+  if (gauge.pose_source === 'tags') return `Tags (${gauge.tags_seen ?? 0})`
+  if (gauge.pose_source === 'corners') return 'Clicked corners'
+  if (gauge.pose_source === 'rim') return 'Tray outline'
+  return gauge.corners ? 'Clicked corners (waiting)' : '—'
+}
+
+/** Frame pixel under a click on an <img> drawn with object-fit: cover (centre-cropped). */
+function framePoint(img: HTMLImageElement, clientX: number, clientY: number): [number, number] | null {
+  const box = img.getBoundingClientRect()
+  const nw = img.naturalWidth || FRAME_FALLBACK.width
+  const nh = img.naturalHeight || FRAME_FALLBACK.height
+  const scale = Math.max(box.width / nw, box.height / nh)
+  const x = (clientX - box.left - (box.width - nw * scale) / 2) / scale
+  const y = (clientY - box.top - (box.height - nh * scale) / 2) / scale
+  return x >= 0 && y >= 0 && x <= nw && y <= nh ? [Math.round(x), Math.round(y)] : null
+}
+
 function baselineText(gauge: GaugeStatus) {
   if (gauge.baseline_moved) return 'Camera moved, using dye only'
   return gauge.has_baseline ? 'Captured' : 'None'
@@ -124,6 +153,11 @@ type GaugeCardProps = {
   pending: GaugeCommand | null
   message: string
   messageOk: boolean
+  /** Corner picking: start, clear, and whether a live feed is available to click on. */
+  picking: boolean
+  canPick: boolean
+  onPickCorners: () => void
+  onClearCorners: () => void
 }
 
 /** When Start (or Stop) disables itself, move focus to the button that now does something. */
@@ -140,7 +174,8 @@ function useHandOffFocus(enabled: boolean | undefined) {
   return { startRef, stopRef, handOffFrom }
 }
 
-function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, message, messageOk }: GaugeCardProps) {
+function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, message, messageOk, picking, canPick,
+  onPickCorners, onClearCorners }: GaugeCardProps) {
   const online = gauge.gauge === 'online'
   const hasLevel = online && gauge.ft != null
   const confidence = Math.round((gauge.confidence ?? 0) * 100)
@@ -172,6 +207,7 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
         <div><dt>Crossing</dt><dd className={gauge.crossing_flooded ? s.flooded : ''}>{crossing}</dd></div>
         <div><dt>Houses flooded</dt><dd>{houses}</dd></div>
         <div><dt>Dry baseline</dt><dd className={gauge.baseline_moved ? s.baselineMoved : ''}>{baselineText(gauge)}</dd></div>
+        <div><dt>Pose from</dt><dd>{poseText(gauge)}</dd></div>
       </dl>
       <div className={s.confidence}>
         <span id="gauge-confidence-label">Confidence {gauge.confidence == null ? '—' : `${confidence}%`}</span>
@@ -190,6 +226,9 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
         <button ref={stopRef} className={s.land} disabled={!online || !gauge.enabled || pending !== null}
           aria-label="Stop water gauge reading"
           onClick={() => { handOffFrom('stop'); onCommand('stop') }}><Square size={15} />Stop</button>
+        <button className={s.land} disabled={!online || !canPick || picking} onClick={onPickCorners} aria-label="Set tray corners"
+          title="No readable tags? Click the 4 tray corners on the live video"><Crosshair size={15} />Set tray corners</button>
+        <button className={s.land} disabled={!online || !gauge.corners} onClick={onClearCorners}>Clear corners</button>
       </div>
       <label className={s.overlayToggle}>
         <input type="checkbox" checked={showOverlay} disabled={!online} onChange={(event) => onToggleOverlay(event.target.checked)} />
@@ -220,6 +259,17 @@ export function LiveDronePanel() {
   const [gaugeMessage, setGaugeMessage] = useState('')
   const [gaugeMessageOk, setGaugeMessageOk] = useState(false)
   const [brokenOverlayTs, setBrokenOverlayTs] = useState<number | null>(null)
+  const [picks, setPicks] = useState<{ frame: [number, number]; dot: [number, number] }[] | null>(null)
+  const feedImage = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    if (!picks) return undefined
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setPicks(null); setGaugeMessage('Corner picking cancelled'); setGaugeMessageOk(false) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [picks])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -270,6 +320,49 @@ export function LiveDronePanel() {
     finally { setGaugePending(null); refreshGauge() }
   }
 
+  async function postCorners(body: { points: [number, number][] } | { clear: true }) {
+    try {
+      const response = await fetch('/api/live-drone/gauge/corners', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      })
+      const data = await response.json() as { result?: string; detail?: unknown }
+      if (!response.ok) return typeof data.detail === 'string' ? data.detail : `Request failed (${response.status})`
+      return data.result ?? 'no answer'
+    } catch { return 'Could not reach the backend.' }
+  }
+
+  function startPicking() {
+    setOverlayWanted(false)  // clicks must land on the live feed, not the overlay
+    setPicks([])
+    setGaugeMessage(`${CORNER_PROMPTS[0]} (Esc to cancel)`); setGaugeMessageOk(true)
+  }
+
+  async function clearCorners() {
+    setPicks(null)
+    const answer = await postCorners({ clear: true })
+    setGaugeMessage(answer === 'ok' ? 'Corners cleared: using tags or the automatic outline' : `Clear failed: ${answer}`)
+    setGaugeMessageOk(answer === 'ok'); refreshGauge()
+  }
+
+  async function pickAt(event: React.MouseEvent<HTMLDivElement>) {
+    const img = feedImage.current
+    if (!picks || !img) return
+    const point = framePoint(img, event.clientX, event.clientY)
+    if (!point) return
+    const box = event.currentTarget.getBoundingClientRect()
+    const next = [...picks, { frame: point, dot: [event.clientX - box.left, event.clientY - box.top] as [number, number] }]
+    if (next.length < CORNER_PROMPTS.length) {
+      setPicks(next); setGaugeMessage(CORNER_PROMPTS[next.length]); setGaugeMessageOk(true)
+      return
+    }
+    setPicks(null)
+    const answer = await postCorners({ points: next.map((p) => p.frame) })
+    setGaugeMessage(answer === 'ok'
+      ? 'Corners set. Turn on the overlay and check the FLOOD WATCH / RIVER labels sit on the right edges, then capture the dry baseline.'
+      : `Corners refused: ${answer}`)
+    setGaugeMessageOk(answer === 'ok'); refreshGauge()
+  }
+
   // The overlay exists only after a reading; its ts changes per reading, which reloads the image.
   // An overlay that fails to load (no JPEG for that reading) falls back to the feed until the next reading.
   const showOverlay = overlayWanted && gauge.gauge === 'online' && gauge.ts != null && gauge.ts !== brokenOverlayTs
@@ -282,12 +375,13 @@ export function LiveDronePanel() {
         <span className={feed.live ? s.liveTag : s.cachedTag}><Radio size={13} />{feed.label}</span>
       </div>
       <div className={s.body}>
-        <div className={s.feed}>
+        <div className={`${s.feed} ${picks ? s.feedPicking : ''}`} onClick={(event) => void pickAt(event)}>
+          {picks?.map((p, i) => <span key={i} className={s.cornerDot} style={{ left: p.dot[0], top: p.dot[1] }}>{i + 1}</span>)}
           {showOverlay
             ? <img src={`/api/live-drone/gauge/overlay.jpg?t=${gauge.ts}`} alt="Gauge tray overlay: detected tags and flooded cells tinted"
                 onError={() => setBrokenOverlayTs(gauge.ts ?? null)} />
             : feed.live
-            ? <img key={streamKey} src="/api/live-drone/video" alt="Live camera feed from the drone" />
+            ? <img ref={feedImage} key={streamKey} src="/api/live-drone/video" alt="Live camera feed from the drone" />
             : <img src={status?.fallback_image_url ?? '/static/drone/flood_03.jpg'} alt="Cached drone image of a flooded road (not live)" />}
           {!feed.live && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
         </div>
@@ -313,7 +407,8 @@ export function LiveDronePanel() {
           {online && status?.log?.length ? <ul className={s.log} aria-label="Drone event log">{status.log.slice(0, 3).map((line) => <li key={line}>{line}</li>)}</ul> : null}
           <GaugeCard gauge={gauge} showOverlay={overlayWanted} onToggleOverlay={setOverlayWanted}
             onCommand={(command) => void sendGauge(command)} pending={gaugePending} message={gaugeMessage}
-            messageOk={gaugeMessageOk} />
+            messageOk={gaugeMessageOk} picking={picks !== null} canPick={feed.live}
+            onPickCorners={startPicking} onClearCorners={() => void clearCorners()} />
         </div>
       </div>
     </section>

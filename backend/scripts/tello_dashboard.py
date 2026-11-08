@@ -123,13 +123,14 @@ GAUGE_HZ = 2
 GAUGE_DYE_DEFAULT = "blue"
 GAUGE_LOADING = "loading the gauge model"
 GAUGE_LOADING_RETRY = "loading the gauge model, try again in a moment"
+MAX_CORNER_PX = 4096  # sanity bound for clicked corner coordinates
 GAUGE_PRESS_WAIT_SECONDS = 1.5  # a press waits this long for a load it started itself, then answers
 GAUGE_ERROR_WAIT_SECONDS = 1.0  # back off after a reader error so a bad frame can't spin the CPU
 GAUGE_ENCODE_ERROR = "Overlay error: JPEG encode failed"
 ESTIMATE_FIELDS = (
     "level_mm", "level_mm_range", "ft", "ft_range", "confidence", "crossing_flooded", "car_level",
     "houses_flooded", "houses_total", "visible_cells", "wet_cells", "wet_fraction", "tags_seen",
-    "reproj_err_px", "has_baseline", "baseline_moved", "simulated", "reason", "ts",
+    "reproj_err_px", "has_baseline", "baseline_moved", "simulated", "reason", "ts", "pose_source",
 )
 
 
@@ -203,6 +204,7 @@ class GaugeService:
         self._load_done = threading.Event()
         self.enabled = False
         self.has_baseline = False
+        self.corners: list[list[float]] | None = None  # clicked tray corners (frame px), tag-free pose
         self.estimate: dict[str, Any] = {}
         self.overlay_jpeg: bytes | None = None
         self.error: str | None = None
@@ -283,6 +285,28 @@ class GaugeService:
             return self._record_error("Baseline", exc)
         self.has_baseline = self.has_baseline or bool(ok)
         self._note("Water gauge: dry baseline captured" if ok else f"Water gauge baseline refused: {reason}")
+        return "ok" if ok else str(reason)
+
+    def set_corners(self, points: Any) -> str:
+        """Use 4 clicked tray corners for the pose (or clear them with points=None)."""
+        reader, problem = self._reader_for_press()
+        if reader is None:
+            return problem
+        setter, clearer = getattr(reader, "set_corners", None), getattr(reader, "clear_corners", None)
+        if setter is None or clearer is None:
+            return "this gauge version can't use tray corners"
+        try:
+            with self._reader_lock:
+                if points is None:
+                    clearer()
+                    ok, reason = True, "ok"
+                else:
+                    ok, reason = setter(points)
+        except Exception as exc:  # noqa: BLE001 - contain reader faults
+            return self._record_error("Tray corners", exc)
+        if ok:
+            self.corners = None if points is None else [[float(x), float(y)] for x, y in points]
+            self._note("Water gauge: tray corners cleared" if points is None else "Water gauge: tray corners set")
         return "ok" if ok else str(reason)
 
     def start(self) -> str:
@@ -381,6 +405,7 @@ class GaugeService:
             "running": self.running,
             "error": self.error or (GAUGE_LOADING if loading else None),
             "age_s": round(max(0.0, time.time() - ts), 1) if fresh_ts else None,
+            "corners": self.corners,
             **estimate,
         }
 
@@ -854,15 +879,36 @@ class DashboardServer(ThreadingHTTPServer):
     daemon_threads = True
 
 
-GAUGE_ACTIONS = ("baseline", "start", "stop")
+GAUGE_ACTIONS = ("baseline", "start", "stop", "corners")
 
 
-def gauge_action(gauge: GaugeService | None, name: str) -> tuple[dict, int]:
+def _corner_points(body: dict) -> tuple[list[list[float]] | None, str | None]:
+    """Parse {"points": [[x, y] x4]} or {"clear": true}: (points or None to clear, error)."""
+    if body.get("clear"):
+        return None, None
+    points = body.get("points")
+    if not isinstance(points, list) or len(points) != 4:
+        return None, "send 4 points: {\"points\": [[x, y], [x, y], [x, y], [x, y]]} or {\"clear\": true}"
+    try:
+        parsed = [[float(p[0]), float(p[1])] for p in points]
+    except (TypeError, ValueError, IndexError):
+        return None, "each point must be [x, y] numbers"
+    if not all(0 <= v <= MAX_CORNER_PX for p in parsed for v in p):
+        return None, "corner points must be pixel coordinates inside the frame"
+    return parsed, None
+
+
+def gauge_action(gauge: GaugeService | None, name: str, body: dict | None = None) -> tuple[dict, int]:
     """POST /gauge/<name>: (json body, http code)."""
     if gauge is None:
         return {"error": "gauge not running in this dashboard"}, 503
     if name not in GAUGE_ACTIONS:
         return {"error": "not found"}, 404
+    if name == "corners":
+        points, problem = _corner_points(body or {})
+        if problem:
+            return {"error": problem}, 400
+        return {"result": gauge.set_corners(points)}, 200
     handlers = {"baseline": gauge.capture_baseline, "start": gauge.start, "stop": gauge.stop}
     return {"result": handlers[name]()}, 200
 
@@ -971,7 +1017,7 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return None
             if route.startswith("/gauge/"):
-                data, code = gauge_action(gauge, route.removeprefix("/gauge/"))
+                data, code = gauge_action(gauge, route.removeprefix("/gauge/"), body)
                 return self._json(data, code)
             name = route.removeprefix("/action/")
             if route.startswith("/action/") and name in ACTIONS:

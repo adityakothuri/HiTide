@@ -76,6 +76,29 @@ A paper square over the pocket sits about 0.4 mm higher than the manifest assume
 practical effect. A tag turned 90 degrees still works because the pose uses tag centres, but it
 loses the corner refinement, so get the arrows right.
 
+## 4b. No readable tags? Click the 4 tray corners instead
+
+If the tags printed badly (or are missing), the gauge finds the tray from its own shape. This is as
+accurate as the tags in testing, as long as the camera stays put (stand mode).
+
+1. Set up the camera and get the whole tray in view (section 6).
+2. Click **Set tray corners** (console Water gauge card, or the Tello dashboard gauge card).
+3. Click the 4 **top outer corners of the rim** on the live video, in this order:
+   1. the **left** end of the FLOOD WATCH edge,
+   2. the **right** end of the FLOOD WATCH edge,
+   3. the next corner going round (far right),
+   4. the last corner (far left).
+   Numbered dots show your clicks. Press Esc to start over.
+4. Turn on **Show the gauge overlay**. The green outline should trace the rim, and the labels
+   **FLOOD WATCH edge** and **RIVER edge** should sit on those edges of the real tray. If they are on the
+   wrong edges, you started at the wrong corner: click **Set tray corners** again.
+5. Continue with **Capture dry baseline** (section 9). "Pose from" shows **Clicked corners**.
+
+Without clicks the gauge also tries to find the tray outline on its own ("Pose from: Tray outline"). It only
+uses that when it is sure which way the tray faces; otherwise it asks you to click the corners. If you move
+the camera, it notices and re-fits from your clicked corners, so click them again after a big move.
+**Clear corners** goes back to tags or the automatic outline.
+
 ## 5. Mix the dyed water
 
 - Mix about **250 mL** of water with enough blue dye to look **deep blue in a 2 mm layer**. Try

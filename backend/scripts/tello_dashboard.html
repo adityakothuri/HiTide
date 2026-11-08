@@ -121,6 +121,12 @@
     background: repeating-linear-gradient(45deg, #0000 0 14px, #ff335512 14px 28px), #05040ae6;
   }
   .video .novideo[hidden] { display: none; }
+  .video.picking { cursor: crosshair; outline: 2px dashed var(--yellow); outline-offset: -2px; }
+  .corner-dot {
+    position: absolute; z-index: 6; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none;
+    display: grid; place-items: center; border-radius: 50%; background: var(--magenta); color: var(--void);
+    font: 700 12px/1 var(--mono); box-shadow: var(--glow-mag);
+  }
 
   .help { color: var(--muted); font-size: 12px; margin: 0; letter-spacing: .3px; }
   kbd {
@@ -314,7 +320,7 @@
         <div class="stat"><div class="label">Car level</div><div class="value" id="g-car">--</div></div>
         <div class="stat"><div class="label">Crossing</div><div class="value" id="g-cross">--</div></div>
         <div class="stat"><div class="label">Houses flooded</div><div class="value" id="g-houses">--</div></div>
-        <div class="stat"><div class="label">Tags seen</div><div class="value" id="g-tags">--</div></div>
+        <div class="stat"><div class="label">Pose from</div><div class="value" id="g-tags">--</div></div>
         <div class="stat wide"><div class="label">Dry baseline</div><div class="value" id="g-base">--</div></div>
         <div class="stat wide"><div class="label">Confidence <span id="g-conf-v"></span></div>
           <div class="conf"><div id="g-conf"></div></div></div>
@@ -323,6 +329,8 @@
         <button class="alt" id="g-baseline" title="Before pouring: capture the dry tray from this exact camera pose">Capture dry baseline</button>
         <button id="g-start">Start</button>
         <button class="alt" id="g-stop">Stop</button>
+        <button class="alt" id="g-corners" title="No readable tags? Click the 4 tray corners on the video">Set tray corners</button>
+        <button class="alt" id="g-corners-clear">Clear corners</button>
       </div>
       <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
       <p class="gauge-msg" id="g-msg" role="status" aria-live="polite"></p>
@@ -574,6 +582,93 @@ function baselineText(g) {
 }
 $("g-overlay").onchange = (e) => setOverlay(e.target.checked);
 
+function poseText(g) {
+  if (g.pose_source === "tags") return `tags (${g.tags_seen})`;
+  if (g.pose_source === "corners") return "clicked corners";
+  if (g.pose_source === "rim") return "tray outline";
+  return g.corners ? "clicked corners (waiting)" : "--";
+}
+
+// ---------- Set tray corners: tag-free pose from 4 clicks on the video ----------
+const CORNER_PROMPTS = [
+  "Click corner 1: the LEFT end of the FLOOD WATCH edge",
+  "Corner 2: the RIGHT end of the FLOOD WATCH edge",
+  "Corner 3: the next corner going round (far right)",
+  "Corner 4: the last corner (far left)",
+];
+let picking = null;  // clicked points in frame pixels while picking, else null
+
+function framePoint(event) {
+  // The video is drawn object-fit: contain, so undo the letterbox to get frame pixels.
+  const img = $("video"), box = img.getBoundingClientRect();
+  const nw = img.naturalWidth || 960, nh = img.naturalHeight || 720;
+  const scale = Math.min(box.width / nw, box.height / nh);
+  const x = (event.clientX - box.left - (box.width - nw * scale) / 2) / scale;
+  const y = (event.clientY - box.top - (box.height - nh * scale) / 2) / scale;
+  return x >= 0 && y >= 0 && x <= nw && y <= nh ? [Math.round(x), Math.round(y)] : null;
+}
+
+function clearDots() { document.querySelectorAll(".corner-dot").forEach((d) => d.remove()); }
+
+function addDot(event, n) {
+  const wrap = document.querySelector(".video"), box = wrap.getBoundingClientRect();
+  const dot = document.createElement("span");
+  dot.className = "corner-dot";
+  dot.textContent = String(n);
+  dot.style.left = `${event.clientX - box.left}px`;
+  dot.style.top = `${event.clientY - box.top}px`;
+  wrap.append(dot);
+}
+
+function stopPicking(message, ok) {
+  picking = null;
+  document.querySelector(".video").classList.remove("picking");
+  clearDots();
+  if (message) gaugeMessage(message, ok);
+}
+
+async function sendCorners(body) {
+  try {
+    const r = await fetch("/gauge/corners", { method: "POST", headers: JSON_HEADERS, body: JSON.stringify(body) });
+    const { result, error } = await r.json();
+    return result ?? error;
+  } catch { return "no connection to the dashboard program"; }
+}
+
+$("g-corners").onclick = () => {
+  if ($("g-overlay").checked) { $("g-overlay").checked = false; setOverlay(false); }  // click on the live feed
+  picking = [];
+  clearDots();
+  document.querySelector(".video").classList.add("picking");
+  gaugeMessage(`${CORNER_PROMPTS[0]} (Esc to cancel)`, true);
+};
+
+document.querySelector(".video").addEventListener("click", async (event) => {
+  if (!picking) return;
+  const point = framePoint(event);
+  if (!point) return;
+  picking.push(point);
+  addDot(event, picking.length);
+  if (picking.length < 4) { gaugeMessage(CORNER_PROMPTS[picking.length], true); return; }
+  const points = picking;
+  const answer = await sendCorners({ points });
+  stopPicking(answer === "ok"
+    ? "Corners set. Turn on the overlay and check the FLOOD WATCH / RIVER labels sit on the right edges, then capture the dry baseline."
+    : `Corners refused: ${answer}`, answer === "ok");
+  pollGauge();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (picking && event.key === "Escape") { event.stopPropagation(); stopPicking("Corner picking cancelled", false); }
+}, true);
+
+$("g-corners-clear").onclick = async () => {
+  stopPicking("", true);
+  const answer = await sendCorners({ clear: true });
+  gaugeMessage(answer === "ok" ? "Corners cleared: using tags or the automatic outline" : `Clear failed: ${answer}`, answer === "ok");
+  pollGauge();
+};
+
 function renderGauge(g) {
   const online = g.gauge === "online";
   $("g-off").hidden = online;
@@ -588,7 +683,7 @@ function renderGauge(g) {
   cross.textContent = g.crossing_flooded == null ? "--" : g.crossing_flooded ? "FLOODED" : "clear";
   cross.className = "value" + (g.crossing_flooded ? " lvl-roof" : g.crossing_flooded === false ? " lvl-none" : "");
   $("g-houses").textContent = g.houses_flooded == null ? "--" : `${g.houses_flooded} / ${g.houses_total}`;
-  $("g-tags").textContent = g.tags_seen ?? "--";
+  $("g-tags").textContent = poseText(g);
   $("g-base").textContent = baselineText(g);
   $("g-base").style.color = g.baseline_moved ? "var(--yellow)" : "";
   const conf = Math.round((g.confidence ?? 0) * 100);
