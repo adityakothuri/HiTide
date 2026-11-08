@@ -29,8 +29,8 @@ Everything runs offline from cache in the demo. Outreach runs in mock mode until
 
 Counters from the 7-step run: warned, rerouted, stopped, people verified, and claims avoided. See [[Demo Script]].
 
-> [!warning] Claims figure not sourced
-> "Claims avoided" = count times the average flood-vehicle claim. No average claim figure is sourced yet. Find and cite one before showing a dollar number.
+> [!info] Claims figure (sourced)
+> "Est. claims avoided" = unique drivers kept off a closed road (pre-trip warned on a blocking route, or rerouted en route) × **$19,943** average paid auto loss (Texas Dept. of Insurance, Hurricane Harvey data call, see [[Data Sources]]) × an **assumed 10%** who would otherwise have driven into the water. The 10% is our assumption. Say so on stage. The scripted demo shows about 11 drivers protected, which is about $22k.
 
 ## Next steps (out of scope for this weekend)
 

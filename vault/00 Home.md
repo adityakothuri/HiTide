@@ -18,7 +18,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 - Frontend: [[Design System]] · [[Driver App]] · [[Dashboard]] · screenshots in `Experiments/screenshots/`
 - Modules: [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Dashboard]]
 - Reference: [[Data Sources]] · [[Tooling]] · [[Decisions]] · [[Demo Script]]
-- Experiments: [[2026-11-07 Town cache build]]
+- Experiments: [[2026-11-07 Town cache build]] · [[2026-11-07 Demo run check]]
 
 ## Phase status
 
@@ -30,7 +30,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 3 | Stage 3 escalation state machine | done: CHECKPOINT 3 passed on a real phone (reply closed the case) |
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
-| Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
+| Phase 6 | Demo mode + polish, feature freeze 9 AM | backend done: 7-step run verified over WS ([[2026-11-07 Demo run check]]), talk track, claims sourced, pre-submission security review (1 HIGH fixed, TDD). Left: live `photon2` rehearsal, backup video, CHECKPOINT 5 with the frontend |
 | Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
 
 ## Checkpoints
@@ -46,7 +46,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 
 ## Next step
 
-Next: Phase 2/3 per the planner breakdown. Shared world state and routing, movement, outreach guard (TDD), pre-trip route check (TDD), en-route lookahead, stop detection and escalation (TDD), then the demo scenario. Frontend team: see `docs/api-contract.md`. The live data is ready.
+Backend is feature-complete for the demo. Next: CHECKPOINT 5 (frontend views live on the WS during `POST /api/demo/start`), then one full rehearsal in `PHOTON_MODE=photon2` on the teammates' phones (also tests the Photon 2.0 inbound reply live), then a backup video before the 9 AM freeze.
 
 ## Related
 

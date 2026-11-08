@@ -117,9 +117,21 @@ def phone_body(agent_id: str) -> dict[str, Any]:
     }
 
 
+_SECRET_ENV = ("ELEVENLABS_API_KEY", "PHOTON2_SIP_OUTBOUND_PASSWORD", "PHOTON2_SIP_USERNAME", "PHOTON2_API_KEY")
+
+
+def _redact(text: str) -> str:
+    """Upstream error bodies can echo request fields; never print a credential."""
+    for key in _SECRET_ENV:
+        value = os.environ.get(key, "")
+        if len(value) >= 4:
+            text = text.replace(value, "[redacted]")
+    return text
+
+
 def _check(resp: httpx.Response, what: str) -> dict[str, Any]:
     if resp.status_code >= 400:
-        log.error("%s failed: HTTP %s %s", what, resp.status_code, resp.text[:600])
+        log.error("%s failed: HTTP %s %s", what, resp.status_code, _redact(resp.text[:600]))
         resp.raise_for_status()
     return resp.json() if resp.content else {}
 

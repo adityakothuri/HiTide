@@ -48,6 +48,7 @@ Each row has a RED commit (the test fails because the code is missing or wrong),
 | 12 | Full demo flow: A warned (plus teen parent), B turned around and rerouted with no texts, D's case reaches responders with vision "boat required" | `tests/test_demo_flow.py` | integration |
 | 13 | Every emitted WS event validates against `api/schemas.py`, the frontend contract | `tests/test_demo_flow.py::test_every_event_matches_the_frontend_contract` | contract |
 | 14 | No phone numbers, `env:` references or exact age in any event | `tests/test_demo_flow.py::test_no_phone_numbers_or_exact_age_in_any_event` | integration |
+| 15 | A call transcript can only escalate: a bare "ok" or a voicemail greeting never resolves a case; "safe" needs the agent's collected status; spoken help beats everything | `tests/test_call_summary.py` (RED 3 failed → GREEN 328 passed) | unit |
 
 ## Coverage
 

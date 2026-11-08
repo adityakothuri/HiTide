@@ -39,9 +39,9 @@ def test_collected_need_help_beats_transcript_safe():
 
 
 def test_summary_scrubs_phone_numbers_and_emails_and_is_capped():
-    long = "Caller said call me at +1 (469) 389-6681 or 4693896681 or a@b.com. " + "x" * 600
+    long = "Caller said call me at +1 (830) 555-0142 or 8305550142 or a@b.com. " + "x" * 600
     out = classify_call(_conv(users=["help"], summary=long))
-    assert "6681" not in out.summary and "a@b.com" not in out.summary
+    assert "0142" not in out.summary and "a@b.com" not in out.summary
     assert len(out.summary) <= 300
 
 
@@ -49,8 +49,22 @@ def test_data_collection_need_help():
     assert classify_call(_conv(users=["hello"], driver_status="need_help")).reply == "need_help"
 
 
-def test_unknown_data_collection_falls_back_to_transcript():
-    assert classify_call(_conv(users=["I'm okay"], driver_status="unknown")).reply == "safe"
+def test_unknown_data_collection_transcript_safe_does_not_resolve():
+    """Safety: a spoken 'okay' alone never closes a flood case; only the agent's collected status can."""
+    assert classify_call(_conv(users=["I'm okay"], driver_status="unknown")).reply is None
+
+
+def test_casual_ok_without_collected_status_does_not_resolve():
+    out = classify_call(_conv(users=["okay... hello? who is this"]))
+    assert out.answered is True and out.reply is None
+
+
+def test_greeting_ok_on_undetected_voicemail_does_not_resolve():
+    assert classify_call(_conv(users=["Hi, ok, leave a message after the tone"])).reply is None
+
+
+def test_transcript_help_without_collected_status_escalates():
+    assert classify_call(_conv(users=["I'm stuck, the water is rising"])).reply == "need_help"
 
 
 def test_transcript_danger_beats_ambiguity():
@@ -87,7 +101,7 @@ def test_voicemail_termination_unanswered():
 
 
 def test_summary_fallback_when_missing():
-    out = classify_call(_conv(users=["ok"], summary=""))
+    out = classify_call(_conv(users=["ok"], driver_status="safe", summary=""))
     assert out.summary.startswith("Call ended:") and out.reply == "safe"
 
 

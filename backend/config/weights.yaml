@@ -50,5 +50,6 @@ drone:
 
 claims:
   # ILLUSTRATIVE estimate: unique drivers kept off a closed road x avg claim x assumed share who'd have driven in.
-  avg_vehicle_claim_usd: 15000          # placeholder until sourced (vault/Pitch.md)
+  # Texas Dept. of Insurance Harvey data call: avg paid auto loss $19,943 over ~203k claims (Insurance Journal, 2018-02-13)
+  avg_vehicle_claim_usd: 19943
   share_would_have_entered_water: 0.10  # assumption, stated in the UI tooltip

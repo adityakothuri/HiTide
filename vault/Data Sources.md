@@ -19,6 +19,7 @@ Each source, its auth, and what we use it for. Checked 2026-11-07 unless noted.
 | ElevenLabs Conversational AI | https://elevenlabs.io/docs | API key: `ELEVENLABS_API_KEY` | Outbound voice call to the driver through a SIP trunk |
 | NWS "Turn Around Don't Drown" | https://www.weather.gov/safety/flood-turn-around-dont-drown | None | Depth thresholds for road status ([[Risk Scoring]]) |
 | Public drone flood images | Sources recorded per image in `data/drone_samples/sources.md` | Per source license | Drone vision batch ([[Drone Vision]]) |
+| Texas Dept. of Insurance Hurricane Harvey data call | https://www.insurancejournal.com/news/southcentral/2018/02/13/480405.htm | None | Average paid auto loss **$19,943** (about 203,000 Texas auto claims, data through late Oct 2017). Feeds `claims.avg_vehicle_claim_usd`. Earlier CCC data put Harvey's average at about $14,900 with 80-85% total losses. |
 
 > [!note] Overpass was flaky
 > On 2026-11-07, the first build got the road graph, then `overpass-api.de` refused the river query. The second run (with a mirror fallback and incremental saves) got the real OSM river. The cache is committed so the demo never depends on Overpass. See [[2026-11-07 Town cache build]].

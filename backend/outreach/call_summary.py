@@ -43,14 +43,12 @@ def _collected_status(conversation: dict[str, Any]) -> Reply | None:
     return value if value in ("safe", "need_help") else None
 
 
-def _transcript_reply(turns: list[str]) -> Reply | None:
-    replies = [parse_reply(t) for t in turns]
-    if "need_help" in replies:  # danger beats ambiguity
-        return "need_help"
-    return "safe" if "safe" in replies else None
+def _transcript_asks_help(turns: list[str]) -> bool:
+    """Transcript regex can only escalate. A bare "ok" (greeting, voicemail) must never close a flood case."""
+    return any(parse_reply(t) == "need_help" for t in turns)
 
 
-SUMMARY_MAX_CHARS = 300
+SUMMARY_MAX_CHARS = 160  # broadcast to every dashboard client: keep it short
 _PHONE = re.compile(r"\+?\d[\d\s().-]{7,}\d")
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 
@@ -82,9 +80,9 @@ def classify_call(conversation: dict[str, Any]) -> CallOutcome:
     answered = bool(turns) and status not in _UNANSWERED_STATUSES and not voicemail
     if not answered:
         return CallOutcome(None, _summary(conversation, status, False), False)
-    # Danger beats ambiguity across BOTH signals: any need_help (collected or spoken) wins over a collected "safe".
-    signals = {_collected_status(conversation), _transcript_reply(turns)}
-    reply = "need_help" if "need_help" in signals else ("safe" if "safe" in signals else None)
+    # Danger beats ambiguity: spoken help wins over everything; only the agent's collected status confirms "safe".
+    collected = _collected_status(conversation)
+    reply = "need_help" if _transcript_asks_help(turns) else collected
     return CallOutcome(reply, _summary(conversation, status, True), True)
 
 

@@ -54,6 +54,19 @@ No CRITICAL. No secrets or real phone numbers in git history. `pip-audit` found 
 
 **Privacy rules after fixes:** all six rules pass. Live location is shown only during a warning. Age and vehicle only order outreach and are never exposed raw. Responders get `ResponderView` only. Numbers live only in `.env`. No numbers appear in logs or WS. Texts go only to allowlisted numbers. Enforced by `backend/tests/test_demo_flow.py`.
 
+### ECC `security-reviewer` agent: Photon 2.0 + voice (2026-11-07, pre-submission)
+Scope: `git diff 0ed8194..HEAD`. No CRITICAL. No keys or real numbers are tracked; the only real number is the public hotline. Inbound texts and calls stay fail-closed to allowlisted senders on open cases. No SSRF: all provider hosts are constant. Background call watchers are capped at 180 s and cancelled on reset. The inbound queue is capped at 128.
+
+| Finding | Severity | Status |
+|---|---|---|
+| A casual "ok" (or an undetected voicemail greeting) in a call transcript marked the driver safe and closed the case | HIGH | **Fixed** (TDD): the transcript can only escalate to need_help. "Safe" needs the agent's collected `driver_status`. |
+| Whoever answers the driver's phone is credited as the driver | MEDIUM | Mitigated by the fix above (needs an explicit collected status). Accepted for the demo. |
+| Call summaries are broadcast to every WS client; scrub misses spelled-out numbers | MEDIUM | **Reduced**: summary cap 300 → 160 chars, digits and emails scrubbed. Accepted for the demo. |
+| `elevenlabs_setup.py` printed raw upstream error bodies | LOW | **Fixed**: credentials redacted from logged bodies |
+| Photon 2.0 inbound cursor is in memory, so a restart replays old replies | LOW | Accepted: only affects a case that's already open at boot |
+| Stable fallback after a Photon 2.0 timeout can double-send a text | LOW | Accepted (cosmetic, allowlisted numbers only) |
+| A test used a real-looking number | LOW | **Fixed**: 555 number |
+
 ### ECC `security-scan` skill (AgentShield 1.6.0): `.claude/` config
 Grade **D (54/100)**, 0 critical, 1 high, about 100 medium.
 - The **high** is a false positive: "skip validation" in a Ruby review checklist (`agents/ruby-reviewer.md:55`).

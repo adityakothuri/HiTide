@@ -20,15 +20,23 @@ cd backend && uv sync
 uv run uvicorn app.main:app --reload          # http://localhost:8000/docs
 uv run pytest -q                              # core logic tests
 
-# start the scripted 90 s demo (watch it on the frontend, or the WS)
+# start the scripted demo (~60 s, 7 steps; watch it on the frontend, or the WS)
 curl -X POST localhost:8000/api/demo/start
 curl -X POST localhost:8000/api/demo/reset
 
-# Photon (real iMessage texts/polls); needs creds in .env, see .env.example
-cd photon-sidecar && npm install && npm start
+# frontend (driver view + ops dashboard)
+cd frontend && npm install && npm run dev
 ```
 
-Copy `.env.example` to `.env`. Without Photon creds everything runs in **mock mode**: outreach is logged and shown in the UI, but nothing is sent.
+Copy `.env.example` to `.env`. `PHOTON_MODE` picks how outreach is sent:
+
+| `PHOTON_MODE` | Texts | Calls |
+|---|---|---|
+| `mock` (default) | logged + shown in the UI, nothing sent | logged, nothing placed |
+| `photon2` | Photon 2.0 shared iMessage line, replies over its WebSocket | ElevenLabs agent over Photon SIP |
+| `stable` | Photon Spectrum via `photon-sidecar/` (`npm install && npm start`) | |
+
+Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted. Every other driver is mock-only. Setup scripts: `uv run python -m scripts.photon2_enroll --write-env` and `uv run python -m scripts.elevenlabs_setup`.
 
 ## Layout
 
