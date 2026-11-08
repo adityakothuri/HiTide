@@ -52,3 +52,15 @@ Pre-trip texts skip any driver **on a trip** (`DriverMotion.moving`). The outrea
 ## 2026-11-07: Est. claims avoided is an estimate
 (warned + rerouted) × avg vehicle flood claim × 10% (the assumed share who would have driven into water). The placeholder average is $15k. It needs a source before the pitch.
 
+## 2026-11-07: Move outreach to Photon 2.0 (beta)
+The Photon track requires 2.0, and we had built on Stable. 2.0 has a plain REST API (users → spaces → messages), so Python calls it directly. Inbound arrives over Socket.IO, so there's no tunnel. `PHOTON_MODE=mock|stable|photon2`, and Stable stays as the fallback.
+
+## 2026-11-07: Voice = ElevenLabs agent over Photon SIP, set up by script
+Voice runs on the Photon SMS number (iMessage lines can't take calls on a shared line). `scripts/elevenlabs_setup.py` creates the agent and imports the number through the API, because the dashboard UI kept changing. The first message is the `{{opening_line}}` variable, since first-message overrides were rejected on SIP calls.
+
+## 2026-11-07: Calls run in the background; voicemail counts as no answer
+Call setup takes 10–20 s, so the call never blocks the sim tick. The transcript watcher starts when the call ID arrives. Voicemail detection leaves one message and hangs up, and escalation continues.
+
+## 2026-11-07: Margaret's demo phone = Teammate B
+B gets no texts during the demo (B is the moving driver), so B's phone ringing as "Margaret" at step 4 is the live voice moment. Change `demo-d.phone` in `data/drivers.json` to reassign it.
+

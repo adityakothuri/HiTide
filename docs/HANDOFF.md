@@ -1,4 +1,4 @@
-# Handoff: State Farm Flood Watch (as of Sat Nov 7, ~8 PM CT)
+# Handoff: State Farm Flood Watch (as of Sat Nov 7, ~8:45 PM CT)
 
 Deadline: **Sun Nov 8, 12:00 PM CT**. Feature freeze at 9 AM. Tracks: State Farm ("The Worst Day, at Scale") and Photon.
 
@@ -35,22 +35,16 @@ Without creds, everything runs in **mock mode**: outreach is logged and shown in
 - **Photon (Stable) on real phones:** pre-trip text, the teen's parent copy, the emergency-contact text, the "Are you okay?" poll, and a **reply "safe" that closes the case**. CHECKPOINTS 2 and 3 passed.
 - **Security and privacy:** ECC security-reviewer and AgentShield scans are done, and all high findings are fixed. No exact age or contact names reach any screen. Locations are shared only during an active warning. A same-origin guard covers the WebSocket and POSTs. Phone numbers never appear in logs or events.
 
-## In progress right now
-**Moving to Photon 2.0 + voice.** The Photon prize **requires Photon 2.0 (beta)**, and we built on Stable. Three agents are building:
-- **A:** `outreach/photon2.py` sender, `PHOTON_MODE=mock|stable|photon2`, enroll script
-- **B:** inbound replies over Photon 2.0's Socket.IO WebSocket (no tunnel needed)
-- **C:** voice calls through ElevenLabs that use the driver's name, street and depth, plus "remembers the call": the transcript goes on the case and a follow-up iMessage is sent
-
-Stable stays as the fallback until 2.0 is confirmed on a real phone.
-
-**Dashboard setup still needed** (Aditya is doing this):
-- **Photon 2.0** at app.beta.photon.codes:
-  - Create a project (`pho_prj_…`) and an API key.
-  - Turn on iMessage and add an SMS number.
-  - Create a voice profile with outbound SIP enabled.
-- **ElevenLabs:**
-  - Create an agent and import the SMS number as a SIP trunk.
-  - Collect the API key, agent ID and phone number ID.
+## Photon 2.0 + voice (done tonight, live)
+- **Mode:** `PHOTON_MODE=photon2` in `.env` (`stable` = old sidecar fallback, `mock` = no real sends).
+- **Texts:** Photon 2.0 shared iMessage line. Each teammate has their own assigned line (`PHOTON2_AGENT_MAP`). Re-enroll with `cd backend && uv run python -m scripts.photon2_enroll --write-env`.
+- **Voice:** ElevenLabs agent "State Farm Flood Watch" calling from Photon SMS number **+1 339-210-2263**. Recreate or update it with `uv run python -m scripts.elevenlabs_setup`.
+  - The call opens with the driver's name and street.
+  - After the call, the transcript summary goes on the case, "safe" or "need help" resolves or escalates the case, and a follow-up iMessage refers to the call.
+  - Voicemail gets one short message.
+  - **Calling +1 339-210-2263 reaches the agent** (hotline).
+- **Replies:** come back over Photon 2.0's WebSocket (connects on backend start). Not yet tested live with a real reply.
+- **Demo phones:** A gets the pre-trip text and the teen's parent copy. B gets the in-app turn-around, **then a call as "Margaret" at step 4**. C gets the family text and call.
 
 ## Where to look
 | Need | File |
@@ -64,7 +58,7 @@ Stable stays as the fallback until 2.0 is confirmed on a real phone.
 | Photon setup scripts (Stable) | `photon-sidecar/` (`enroll.mjs`, `team.mjs`) |
 
 ## Env vars (values are in Aditya's `.env`, never in git)
-`PHOTON_MODE`, `SPECTRUM_PROJECT_ID`, `SPECTRUM_PROJECT_SECRET`, `SPECTRUM_LINE`, `SIDECAR_KEY`, `DEMO_PHONE_A/B/C`, `SIM_PROFILE`, plus soon `PHOTON2_*` and `ELEVENLABS_*`. See `.env.example`.
+`PHOTON_MODE`, `PHOTON2_API_KEY`, `PHOTON2_PROJECT_ID`, `PHOTON2_AGENT_USER_ID`, `PHOTON2_AGENT_MAP`, `PHOTON2_SMS_NUMBER`, `PHOTON2_SIP_*`, `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID`, `ELEVENLABS_PHONE_NUMBER_ID`, `DEMO_PHONE_A/B/C`, `SIM_PROFILE`, plus the Stable fallback values (`SPECTRUM_*`, `SIDECAR_KEY`). See `.env.example`.
 
 Demo roles: **A** = pre-trip driver and teen's parent (gets 2 texts). **B** = en-route driver (alert plays in-app only, by design). **C** = Margaret's daughter (text + poll/call, replies "safe"). All three are enrolled on the Photon Stable line. B and C have each texted their assigned line once.
 
