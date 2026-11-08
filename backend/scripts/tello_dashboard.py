@@ -90,9 +90,51 @@ def flush_replies(tello: Tello) -> None:
     tello.get_own_udp_object()["responses"].clear()
 
 
+RUN_DIR: Path | None = None
+_journal_lock = threading.Lock()
+
+
+def record_event(event: str, *, frame=None, overlay=None, **fields) -> None:
+    """Append one timestamped event and its associated images to this run."""
+    if RUN_DIR is None:
+        return
+    try:
+        with _journal_lock:
+            stamp = time.time_ns()
+            row = {"time_ns": stamp, "event": event, **fields}
+            for label, image in (("frame", frame), ("overlay", overlay)):
+                if image is None:
+                    continue
+                filename = f"{stamp}_{label}.jpg"
+                try:
+                    content = image if isinstance(image, bytes) else encode_jpeg(image)
+                    if content is None:
+                        raise ValueError("JPEG encoding failed")
+                    (RUN_DIR / filename).write_bytes(content)
+                    row[label] = filename
+                except (OSError, ValueError, cv2.error) as exc:
+                    row[label + "_error"] = str(exc)
+            with (RUN_DIR / "events.jsonl").open("a", encoding="utf-8") as stream:
+                stream.write(json.dumps(row, allow_nan=False) + "\n")
+    except (OSError, ValueError, TypeError) as exc:
+        print(f"Run log write failed: {exc}", file=sys.stderr)
+
+
+def record_telemetry(drone, done: threading.Event) -> None:
+    while not done.is_set():
+        try:
+            state = drone.status()
+            state.pop("log", None)
+            record_event("telemetry", **state, requested_rc=drone.rc, applied_rc=drone.rc_out)
+        except Exception as exc:
+            record_event("telemetry_error", reason=str(exc))
+        done.wait(1.0)
+
+
 def write_log(text: str) -> str:
     """Print and append to the log file, so failures can be read after reconnecting to the internet."""
     line = f"{time.strftime('%H:%M:%S')}  {text}"
+    record_event("message", text=text)
     print(text)
     try:
         LOG_FILE.parent.mkdir(exist_ok=True)
@@ -290,7 +332,9 @@ class GaugeService:
             with self._reader_lock:
                 ok, reason = reader.set_baseline(frame)
         except Exception as exc:  # noqa: BLE001 - contain reader faults
+            record_event("baseline_error", frame=frame, reason=str(exc))
             return self._record_error("Baseline", exc)
+        record_event("baseline", frame=frame, accepted=bool(ok), reason=str(reason), corners=self.corners)
         self.has_baseline = self.has_baseline or bool(ok)
         self._note("Water gauge: dry baseline captured" if ok else f"Water gauge baseline refused: {reason}")
         return "ok" if ok else str(reason)
@@ -375,8 +419,10 @@ class GaugeService:
             data = jsonable(estimate.to_dict())
             jpeg = self._encoder(overlay)
         except Exception as exc:  # noqa: BLE001 - contain reader faults
+            record_event("reading_error", frame=frame_bgr, reason=str(exc))
             self._record_error("Reader", exc)
             return
+        record_event("reading", frame=frame_bgr, overlay=jpeg, estimate=data, corners=self.corners)
         self.estimate = data
         self.overlay_jpeg = jpeg  # None on an encode failure: never pair an old overlay with a new estimate
         if jpeg is None:
@@ -949,7 +995,70 @@ def request_problem(headers, is_post: bool) -> tuple[int, str] | None:
     return None
 
 
-def make_handler(drone: Drone, gauge: GaugeService | None = None):
+DEMO_FEATURES = 1500
+DEMO_RATIO = 0.75  # Lowe ratio test
+DEMO_MIN_INLIERS = 25
+DEMO_RANSAC_PX = 4.0
+
+
+class DemoTracker:
+    """Keeps the hardcoded demo overlay on the tray while the drone moves.
+
+    Anchor = a reference frame on which the overlay coordinates are defined. Each request matches ORB
+    features between the reference and the latest frame and returns the homography that maps overlay
+    points onto the current view. Too few inliers keeps the last good homography (reported as stale)."""
+
+    def __init__(self, frame_source: Callable[[], np.ndarray | None]) -> None:
+        self._frames = frame_source
+        self._orb = cv2.ORB_create(DEMO_FEATURES)
+        self._matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
+        self._lock = threading.Lock()
+        self._ref: tuple[Any, np.ndarray] | None = None
+        self._h: np.ndarray | None = None
+        self._ts = 0.0
+        self._inliers = 0
+
+    def _features(self, frame_rgb: np.ndarray) -> tuple[Any, np.ndarray | None]:
+        return self._orb.detectAndCompute(cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2GRAY), None)
+
+    def anchor(self) -> str:
+        frame = self._frames()
+        if frame is None:
+            return "no video frame yet"
+        kp, des = self._features(frame)
+        if des is None or len(kp) < DEMO_MIN_INLIERS:
+            return "not enough detail in view to track"
+        with self._lock:
+            self._ref, self._h, self._ts, self._inliers = (kp, des), np.eye(3), time.time(), len(kp)
+        return "ok"
+
+    def transform(self) -> dict[str, Any]:
+        with self._lock:
+            if self._ref is None:
+                return {"anchored": False}
+            frame = self._frames()
+            if frame is not None:
+                self._match(frame)
+            return {"anchored": True, "H": None if self._h is None else self._h.tolist(),
+                    "inliers": self._inliers, "age_s": round(time.time() - self._ts, 2)}
+
+    def _match(self, frame: np.ndarray) -> None:
+        kp, des = self._features(frame)
+        ref_kp, ref_des = self._ref  # type: ignore[misc]
+        if des is None or len(kp) < 2:
+            return
+        good = [m for m, n in (p for p in self._matcher.knnMatch(ref_des, des, k=2) if len(p) == 2)
+                if m.distance < DEMO_RATIO * n.distance]
+        if len(good) < DEMO_MIN_INLIERS:
+            return
+        src = np.float32([ref_kp[m.queryIdx].pt for m in good])
+        dst = np.float32([kp[m.trainIdx].pt for m in good])
+        h, mask = cv2.findHomography(src, dst, cv2.RANSAC, DEMO_RANSAC_PX)
+        if h is not None and mask is not None and int(mask.sum()) >= DEMO_MIN_INLIERS:
+            self._h, self._ts, self._inliers = h, time.time(), int(mask.sum())
+
+
+def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTracker | None = None):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args) -> None:  # keep the console readable
             pass
@@ -991,6 +1100,8 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
                 self._stream_video()
             elif route.startswith("/gauge/"):
                 self._gauge_get(route)
+            elif route == "/demo/transform":
+                self._json(demo.transform() if demo else {"anchored": False})
             else:
                 self._json({"error": "not found"}, 404)
 
@@ -1025,12 +1136,17 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
                 self._json({"result": "ok"})
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return None
+            if route == "/demo/anchor":
+                return self._json({"result": demo.anchor() if demo else "demo tracking not running"})
             if route.startswith("/gauge/"):
                 data, code = gauge_action(gauge, route.removeprefix("/gauge/"), body)
+                record_event("gauge_action", route=route, request=body, response=data, status=code)
                 return self._json(data, code)
             name = route.removeprefix("/action/")
             if route.startswith("/action/") and name in ACTIONS:
-                return self._json({"result": drone.action(name)})
+                result = drone.action(name)
+                record_event("flight_action", action=name, result=result)
+                return self._json({"result": result})
             self._json({"error": "not found"}, 404)
 
         def _stream_video(self) -> None:
@@ -1079,7 +1195,14 @@ def bind_server() -> DashboardServer | None:
 
 
 def main() -> None:
-    write_log("Dashboard starting")
+    global RUN_DIR
+    folder = LOG_FILE.parent / "runs" / (time.strftime("%Y%m%d_%H%M%S") + f"_{time.time_ns()}")
+    try:
+        folder.mkdir(parents=True)
+        RUN_DIR = folder
+    except OSError as exc:
+        print(f"Could not create run log: {exc}", file=sys.stderr)
+    write_log(f"Dashboard starting. Run log: {RUN_DIR}")
     server = bind_server()
     if server is None:
         write_log(f"An older dashboard is STILL RUNNING on port {PORT} and would not close.")
@@ -1090,8 +1213,10 @@ def main() -> None:
     write_log("Connecting to the drone...")
     drone.start()
     gauge = GaugeService(frame_source=drone.latest_frame, note=drone.note)
+    done = threading.Event()
+    threading.Thread(target=record_telemetry, args=(drone, done), daemon=True).start()
     gauge.preload()
-    server.RequestHandlerClass = make_handler(drone, gauge)
+    server.RequestHandlerClass = make_handler(drone, gauge, DemoTracker(drone.latest_frame))
     url = f"http://{HOST}:{PORT}"
     print(f"Dashboard running at {url}  (press Ctrl+C here to stop)")
     webbrowser.open(url)
@@ -1100,8 +1225,11 @@ def main() -> None:
     except KeyboardInterrupt:
         pass
     finally:
+        gauge.stop()
+        done.set()
         drone.shutdown()
         server.server_close()
+        record_event("dashboard_stopped")
 
 
 if __name__ == "__main__":

@@ -140,6 +140,7 @@
               animation: blink 1s steps(2) infinite; }
   .demo-label { font: 700 18px var(--mono); paint-order: stroke; stroke: #05040a; stroke-width: 5px; }
   .demo-label.water { fill: var(--cyan); } .demo-label.car { fill: var(--bad); }
+  .demo-boxes.stale { opacity: 0.35; }
   .corner-dot {
     position: absolute; z-index: 6; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none;
     display: grid; place-items: center; border-radius: 50%; background: var(--magenta); color: var(--void);
@@ -298,7 +299,7 @@
       <svg class="demo-boxes" id="demo-boxes" viewBox="0 0 960 720" preserveAspectRatio="xMidYMid meet" hidden>
         <polygon class="demo-water" id="demo-water"></polygon>
         <text class="demo-label water" id="demo-water-label"></text>
-        <rect class="demo-car" id="demo-car"></rect>
+        <polygon class="demo-car" id="demo-car"></polygon>
         <text class="demo-label car" id="demo-car-label"></text>
       </svg>
       <div class="novideo" id="novideo" hidden>Waiting for video…</div>
@@ -363,7 +364,8 @@
         <button class="alt" id="g-stop">Stop</button>
         <button class="alt" id="g-corners" title="Click the 4 tray corners on the video: the pose comes from these, no tags needed">Set tray corners</button>
         <button class="alt" id="g-corners-clear">Clear corners</button>
-        <button class="alt" id="demo-toggle" title="Show the fixed car box and water outline for the demo">Demo boxes: off</button>
+        <button class="alt" id="demo-toggle" title="Show the car box and water outline for the demo">Demo boxes: off</button>
+        <button class="alt" id="demo-anchor" title="Line the boxes up on this view first; they then follow the tray as the drone moves">Anchor demo boxes</button>
       </div>
       <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
       <p class="gauge-msg" id="g-msg" role="status" aria-live="polite"></p>
@@ -648,17 +650,48 @@ const DEMO_OVERLAY = {
   waterLabel: "FLOOD WATER  //  2.5 FT DEEP",
 };
 
+// The boxes are defined on the anchored view; demoH (homography from the bridge) maps them onto the
+// current view so they stay on the car and water while the drone moves.
+let demoH = null;
+function warp([x, y]) {
+  if (!demoH) return [x, y];
+  const h = demoH, w = h[2][0] * x + h[2][1] * y + h[2][2];
+  return [(h[0][0] * x + h[0][1] * y + h[0][2]) / w, (h[1][0] * x + h[1][1] * y + h[1][2]) / w];
+}
+const pts = (list) => list.map((p) => warp(p).map((v) => v.toFixed(1)).join(",")).join(" ");
 function drawDemoOverlay() {
-  const o = DEMO_OVERLAY;
-  $("demo-water").setAttribute("points", o.water.map((p) => p.join(",")).join(" "));
-  const top = o.water.reduce((a, p) => (p[1] < a[1] ? p : a));
+  const o = DEMO_OVERLAY, c = o.car;
+  const water = o.water.map(warp);
+  $("demo-water").setAttribute("points", pts(o.water));
+  const top = water.reduce((a, p) => (p[1] < a[1] ? p : a));
   const wl = $("demo-water-label");
   wl.setAttribute("x", top[0] - 40); wl.setAttribute("y", top[1] - 14); wl.textContent = o.waterLabel;
-  const car = $("demo-car");
-  for (const [k, v] of Object.entries({ x: o.car.x, y: o.car.y, width: o.car.w, height: o.car.h })) car.setAttribute(k, v);
+  const carPts = [[c.x, c.y], [c.x + c.w, c.y], [c.x + c.w, c.y + c.h], [c.x, c.y + c.h]];
+  $("demo-car").setAttribute("points", pts(carPts));
+  const base = carPts.map(warp).reduce((a, p) => (p[1] > a[1] ? p : a));
   const cl = $("demo-car-label");
-  cl.setAttribute("x", o.car.x - 60); cl.setAttribute("y", o.car.y + o.car.h + 26); cl.textContent = o.carLabel;
+  cl.setAttribute("x", base[0] - 80); cl.setAttribute("y", base[1] + 26); cl.textContent = o.carLabel;
 }
+const DEMO_POLL_MS = 300, DEMO_STALE_S = 1.5;
+async function pollDemo() {
+  if (demoOn) {
+    try {
+      const t = await (await fetch("/demo/transform")).json();
+      demoH = t.anchored ? t.H : null;
+      $("demo-boxes").classList.toggle("stale", Boolean(t.anchored && t.age_s > DEMO_STALE_S));
+      drawDemoOverlay();
+    } catch { /* bridge busy: keep the last overlay */ }
+  }
+  setTimeout(pollDemo, DEMO_POLL_MS);
+}
+pollDemo();
+$("demo-anchor").onclick = async () => {
+  try {
+    const r = await fetch("/demo/anchor", { method: "POST", headers: JSON_HEADERS, body: "{}" });
+    const { result } = await r.json();
+    gaugeMessage(result === "ok" ? "Demo boxes anchored: they now follow the tray" : `Anchor failed: ${result}`, result === "ok");
+  } catch { gaugeMessage("No connection to the dashboard program", false); }
+};
 let demoOn = false;
 try { demoOn = localStorage.getItem("demoBoxes") === "1"; } catch { /* storage unavailable: default off */ }
 function setDemo(on) {
