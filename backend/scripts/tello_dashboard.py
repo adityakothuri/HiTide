@@ -995,7 +995,7 @@ def request_problem(headers, is_post: bool) -> tuple[int, str] | None:
     return None
 
 
-DEMO_FEATURES = 1500
+DEMO_FEATURES = 2500
 DEMO_RATIO = 0.75  # Lowe ratio test
 DEMO_MIN_INLIERS = 25
 DEMO_RANSAC_PX = 4.0
@@ -1017,6 +1017,7 @@ class DemoTracker:
         self._h: np.ndarray | None = None
         self._ts = 0.0
         self._inliers = 0
+        self._last: tuple[Any, np.ndarray, np.ndarray] | None = None  # last tracked frame + its H
 
     def _features(self, frame_rgb: np.ndarray) -> tuple[Any, np.ndarray | None]:
         return self._orb.detectAndCompute(cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2GRAY), None)
@@ -1030,6 +1031,7 @@ class DemoTracker:
             return "not enough detail in view to track"
         with self._lock:
             self._ref, self._h, self._ts, self._inliers = (kp, des), np.eye(3), time.time(), len(kp)
+            self._last = (kp, des, np.eye(3))
         return "ok"
 
     def transform(self) -> dict[str, Any]:
@@ -1047,15 +1049,31 @@ class DemoTracker:
         ref_kp, ref_des = self._ref  # type: ignore[misc]
         if des is None or len(kp) < 2:
             return
-        good = [m for m, n in (p for p in self._matcher.knnMatch(ref_des, des, k=2) if len(p) == 2)
+        # Best: match the anchor directly (no drift). When the view has moved too far for that, chain
+        # from the last tracked frame, which always overlaps the current one, and compose the shifts.
+        direct = self._homography(ref_kp, ref_des, kp, des)
+        if direct is not None:
+            h, inliers = direct
+        elif self._last is not None:
+            step = self._homography(self._last[0], self._last[1], kp, des)
+            if step is None:
+                return
+            h, inliers = step[0] @ self._last[2], step[1]
+        else:
+            return
+        self._h, self._ts, self._inliers, self._last = h, time.time(), inliers, (kp, des, h)
+
+    def _homography(self, kp_a: Any, des_a: np.ndarray, kp_b: Any, des_b: np.ndarray) -> tuple[np.ndarray, int] | None:
+        good = [m for m, n in (p for p in self._matcher.knnMatch(des_a, des_b, k=2) if len(p) == 2)
                 if m.distance < DEMO_RATIO * n.distance]
         if len(good) < DEMO_MIN_INLIERS:
-            return
-        src = np.float32([ref_kp[m.queryIdx].pt for m in good])
-        dst = np.float32([kp[m.trainIdx].pt for m in good])
+            return None
+        src = np.float32([kp_a[m.queryIdx].pt for m in good])
+        dst = np.float32([kp_b[m.trainIdx].pt for m in good])
         h, mask = cv2.findHomography(src, dst, cv2.RANSAC, DEMO_RANSAC_PX)
-        if h is not None and mask is not None and int(mask.sum()) >= DEMO_MIN_INLIERS:
-            self._h, self._ts, self._inliers = h, time.time(), int(mask.sum())
+        if h is None or mask is None or int(mask.sum()) < DEMO_MIN_INLIERS:
+            return None
+        return h, int(mask.sum())
 
 
 def make_handler(drone: Drone, gauge: GaugeService | None = None, demo: DemoTracker | None = None):
