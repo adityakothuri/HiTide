@@ -148,13 +148,13 @@ def test_never_duplicates_same_level_within_cooldown():
 def test_flap_back_up_restarts_the_all_clear_hold():
     hold = CFG["ladder"]["all_clear_hold_s"]
     seq = [(0, Level.DANGER), (10, Level.NONE), (20, Level.WARNING), (hold + 15, Level.NONE)]
-    _, log = run(seq, replies=[(5, "safe")])
+    _, log = run(seq, replies=[(10, "safe")])
     assert ("text", "driver", "all_clear") not in [k for _, acts in log for k in kinds(acts)]
 
 
 def test_no_all_clear_after_help_or_with_an_open_case():
     hold = CFG["ladder"]["all_clear_hold_s"]
-    s, log = run([(0, Level.DANGER), (10, Level.NONE), (hold + 20, Level.NONE)], replies=[(5, "need_help")])
+    s, log = run([(0, Level.DANGER), (10, Level.NONE), (hold + 20, Level.NONE)], replies=[(10, "need_help")])
     assert ("text", "driver", "all_clear") not in [k for _, acts in log for k in kinds(acts)]
     assert s.need_help and s.responders_flagged
 
