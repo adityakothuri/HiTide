@@ -133,6 +133,13 @@
   .depth-table td.rise { color: var(--magenta); font-weight: 700; }
   .depths details summary { cursor: pointer; margin-top: 6px; font: 600 11px var(--display); letter-spacing: 1px;
                             color: var(--cyan); }
+  .demo-boxes { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+  .demo-boxes[hidden] { display: none; }
+  .demo-water { fill: rgb(0 240 255 / 22%); stroke: var(--cyan); stroke-width: 3; filter: drop-shadow(0 0 6px var(--cyan)); }
+  .demo-car { fill: rgb(255 51 85 / 12%); stroke: var(--bad); stroke-width: 3; filter: drop-shadow(0 0 6px var(--bad));
+              animation: blink 1s steps(2) infinite; }
+  .demo-label { font: 700 18px var(--mono); paint-order: stroke; stroke: #05040a; stroke-width: 5px; }
+  .demo-label.water { fill: var(--cyan); } .demo-label.car { fill: var(--bad); }
   .corner-dot {
     position: absolute; z-index: 6; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none;
     display: grid; place-items: center; border-radius: 50%; background: var(--magenta); color: var(--void);
@@ -287,6 +294,13 @@
         <span id="ov-lift" hidden></span>
         <span class="rec">LIVE</span>
       </div>
+      <!-- Hardcoded demo overlay. viewBox = the 960x720 frame; "meet" matches the video's object-fit: contain. -->
+      <svg class="demo-boxes" id="demo-boxes" viewBox="0 0 960 720" preserveAspectRatio="xMidYMid meet" hidden>
+        <polygon class="demo-water" id="demo-water"></polygon>
+        <text class="demo-label water" id="demo-water-label"></text>
+        <rect class="demo-car" id="demo-car"></rect>
+        <text class="demo-label car" id="demo-car-label"></text>
+      </svg>
       <div class="novideo" id="novideo" hidden>Waiting for video…</div>
     </div>
     <p class="help">
@@ -349,6 +363,7 @@
         <button class="alt" id="g-stop">Stop</button>
         <button class="alt" id="g-corners" title="Click the 4 tray corners on the video: the pose comes from these, no tags needed">Set tray corners</button>
         <button class="alt" id="g-corners-clear">Clear corners</button>
+        <button class="alt" id="demo-toggle" title="Show the fixed car box and water outline for the demo">Demo boxes: off</button>
       </div>
       <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
       <p class="gauge-msg" id="g-msg" role="status" aria-live="polite"></p>
@@ -623,6 +638,41 @@ function renderDepths(g) {
   $("g-depth-houses").replaceChildren(...houses.map(depthRow));
   $("g-depth-houses-label").textContent = `Houses (${houses.filter((d) => d.flooded).length} of ${houses.length} flooded)`;
 }
+
+// ---------- Hardcoded demo overlay ----------
+// EDIT HERE to match your camera framing. Coordinates are frame pixels (960 x 720, top-left origin).
+const DEMO_OVERLAY = {
+  car: { x: 500, y: 455, w: 80, h: 48 },                                    // bounding box on the tiny car
+  carLabel: "VEHICLE  //  WATER 1.0 FT  (DOORS)",
+  water: [[300, 430], [470, 400], [700, 415], [760, 505], [600, 590], [330, 565]],  // water outline
+  waterLabel: "FLOOD WATER  //  2.5 FT DEEP",
+};
+
+function drawDemoOverlay() {
+  const o = DEMO_OVERLAY;
+  $("demo-water").setAttribute("points", o.water.map((p) => p.join(",")).join(" "));
+  const top = o.water.reduce((a, p) => (p[1] < a[1] ? p : a));
+  const wl = $("demo-water-label");
+  wl.setAttribute("x", top[0] - 40); wl.setAttribute("y", top[1] - 14); wl.textContent = o.waterLabel;
+  const car = $("demo-car");
+  for (const [k, v] of Object.entries({ x: o.car.x, y: o.car.y, width: o.car.w, height: o.car.h })) car.setAttribute(k, v);
+  const cl = $("demo-car-label");
+  cl.setAttribute("x", o.car.x - 60); cl.setAttribute("y", o.car.y + o.car.h + 26); cl.textContent = o.carLabel;
+}
+let demoOn = false;
+try { demoOn = localStorage.getItem("demoBoxes") === "1"; } catch { /* storage unavailable: default off */ }
+function setDemo(on) {
+  demoOn = on;
+  $("demo-boxes").hidden = !on;
+  $("demo-toggle").textContent = `Demo boxes: ${on ? "on" : "off"}`;
+  try { localStorage.setItem("demoBoxes", on ? "1" : "0"); } catch { /* ignore */ }
+}
+drawDemoOverlay();
+setDemo(demoOn);
+$("demo-toggle").onclick = () => setDemo(!demoOn);
+document.addEventListener("keydown", (e) => {  // B toggles the demo boxes
+  if (e.code === "KeyB" && !e.repeat && !picking) setDemo(!demoOn);
+});
 
 function poseText(g) {
   if (g.pose_source === "tags") return `tags (${g.tags_seen})`;
