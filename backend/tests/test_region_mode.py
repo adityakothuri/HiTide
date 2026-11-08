@@ -29,7 +29,7 @@ async def test_switch_to_live_steps_on_wall_clock_and_back_to_replay(monkeypatch
     await hill_runtime.set_mode(h, "live")
     assert h.mode == "live" and h.loop.simulate_drones is False and h.loop.observations is h.live
     for _ in range(100):
-        if h.loop.t is not None:
+        if h.loop.snapshot.get("sim_time") is not None:  # the step has finished, not just started
             break
         await asyncio.sleep(0.05)
     assert h.loop.t is not None and h.running
