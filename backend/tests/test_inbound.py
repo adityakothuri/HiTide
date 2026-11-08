@@ -93,3 +93,37 @@ async def test_most_recently_opened_case_wins():
 async def test_case_without_driver_is_skipped():
     rt = _rt([_driver("d1")], {"c9": _case("c9", "ghost")}, {"c9": 1.0})
     assert (await handle_inbound(rt, DRIVER_PHONE, "safe"))["matched"] is False
+
+
+class FakeSafety:
+    def __init__(self):
+        self.replies: list[tuple] = []
+        self.dispatched: list = []
+
+    def find_by_phone(self, sender):
+        from outreach.allowlist import normalize_phone
+        return (SimpleNamespace(id="hc-ruth"), "emergency_contact") if normalize_phone(sender) == CONTACT_PHONE else None
+
+    def reply(self, uid, kind, by):
+        self.replies.append((uid, kind, by))
+        return ["ack"]
+
+    async def dispatch_actions(self, user, acts):
+        self.dispatched.append((user.id, acts))
+
+
+@pytest.mark.asyncio
+async def test_no_kerrville_case_falls_back_to_safety_monitor():
+    rt = _rt([_driver("d1")], {}, {})
+    rt.safety = FakeSafety()
+    out = await handle_inbound(rt, "+1 (555) 000-0002", "AYUDA")
+    assert out == {"ok": True, "matched": True, "user_id": "hc-ruth", "reply": "need_help"}
+    assert rt.safety.replies == [("hc-ruth", "need_help", "emergency_contact")]
+    assert rt.safety.dispatched == [("hc-ruth", ["ack"])]
+
+
+@pytest.mark.asyncio
+async def test_formatted_sender_matches_a_kerrville_case():
+    rt = _rt([_driver("d1")], {"c1": _case("c1", "d1")}, {"c1": 1.0})
+    out = await handle_inbound(rt, "(555) 000-0001", "safe")
+    assert out["matched"] and rt.runner.replies == [("c1", "safe", "driver")]

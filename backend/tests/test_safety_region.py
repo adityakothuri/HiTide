@@ -165,7 +165,7 @@ def test_replay_finds_ruth_in_danger_before_the_emergency(world):
     """July 4, 2025: Ruth (78, mobility need, Hunt, South Fork) is at least DANGER by 04:15 CDT, well before the
     04:22 SH 39 checkpoint, from belief only (warnings, gauges, unknown crossings)."""
     region, loop, loc = world
-    users = UserRegistry.load(registry_path=None)
+    users = UserRegistry.load(registry=None)
     ruth = users.get("hc-ruth")
     if ruth is None:
         pytest.skip("data/region_users.json missing")

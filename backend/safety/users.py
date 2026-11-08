@@ -26,6 +26,15 @@ STATE_PATH = DATA_DIR / "safety_state.json"
 E164 = re.compile(r"^\+[1-9]\d{7,14}$")
 
 
+def registry_path() -> Path:
+    """SAFETY_REGISTRY_PATH overrides (tests, deployments); read at call time."""
+    return Path(os.environ.get("SAFETY_REGISTRY_PATH", str(REGISTRY_PATH)))
+
+
+def state_path() -> Path:
+    return Path(os.environ.get("SAFETY_STATE_PATH", str(STATE_PATH)))
+
+
 @dataclass(frozen=True)
 class SafetyUser:
     id: str
@@ -94,13 +103,14 @@ class UserRegistry:
                 log.exception("could not read %s; enrolled users not loaded", registry_path)
 
     @classmethod
-    def load(cls, path: Path = REGION_USERS_PATH, registry_path: Path | None = REGISTRY_PATH) -> "UserRegistry":
+    def load(cls, path: Path = REGION_USERS_PATH, registry: Path | None | str = "env") -> "UserRegistry":
+        """registry="env": SAFETY_REGISTRY_PATH or data/user_registry.json; None: no enrolled users (tests)."""
         users: list[SafetyUser] = []
         if path.exists():
             users = [_user(d, simulated=True) for d in json.loads(path.read_text())]
         else:
             log.warning("%s missing: run scripts/gen_region_users.py", path)
-        return cls(users, registry_path)
+        return cls(users, registry_path() if registry == "env" else (Path(registry) if registry else None))
 
     def get(self, uid: str) -> SafetyUser | None:
         return self._users.get(uid)

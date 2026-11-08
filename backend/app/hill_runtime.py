@@ -23,7 +23,7 @@ from observe.replay import ReplayObservations
 from outreach import make_outreach
 from safety.hazard import Locator
 from safety.monitor import SafetyMonitor
-from safety.users import UserRegistry
+from safety.users import UserRegistry, state_path
 from sim.region import Region, load_region
 from sim.region_flood import RegionFlood
 
@@ -93,7 +93,7 @@ def _safety(region: Region, loop: CriticalLoop, emit) -> SafetyMonitor:
     """Users + locator + monitor. Its outreach knows who is driving (texts to a moving driver are blocked)."""
     holder: dict[str, SafetyMonitor] = {}
     outreach = make_outreach(emit, lambda uid: holder["m"].is_moving(uid) if "m" in holder else False)
-    monitor = SafetyMonitor(Locator(region, loop.points), UserRegistry.load(), outreach, emit)
+    monitor = SafetyMonitor(Locator(region, loop.points), UserRegistry.load(), outreach, emit, state_path=state_path())
     holder["m"] = monitor
     return monitor
 
