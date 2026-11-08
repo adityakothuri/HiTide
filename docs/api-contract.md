@@ -24,6 +24,12 @@ Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
 
 **Segment ids:** segments are *directed* edges, so a two-way street appears twice (`u-v-0` and `v-u-0`) with the same geometry. Draw both or dedupe by geometry. Colour each one by its status from the latest `segments.update`. Any id that isn't listed is `open`.
 
+## Privacy and security behaviour (2026-11-07)
+
+- **Before a warning is active**, the snapshot has `drivers: []` and `drivers_opted_in: 100`, and no `drivers.update` events are sent. Locations appear once the `alert` arrives (opt-in terms).
+- `urgency_reasons` use coarse bands ("older driver (65+)", "low-clearance vehicle"), never exact age or model.
+- `/ws` and the POST endpoints reject browser origins other than `localhost`/`127.0.0.1` (any port). If you serve the UI from elsewhere, set `FRONTEND_ORIGIN_REGEX` on the backend.
+
 ## WebSocket `ws://localhost:8000/ws`
 
 Every message has this envelope:
