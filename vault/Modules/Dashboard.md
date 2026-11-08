@@ -1,47 +1,41 @@
 ---
 tags: [floodwatch, module, frontend]
-status: todo
+status: in-progress
 updated: 2026-11-07
 ---
 
 # Dashboard
 
-> [!note] Owned by the frontend team
-> Teammates build the driver view and the ops dashboard in `frontend/`. Backend contract: `docs/api-contract.md`. This note only records what the backend sends.
+The frontend lives in `frontend/` (React + Vite + TS) and has two surfaces plus a presentation mode:
 
-## Two views
+- **Driver app**: see [[Driver App]].
+- **Operations console**: case queue, map, case detail with the drone panel and "minutes gained". Built in Phase 4.
+- **Presentation**: `/present` puts the phone on the left and the console on the right, both on one store.
 
-- **Driver view**: pre-trip and turn-around alerts with TTS, reroute line on the map, "I'm safe" and "I need help" buttons (`POST /api/cases/{id}/reply`).
-- **Ops dashboard**: map of segment status, driver positions, case cards with `reasons[]`, outreach log, drone position, counters.
+Design tokens and wireframes: [[Design System]]. Contract: `docs/api-contract.md` (plus "Proposed additions (frontend)").
 
-## Backend endpoints
+## Run
 
-Live now (per the status line in `docs/api-contract.md`):
+```
+cd frontend
+npm install
+npm run dev          # http://localhost:5173 (proxies /api, /ws, /static to :8000)
+npm test             # vitest: reducers, driver flow, formatting
+npm run contrast     # WCAG check of token pairings
+npm run e2e          # Playwright screenshots
+```
 
-- `GET /api/town`: segments as GeoJSON
-- `GET /api/state`: snapshot
-- `GET /api/feeds`: feed status with `source: live|cached|unavailable`
-- `POST /api/demo/start` and `POST /api/demo/reset`
-- `WS /ws`: `snapshot`, `alert`, `segments.update`
+URL modes: `?mode=live` uses the backend only. `?mode=mock` replays the recorded demo offline. With no mode, it tries live and falls back to offline after 2.5 s. When the fallback happens, an "Offline demo data" chip shows.
 
-Planned for Phases 2-5, same shapes as in the contract:
+## Data layer
 
-- WS events `drivers.update`, `outreach`, `case.update`, `drone.update`, `counters`
-- `GET /api/cases`, `POST /api/cases/{id}/reply`, `GET /api/drivers/{id}`
-- `GET /api/mock/stream`: replays a recorded demo sequence so the frontend can build before the sim is ready
-
-## Code
-
-- `frontend/` (not created yet, teammates)
-- `backend/api/ws.py` (exists): WS hub
-- `backend/api/routes.py` (exists): REST routes
-- `backend/api/schemas.py` (exists): Pydantic models for the events
-- `backend/app/main.py` (exists): app, CORS (open for the Vite dev server), routers
-- `backend/api/routes_cases.py` (planned): reply endpoint and case list
-- `docs/api-contract.md` (exists): the contract
+- `src/data/provider.ts`: the `DataProvider` interface, shared by:
+  - `WsProvider`: live, reconnects with jittered backoff
+  - `MockProvider`: replays `src/demo/recording.json`, a real recording of the backend's 7-step demo (232 events) re-timed to now
+- `src/state/reducer.ts`: a pure reducer over every WS event type. A snapshot replaces everything. Stale `seq` values are ignored. Local events use `seq: -1`.
+- `src/state/cases.ts`: urgency sort, filters, severity, step labels.
+- Tests: 73 vitest specs, written test-first (see [[Tooling]]).
 
 ## Related
 
-- [[Architecture]] for the WS hub position
-- [[Stage 2 En route]] for the driver view alerts
-- [[Stage 3 Stopped in water]] for the case cards
+- [[Architecture]], [[Driver App]], [[Design System]]

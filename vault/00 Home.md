@@ -15,6 +15,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 
 - Why: [[Problem]] · [[Pitch]] · [[Privacy and Consent]]
 - How it works: [[Architecture]] · [[Stage 1 Pre-trip]] · [[Stage 2 En route]] · [[Stage 3 Stopped in water]]
+- Frontend: [[Design System]] · [[Driver App]] · [[Dashboard]] · screenshots in `Experiments/screenshots/`
 - Modules: [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Dashboard]]
 - Reference: [[Data Sources]] · [[Tooling]] · [[Decisions]] · [[Demo Script]]
 - Experiments: [[2026-11-07 Town cache build]]
@@ -30,6 +31,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
+| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
 
 ## Checkpoints
 

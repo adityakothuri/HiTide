@@ -1,0 +1,43 @@
+.viewport {
+  position: fixed;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  display: grid;
+  gap: var(--space-1);
+  width: 360px;
+  max-width: calc(100vw - var(--space-4));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  z-index: 100;
+}
+
+.toast {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-half) var(--space-2);
+  padding: var(--space-2);
+  background: var(--surface);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+}
+
+.title { font-weight: 600; }
+
+.detail {
+  grid-column: 1;
+  color: var(--neutral-5);
+}
+
+.close {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-1);
+  grid-row: 1;
+  grid-column: 2;
+  border: 0;
+  background: none;
+  color: var(--neutral-6);
+  text-decoration: underline;
+  cursor: pointer;
+}

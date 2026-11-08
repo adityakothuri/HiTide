@@ -64,3 +64,9 @@ Call setup takes 10–20 s, so the call never blocks the sim tick. The transcrip
 ## 2026-11-07: Margaret's demo phone = Teammate B
 B gets no texts during the demo (B is the moving driver), so B's phone ringing as "Margaret" at step 4 is the live voice moment. Change `demo-d.phone` in `data/drivers.json` to reassign it.
 
+## 2026-11-07: Frontend design system (Checkpoint 1)
+- Critical status is magenta-plum `#931566` (hue 321°), not brand red `#B3121F` (hue 355°). Danger is always icon + label + critical color. Brand red means "State Farm" and "selected", never danger.
+- Public Sans, self-hosted, so the demo works offline. It's legible on a projector and has an institutional tone.
+- The console map has no basemap tiles. It's drawn from our own OSM segments and river on a neutral surface, so it works offline and the water scale is the only saturated color.
+- Anti-template review changed: KPI cards → inline counters, shadow cards → bordered sections, dot-only timeline → icon shape + text state, middle-dot meta → written-out phrases. Full table in [[Design System]] §6.
+- Frontend work runs in a separate worktree on branch `feat/frontend`, so it doesn't touch the backend agent's tree.

@@ -1,0 +1,78 @@
+/* The only file allowed to contain hex colors (enforced by stylelint). See vault/Design System.md. */
+:root {
+  /* Brand: wordmark, primary buttons, selected states. Never danger. */
+  --brand-red: #b3121f;
+  --brand-red-hover: #960f1a;
+
+  --ink: #24272b;
+  --neutral-1: #f0f2f4;
+  --neutral-2: #dde1e5;
+  --neutral-3: #bcc3ca;
+  --neutral-4: #838c95;
+  --neutral-5: #5f6870;
+  --neutral-6: #3e454c;
+  --surface: #fff;
+  --surface-page: #f4f6f8;
+  --on-dark: #fff;
+
+  /* Water depth scale */
+  --water-1: #dcebf7;
+  --water-2: #a9cdeb;
+  --water-3: #5e9ed6;
+  --water-4: #2366a8;
+  --water-5: #0b2d52;
+
+  /* Status */
+  --safe: #1e6b3a;
+  --safe-bg: #e6f2ea;
+  --caution: #7a4f00;
+  --caution-bg: #fff1d1;
+  --caution-mark: #b07800;
+  --critical: #931566;
+  --critical-bg: #fbe9f3;
+  --critical-deep: #7a0f46;
+  --info: #3a5a82;
+  --info-bg: #e8eef6;
+
+  /* Type */
+  --font: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-xs: 13px;
+  --lh-xs: 18px;
+  --text-sm: 15px;
+  --lh-sm: 22px;
+  --text-md: 17px;
+  --lh-md: 26px;
+  --text-lg: 22px;
+  --lh-lg: 28px;
+  --text-xl: 30px;
+  --lh-xl: 36px;
+  --text-2xl: 44px;
+  --lh-2xl: 50px;
+
+  /* Space (8px grid, 4 for hairlines only) */
+  --space-half: 4px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+
+  /* Shape */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --border: 1px solid var(--neutral-2);
+  --shadow-float: 0 4px 16px rgb(36 39 43 / 12%);
+  --focus-ring: 2px solid var(--info);
+  --focus-ring-on-dark: 2px solid var(--on-dark);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-quick: 140ms;
+  --dur-slide: 220ms;
+
+  /* Touch */
+  --tap-min: 44px;
+  --tap-primary: 56px;
+}

@@ -1,0 +1,77 @@
+.skeleton {
+  display: block;
+  background: var(--neutral-1);
+}
+
+.sm { border-radius: var(--radius-sm); }
+.md { border-radius: var(--radius-md); }
+
+.empty,
+.error {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  padding: var(--space-3);
+}
+
+.emptyTitle { font-weight: 600; }
+
+.emptyText {
+  color: var(--neutral-5);
+  max-width: 46ch;
+}
+
+.error {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+}
+
+.errorIcon {
+  width: 22px;
+  height: 22px;
+  color: var(--critical);
+}
+
+.errorBody {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+}
+
+.fresh {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-half);
+  font-size: var(--text-xs);
+  color: var(--neutral-5);
+  white-space: nowrap;
+}
+
+.stale {
+  color: var(--caution);
+  font-weight: 600;
+}
+
+.smallIcon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-half);
+  font-size: var(--text-xs);
+  color: var(--neutral-6);
+  white-space: nowrap;
+}
+
+.chipWarn { color: var(--caution); font-weight: 600; }
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--safe);
+}

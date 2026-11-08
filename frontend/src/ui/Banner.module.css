@@ -1,0 +1,37 @@
+.banner {
+  width: 100%;
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-left: 4px solid currentcolor;
+  border-radius: var(--radius-sm);
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-top: 2px;
+}
+
+.body {
+  display: grid;
+  gap: var(--space-half);
+  color: var(--ink);
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+}
+
+.detail {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+}
+
+.safe { color: var(--safe); background: var(--safe-bg); }
+.caution { color: var(--caution); background: var(--caution-bg); }
+.critical { color: var(--critical); background: var(--critical-bg); }
+.info { color: var(--info); background: var(--info-bg); }
