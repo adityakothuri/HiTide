@@ -23,4 +23,8 @@ def result_for(night: bool, recommendation: str) -> tuple[dict[str, Any] | None,
     if not pick:
         return None, None
     vision = {**pick, "night_mode": night, "thermal_simulated": night, "recommendation": recommendation}
+    if night:  # show the SIMULATED thermal frame; annotated_url keeps the daylight detections
+        stem = pick["image_url"].rsplit(".", 1)[0]
+        if (DATA_DIR / "drone_samples" / f"{stem.rsplit('/', 1)[-1]}_thermal.jpg").exists():
+            vision["image_url"] = f"{stem}_thermal.jpg"
     return vision, len(vision.get("people", []))

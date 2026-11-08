@@ -37,6 +37,25 @@ class Town:
         return props.get("name") or "unnamed road"
 
 
+def _is_bridge(data: dict) -> bool:
+    return str(data.get("bridge", "")).lower() not in ("", "nan", "none", "no")
+
+
+def _fix_bridges(graph: nx.MultiDiGraph, edge_ids: tuple[str, ...], elev: np.ndarray) -> np.ndarray:
+    """Min-DEM along a bridge samples the riverbed below it. Use the highest adjacent approach road instead."""
+    index = {eid: i for i, eid in enumerate(edge_ids)}
+    bridges = {f"{u}-{v}-{k}" for u, v, k, d in graph.edges(keys=True, data=True) if _is_bridge(d)}
+    fixed = elev.copy()
+    for eid in bridges:
+        u, v, _ = (int(x) for x in eid.split("-"))
+        approach = [elev[index[f"{a}-{b}-{k}"]] for n in (u, v)
+                    for a, b, k in list(graph.in_edges(n, keys=True)) + list(graph.out_edges(n, keys=True))
+                    if f"{a}-{b}-{k}" in index and f"{a}-{b}-{k}" not in bridges]
+        if approach and eid in index:
+            fixed[index[eid]] = max(approach)
+    return fixed
+
+
 def _fill_nan(elev: np.ndarray) -> np.ndarray:
     if np.isnan(elev).any():
         return np.where(np.isnan(elev), np.nanmedian(elev), elev)
@@ -53,6 +72,7 @@ def load_town() -> Town:
     feats = segments["features"]
     edge_ids = tuple(f["properties"]["edge_id"] for f in feats)
     elev = _fill_nan(np.array([f["properties"]["elev_m"] for f in feats], dtype=float))
+    elev = _fix_bridges(graph, edge_ids, elev)
 
     mids, dists = [], []
     for f in feats:

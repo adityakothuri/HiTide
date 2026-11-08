@@ -57,8 +57,15 @@ def test_unknown_vehicle_uses_middle_default():
 def test_reasons_explain_score():
     r = s(depth_in=20, hour=23, age=78, situation="stopped_in_water", rise_in_per_min=2)
     joined = " ".join(r.reasons)
-    for word in ("20 in", "night", "78", "rising", "stopped"):
+    for word in ("20 in", "night", "older driver", "rising", "stopped"):
         assert word in joined
+
+
+def test_reasons_never_expose_exact_age_or_vehicle_model():
+    """Privacy: reasons go to every dashboard client, so only coarse bands, never raw personal data."""
+    joined = " ".join(s(age=78, vehicle_type="compact", depth_in=10).reasons + s(age=17).reasons)
+    assert "78" not in joined and "17" not in joined
+    assert "compact" not in joined
 
 
 def test_high_risk_flag_for_older_driver_stopped_at_night():

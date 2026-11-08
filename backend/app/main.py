@@ -15,9 +15,12 @@ from fastapi.staticfiles import StaticFiles
 from api.routes import router
 from app.config import DATA_DIR
 from app.runtime import build_runtime
+from app.security import ORIGIN_RE
 from evidence.factory import open_store
 from evidence.routes import router as evidence_router
 from evidence.service import EvidenceService
+from outreach.inbound import handle_inbound
+from outreach.photon2_ws import Photon2Inbound
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -39,6 +42,7 @@ async def lifespan(app: FastAPI):
     runtime = build_runtime()
     store = await asyncio.to_thread(open_store)
     worker = None
+    inbound: Photon2Inbound | None = None
     try:
         app.state.runtime = runtime
         app.state.evidence = await asyncio.to_thread(EvidenceService, store, runtime.town)
@@ -48,9 +52,15 @@ async def lifespan(app: FastAPI):
         if interval_s:
             worker = asyncio.create_task(poll_evidence(app.state.evidence, interval_s))
         runtime.engine.start()
+        if os.environ.get("PHOTON_MODE") == "photon2":
+            inbound = Photon2Inbound()
+            await inbound.start(lambda s, t: handle_inbound(runtime, s, t))
         yield
     finally:
         runtime.demo.cancel()
+        if inbound is not None:
+            await inbound.stop()
+        runtime.runner.cancel_pending()
         await runtime.engine.stop()
         if worker:
             worker.cancel()
@@ -62,7 +72,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?",
+    allow_origin_regex=ORIGIN_RE.pattern,  # pin with FRONTEND_ORIGIN_REGEX if the UI is served from elsewhere
     allow_methods=["*"],
     allow_headers=["*"],
 )

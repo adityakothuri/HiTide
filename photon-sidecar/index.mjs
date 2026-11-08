@@ -2,6 +2,7 @@
 // POST /send {to, body}            -> iMessage text
 // POST /poll {to, question, options} -> native iMessage poll
 // Inbound messages / poll votes are forwarded to the backend: POST {BACKEND_URL}/api/photon/inbound {from, text}
+import crypto from "node:crypto";
 import http from "node:http";
 import { Spectrum, poll } from "spectrum-ts";
 import { imessage } from "spectrum-ts/providers/imessage";
@@ -9,8 +10,15 @@ import { imessage } from "spectrum-ts/providers/imessage";
 const PORT = Number(process.env.SIDECAR_PORT ?? 8787);
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
 const E164 = /^\+[1-9]\d{7,14}$/;
+const SIDECAR_KEY = process.env.SIDECAR_KEY ?? "";
+if (!SIDECAR_KEY) throw new Error("SIDECAR_KEY must be set (shared with the backend)");
+const redact = (msg) => String(msg ?? "").replace(/\+?\d{8,}/g, "[redacted]");
 
-const app = await Spectrum({ providers: [imessage.config()] }); // reads SPECTRUM_PROJECT_ID / SECRET from env
+// Accept Photon's starter names (PROJECT_ID / PROJECT_SECRET) or ours (SPECTRUM_PROJECT_ID / SPECTRUM_PROJECT_SECRET).
+const projectId = process.env.SPECTRUM_PROJECT_ID || process.env.PROJECT_ID;
+const projectSecret = process.env.SPECTRUM_PROJECT_SECRET || process.env.PROJECT_SECRET;
+if (!projectId || !projectSecret) throw new Error("Set SPECTRUM_PROJECT_ID and SPECTRUM_PROJECT_SECRET in .env");
+const app = await Spectrum({ projectId, projectSecret, providers: [imessage.config()] });
 const im = imessage(app);
 const dms = new Map();
 
@@ -22,7 +30,10 @@ async function dmFor(phone) {
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let data = "";
-    req.on("data", (c) => { data += c; if (data.length > 10_000) reject(new Error("body too large")); });
+    req.on("data", (c) => {
+      data += c;
+      if (data.length > 10_000) { reject(new Error("body too large")); req.destroy(); }
+    });
     req.on("end", () => { try { resolve(JSON.parse(data || "{}")); } catch (e) { reject(e); } });
   });
 }
@@ -35,6 +46,10 @@ function reply(res, code, obj) {
 http.createServer(async (req, res) => {
   try {
     if (req.method !== "POST" || !["/send", "/poll"].includes(req.url)) return reply(res, 404, { error: "not found" });
+    const given = Buffer.from(String(req.headers["x-sidecar-key"] ?? ""));
+    const want = Buffer.from(SIDECAR_KEY);
+    if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) return reply(res, 401, { error: "bad key" });
+    if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) return reply(res, 415, { error: "json only" });
     const body = await readJson(req);
     if (!E164.test(body.to ?? "")) return reply(res, 400, { error: "to must be E.164" });
     const dm = await dmFor(body.to);
@@ -43,21 +58,36 @@ http.createServer(async (req, res) => {
     console.log(`[sidecar] ${req.url} ok`); // never log the number
     reply(res, 200, { ok: true, status: "sent" });
   } catch (err) {
-    console.error(`[sidecar] ${req.url} failed: ${err?.message ?? err}`);
+    console.error(`[sidecar] ${req.url} failed: ${redact(err?.message ?? err)}`);
     reply(res, 502, { ok: false, error: "send failed" });
   }
 }).listen(PORT, "127.0.0.1", () => console.log(`[sidecar] listening on 127.0.0.1:${PORT}`));
 
-for await (const [, message] of app.messages) {
+const OPT_IN_REPLY =
+  "State Farm Flood Watch: you're opted in. We'll only message you during an active flash flood warning. " +
+  "Reply SAFE or HELP if we ever check on you.";
+const welcomed = new Set(); // one confirmation per sender per run, so we never spam
+
+for await (const [space, message] of app.messages) {
   const c = message.content ?? {};
   const text = c.type === "text" ? c.text : c.type === "poll_option" && c.selected ? (c.option?.title ?? c.title ?? "") : null;
   if (!text) continue;
+  const sender = message.sender?.id ?? "";
   try {
-    await fetch(`${BACKEND_URL}/api/photon/inbound`, {
-      method: "POST", headers: { "content-type": "application/json", "x-sidecar-key": process.env.SIDECAR_KEY ?? "" },
-      body: JSON.stringify({ from: message.sender?.id ?? "", text }),
+    const res = await fetch(`${BACKEND_URL}/api/photon/inbound`, {
+      method: "POST", headers: { "content-type": "application/json", "x-sidecar-key": SIDECAR_KEY },
+      body: JSON.stringify({ from: sender, text }),
+      signal: AbortSignal.timeout(5000),
     });
+    if (!res.ok) { console.error(`[sidecar] backend rejected inbound reply: HTTP ${res.status}`); continue; }
+    const body = await res.json().catch(() => ({}));
+    if (body.matched) { console.log(`[sidecar] inbound reply applied to ${body.case_id}: ${body.reply}`); continue; }
+    if (!welcomed.has(sender)) {
+      welcomed.add(sender);
+      await space.send(OPT_IN_REPLY);
+      console.log("[sidecar] sent opt-in confirmation");
+    }
   } catch (err) {
-    console.error(`[sidecar] forward inbound failed: ${err?.message ?? err}`);
+    console.error(`[sidecar] inbound handling failed: ${redact(err?.message ?? err)}`);
   }
 }

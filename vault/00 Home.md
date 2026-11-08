@@ -6,6 +6,11 @@ updated: 2026-11-07
 
 # State Farm Flood Watch
 
+> **Current integration:** see [State of the Union](../docs/STATE_OF_THE_UNION.md)
+> and [[2026-11-07 Evidence milestone]]. The evidence-to-inspection workflow now
+> has MongoDB persistence, an operations console, and a verified synthetic feedback
+> loop. Legacy phase notes below retain their original driver-rescue scope.
+
 Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadalupe River. Submissions close **Sun Nov 8, 12:00 PM CT**.
 
 > [!note] How to read this vault
@@ -26,10 +31,10 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 |---|---|---|
 | Phase 0 | Setup: ECC, CLAUDE.md, vault, `.env.example`, API contract | done (2026-11-07) |
 | Phase 1 | Data layer: town cache, flood sim, road status, feeds, API | done: CHECKPOINT 1 backend verified 2026-11-07 |
-| Phase 2 | Risk scoring + Stages 1-2 | done in mock mode. Real-phone check waits on Photon creds |
-| Phase 3 | Stage 3 escalation state machine | done in mock mode. Full 7-step demo runs in 62 s |
-| Phase 4 | Photon integration (spike, timeboxed) | adapters + sidecar built, blocked on creds |
-| Phase 5 | Drone + vision | drone flight done; vision in progress |
+| Phase 2 | Risk scoring + Stages 1-2 | done: CHECKPOINT 2 passed on a real phone |
+| Phase 3 | Stage 3 escalation state machine | done: CHECKPOINT 3 passed on a real phone (reply closed the case) |
+| Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
+| Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
 | Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
 

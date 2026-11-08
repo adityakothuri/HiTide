@@ -30,7 +30,7 @@ if (-not $mongod) {
 }
 $listener = Get-NetTCPConnection -LocalPort 27017 -State Listen -ErrorAction SilentlyContinue
 if (-not $listener) {
-    $mongoArgs = @('--bind_ip', '127.0.0.1', '--port', '27017', '--replSet', 'floodwatch', '--dbpath', ('"' + $dbDir + '"'), '--logpath', ('"' + $logPath + '"'), '--logappend')
+    $mongoArgs = @('--bind_ip', '127.0.0.1', '--port', '27017', '--replSet', 'floodwatch', '--oplogSize', '128', '--wiredTigerCacheSizeGB', '0.25', '--dbpath', ('"' + $dbDir + '"'), '--logpath', ('"' + $logPath + '"'), '--logappend')
     Start-Process -FilePath $mongod.FullName -ArgumentList $mongoArgs -WindowStyle Hidden | Out-Null
 }
 $pythonPath = Join-Path $repoRoot 'backend/.venv/Scripts/python.exe'

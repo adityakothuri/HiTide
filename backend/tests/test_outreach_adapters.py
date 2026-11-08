@@ -69,7 +69,9 @@ async def test_timeout_becomes_failed():
 
 
 def test_timeout_is_ten_seconds():
-    assert photon_spectrum.TIMEOUT_S == 10.0 and voice_elevenlabs.TIMEOUT_S == 10.0
+    assert photon_spectrum.TIMEOUT_S == 10.0
+    # outbound-call responds only once the SIP call connects (10-20 s observed live), so voice gets longer
+    assert voice_elevenlabs.TIMEOUT_S >= 30.0
 
 
 @pytest.fixture
@@ -82,7 +84,7 @@ def el_env(monkeypatch):
 @pytest.mark.asyncio
 async def test_place_call_request_shape(el_env):
     t, seen = _transport()
-    assert await voice_elevenlabs.place_call("+1830", "Hello, are you okay?", transport=t) == "sent"
+    assert (await voice_elevenlabs.place_call("+1830", "Hello, are you okay?", transport=t)).status == "sent"
     r = seen[0]
     assert str(r.url) == "https://api.elevenlabs.io/v1/convai/sip-trunk/outbound-call"
     assert r.headers["xi-api-key"] == "key123"
@@ -90,7 +92,7 @@ async def test_place_call_request_shape(el_env):
     assert body["agent_id"] == "agent_1"
     assert body["agent_phone_number_id"] == "phnum_1"
     assert body["to_number"] == "+1830"
-    first = body["conversation_initiation_client_data"]["conversation_config_override"]["agent"]["first_message"]
+    first = body["conversation_initiation_client_data"]["dynamic_variables"]["opening_line"]
     assert first == "Hello, are you okay?"
 
 
@@ -98,19 +100,19 @@ async def test_place_call_request_shape(el_env):
 @pytest.mark.parametrize("status", [401, 422, 500])
 async def test_place_call_errors_failed(el_env, status):
     t, _ = _transport(status)
-    assert await voice_elevenlabs.place_call("+1", "hi", transport=t) == "failed"
+    assert (await voice_elevenlabs.place_call("+1", "hi", transport=t)).status == "failed"
 
 
 @pytest.mark.asyncio
 async def test_place_call_network_error_failed(el_env):
     t, _ = _transport(exc=httpx.ConnectError("x"))
-    assert await voice_elevenlabs.place_call("+1", "hi", transport=t) == "failed"
+    assert (await voice_elevenlabs.place_call("+1", "hi", transport=t)).status == "failed"
 
 
 @pytest.mark.asyncio
 async def test_place_call_success_false_in_body_is_failed(el_env):
     t = httpx.MockTransport(lambda r: httpx.Response(200, json={"success": False, "message": "no"}))
-    assert await voice_elevenlabs.place_call("+1", "hi", transport=t) == "failed"
+    assert (await voice_elevenlabs.place_call("+1", "hi", transport=t)).status == "failed"
 
 
 def test_voice_configured(monkeypatch, el_env):

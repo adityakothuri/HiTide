@@ -7,13 +7,14 @@ import logging
 import os
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 from api.schemas import ReplyIn
-from outreach.allowlist import resolve_phone
+from outreach.inbound import handle_inbound
 
 from app.runtime import Runtime
+from app.security import origin_ok, require_trusted_origin
 from feeds import all_feeds
 
 log = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ async def feeds() -> dict[str, Any]:
     return await all_feeds()
 
 
-@router.post("/api/demo/start")
+@router.post("/api/demo/start", dependencies=[Depends(require_trusted_origin)])
 async def demo_start(request: Request) -> dict[str, Any]:
     r = rt(request)
     await r.reset()
@@ -55,7 +56,7 @@ async def demo_start(request: Request) -> dict[str, Any]:
     return {"ok": True}
 
 
-@router.post("/api/demo/reset")
+@router.post("/api/demo/reset", dependencies=[Depends(require_trusted_origin)])
 async def demo_reset(request: Request) -> dict[str, Any]:
     await rt(request).reset()
     return {"ok": True}
@@ -66,7 +67,7 @@ async def cases(request: Request) -> list[dict[str, Any]]:
     return [c.model_dump(mode="json") for c in rt(request).sorted_cases()]
 
 
-@router.post("/api/cases/{case_id}/reply")
+@router.post("/api/cases/{case_id}/reply", dependencies=[Depends(require_trusted_origin)])
 async def case_reply(case_id: str, body: ReplyIn, request: Request) -> dict[str, Any]:
     case = await rt(request).runner.reply(case_id, body.reply, "driver")
     if case is None:
@@ -79,32 +80,14 @@ class InboundIn(BaseModel):
     text: str = Field(max_length=500)
 
 
-def _reply_kind(text: str) -> str | None:
-    t = text.lower()
-    if "help" in t:
-        return "need_help"
-    if "safe" in t or "ok" in t.split():
-        return "safe"
-    return None
-
-
 @router.post("/api/photon/inbound")
 async def photon_inbound(body: InboundIn, request: Request) -> dict[str, Any]:
     """Replies from the Photon sidecar. Only allowlisted demo numbers can affect a case."""
     expected = os.environ.get("SIDECAR_KEY", "")
-    if not expected or not hmac.compare_digest(request.headers.get("x-sidecar-key", ""), expected):
+    given = request.headers.get("x-sidecar-key", "").encode()
+    if not expected or not hmac.compare_digest(given, expected.encode()):
         raise HTTPException(status_code=401, detail="bad sidecar key")
-    kind = _reply_kind(body.text)
-    if kind is None:
-        return {"ok": True, "matched": False}
-    r = rt(request)
-    for case in r.sorted_cases():
-        d = next(x for x in r.drivers if x.id == case.driver_id)
-        for raw, by in ((d.phone, "driver"), (d.emergency_contact.phone, "emergency_contact")):
-            if resolve_phone(raw) == body.sender and case.state != "resolved":
-                await r.runner.reply(case.id, kind, by)
-                return {"ok": True, "matched": True, "case_id": case.id, "reply": kind}
-    return {"ok": True, "matched": False}
+    return await handle_inbound(rt(request), body.sender, body.text)
 
 
 @router.get("/api/drivers/{driver_id}")
@@ -127,6 +110,9 @@ async def driver_view(driver_id: str, request: Request) -> dict[str, Any]:
 @router.websocket("/ws")
 async def ws(websocket: WebSocket) -> None:
     r: Runtime = websocket.app.state.runtime
+    if not origin_ok(websocket.headers.get("origin")):
+        await websocket.close(code=1008)  # policy violation: untrusted page
+        return
     await r.hub.connect(websocket, r.snapshot)
     try:
         while True:  # clients don't send; just keep the socket open until it closes

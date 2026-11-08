@@ -59,13 +59,15 @@ def random_driver(i: int, rng: random.Random, town: Town, nodes: list[int]) -> D
 
 
 def find_route(town: Town, rng: random.Random, nodes: list[int], flooded: dict[str, float], min_depth: float,
-               lengths: tuple[float, float]) -> Route | None:
+               lengths: tuple[float, float], max_depth: float = float("inf")) -> Route | None:
     closed = set(flooded)
     for _ in range(4000):
         r = shortest_route(town.graph, rng.choice(nodes), rng.choice(nodes), "usual")
         if not r or not lengths[0] <= r.length_m <= lengths[1]:
             continue
         hits = [e for e in r.edge_ids if flooded.get(e, 0) >= min_depth]
+        if hits and flooded[hits[0]] > max_depth:
+            continue
         # hazard must not be on the first ~third of the route (driver needs room to turn around)
         if not hits or r.edge_ids.index(hits[0]) < len(r.edge_ids) // 3:
             continue
@@ -79,7 +81,7 @@ def demo_drivers(town: Town, rng: random.Random, nodes: list[int]) -> list[Drive
     log.info("flooded (closed+) segments at %s min: %d", DEMO_FLOOD_MIN, len(flooded))
     a = find_route(town, rng, nodes, flooded, 6, (1500, 5000))
     b = find_route(town, rng, nodes, flooded, 12, (1500, 5000))
-    d = find_route(town, rng, nodes, flooded, 20, (1200, 5000))
+    d = find_route(town, rng, nodes, flooded, 12, (1200, 5000), max_depth=30)  # doors-to-windows deep, not a river
     if not (a and b and d):
         raise RuntimeError("could not find demo routes; adjust DEMO_FLOOD_MIN")
     start = lambda r: int(r.edge_ids[0].split("-")[0])  # noqa: E731

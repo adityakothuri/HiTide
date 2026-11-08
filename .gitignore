@@ -27,4 +27,5 @@ frontend/test-results/
 frontend/playwright-report/
 .coverage
 coverage.xml
+data/models/
 htmlcov/

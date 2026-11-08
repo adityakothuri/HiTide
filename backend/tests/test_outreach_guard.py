@@ -220,8 +220,9 @@ async def test_payload_matches_schema_and_log_has_no_phone(tmp_path, monkeypatch
     svc, rec, log = _build(tmp_path, moving=False)
     out = await svc.send(_msg())
     OutreachEvent(**out)  # frozen contract
-    assert set(out) == {"id", "ts", "driver_id", "recipient", "channel", "body",
-                        "mode", "status", "case_id"}
+    required = {"id", "ts", "driver_id", "recipient", "channel", "body", "mode", "status", "case_id"}
+    optional = {"provider", "call_id"}  # additive contract fields (docs/api-contract.md)
+    assert required <= set(out) <= required | optional
     assert rec.events[0][1] == out
     raw_log = log.read_text()
     assert SECRET_PHONE not in raw_log and "DEMO_PHONE_A" not in raw_log

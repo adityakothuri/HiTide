@@ -5,13 +5,14 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.security import require_trusted_origin
 from evidence.models import ObservationIn, aware_time
 from evidence.service import EvidenceService
 
-router = APIRouter(prefix="/api/evidence", tags=["Evidence and inspections"])
+router = APIRouter(prefix="/api/evidence", tags=["Evidence and inspections"], dependencies=[Depends(require_trusted_origin)])
 
 
 def service(request: Request) -> EvidenceService:

@@ -30,7 +30,9 @@ class Runtime:
             "river_wse_m": round(e.flood.river_wse_m, 2),
             "alert": e.alert,
             "segments": e.segment_states(),
-            "drivers": [r.driver_public(d) for d in self.drivers],
+            # privacy: locations only while a flash flood warning is active (opt-in terms)
+            "drivers": [r.driver_public(d) for d in self.drivers] if e.alert else [],
+            "drivers_opted_in": len(self.drivers),
             "cases": [c.model_dump(mode="json") for c in self.sorted_cases()],
             "drones": [dispatch.state(d, e.t_sim_s) for d in r.world.drones.values()],
             "counters": r.counters(),

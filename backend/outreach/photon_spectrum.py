@@ -34,7 +34,8 @@ def _base_url() -> str:
 async def _post(path: str, payload: dict, transport: httpx.AsyncBaseTransport | None) -> Status:
     try:
         async with httpx.AsyncClient(timeout=TIMEOUT_S, transport=transport) as client:
-            resp = await client.post(f"{_base_url()}{path}", json=payload)
+            headers = {"x-sidecar-key": os.environ.get("SIDECAR_KEY", "")}
+            resp = await client.post(f"{_base_url()}{path}", json=payload, headers=headers)
             resp.raise_for_status()
     except httpx.HTTPStatusError as exc:
         logger.error("spectrum sidecar %s returned HTTP %s", path, exc.response.status_code)

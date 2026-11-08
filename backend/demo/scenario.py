@@ -123,7 +123,7 @@ class DemoScenario:
         return replace(self._motion("demo-b", B_SPEED_MPS), offset_m=start)
 
     def _stall_d(self) -> DriverMotion:
-        edge, offset = self._first_hazard_offset("demo-d", min_depth=20.0)
+        edge, offset = self._first_hazard_offset("demo-d", min_depth=12.0)
         m = self._motion("demo-d", 0.0)
         return replace(m, offset_m=offset + 1.0, stall_at_edge=edge, stationary_since_s=self.engine.t_sim_s)
 

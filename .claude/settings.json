@@ -254,7 +254,7 @@
           }
         ],
         "id": "stop:format-typecheck",
-        "description": "Batch format (Biome/Prettier) and typecheck (tsc) all JS/TS files edited this response — runs once at Stop instead of after every Edit"
+        "description": "Batch format (Biome/Prettier) and typecheck (tsc) all JS/TS files edited this response \u2014 runs once at Stop instead of after every Edit"
       },
       {
         "matcher": ".*",
@@ -340,5 +340,22 @@
   "env": {
     "ECC_GATEGUARD": "off",
     "ECC_DISABLED_HOOKS": "pre:bash:gateguard-fact-force,pre:edit-write:gateguard-fact-force,pre:powershell:gateguard-fact-force,pre:config-protection,pre:bash:auto-tmux-dev"
+  },
+  "permissions": {
+    "deny": [
+      "Bash(* > /dev/*)",
+      "Bash(cat .env*)",
+      "Bash(chmod 777*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)",
+      "Bash(ssh *)",
+      "Bash(sudo *)",
+      "Edit(./.env)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Write(./.env)"
+    ]
   }
 }

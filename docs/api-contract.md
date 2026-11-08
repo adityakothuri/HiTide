@@ -1,5 +1,11 @@
 # Flood Watch API contract (backend ⇄ frontend)
 
+> This contract covers the legacy driver-rescue REST/WebSocket workflow.
+> The new `/api/evidence/*` endpoints, operations polling, request examples, and
+> persistence requirements are documented in [State of the Union, section 10](STATE_OF_THE_UNION.md#10-api-inventory).
+> The evidence and legacy simulation state are separate; the existing WebSocket
+> snapshot is not the evidence state endpoint.
+
 Source of truth: `backend/api/schemas.py` (Pydantic). Interactive docs: http://localhost:8000/docs once the backend is running.
 
 Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
@@ -24,6 +30,12 @@ Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
 
 **Segment ids:** segments are *directed* edges, so a two-way street appears twice (`u-v-0` and `v-u-0`) with the same geometry. Draw both or dedupe by geometry. Colour each one by its status from the latest `segments.update`. Any id that isn't listed is `open`.
 
+## Privacy and security behaviour (2026-11-07)
+
+- **Before a warning is active**, the snapshot has `drivers: []` and `drivers_opted_in: 100`, and no `drivers.update` events are sent. Locations appear once the `alert` arrives (opt-in terms).
+- `urgency_reasons` use coarse bands ("older driver (65+)", "low-clearance vehicle"), never exact age or model.
+- `/ws` and the POST endpoints reject browser origins other than `localhost`/`127.0.0.1` (any port). If you serve the UI from elsewhere, set `FRONTEND_ORIGIN_REGEX` on the backend.
+
 ## WebSocket `ws://localhost:8000/ws`
 
 Every message has this envelope:
@@ -38,7 +50,7 @@ Every message has this envelope:
 | `segments.update` | `{t_sim_s, river_wse_m, segments:[{edge_id, depth_in, status}]}` | Diff (changed segments only). Recolour roads. |
 | `drivers.update` | `{drivers:[{id,name,lat,lon,heading_deg,situation,is_demo,urgency}]}` | Move markers. `situation`: parked, planning, driving, stopped_in_water. |
 | `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "Flood Watch active" status |
-| `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent. |
+| `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id,provider?,call_id?}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent; live sends report `mode: photon`. `provider` (`stable` or `photon2`) is present only on live sends. `call_id` (ElevenLabs conversation id) is present only on placed voice calls. Both are optional and additive. |
 | `turn_around` | `{driver_id,message,hazard_edge_id,hazard_depth_in,distance_m}` | **Driver view: full-screen red alert + `speechSynthesis.speak(message)`** |
 | `reroute` | `{driver_id,reason,route:GeoJSON LineString,blocked_edge_ids,distance_m}` | Draw the new route (green), mark blocked segments |
 | `case.update` | `Case` (full object, see below) | Upsert into the case queue, then sort by `urgency` |
@@ -87,9 +99,15 @@ When the drone arrives, `vision` is filled in:
  "night_mode": true, "thermal_simulated": true, "recommendation": "boat_required"}
 ```
 
+At night (`night_mode: true`), `image_url` points to a **simulated thermal** frame (`*_thermal.jpg`, stamped "SIMULATED THERMAL"). `annotated_url` always shows the real detections on the daylight sample image.
+
 The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outreach.mode == "mock"`, and `water_level_source == "manual_label"`.
 
 **Privacy:** the responder panel shows only `responder_view` (location, people count, water depth). Age and vehicle appear only inside `urgency_reasons` on the State Farm ops case card.
+
+## Outreach provider note
+
+`PHOTON_MODE` selects the sender: `mock` (default), `stable` (Photon Spectrum sidecar) or `photon2` (Photon 2.0 API). All live sends keep `outreach.mode == "photon"`; use the optional `provider` field to tell them apart. Frontends should treat `provider` and `call_id` as optional and ignore them if absent.
 
 ## Proposed additions (frontend)
 
