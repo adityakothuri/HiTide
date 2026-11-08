@@ -6,6 +6,11 @@ updated: 2026-11-07
 
 # State Farm Flood Watch
 
+> **Current integration:** see [State of the Union](../docs/STATE_OF_THE_UNION.md)
+> and [[2026-11-07 Evidence milestone]]. The evidence-to-inspection workflow now
+> has MongoDB persistence, an operations console, and a verified synthetic feedback
+> loop. Legacy phase notes below retain their original driver-rescue scope.
+
 Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadalupe River. Submissions close **Sun Nov 8, 12:00 PM CT**.
 
 > [!note] How to read this vault

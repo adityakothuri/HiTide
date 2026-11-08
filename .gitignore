@@ -18,6 +18,14 @@ __pycache__/
 .pytest_cache/
 data/outreach_log.jsonl
 data/drivers.local.json
-data/models/
+
+# Local evidence storage and browser verification output
+data/*.sqlite3*
+data/*.sqlite*
+data/*.db*
+frontend/test-results/
+frontend/playwright-report/
 .coverage
+coverage.xml
+data/models/
 htmlcov/

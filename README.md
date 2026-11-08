@@ -1,5 +1,13 @@
 # State Farm Flood Watch
 
+> **Current team status:** read [State of the Union](docs/STATE_OF_THE_UNION.md)
+> for the integrated evidence database, inspection workflow, setup, verification,
+> limitations, and next milestones. The operations console is at `/console`.
+> MongoDB is now the default evidence store; start a replica set before the backend
+> (Windows: `powershell -NoProfile -File scripts/start-mongodb.ps1` after backend
+> dependency setup), or explicitly select `FLOODWATCH_DB_BACKEND=sqlite`.
+> The driver-rescue simulation described below remains a separate workflow.
+
 HackUTD 2026: State Farm track ("The Worst Day, at Scale") + Photon track.
 
 **Most flood deaths happen in vehicles.** Flood Watch protects opted-in State Farm drivers during flash floods in three stages:

@@ -1,5 +1,11 @@
 # Flood Watch API contract (backend ⇄ frontend)
 
+> This contract covers the legacy driver-rescue REST/WebSocket workflow.
+> The new `/api/evidence/*` endpoints, operations polling, request examples, and
+> persistence requirements are documented in [State of the Union, section 10](STATE_OF_THE_UNION.md#10-api-inventory).
+> The evidence and legacy simulation state are separate; the existing WebSocket
+> snapshot is not the evidence state endpoint.
+
 Source of truth: `backend/api/schemas.py` (Pydantic). Interactive docs: http://localhost:8000/docs once the backend is running.
 
 Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
