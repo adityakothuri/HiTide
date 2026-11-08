@@ -183,7 +183,7 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
       </div>
       <div className={s.gaugeButtons}>
         <button className={s.land} disabled={!online || pending !== null} onClick={() => onCommand('baseline')}
-          title="Before pouring water: capture the dry tray from this exact camera pose"><Camera size={15} />Capture dry baseline</button>
+          aria-label="Capture dry baseline" title="Before pouring water: capture the dry tray from this exact camera pose"><Camera size={15} />Capture dry baseline</button>
         <button ref={startRef} className={s.launch} disabled={!online || Boolean(gauge.enabled) || pending !== null}
           aria-label="Start water gauge reading"
           onClick={() => { handOffFrom('start'); onCommand('start') }}><Play size={15} />Start</button>

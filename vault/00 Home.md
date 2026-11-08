@@ -36,6 +36,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 3 | Stage 3 escalation state machine | done: CHECKPOINT 3 passed on a real phone (reply closed the case) |
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
+| Live Tello + gauge tray | Real drone in the console, water depth from the printed gauge tray ([plan](../docs/gauge-water-level-plan.md), [setup](../docs/gauge-tray-setup.md)) | done on `feat/gauge-water-level` (2026-11-08): synthetic sweep 100% within 0.5 ft mid-step (stand mode), console verified end to end in the browser; awaiting the physical print |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
 | Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
 

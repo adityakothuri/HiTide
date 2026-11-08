@@ -114,3 +114,22 @@ The current battery loses lift around 41% (level drop to the floor at ~27%/min d
 dashboard then: lands automatically 4% above it, refuses takeoff with under 60 s of margin, shows a
 `LIFT Ns` countdown on the video HUD, and caps control inputs at 30 with a slower ramp. A new lift-loss
 event updates the file. **Delete the file after swapping in a new battery.**
+
+## Gauge tray water level (2026-11-08)
+
+Branch `feat/gauge-water-level`. The camera reads flood depth off the printed gauge tray
+(`data/gauge_tray_160/`): four ArUco tags give the camera pose, the CAD heightmap says which known-height
+terraces should be wet, and the dry-vs-wet comparison picks the 1 ft step the water is in.
+
+- Plan: `docs/gauge-water-level-plan.md`. Demo-day guide: `docs/gauge-tray-setup.md`. Tag sheet:
+  `data/gauge_tray_160/tag_sheet.png` (print at 100%, check the 50 mm bar).
+- Code: `backend/gauge/` (runs in `~/tello-env`; tests: `cd backend && ~/tello-env/Scripts/python.exe -m pytest gauge/tests scripts/tests_gauge_bridge -q -p no:cacheprovider`).
+  Bridge `GaugeService` + HUD card; backend `/api/live-drone/gauge*`; console "Water gauge" card.
+- Offline demo image: `cd backend && ~/tello-env/Scripts/python.exe -m gauge.demo --level-ft 3.5 --out gauge.png`.
+- Use **stand mode**: Tello propped nose-down about 45 deg, motors off, 300-350 mm away. Hover at 20-25 deg
+  can't read the tags and returns no reading (never a wrong one).
+- Verified: synthetic sweep 100% within 0.5 ft at mid-step levels; console end to end in the browser
+  (baseline, then 3.5 ft, roof, crossing flooded, 9/10 houses; stale marker; wet-baseline refusal).
+  **Not yet run on the physical print.**
+- Security (found in review): the bridge now refuses foreign Host/Origin, non-JSON POSTs and cross-site
+  GETs, so a web page in the demo browser can't fly the drone.

@@ -67,8 +67,8 @@
 .confidenceBar > div { height: 100%; background: var(--water-4); transition: width var(--dur-slide) var(--ease-out); }
 .gaugeButtons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .gaugeButtons > button:first-child { grid-column: 1 / -1; }
-.overlayToggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; }
-.overlayToggle input { width: 16px; height: 16px; accent-color: var(--water-4); }
+.overlayToggle.overlayToggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.overlayToggle.overlayToggle input { width: 16px; height: 16px; min-height: 0; flex: none; accent-color: var(--water-4); }
 .overlayToggle input:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) { .confidenceBar > div { transition: none; } }
