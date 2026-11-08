@@ -40,9 +40,9 @@ SEND_BUDGET_S = 8.0  # a slow Photon/ElevenLabs call must never freeze the tick 
 
 
 
+# Drones map the flood and report cars in the water to emergency services. They carry no payload or
+# loudspeaker, so the console's only command is recalling one.
 DRONE_COMMAND_TEXT = {
-    "speak": "Drone loudspeaker: \"Stay with your vehicle. Help is on the way.\" (simulated)",
-    "drop_jacket": "Drone dropped a life jacket (simulated)",
     "return": "Drone returning to station",
 }
 
@@ -397,8 +397,8 @@ class StageRunner:
         await self.engine.emit("case.update", new.model_dump(mode="json"))
         return new
 
-    async def drone_command(self, drone_id: str, command: Literal["speak", "drop_jacket", "return"]) -> Case | None:
-        """Console drone actions. The drone is simulated, so this logs the action on the case timeline."""
+    async def drone_command(self, drone_id: str, command: Literal["return"]) -> Case | None:
+        """Console drone command (recall). The drone is simulated, so this logs it on the case timeline."""
         cid = next((c for c, dr in self.world.drones.items() if dr.id == drone_id), None)
         case = self.world.cases.get(cid) if cid else None
         if case is None or cid is None:

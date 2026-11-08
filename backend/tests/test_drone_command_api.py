@@ -1,4 +1,4 @@
-"""POST /api/drones/{id}/command: logs the action on the case, 'return' recalls the drone, unknown -> 404."""
+"""POST /api/drones/{id}/command: drones only map and report, so 'return' is the one command. Unknown -> 404."""
 
 import pytest
 from fastapi.testclient import TestClient
@@ -33,12 +33,11 @@ def _seed(client) -> None:
                                           runner.engine.t_sim_s, 15.0)
 
 
-def test_speak_adds_timeline_entry(client):
+def test_payload_commands_are_rejected(client):
+    """Drones carry no loudspeaker or life jackets: those commands are not part of the system."""
     _seed(client)
-    r = client.post("/api/drones/drone-case-x/command", json={"command": "speak"})
-    assert r.status_code == 200
-    assert r.json()["timeline"][-1]["kind"] == "drone"
-    assert "loudspeaker" in r.json()["timeline"][-1]["text"]
+    for cmd in ("speak", "drop_jacket"):
+        assert client.post("/api/drones/drone-case-x/command", json={"command": cmd}).status_code == 422
 
 
 def test_return_recalls_drone(client):
@@ -46,10 +45,11 @@ def test_return_recalls_drone(client):
     r = client.post("/api/drones/drone-case-x/command", json={"command": "return"})
     assert r.status_code == 200
     assert "case-x" not in client.app.state.runtime.runner.world.drones
+    assert r.json()["timeline"][-1]["kind"] == "drone"
 
 
 def test_unknown_drone_404_and_bad_command_422(client):
-    assert client.post("/api/drones/nope/command", json={"command": "speak"}).status_code == 404
+    assert client.post("/api/drones/nope/command", json={"command": "return"}).status_code == 404
     _seed(client)
     assert client.post("/api/drones/drone-case-x/command", json={"command": "explode"}).status_code == 422
 

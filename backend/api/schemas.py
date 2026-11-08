@@ -202,4 +202,4 @@ class ReplyIn(BaseModel):
 
 
 class DroneCommandIn(BaseModel):
-    command: Literal["speak", "drop_jacket", "return"]
+    command: Literal["return"]  # drones only map and report; recall is the one command

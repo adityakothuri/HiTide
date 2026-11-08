@@ -90,7 +90,7 @@ function CaseDetail({ c, onClose }: { c: Case; onClose: () => void }) {
         {summary && <p className={s.summary}>{summary}</p>}
       </header>
 
-      {drone && <DronePanel drone={drone} caseId={c.id} />}
+      {drone && <DronePanel drone={drone} caseId={c.id} target={c.location} />}
 
       {c.vision && <VisionPanel vision={c.vision} />}
 
@@ -136,7 +136,7 @@ function CaseDetail({ c, onClose }: { c: Case; onClose: () => void }) {
         </dl>
       </section>
 
-      <p className={s.simNote}>Drone flight, thermal image and outreach are simulated in this demo.</p>
+      <p className={s.simNote}>Drone flight, drone imagery and outreach are simulated in this demo.</p>
     </div>
   )
 }

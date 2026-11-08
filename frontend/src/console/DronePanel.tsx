@@ -1,6 +1,5 @@
-import { LifeBuoy, Megaphone, Undo2 } from 'lucide-react'
+import { Undo2 } from 'lucide-react'
 import { useState } from 'react'
-import type { DroneCommand } from '../data/types'
 import { formatEta } from '../lib/eta'
 import type { DroneWithTrail } from '../state/reducer'
 import { useStore } from '../state/StoreContext'
@@ -10,52 +9,34 @@ import s from './Detail.module.css'
 const STATUS: Record<DroneWithTrail['status'], string> = {
   launching: 'Launching',
   en_route: 'En route',
-  on_scene: 'On scene',
+  on_scene: 'Over the location',
   returning: 'Returning to station',
 }
 
-const DONE: Record<DroneCommand, [string, string]> = {
-  speak: ['Message played from the drone', '"Help is coming. Stay on the roof."'],
-  drop_jacket: ['Life jacket dropped', 'Logged on the case timeline.'],
-  return: ['Drone returning', 'Heading back to Kerrville Fire Station 1.'],
-}
-
 /**
- * Typical ground-crew response for a low-water crossing in Kerr County, used only when the backend
- * doesn't send crew_eta_s yet (proposed field). Shown as an estimate.
+ * Drone status for a case. Drones map the flood and report cars in the water to emergency services.
+ * They fly to the car's GPS fix and do not know whose car it is; they carry no payload or loudspeaker.
  */
-const ESTIMATED_CREW_ETA_S = 17 * 60
-const MIN_BAR = 2
-
-/** Drone status, drone vs ground-crew ETA, and drone actions. */
-export function DronePanel({ drone, caseId }: { drone: DroneWithTrail; caseId: string }) {
+export function DronePanel({ drone, caseId, target }: { drone: DroneWithTrail; caseId: string; target: { lat: number; lon: number } }) {
   const store = useStore()
   const toast = useToast()
-  const [busy, setBusy] = useState<DroneCommand | null>(null)
-  const crewEstimated = drone.crew_eta_s == null
-  const crewEta = drone.crew_eta_s ?? ESTIMATED_CREW_ETA_S
+  const [busy, setBusy] = useState(false)
   const onScene = drone.status === 'on_scene'
   const returning = drone.status === 'returning'
-  const droneEta = onScene || returning ? 0 : drone.eta_s
-  const droneBar = crewEta > 0 ? Math.max(MIN_BAR, (droneEta / crewEta) * 100) : MIN_BAR
 
-  const send = async (cmd: DroneCommand) => {
-    setBusy(cmd)
+  const recall = async () => {
+    setBusy(true)
     try {
-      await store.provider.droneCommand(drone.id, caseId, cmd)
-      toast(...DONE[cmd])
+      await store.provider.droneCommand(drone.id, caseId, 'return')
+      toast('Drone returning', 'Heading back to Kerrville Fire Station 1.')
     } catch {
       toast('Drone command failed', 'Check the backend connection and try again.')
     } finally {
-      setBusy(null)
+      setBusy(false)
     }
   }
 
-  const actions: { cmd: DroneCommand; label: string; icon: typeof Megaphone; enabled: boolean }[] = [
-    { cmd: 'speak', label: 'Speak', icon: Megaphone, enabled: onScene },
-    { cmd: 'drop_jacket', label: 'Drop life jacket', icon: LifeBuoy, enabled: onScene },
-    { cmd: 'return', label: 'Return', icon: Undo2, enabled: !returning },
-  ]
+  const where = onScene ? 'Over the location' : returning ? 'Returning to base' : `Arrives in ${formatEta(drone.eta_s)}`
 
   return (
     <section className={s.section} aria-labelledby="drone-h">
@@ -64,34 +45,35 @@ export function DronePanel({ drone, caseId }: { drone: DroneWithTrail; caseId: s
         <span className={s.sectionAside}>{STATUS[drone.status]}</span>
       </div>
 
-      <div className={s.race} role="img" aria-label={`Drone ${onScene ? 'at the car' : `arrives in ${formatEta(drone.eta_s)}`}. Ground crew ${crewEstimated ? 'about ' : ''}${formatEta(crewEta)}.`}>
-        <div className={s.lane}>
-          <span className={s.laneLabel}>Drone</span>
-          <span className={s.track}><span className={`${s.bar} ${s.barDrone}`} style={{ width: `${droneBar}%` }} /></span>
-          <span className={`${s.laneValue} num`}>{onScene ? 'At the car' : returning ? 'Returning' : formatEta(drone.eta_s)}</span>
+      <dl className={s.facts}>
+        <div>
+          <dt>Target</dt>
+          <dd className="num">Car GPS {target.lat.toFixed(4)}, {target.lon.toFixed(4)}</dd>
         </div>
-        <div className={s.lane}>
-          <span className={s.laneLabel}>Crew</span>
-          <span className={s.track}><span className={`${s.bar} ${s.barCrew}`} style={{ width: '100%' }} /></span>
-          <span className={`${s.laneValue} num`}>{crewEstimated ? `About ${formatEta(crewEta)}` : formatEta(crewEta)}</span>
+        <div>
+          <dt>Drone</dt>
+          <dd className="num">{where}</dd>
         </div>
-      </div>
+        {drone.crew_eta_s != null && (
+          <div>
+            <dt>Ground crew</dt>
+            <dd className="num">Arrives in {formatEta(drone.crew_eta_s)}</dd>
+          </div>
+        )}
+      </dl>
 
-      <div className={s.actions} role="group" aria-label="Drone actions">
-        {actions.map(({ cmd, label, icon: Icon, enabled }) => (
-          <button
-            key={cmd}
-            type="button"
-            className={s.action}
-            aria-disabled={!enabled || busy !== null}
-            onClick={() => enabled && !busy && void send(cmd)}
-          >
-            <Icon aria-hidden="true" />
-            {busy === cmd ? 'Sending' : label}
+      <p className={s.note}>
+        Maps the flooded area around the GPS fix. If it sees a car in the water it calls emergency services with that location.
+      </p>
+
+      {!returning && (
+        <div className={s.actions} role="group" aria-label="Drone actions">
+          <button type="button" className={s.action} aria-disabled={busy} onClick={() => !busy && void recall()}>
+            <Undo2 aria-hidden="true" />
+            {busy ? 'Sending' : 'Recall drone'}
           </button>
-        ))}
-      </div>
-      {!onScene && !returning && <p className={s.note}>Speak and life jacket unlock when the drone is on scene.</p>}
+        </div>
+      )}
     </section>
   )
 }

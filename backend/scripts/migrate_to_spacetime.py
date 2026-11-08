@@ -22,7 +22,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from app.config import DATA_DIR
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")   # same SPACETIME_TOKEN the backend uses
+
+from app.config import DATA_DIR  # noqa: E402
 from db.spacetime import SpacetimeClient, SpacetimeConfig, SpacetimeError, opt
 from db.store import SpacetimeDataStore
 from db.evidence import _bbox

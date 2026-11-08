@@ -126,7 +126,7 @@ The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outr
 | `Case` | `emergency_contact_name: str` | Driver app says "We contacted Maria" | Persona table, then "your emergency contact" |
 | `TimelineEntry` | `simulated: bool` | Label simulated or mock rows without parsing "(mock" out of `text` | The UI also looks for "(mock" or "(simulated" in the text |
 | `TimelineEntry` (outreach) | `status: sent\|delivered\|read\|replied`, `reply: str?` | Show read and reply state in the case timeline | Shows the text as sent |
-| REST | `POST /api/drones/{id}/command` body `{"command": "speak"\|"drop_jacket"\|"return"}` → emits `case.update` (+ `drone.update` for return) | Drone actions in the console | **Implemented 2026-11-08.** 404 if the drone has no open case; the UI then adds a local row labelled simulated |
+| REST | `POST /api/drones/{id}/command` body `{"command": "return"}` → emits `case.update` + `drone.update` | Recall a drone from the console. Drones only map and report cars in the water to emergency services; `speak` and `drop_jacket` were removed 2026-11-08 (422) | **Implemented 2026-11-08.** 404 if the drone has no open case; the UI then adds a local row labelled simulated |
 | `StateSnapshot` | `reroutes: Reroute[]`, `turn_arounds: TurnAround[]` | A driver view that reconnects mid-trip can restore its route and alert | Lost on reconnect |
 
 The **feed status** keys returned by `GET /api/feeds` are `nws_alerts`, `usgs_gage`, `usgs_flood_impacts` (each with `source` and `fetched_at`), not `nws` / `flood_impacts` as written in the REST table above. The frontend reads the actual keys.
