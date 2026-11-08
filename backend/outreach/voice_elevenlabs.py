@@ -18,7 +18,7 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-TIMEOUT_S = 10.0
+TIMEOUT_S = 45.0  # outbound-call returns only once the SIP call connects (observed 10-20 s)
 OUTBOUND_URL = "https://api.elevenlabs.io/v1/convai/sip-trunk/outbound-call"
 CONVERSATION_URL = "https://api.elevenlabs.io/v1/convai/conversations/{conversation_id}"
 _ENV_VARS = ("ELEVENLABS_API_KEY", "ELEVENLABS_AGENT_ID", "ELEVENLABS_PHONE_NUMBER_ID")
@@ -40,9 +40,9 @@ def voice_configured() -> bool:
 
 
 def _request_body(to: str, first_message: str, variables: Mapping[str, str] | None) -> dict[str, Any]:
-    client_data: dict[str, Any] = {"conversation_config_override": {"agent": {"first_message": first_message}}}
-    if variables:
-        client_data["dynamic_variables"] = dict(variables)
+    # The agent's first message is "{{opening_line}}". ElevenLabs rejects first_message overrides on SIP calls,
+    # but dynamic variables are always allowed, so the opening travels as a variable.
+    client_data: dict[str, Any] = {"dynamic_variables": {**dict(variables or {}), "opening_line": first_message}}
     return {
         "agent_id": os.environ["ELEVENLABS_AGENT_ID"],
         "agent_phone_number_id": os.environ["ELEVENLABS_PHONE_NUMBER_ID"],

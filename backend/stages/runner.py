@@ -245,19 +245,22 @@ class StageRunner:
         if kind == "call_driver":
             street = self._street_of(case.driver_id)
             first = first_name(d.name)
-            ev = await self._send(d, "driver", "voice", opening_line(first, street), case.id,
-                                  variables=call_variables(d.name, street, case.depth_in))
-            call_id = ev.get("call_id")
-            if call_id:
-                self._spawn(self._watch_call(case.id, str(call_id)))
-            return self._note(case, elapsed, f"Voice call to driver ({ev['mode']}, {ev['status']}): no answer yet")
+            # Call setup can take 10-20 s (ElevenLabs answers once the SIP call connects), so place the call in the
+            # background: the tick keeps running and the transcript watcher starts as soon as a call id arrives.
+            self._spawn(self._call_then_watch(d, case.id, opening_line(first, street),
+                                              call_variables(d.name, street, case.depth_in)))
+            return self._note(case, elapsed, "Calling driver (voice): ringing")
         if kind == "contact_family":
             body = (f"State Farm Flood Watch: {d.name}'s car has stopped in floodwater near "
                     f"{case.location.lat:.4f}, {case.location.lon:.4f} and they haven't answered. Responders are "
                     f"being notified. Reply SAFE if you've reached them.")
+            street, first = self._street_of(case.driver_id), first_name(d.name)
+            family_vars = {**call_variables(d.name, street, case.depth_in), "call_purpose": "family"}
+            family_opening = (f"Hi, this is State Farm Flood Watch calling about {first}. {first}'s car has stopped in "
+                              f"floodwater on {street}, and {first} hasn't answered our call. Have you been able to reach {first}?")
             ev, _ = await asyncio.gather(
                 self._send(d, "emergency_contact", "text", body, case.id),
-                self._send(d, "emergency_contact", "voice", f"This is State Farm Flood Watch calling about {d.name}.", case.id),
+                self._send(d, "emergency_contact", "voice", family_opening, case.id, variables=family_vars),
             )
             return self._note(case, elapsed, f"Text + call to emergency contact ({ev['mode']}, {ev['status']})")
         if kind == "dispatch_drone":
@@ -272,6 +275,14 @@ class StageRunner:
     def _note(self, case: Case, t: float, text: str, kind: str = "outreach") -> Case:
         entry = TimelineEntry(ts=now_iso(), t_case_s=round(t, 1), kind=kind, text=text)
         return case.model_copy(update={"timeline": [*case.timeline, entry]})
+
+    async def _call_then_watch(self, d: Driver, case_id: str, opening: str, variables: dict[str, str]) -> None:
+        world = self.world
+        msg = self._message(d, "driver", "voice", opening, d.phone, case_id, (), variables)
+        ev = await self.outreach.send(msg)  # no send budget here: this task never blocks the tick
+        call_id = ev.get("call_id")
+        if call_id and self.world is world:
+            await self._watch_call(case_id, str(call_id))
 
     def _spawn(self, coro) -> None:
         task = asyncio.create_task(coro)

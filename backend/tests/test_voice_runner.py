@@ -59,6 +59,7 @@ def staged(monkeypatch):
             await eng.step(1)
             if "demo-d" in runner.world.case_by_driver:
                 break
+        await asyncio.gather(*runner._pending)  # finish staging's background call tasks before the test starts
         return runner, events
 
     return build
@@ -108,7 +109,7 @@ def test_street_and_first_name_helpers_via_call_driver(staged):
     assert voice.body.startswith(f"Hi {first}, this is State Farm Flood Watch.")
     assert voice.body.endswith("Are you safe?")
     if HAS_VARIABLES:
-        assert set(voice.variables) == {"driver_first_name", "street", "water_depth_in"}
+        assert set(voice.variables) == {"driver_first_name", "street", "water_depth_in", "call_purpose"}
         assert voice.variables["driver_first_name"] == first
     assert started == [(cid, "conv_1")]
     assert not PHONE.search(new.timeline[-1].text)
@@ -121,9 +122,45 @@ def test_no_call_id_means_no_watcher(staged):
         cid = runner.world.case_by_driver["demo-d"]
         runner._watch_call = lambda *a: (_ for _ in ()).throw(AssertionError("no"))  # type: ignore[method-assign]
         await runner._timer_action(runner.engine, runner.world.cases[cid], "call_driver", 5.0)
+        await asyncio.gather(*runner._pending)  # would raise if a watcher had been started
         return runner
 
     assert not asyncio.run(go())._pending
+
+
+class SlowOutreach(FakeOutreach):
+    """ElevenLabs only answers once the SIP call connects, often 10-20 s later."""
+
+    async def send(self, msg: OutboundMessage) -> dict:
+        await asyncio.sleep(0.2)
+        return await super().send(msg)
+
+
+def test_slow_call_setup_still_starts_the_watcher_without_blocking_the_tick(staged, monkeypatch):
+    import stages.runner as runner_mod
+
+    monkeypatch.setattr(runner_mod, "SEND_BUDGET_S", 0.05)
+
+    async def go():
+        runner, _ = await staged()
+        runner.outreach = SlowOutreach(call_id="conv_slow")
+        cid = runner.world.case_by_driver["demo-d"]
+        started: list[tuple] = []
+
+        async def fake_watch(case_id, call_id):
+            started.append((case_id, call_id))
+
+        runner._watch_call = fake_watch  # type: ignore[method-assign]
+        loop = asyncio.get_running_loop()
+        t0 = loop.time()
+        await runner._timer_action(runner.engine, runner.world.cases[cid], "call_driver", 0.0)
+        returned_after = loop.time() - t0
+        await asyncio.gather(*runner._pending)
+        return cid, started, returned_after
+
+    cid, started, returned_after = asyncio.run(go())
+    assert returned_after < 0.15  # the tick is not held hostage by call setup
+    assert started == [(cid, "conv_slow")]
 
 
 @pytest.mark.parametrize("reply,state", [("safe", "resolved"), ("need_help", None)])

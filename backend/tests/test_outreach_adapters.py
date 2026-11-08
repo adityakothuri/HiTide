@@ -69,7 +69,9 @@ async def test_timeout_becomes_failed():
 
 
 def test_timeout_is_ten_seconds():
-    assert photon_spectrum.TIMEOUT_S == 10.0 and voice_elevenlabs.TIMEOUT_S == 10.0
+    assert photon_spectrum.TIMEOUT_S == 10.0
+    # outbound-call responds only once the SIP call connects (10-20 s observed live), so voice gets longer
+    assert voice_elevenlabs.TIMEOUT_S >= 30.0
 
 
 @pytest.fixture
@@ -90,7 +92,7 @@ async def test_place_call_request_shape(el_env):
     assert body["agent_id"] == "agent_1"
     assert body["agent_phone_number_id"] == "phnum_1"
     assert body["to_number"] == "+1830"
-    first = body["conversation_initiation_client_data"]["conversation_config_override"]["agent"]["first_message"]
+    first = body["conversation_initiation_client_data"]["dynamic_variables"]["opening_line"]
     assert first == "Hello, are you okay?"
 
 

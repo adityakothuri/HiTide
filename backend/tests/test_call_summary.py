@@ -102,6 +102,6 @@ def test_follow_up_answered_but_unclear():
 
 def test_call_variables_and_opening_line():
     v = call_variables("Margaret Hale", "Water St", 23.6)
-    assert v == {"driver_first_name": "Margaret", "street": "Water St", "water_depth_in": "24"}
+    assert v == {"driver_first_name": "Margaret", "street": "Water St", "water_depth_in": "24", "call_purpose": "driver"}
     assert opening_line("Margaret", "Water St") == (
         "Hi Margaret, this is State Farm Flood Watch. Your car looks stopped in floodwater on Water St. Are you safe?")

@@ -81,7 +81,7 @@ def first_name(full_name: str) -> str:
 
 def call_variables(driver_name: str, street: str, depth_in: float) -> dict[str, str]:
     return {"driver_first_name": first_name(driver_name), "street": street,
-            "water_depth_in": str(round(depth_in))}
+            "water_depth_in": str(round(depth_in)), "call_purpose": "driver"}
 
 
 def opening_line(first: str, street: str) -> str:

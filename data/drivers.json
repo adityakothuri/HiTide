@@ -150,7 +150,7 @@
    "type": "sedan"
   },
   "home_node": 151702225,
-  "phone": "+18305550199",
+  "phone": "env:DEMO_PHONE_B",
   "emergency_contact": {
    "name": "Teammate C (demo relative)",
    "relation": "daughter",

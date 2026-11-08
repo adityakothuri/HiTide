@@ -39,15 +39,16 @@ async def test_place_call_returns_conversation_id_and_sends_variables(el_env):
     res = await voice_elevenlabs.place_call("+1830", "Hi", {"street": "Water St"}, transport=t)
     assert res == CallResult("sent", "conv_9")
     data = json.loads(seen[0].content)["conversation_initiation_client_data"]
-    assert data["dynamic_variables"] == {"street": "Water St"}
-    assert data["conversation_config_override"]["agent"]["first_message"] == "Hi"
+    # first message travels as a dynamic variable: ElevenLabs rejects first_message overrides on SIP calls
+    assert data["dynamic_variables"] == {"street": "Water St", "opening_line": "Hi"}
+    assert "conversation_config_override" not in data
 
 
 @pytest.mark.asyncio
-async def test_place_call_without_variables_omits_key(el_env):
+async def test_place_call_without_variables_sends_only_opening_line(el_env):
     t, seen = _t(OK)
     await voice_elevenlabs.place_call("+1", "Hi", transport=t)
-    assert "dynamic_variables" not in json.loads(seen[0].content)["conversation_initiation_client_data"]
+    assert json.loads(seen[0].content)["conversation_initiation_client_data"] == {"dynamic_variables": {"opening_line": "Hi"}}
 
 
 @pytest.mark.asyncio
