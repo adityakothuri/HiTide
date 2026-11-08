@@ -1,0 +1,132 @@
+{
+ "nws_alerts": {
+  "name": "nws_alerts",
+  "source": "live",
+  "fetched_at": "2026-11-08T01:00:55.570817+00:00",
+  "alerts": []
+ },
+ "usgs_gage": {
+  "name": "usgs_gage",
+  "source": "live",
+  "fetched_at": "2026-11-08T01:00:55.415249+00:00",
+  "monitoring_location_id": "USGS-08166200",
+  "latest": {
+   "time": "2026-11-08T00:50:00+00:00",
+   "value_ft": 1.27
+  },
+  "series_24h": [
+   {
+    "time": "2026-11-07T23:55:00+00:00",
+    "value_ft": 1.23
+   },
+   {
+    "time": "2026-11-08T00:00:00+00:00",
+    "value_ft": 1.23
+   },
+   {
+    "time": "2026-11-08T00:05:00+00:00",
+    "value_ft": 1.24
+   },
+   {
+    "time": "2026-11-08T00:10:00+00:00",
+    "value_ft": 1.24
+   },
+   {
+    "time": "2026-11-08T00:15:00+00:00",
+    "value_ft": 1.24
+   },
+   {
+    "time": "2026-11-08T00:20:00+00:00",
+    "value_ft": 1.24
+   },
+   {
+    "time": "2026-11-08T00:25:00+00:00",
+    "value_ft": 1.25
+   },
+   {
+    "time": "2026-11-08T00:30:00+00:00",
+    "value_ft": 1.26
+   },
+   {
+    "time": "2026-11-08T00:35:00+00:00",
+    "value_ft": 1.26
+   },
+   {
+    "time": "2026-11-08T00:40:00+00:00",
+    "value_ft": 1.27
+   },
+   {
+    "time": "2026-11-08T00:45:00+00:00",
+    "value_ft": 1.27
+   },
+   {
+    "time": "2026-11-08T00:50:00+00:00",
+    "value_ft": 1.27
+   }
+  ],
+  "series_source": "live"
+ },
+ "usgs_flood_impacts": {
+  "name": "usgs_flood_impacts",
+  "source": "live",
+  "fetched_at": "2026-11-08T01:00:55.393156+00:00",
+  "simulated": false,
+  "impacts": [
+   {
+    "id": 22119,
+    "name": "BANK",
+    "description": "Flood Impact Statement from National Weather Service (WGRFC) NWS ID: KRRT2\n\"Flow is over the right bank.\"",
+    "lat": 30.050558,
+    "lon": -99.162028,
+    "flood_stage_ft": 7.0,
+    "current_gage_ft": 1.24,
+    "is_flooding": false,
+    "nws_id": "KRRT2"
+   },
+   {
+    "id": 22117,
+    "name": "Swimming Pool & Tennis Courts",
+    "description": "Flood Impact Statement from National Weather Service (WGRFC) NWS ID: KRRT2\n\"Flow is over the left bank. Secondary and primary roads and bridges are flooded. The swimming pool and tennis court in a resort and restuarant upstream left bank flood. Flow is near the USGS 1:5 year flood level.\"",
+    "lat": 30.056905,
+    "lon": -99.166548,
+    "flood_stage_ft": 13.0,
+    "current_gage_ft": 1.24,
+    "is_flooding": false,
+    "nws_id": "KRRT2"
+   },
+   {
+    "id": 22116,
+    "name": "BANK 2",
+    "description": "Flood Impact Statement from National Weather Service (WGRFC) NWS ID: KRRT2\n\"Flow is over the left bank. Secondary and primary roads and bridges are flooded. The swimming pool and tennis court in a resort and restuarant upstream left bank flood. Flow is near the USGS 1:5 year flood level.\"",
+    "lat": 30.050697,
+    "lon": -99.160598,
+    "flood_stage_ft": 13.0,
+    "current_gage_ft": 1.24,
+    "is_flooding": false,
+    "nws_id": "KRRT2"
+   },
+   {
+    "id": 22120,
+    "name": "Billy Gene's Restaurant",
+    "description": "Flood Impact Statement from National Weather Service (WGRFC) NWS ID: KRRT2\n\"Flow is over the left bank. Secondary and primary roads and bridges are flooded. The swimming pool and tennis court in a resort and restuarant upstream left bank flood. Flow is near the USGS 1:5 year flood level.\"",
+    "lat": 30.06379,
+    "lon": -99.175339,
+    "flood_stage_ft": 13.0,
+    "current_gage_ft": 1.24,
+    "is_flooding": false,
+    "nws_id": "KRRT2"
+   },
+   {
+    "id": 22118,
+    "name": "Parking Lot",
+    "description": "Flood Impact Statement from National Weather Service (WGRFC) NWS ID: KRRT2\n\"Flow reaches the parking lot of a park just below the UGRA Dam on the left bank. Several lowest homes and buildings in Kerrville begin flooding. Flow exceeds the USGS 1:25 year flood level.\"",
+    "lat": 30.052981,
+    "lon": -99.163212,
+    "flood_stage_ft": 26.0,
+    "current_gage_ft": 1.24,
+    "is_flooding": false,
+    "nws_id": "KRRT2"
+   }
+  ]
+ }
+}

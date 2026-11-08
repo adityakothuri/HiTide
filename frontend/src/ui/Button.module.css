@@ -1,0 +1,112 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background-color var(--dur-quick) var(--ease-out);
+}
+
+.button:disabled,
+.button[aria-disabled='true'] {
+  cursor: default;
+}
+
+.primary[aria-disabled='true'] {
+  background: var(--neutral-1);
+  color: var(--neutral-6);
+  border-color: var(--neutral-2);
+}
+
+.block { width: 100%; }
+
+.md { min-height: var(--tap-min); }
+
+.lg {
+  min-height: var(--tap-primary);
+  font-size: var(--text-md);
+}
+
+.xl {
+  min-height: 72px;
+  font-size: var(--text-lg);
+  justify-content: flex-start;
+  padding: 0 var(--space-3);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.xl .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.primary {
+  background: var(--brand-red);
+  color: var(--on-dark);
+}
+
+.primary:hover:not(:disabled) { background: var(--brand-red-hover); }
+
+.primary:disabled {
+  background: var(--neutral-1);
+  color: var(--neutral-6);
+  border-color: var(--neutral-2);
+}
+
+.secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--neutral-5);
+}
+
+.secondary:hover:not(:disabled) { background: var(--neutral-1); }
+
+.quiet {
+  background: transparent;
+  color: var(--neutral-6);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.quiet:hover:not(:disabled) { color: var(--ink); }
+
+.emergency {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+
+.emergency:hover:not(:disabled) { background: var(--neutral-6); }
+
+.onDark {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.onDark:hover:not(:disabled) { background: var(--neutral-1); }
+
+.safe {
+  background: var(--surface);
+  color: var(--safe);
+  border: 2px solid var(--safe);
+}
+
+.safe:hover:not(:disabled) { background: var(--safe-bg); }
+
+.critical {
+  background: var(--surface);
+  color: var(--critical);
+  border: 2px solid var(--critical);
+}
+
+.critical:hover:not(:disabled) { background: var(--critical-bg); }

@@ -1,0 +1,31 @@
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.mark {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.mark rect { fill: var(--ink); }
+
+.mark path {
+  fill: none;
+  stroke: var(--on-dark);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.text,
+.textCompact {
+  color: var(--brand-red);
+  font-weight: 700;
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  white-space: nowrap;
+}
+
+.textCompact { font-size: var(--text-sm); }

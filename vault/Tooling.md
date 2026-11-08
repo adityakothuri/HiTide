@@ -141,6 +141,11 @@ Claude Code setup for this repo: the ECC add-on (agents, skills, commands, hooks
 | `python-reviewer`, `fastapi-reviewer`, `code-reviewer` agents | Before each phase is marked done | Catch Python, FastAPI, and general issues before the phase closes. | `python-reviewer` ran for Phase 1: 0 critical, 2 high, 6 medium. Both high and 5 medium fixed in commit `fix: address python-reviewer findings`. Skipped: demo-key auth. |
 | `security-scan` skill + `security-reviewer` agent | Before submission | Check secrets, input validation, and the WS and webhook surface. Results go in [[Privacy and Consent]]. | Planned, Phase 6 |
 | `Explore` agent (built-in) | Reading unfamiliar code or docs | Fast read-only search across the repo. Built into Claude Code, not in `.claude/agents/`. | Used as needed |
+| `planner` agent (frontend) | Frontend Phase 1 | Broke the frontend brief into 17 ordered tasks and listed contract gaps (crew ETA, vehicle, drone commands, timeline `simulated` flag) and demo risks (speech unlock, offline MapLibre glyphs, WS reconnect). | Done 2026-11-07 |
+| `frontend-design-direction`, `design-system`, `frontend-a11y`, `accessibility`, `motion-foundations` skills | Frontend Phase 1-2 | Design direction, content-state contract, tokens, a11y patterns, reduced motion. `taste` was read but skipped (it's for music video). | In use |
+| `tdd-workflow` skill (frontend) | Frontend Phase 2 | Tests first for case reducer, driver alert machine, ETA/minutes gained, formatting, staleness. | Done: all 6 suites RED first, then GREEN with 72 tests. A later local-seq bug was also test-first (73). |
+| `e2e-runner` agent / Playwright | Frontend Phase 2-5 | Scripts the demo flow, screenshots at 390x844 and 1440x900. | Gallery screenshots done (Checkpoint 2). Full demo flow planned for Phase 5. |
+| `typescript-reviewer`, `react-reviewer`, `code-reviewer`, `a11y-architect` agents | Before each frontend checkpoint | Review before stopping. | Planned |
 
 ## Teammates: optional ECC plugin
 

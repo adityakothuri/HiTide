@@ -1,0 +1,16 @@
+{
+  "_note": "water_level is a manual visual judgment per image (none/wheels/doors/windows/roof). demo marks the image used for the scripted demo case.",
+  "demo": "flood_01.jpg",
+  "demo_people": "vehicle_only",
+  "_demo_people_note": "For the demo frame only, people not on/in a vehicle are dropped: YOLO also finds 3 bystanders on the far bank, which the single-frame shore heuristic would mislabel as in_water. The person on the roof is a real YOLO detection (no synthetic_person).",
+  "images": {
+    "flood_01.jpg": {"water_level": "windows", "note": "Sedan in fast flash-flood current, water at the window line; woman sitting on the roof (real detection, no synthetic person)."},
+    "flood_02.jpg": {"water_level": "doors", "note": "Same car seconds later; swift-water rescuer beside the car helping the woman off the roof."},
+    "flood_03.jpg": {"water_level": "doors", "note": "Same scene, wider shot; woman on the roof, crowd on the far bank."},
+    "flood_04.jpg": {"water_level": "windows", "note": "Red car floating in open floodwater, hood under, water at the windows."},
+    "flood_05.jpg": {"water_level": "windows", "note": "Cars floating in a flooded Houston street (Harvey), only roofs and upper windows above water."},
+    "flood_06.jpg": {"water_level": "doors", "note": "Elevated view of a parking lot under a carport, car submerged to the doors (Harvey)."},
+    "flood_07.jpg": {"water_level": "wheels", "note": "SUV in a flooded ditch, water around the wheels."},
+    "flood_08.jpg": {"water_level": "wheels", "note": "Cars driving through a flooded street at dusk, water at the wheels."}
+  }
+}

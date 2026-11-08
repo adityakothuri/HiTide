@@ -1,0 +1,5 @@
+.disclaimer {
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  color: var(--neutral-5);
+}

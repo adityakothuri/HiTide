@@ -52,3 +52,10 @@ Pre-trip texts skip any driver **on a trip** (`DriverMotion.moving`). The outrea
 ## 2026-11-07: Est. claims avoided is an estimate
 (warned + rerouted) × avg vehicle flood claim × 10% (the assumed share who would have driven into water). The placeholder average is $15k. It needs a source before the pitch.
 
+
+## 2026-11-07: Frontend design system (Checkpoint 1)
+- Critical status is magenta-plum `#931566` (hue 321°), not brand red `#B3121F` (hue 355°). Danger is always icon + label + critical color. Brand red means "State Farm" and "selected", never danger.
+- Public Sans, self-hosted, so the demo works offline. It's legible on a projector and has an institutional tone.
+- The console map has no basemap tiles. It's drawn from our own OSM segments and river on a neutral surface, so it works offline and the water scale is the only saturated color.
+- Anti-template review changed: KPI cards → inline counters, shadow cards → bordered sections, dot-only timeline → icon shape + text state, middle-dot meta → written-out phrases. Full table in [[Design System]] §6.
+- Frontend work runs in a separate worktree on branch `feat/frontend`, so it doesn't touch the backend agent's tree.

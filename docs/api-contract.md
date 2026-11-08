@@ -90,3 +90,19 @@ When the drone arrives, `vision` is filled in:
 The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outreach.mode == "mock"`, and `water_level_source == "manual_label"`.
 
 **Privacy:** the responder panel shows only `responder_view` (location, people count, water depth). Age and vehicle appear only inside `urgency_reasons` on the State Farm ops case card.
+
+## Proposed additions (frontend)
+
+> Added 2026-11-07 by the frontend. All of these are **optional**. The UI works without them and falls back as noted. Shapes are mirrored in `frontend/src/data/types.ts` (marked `proposed`).
+
+| Where | Field / endpoint | Why | Frontend fallback until it exists |
+|---|---|---|---|
+| `DroneState` | `crew_eta_s: float` | Ground crew ETA, so the console can show **minutes gained** = crew ETA − drone ETA | Offline demo uses an estimated 17 min crew ETA. Live mode shows "Crew ETA not available". |
+| `Case` | `vehicle: str` (e.g. "2019 Toyota Camry") | Case header on the State Farm ops card (not the responder card) | Demo persona table in `frontend/src/data/personas.ts` |
+| `Case` | `emergency_contact_name: str` | Driver app says "We contacted Maria" | Persona table, then "your emergency contact" |
+| `TimelineEntry` | `simulated: bool` | Label simulated or mock rows without parsing "(mock" out of `text` | The UI also looks for "(mock" or "(simulated" in the text |
+| `TimelineEntry` (outreach) | `status: sent\|delivered\|read\|replied`, `reply: str?` | Show read and reply state in the case timeline | Shows the text as sent |
+| REST | `POST /api/drones/{id}/command` body `{"command": "speak"\|"drop_jacket"\|"return"}` → emits `case.update` (+ `drone.update` for return) | Drone actions in the console | The UI adds a local timeline row labelled simulated |
+| `StateSnapshot` | `reroutes: Reroute[]`, `turn_arounds: TurnAround[]` | A driver view that reconnects mid-trip can restore its route and alert | Lost on reconnect |
+
+The **feed status** keys returned by `GET /api/feeds` are `nws_alerts`, `usgs_gage`, `usgs_flood_impacts` (each with `source` and `fetched_at`), not `nws` / `flood_impacts` as written in the REST table above. The frontend reads the actual keys.

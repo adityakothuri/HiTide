@@ -1,0 +1,17 @@
+.counter {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.value {
+  font-size: var(--text-lg);
+  line-height: var(--lh-lg);
+  font-weight: 700;
+}
+
+.label {
+  color: var(--neutral-5);
+  font-size: var(--text-sm);
+}
