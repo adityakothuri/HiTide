@@ -47,12 +47,49 @@ live   (observe/live.py)    ─┘   {flood, alerts, rain_in_hr, closures, forec
 - Source health is evaluated against data age at read time: MRMS stale after 20 min, USGS stale when no gauge is online.
 - `/api/demo/start` and the mode switch share one lock, so replay and live can't run together. The live task logs failures, and shutdown cancels a build that is still starting.
 
-## Live-mode limits
+## Stress test and audit (2026-11-08)
+
+How it was tested:
+- **Chaos harness.** 4 seeds × 4 simulated hours. About 35% of responses were bad (503, a 200 with an error body, HTML, wrong types, junk features) and 5% of fetches raised. No invariant broke:
+  - a warning covers its points until its own end;
+  - rain is the last good grid's value or None, never a made-up 0;
+  - the hydro revision only increases;
+  - every step runs.
+  
+  Before the fix below, it found one real bug: a single bad 200 response dropped an active warning.
+- **Server load.** The server ran on real feeds with 40 concurrent readers and 2 clients randomly toggling mode, start and reset for 60 s.
+  - 26,463 GETs, all 200: p50 83 ms, p99 230 ms.
+  - 0 errors in the log.
+  - All 5 sources `ok` afterwards and live stepping.
+- **Independent reviews.** A security reviewer and a detection-correctness auditor, both working on real feed data.
+
+Fixes:
+- **A warning that silently drops out is held for 4 minutes.** This covers a warning that leaves one response with no Cancel or Update naming it. A Cancel still drops it at once.
+- **Alerts are keyed by NWS event (VTEC).** A routine update (CON/EXT) is no longer shown as the warning ending and restarting. Payloads add `event_key`.
+- **Telemetry latency.** USGS readings arrive 7–22 min late; the median is 9–14 min. Measured on July 4, 2025 with readings delayed 12 min, at 06:45 CDT:
+
+  | | Flooded edges |
+  |---|---|
+  | Modeled truth | 975 |
+  | Live, holding the last reading flat | 698 |
+  | Live, rising reading carried forward by its own rate (up to 10 min) | 958 |
+
+  Over the whole event against modeled truth, missed edge-minutes fall 13% (34,831 → 30,381) and over-calls rise (3,436 → 7,259). It projects rises only, so it errs toward "flooded". This applies in live only; the replay is unchanged.
+- **Gauges go offline after 45 min in live** (30 min in replay). This removes quiet-day flapping (about 3 false offline events a day). With a 20-min delay it also cuts missed edges (8,622 → 6,025 edge-minutes).
+- **Live ranking urgency is causal.** It uses the readings available now, carrying rising ones forward 1 h. Before this, live urgency was always off.
+- **Live starts on an empty gauge model.** July 2025 stages never show before the first USGS poll.
+- **Download caps.** MRMS downloads are capped at 20 MB and the gunzip at 100 MB.
+- **Mode switching is throttled.** `mode=live` while already live is a no-op. A live (re)start within 15 s returns 429, so the endpoint can't hammer NWS or USGS.
+- **Fetch failures log without tracebacks.**
+
+## Live-mode limits and open decisions
 
 - Drones plan tours but don't fly in sim, because there is no replay truth. Real snapshots (Tello / [[Drone Vision]] bridge) still feed `loop.obs`.
-- **Gauge flapping.** With 15-min recording and 7-22 min telemetry lag, a quiet-period reading can be about 37 min old, and the gauge then counts offline (30-min rule). USGS records every 5 min at most region gauges today. A gap rule longer than 30 min was measured to hurt accuracy.
-- **Rain is point-local.** It is radar-only QPE (no gauge correction), and headwater rain upstream (the July 4 pattern) is not attributed downstream. It adds only `add_heavy_rain` (0.15).
-- An NWS Update gets a new id, so the UI sees `active:false` for the old message and `active:true` for the new one.
-- Region is Kerr County only (Hunt → Kerrville). Other statewide sources are `not_used`, each with a reason.
+- **Rain is point-local.** It is radar-only QPE, and headwater rain upstream (the July 4 pattern) is not attributed downstream.
+- **Outside a warning, fusion ignores gauge, model and rain evidence** (`prior_outside`). This is a pre-existing design choice. Before the first warning, a crossing with modeled water stays "open" while the map segment shows likely-flooded. *Decision pending: it changes the replay results.*
+- **The replay's ranking urgency reads the recorded series 1 h ahead,** which is look-ahead. Live is now causal, but replay is unchanged to keep the documented 77% vs 3% result. *Decision pending.*
+- **`rate_ft_per_hr` divides by `max(1 h, span)`.** It under-reports when the newest reading is old (a true 2.0 ft/h reads as 1.5 ft/h at 15 min old). *Decision pending: it changes the replay.*
+- **The 7-day minimum baseline** can sit high after an event that has stayed elevated for 7 days or more, or after a short window. That would under-call. A single high spike in the current reading isn't filtered.
+- Region is Kerr County only (Hunt → Kerrville).
 
 Related: [[Data Sources]] · [[Critical Point Drones]] · [[Flood Simulation]]

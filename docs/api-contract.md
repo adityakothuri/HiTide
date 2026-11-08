@@ -178,7 +178,7 @@ The Hill Country loop runs in one of two modes. **`replay`** (default) is the Ju
 
 | Method | Path | Returns |
 |---|---|---|
-| POST | `/api/region/mode?mode=live\|replay` | `{ok, mode}`. Stops whatever is running, clears the loop, emits `region.reset {scenario, mode}`. Live starts polling and stepping at once. Replay waits for `/api/demo/start?scenario=hill_country`, which also switches back to replay. |
+| POST | `/api/region/mode?mode=live\|replay` | `{ok, mode}`. Stops whatever is running, clears the loop, emits `region.reset {scenario, mode}`. Live starts polling and stepping at once. `mode=live` while live is running is a no-op. A live (re)start within 15 s of the last one returns 429, and so does `/api/demo/reset?scenario=hill_country` in live mode. Replay waits for `/api/demo/start?scenario=hill_country`, which also switches back to replay. |
 | GET | `/api/region/sources` | `{mode, sources: {id: SourceStatus}}`. Shows which evidence drives detection, where it came from and how old it is. |
 
 **SourceStatus**: `{status: ok|stale|unavailable|pending|not_used, provenance: live|cached|replay|none, as_of (provider observation/product time), checked_at, detail, error}`.
@@ -191,8 +191,8 @@ Additions to `/api/region/state` and the WS events. All are additive; existing f
 | Where | What changed |
 |---|---|
 | `/api/region/state` | Adds `mode`, `forecasts[]` and `sources`. `scenario_running` is true while the replay or live monitoring runs. |
-| `region.alert` | Now `{id, event, level: warning\|watch\|advisory\|statement\|forecast, headline, emergency, simulated, source: replay\|nws\|nwps, at, area, effective, expires, active}`. |
-| Alert lifecycle | In live mode an alert is sent once with `active: true` and again with `active: false` when it ends, is cancelled or is superseded. Drop it from the map then. Replay alerts never end. Only `level: warning` sets `in_warning` and lets drones fly; the other levels are context. |
+| `region.alert` | Now `{id, event, level: warning\|watch\|advisory\|statement\|forecast, headline, emergency, simulated, source: replay\|nws\|nwps, at, area, event_key, effective, expires, active}`. `event_key` is the NWS event (VTEC). Key your map on it, not on `id`: a routine update keeps the same `event_key` and a new `id`. |
+| Alert lifecycle | In live mode an alert is sent once per event (`event_key`) with `active: true`, and again with `active: false` when it ends or is cancelled. Updates to the same event don't resend it. Drop it from the map then. Replay alerts never end. Only `level: warning` sets `in_warning` and lets drones fly; the other levels are context. |
 | `gauge.status` / `gauges[]` | Adds `flood_category: none\|action\|minor\|moderate\|major\|null`. It is official NWS stages, for Hunt (HNTT2) and Kerrville (KRRT2) only. |
 | `forecasts[]` | `{lid, site, name, observed_ft, observed_at, observed_category, crest_ft, crest_at, crest_category, issued_at, thresholds}`. `crest_*` is null when NWS has no current forecast. |
 | Drones in live mode | They get planned `tour`/`path` but stay `idle` at their station. There is no replay truth to simulate a flight from. Draw the path as "recommended tour". `snapshot.created` in live mode comes only from a real drone. |

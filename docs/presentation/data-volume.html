@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flood Watch Data Brief</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a stack of 16:9 "slides" a presenter can screenshot, each one claim + one visual, on river-gauge paper. */
+:root {
+  --paper: #f2f4f3;
+  --panel: #fbfcfb;
+  --ink: #12222b;
+  --ink-2: #47585f;
+  --ink-3: #7a898e;
+  --rule: #d5dcdc;
+  --grid: #e3e8e8;
+  --river: #0f6e8c;          /* accent: Guadalupe teal */
+  --river-soft: #d6ebef;
+  --s1: #2a78d6;             /* categorical slot 1 */
+  --s2: #eb6834;             /* categorical slot 2 */
+  --warn: #9b1c1c;           /* NWS warning maroon (event markers only) */
+  --ours: #0f6e8c;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e171b; --panel: #142127; --ink: #e8eff0; --ink-2: #aebcbf; --ink-3: #7f8f93;
+    --rule: #2a3a40; --grid: #1f2e34; --river: #3fb0cf; --river-soft: #173a45;
+    --s1: #3987e5; --s2: #d95926; --warn: #e26d6d; --ours: #3fb0cf; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e171b; --panel: #142127; --ink: #e8eff0; --ink-2: #aebcbf; --ink-3: #7f8f93;
+  --rule: #2a3a40; --grid: #1f2e34; --river: #3fb0cf; --river-soft: #173a45;
+  --s1: #3987e5; --s2: #d95926; --warn: #e26d6d; --ours: #3fb0cf; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
+.slide { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px;
+  aspect-ratio: 16 / 9; max-width: 100%; padding: clamp(18px, 3.2vw, 44px);
+  display: grid; grid-template-rows: auto 1fr auto; gap: clamp(10px, 1.6vw, 22px); min-width: 0; overflow: hidden; }
+@media (max-width: 820px) { .slide { aspect-ratio: auto; } }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--river); }
+h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: .005em; margin: 2px 0 0; text-wrap: balance; line-height: 1.02; }
+h1 { font-size: clamp(36px, 6vw, 76px); }
+h2 { font-size: clamp(26px, 3.6vw, 44px); }
+.lede { color: var(--ink-2); max-width: 62ch; margin: 8px 0 0; font-size: clamp(14px, 1.3vw, 17px); }
+.foot { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.num { font-variant-numeric: tabular-nums; }
+svg text { font-family: var(--mono); fill: var(--ink-2); font-size: 12px; }
+svg .lbl-strong { fill: var(--ink); font-weight: 500; }
+.chart { min-width: 0; min-height: 0; position: relative; }
+.chart svg { width: 100%; height: 100%; display: block; }
+
+/* hero tiles */
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 20px); align-content: end; }
+@media (max-width: 820px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { border-top: 2px solid var(--ink); padding-top: 8px; min-width: 0; }
+.tile b { display: block; font-family: var(--display); font-weight: 700; font-size: clamp(34px, 5vw, 66px); line-height: 1; font-variant-numeric: tabular-nums; }
+.tile span { display: block; color: var(--ink-2); font-size: clamp(12px, 1.15vw, 14.5px); margin-top: 6px; }
+.tile.key { border-top-color: var(--river); }
+.tile.key b { color: var(--river); }
+
+/* pipeline */
+.pipe { display: grid; grid-template-columns: 1.25fr auto 1fr auto 1fr; gap: clamp(8px, 1.4vw, 18px); align-items: stretch; min-height: 0; }
+@media (max-width: 820px) { .pipe { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); justify-self: center; } }
+.col { display: grid; gap: 8px; align-content: center; min-width: 0; }
+.col h3 { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 2px; font-weight: 500; }
+.chip { border: 1px solid var(--rule); border-radius: 4px; padding: 7px 10px; background: var(--paper); display: grid; gap: 1px; min-width: 0; }
+.chip b { font-weight: 600; font-size: 14px; }
+.chip small { color: var(--ink-2); font-size: 12px; }
+.chip .every { font-family: var(--mono); font-size: 11px; color: var(--river); }
+.chip.out { border-color: var(--river); background: var(--river-soft); }
+.arrow { align-self: center; color: var(--ink-3); font-family: var(--mono); font-size: 22px; }
+
+/* table */
+.tbl-wrap { overflow-x: auto; min-width: 0; min-height: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--rule); color: var(--ink-2); white-space: nowrap; }
+.pill.on { border-color: var(--river); color: var(--river); }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(14px, 2.4vw, 32px); min-height: 0; }
+@media (max-width: 820px) { .two { grid-template-columns: 1fr; } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--panel); font-family: var(--mono); font-size: 12px;
+  padding: 6px 8px; border-radius: 4px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); z-index: 5; line-height: 1.45; }
+.big-callout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 820px) { .big-callout { grid-template-columns: 1fr; } }
+.big-callout div { border-left: 2px solid var(--river); padding-left: 10px; }
+.big-callout b { font-family: var(--display); font-size: clamp(26px, 3.2vw, 40px); line-height: 1; display: block; font-variant-numeric: tabular-nums; }
+.big-callout span { color: var(--ink-2); font-size: 12.5px; }
+:focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+<!-- 1. Hero -->
+<section class="slide" aria-labelledby="s1">
+  <div>
+    <div class="eyebrow">Flood Watch · Kerr County, TX · Guadalupe River</div>
+    <h1 id="s1">Every 30 seconds, five federal feeds decide which roads are flooded</h1>
+    <p class="lede">Live USGS river gauges, NWS warnings, NOAA radar rain, storm spotter reports and river forecasts, fused into a flood probability for each of 98 critical crossings.</p>
+  </div>
+  <div class="tiles">
+    <div class="tile key"><b class="num">282,240</b><span>crossing assessments a day (2,880 loop steps × 98 crossings)</span></div>
+    <div class="tile"><b class="num">7,584</b><span>live API requests a day across 5 sources</span></div>
+    <div class="tile"><b class="num">8,724</b><span>river-stage readings held per 7-day window (5 USGS gauges)</span></div>
+    <div class="tile"><b class="num">720</b><span>NOAA MRMS radar rainfall grids a day, ~1 km pixels</span></div>
+    <div class="tile"><b class="num">8,372</b><span>road segments on real lidar terrain</span></div>
+    <div class="tile"><b class="num">15</b><span>Texas data sources evaluated; 5 drive detection</span></div>
+  </div>
+  <div class="foot"><span>Volumes: live fetch 2026-11-08 08:06 UTC + poll config</span><span>Terrain/roads: data/region/hill_country</span></div>
+</section>
+
+<!-- 2. Pipeline -->
+<section class="slide" aria-labelledby="s2">
+  <div>
+    <div class="eyebrow">How a call is made</div>
+    <h2 id="s2">From raw feeds to a road status</h2>
+  </div>
+  <div class="pipe">
+    <div class="col">
+      <h3>Sources (live)</h3>
+      <div class="chip"><b>USGS river gauges</b><small>5 sites, 5–15 min readings</small><span class="every">poll every 2 min</span></div>
+      <div class="chip"><b>NWS alerts (CAP)</b><small>warning polygons + Kerr zones</small><span class="every">poll every 60 s</span></div>
+      <div class="chip"><b>NOAA MRMS radar</b><small>1-hour rainfall, 0.01° grid</small><span class="every">poll every 2 min</span></div>
+      <div class="chip"><b>NWS storm reports</b><small>flooded-road reports ≤ 500 m</small><span class="every">poll every 2 min</span></div>
+      <div class="chip"><b>NOAA NWPS forecasts</b><small>Hunt + Kerrville crest, flood stage</small><span class="every">poll every 15 min</span></div>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="col">
+      <h3>Signals per crossing</h3>
+      <div class="chip"><b>In a warning?</b><small>point inside the polygon</small></div>
+      <div class="chip"><b>Water above the road?</b><small>gauge rise on HAND terrain</small></div>
+      <div class="chip"><b>Gauge rising fast?</b><small>≥ 2 ft/hr upstream</small></div>
+      <div class="chip"><b>Heavy rain here?</b><small>≥ 1 in in the last hour</small></div>
+      <div class="chip"><b>Reported closed?</b><small>spotter report or drone</small></div>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="col">
+      <h3>Decision</h3>
+      <div class="chip out"><b>p(flooded) per crossing</b><small>open · unknown · likely · confirmed</small></div>
+      <div class="chip out"><b>Drone tours</b><small>3 drones to the most uncertain, most critical crossings</small></div>
+      <div class="chip out"><b>Shelter / evacuate calls</b><small>neighborhoods whose only road out is flooded</small></div>
+    </div>
+  </div>
+  <div class="foot"><span>A failed fetch keeps the last good data, marked stale. It never reads as “no warning” or “dry”.</span></div>
+</section>
+
+<!-- 3. Cadence -->
+<section class="slide" aria-labelledby="s3">
+  <div>
+    <div class="eyebrow">Refresh times</div>
+    <h2 id="s3">One hour of polling: 316 requests, 120 decisions</h2>
+    <p class="lede">Each tick is one request (or one loop step). Faster sources refresh faster; nothing waits on the slowest.</p>
+  </div>
+  <div class="chart" id="cadence" role="img" aria-label="Tick timeline of one hour: NWS alerts 60 polls, USGS 30, MRMS 30, storm reports 30, NWPS 4, detection loop 120 steps"></div>
+  <div class="foot"><span>Source: backend/config/regions/hill_country.yaml live.poll_s, step_s</span><span>USGS per poll = 5 sites</span></div>
+</section>
+
+<!-- 4. Abundance -->
+<section class="slide" aria-labelledby="s4">
+  <div>
+    <div class="eyebrow">Data volume</div>
+    <h2 id="s4">7,584 requests a day keep the picture current</h2>
+  </div>
+  <div class="two">
+    <div class="chart" id="bars" role="img" aria-label="Requests per day by source: USGS 3600, NWS alerts 1440, MRMS 1440, storm reports 720, NWPS 384"></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>What arrives</th><th class="num">Per day</th></tr></thead>
+        <tbody>
+          <tr><td>River-stage readings (4 sites at 5 min, 1 at 15 min)</td><td class="num">1,248</td></tr>
+          <tr><td>MRMS rainfall grids published (every 2 min)</td><td class="num">720</td></tr>
+          <tr><td>Pixels sampled per grid (98 crossings × 3×3)</td><td class="num">882</td></tr>
+          <tr><td>NWPS forecast points per gauge per issuance</td><td class="num">120</td></tr>
+          <tr><td>Detection loop steps (every 30 s)</td><td class="num">2,880</td></tr>
+          <tr><td>Crossing assessments (steps × 98)</td><td class="num">282,240</td></tr>
+          <tr><td>Texas alerts active at fetch time (6 flood-related)</td><td class="num">8 now</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>Requests/day = 86,400 s ÷ poll interval × requests per poll</span><span>Live counts fetched 2026-11-08 08:06 UTC</span></div>
+</section>
+
+<!-- 5. Latency histogram -->
+<section class="slide" aria-labelledby="s5">
+  <div>
+    <div class="eyebrow">Real telemetry delay</div>
+    <h2 id="s5">A gauge reading reaches us about 10 minutes after the river does</h2>
+    <p class="lede">Measured on every reading of the last 7 days (USGS <span class="num">last_modified</span> minus reading time). Live mode keeps a gauge online for 45 min and carries a rising reading forward by its own rate, up to 10 min.</p>
+  </div>
+  <div class="chart" id="hist" role="img" aria-label="Histogram of USGS delivery delay over 8,724 readings, median 10.4 minutes, most between 6 and 20 minutes"></div>
+  <div class="foot"><span>n = 8,724 readings, 5 Kerr County gauges, 2026-11-01 to 11-08</span><span>median 10.4 min · p90 by site 11–19 min</span></div>
+</section>
+
+<!-- 6. July 4 -->
+<section class="slide" aria-labelledby="s6">
+  <div>
+    <div class="eyebrow">Replay · July 4, 2025 · real gauge data</div>
+    <h2 id="s6">The first shelter call came 107 minutes before the Flash Flood Emergency</h2>
+  </div>
+  <div class="chart" id="july" role="img" aria-label="River stage at Hunt and Kerrville, July 4 2025, 00:00 to 08:00 CDT, with warning times and the system's shelter call at 02:17"></div>
+  <div class="big-callout">
+    <div><b class="num">107 min</b><span>first riverside area told to shelter (02:17) before the real FF Emergency for Hunt (04:04)</span></div>
+    <div><b class="num">77% vs 3%</b><span>households behind flooded only-way-out crossings confirmed by the priority planner vs a naive patrol, same 3 drones</span></div>
+    <div><b class="num">391</b><span>replay steps, verified identical before and after the live-data integration</span></div>
+  </div>
+</section>
+
+<!-- 7. Latency study -->
+<section class="slide" aria-labelledby="s7">
+  <div>
+    <div class="eyebrow">Live accuracy · July 4 replayed with a 12-minute feed delay</div>
+    <h2 id="s7">Latency-aware gauges keep up with the rise</h2>
+    <p class="lede">Road segments with 6 in or more of water. Holding the last reading flat falls behind during the rise; carrying a rising reading forward tracks the modeled truth.</p>
+  </div>
+  <div class="chart" id="lat" role="img" aria-label="Flooded road segments over time: modeled truth, latency-aware projection, and readings held flat; at 06:45 CDT 975, 958 and 698"></div>
+  <div class="legend">
+    <span><i style="border-color: var(--ink-3); border-top-style: dashed"></i>Modeled truth (gauges + ungauged creeks)</span>
+    <span><i style="border-color: var(--s1)"></i>Live, latency-aware</span>
+    <span><i style="border-color: var(--s2)"></i>Live, last reading held flat</span>
+  </div>
+</section>
+
+<!-- 8. Sources -->
+<section class="slide" aria-labelledby="s8">
+  <div>
+    <div class="eyebrow">Source selection</div>
+    <h2 id="s8">15 Texas sources evaluated. 5 drive detection, and here’s why the rest don’t.</h2>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Source</th><th>Role</th><th>Why</th></tr></thead>
+      <tbody id="srcrows"></tbody>
+    </table>
+  </div>
+  <div class="foot"><span>Source: backend/observe/live.py DETECTION_SOURCES, NOT_USED · shown live at GET /api/region/sources</span></div>
+</section>
+
+</div>
+
+<script>
+const JULY = {"08165500":[["00:00",7.64],["00:05",7.66],["00:10",7.68],["00:15",7.69],["00:20",7.68],["00:25",7.68],["00:30",7.68],["00:35",7.67],["00:40",7.67],["00:45",7.67],["00:50",7.67],["00:55",7.67],["01:00",7.68],["01:05",7.68],["01:10",7.69],["01:15",7.69],["01:20",7.7],["01:25",7.71],["01:30",7.71],["01:35",7.72],["01:40",7.75],["01:45",7.78],["01:50",7.83],["01:55",7.89],["02:00",7.98],["02:05",8.13],["02:10",8.27],["02:15",8.4],["02:20",8.54],["02:25",8.7],["02:30",8.82],["02:35",8.93],["02:40",9.0],["02:45",9.06],["02:50",9.15],["02:55",9.41],["03:00",10.1],["03:05",11.03],["03:10",11.93],["03:15",13.03],["03:20",13.99],["03:25",14.94],["03:30",15.9],["03:35",16.81],["03:40",17.52],["03:45",18.39],["03:50",19.35],["03:55",20.3],["04:00",21.11],["04:05",21.99],["04:10",22.85],["04:15",23.73],["04:20",24.7],["04:25",26.92],["04:30",28.21],["04:35",29.45],["05:10",37.52]],"08166200":[["00:00",0.39],["00:15",0.4],["00:30",0.43],["00:45",0.53],["01:00",0.7],["01:15",0.79],["01:30",0.84],["01:45",0.89],["02:00",0.95],["02:15",1.04],["02:30",1.15],["02:45",1.28],["03:00",1.47],["03:15",1.64],["03:30",1.71],["03:45",1.73],["04:00",1.74],["04:15",1.74],["04:30",1.75],["04:45",1.78],["05:00",1.82],["05:15",1.82],["05:30",5.16],["05:45",9.19],["06:00",14.65],["06:15",27.93],["06:30",35.04],["06:45",37.51],["07:00",37.23],["07:15",34.57],["07:30",29.85],["07:45",24.66]]};
+const NS = "http://www.w3.org/2000/svg";
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function el(tag, attrs, parent, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function svgIn(id, w, h) {
+  const host = document.getElementById(id);
+  host.innerHTML = "";
+  const s = el("svg", { viewBox: `0 0 ${w} ${h}`, preserveAspectRatio: "xMidYMid meet" }, host);
+  return { host, s };
+}
+function tip(host) {
+  let t = host.querySelector(".tip");
+  if (!t) { t = document.createElement("div"); t.className = "tip"; t.hidden = true; host.appendChild(t); }
+  return t;
+}
+function placeTip(host, s, t, x, y, html) {
+  const r = s.getBoundingClientRect(), hr = host.getBoundingClientRect(), vb = s.viewBox.baseVal;
+  const k = Math.min(r.width / vb.width, r.height / vb.height);
+  const ox = (r.width - vb.width * k) / 2, oy = (r.height - vb.height * k) / 2;
+  t.innerHTML = html; t.hidden = false;
+  t.style.left = (r.left - hr.left + ox + x * k) + "px";
+  t.style.top = (r.top - hr.top + oy + y * k) + "px";
+}
+const fmt = n => n.toLocaleString("en-US");
+const toMin = hm => { const [h, m] = hm.split(":").map(Number); return h * 60 + m; };
+
+/* 3. cadence ticks */
+function drawCadence() {
+  const W = 1100, H = 330, L = 190, R = 20, T = 18, B = 34;
+  const { host, s } = svgIn("cadence", W, H);
+  const rows = [
+    ["NWS alerts", 60, "60 s", 1], ["USGS gauges", 120, "2 min · 5 sites", 5], ["MRMS radar rain", 120, "2 min", 2],
+    ["Storm reports", 120, "2 min", 1], ["NWPS forecasts", 900, "15 min · 2 gauges", 4], ["Detection loop", 30, "30 s", 0]];
+  const x = sec => L + (W - L - R) * sec / 3600;
+  const rh = (H - T - B) / rows.length;
+  for (let m = 0; m <= 60; m += 10) {
+    el("line", { x1: x(m * 60), x2: x(m * 60), y1: T - 4, y2: H - B, stroke: css("--grid"), "stroke-width": 1 }, s);
+    el("text", { x: x(m * 60), y: H - B + 20, "text-anchor": "middle" }, s, m + " min");
+  }
+  const t = tip(host);
+  rows.forEach(([name, every, label, reqs], i) => {
+    const y = T + rh * i + rh / 2;
+    const last = i === rows.length - 1;
+    el("text", { x: 0, y: y - 3, class: "lbl-strong" }, s, name);
+    el("text", { x: 0, y: y + 13, style: "font-size:11px" }, s, label);
+    const n = Math.floor(3600 / every);
+    const col = last ? css("--river") : css("--ink");
+    for (let k = 0; k < n; k++) {
+      el("rect", { x: x(k * every) , y: y - rh * 0.28, width: last ? 1.6 : 2.2, height: rh * 0.56, rx: 1, fill: col, opacity: last ? 0.85 : 1 }, s);
+    }
+    const hit = el("rect", { x: L, y: y - rh / 2, width: W - L - R, height: rh, fill: "transparent" }, s);
+    const total = reqs ? `${n} polls · ${fmt(n * reqs)} requests/hr` : `${n} steps/hr · ${fmt(n * 98)} crossing assessments`;
+    hit.addEventListener("pointermove", () => placeTip(host, s, t, (L + W - R) / 2, y - rh * 0.3, `<b>${name}</b><br>${total}`));
+    hit.addEventListener("pointerleave", () => t.hidden = true);
+  });
+}
+
+/* 4. bars */
+function drawBars() {
+  const W = 560, H = 330, L = 128, R = 64, T = 10, B = 30;
+  const { host, s } = svgIn("bars", W, H);
+  const data = [["USGS gauges", 3600], ["NWS alerts", 1440], ["MRMS radar", 1440], ["Storm reports", 720], ["NWPS forecasts", 384]];
+  const max = 4000, x = v => L + (W - L - R) * v / max;
+  const bh = (H - T - B) / data.length;
+  for (let v = 0; v <= max; v += 1000) {
+    el("line", { x1: x(v), x2: x(v), y1: T, y2: H - B, stroke: css("--grid") }, s);
+    el("text", { x: x(v), y: H - B + 18, "text-anchor": "middle" }, s, fmt(v));
+  }
+  const t = tip(host);
+  data.forEach(([name, v], i) => {
+    const y = T + bh * i + bh * 0.2, h = bh * 0.6;
+    el("text", { x: L - 10, y: y + h / 2 + 4, "text-anchor": "end", class: "lbl-strong" }, s, name);
+    const w = x(v) - L;
+    el("path", { d: `M${L},${y} H${L + w - 4} Q${L + w},${y} ${L + w},${y + 4} V${y + h - 4} Q${L + w},${y + h} ${L + w - 4},${y + h} H${L} Z`, fill: css("--river") }, s);
+    el("text", { x: x(v) + 8, y: y + h / 2 + 4, class: "lbl-strong" }, s, fmt(v));
+    const hit = el("rect", { x: L, y: y - bh * 0.2, width: W - L - R + 50, height: bh, fill: "transparent" }, s);
+    hit.addEventListener("pointermove", () => placeTip(host, s, t, x(v), y, `<b>${name}</b><br>${fmt(v)} requests/day`));
+    hit.addEventListener("pointerleave", () => t.hidden = true);
+  });
+  el("text", { x: L, y: H - 2 }, s, "requests per day");
+}
+
+/* 5. histogram (2-min bins, real) */
+function drawHist() {
+  const bins = [[4,488],[6,994],[8,1870],[10,1737],[12,1121],[14,859],[16,625],[18,910],[20,71],[22,13],[24,9],[26,6],[28,7],[30,5],[32,8],[34,1]];
+  const W = 1100, H = 300, L = 60, R = 20, T = 14, B = 40, max = 2000;
+  const { host, s } = svgIn("hist", W, H);
+  const x0 = 4, x1 = 36, x = m => L + (W - L - R) * (m - x0) / (x1 - x0), y = v => H - B - (H - T - B) * v / max;
+  for (let v = 0; v <= max; v += 500) {
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css("--grid") }, s);
+    el("text", { x: L - 8, y: y(v) + 4, "text-anchor": "end" }, s, fmt(v));
+  }
+  for (let m = 4; m <= 36; m += 4) el("text", { x: x(m), y: H - B + 18, "text-anchor": "middle" }, s, m);
+  el("text", { x: (L + W - R) / 2, y: H - 4, "text-anchor": "middle" }, s, "minutes from river reading to API availability");
+  const t = tip(host);
+  bins.forEach(([m, n]) => {
+    const bx = x(m) + 1, bw = x(m + 2) - x(m) - 2, top = y(n), bot = y(0);
+    const r = Math.min(4, bw / 2, bot - top);
+    el("path", { d: `M${bx},${bot} V${top + r} Q${bx},${top} ${bx + r},${top} H${bx + bw - r} Q${bx + bw},${top} ${bx + bw},${top + r} V${bot} Z`, fill: css("--river") }, s);
+    const hit = el("rect", { x: x(m), y: T, width: x(m + 2) - x(m), height: H - T - B, fill: "transparent" }, s);
+    hit.addEventListener("pointermove", () => placeTip(host, s, t, x(m + 1), top, `<b>${m}–${m + 2} min</b><br>${fmt(n)} readings`));
+    hit.addEventListener("pointerleave", () => t.hidden = true);
+  });
+  const med = 10.4;
+  el("line", { x1: x(med), x2: x(med), y1: T, y2: H - B, stroke: css("--ink"), "stroke-width": 1.5, "stroke-dasharray": "4 3" }, s);
+  el("text", { x: x(med) + 6, y: T + 12, class: "lbl-strong" }, s, "median 10.4 min");
+}
+
+/* line chart helper with crosshair */
+function lineChart(id, opt) {
+  const { W, H, L, R, T, B, xmin, xmax, ymax, ystep, xticks, series, events, ylabel } = opt;
+  const { host, s } = svgIn(id, W, H);
+  const x = m => L + (W - L - R) * (m - xmin) / (xmax - xmin), y = v => H - B - (H - T - B) * v / ymax;
+  for (let v = 0; v <= ymax; v += ystep) {
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css("--grid") }, s);
+    el("text", { x: L - 8, y: y(v) + 4, "text-anchor": "end" }, s, fmt(v));
+  }
+  el("text", { x: L - 8, y: T - 2, "text-anchor": "end", style: "font-size:11px" }, s, ylabel);
+  xticks.forEach(m => el("text", { x: x(m), y: H - B + 18, "text-anchor": "middle" }, s, String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0")));
+  (events || []).forEach((e, i) => {
+    el("line", { x1: x(e.m), x2: x(e.m), y1: T + 4, y2: H - B, stroke: e.color, "stroke-width": e.strong ? 2 : 1.2, "stroke-dasharray": e.strong ? "" : "3 3" }, s);
+    const ty = T + 14 + (e.row || 0) * 30;
+    el("text", { x: x(e.m) + 5, y: ty, class: "lbl-strong", style: `fill:${e.color}` }, s, e.time);
+    el("text", { x: x(e.m) + 5, y: ty + 13, style: "font-size:11px" }, s, e.label);
+  });
+  series.forEach(se => {
+    const d = se.pts.map((p, i) => (i ? "L" : "M") + x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1)).join(" ");
+    el("path", { d, fill: "none", stroke: se.color, "stroke-width": 2, "stroke-dasharray": se.dash || "", "stroke-linejoin": "round", "stroke-linecap": "round" }, s);
+    const lp = se.pts[se.pts.length - 1];
+    if (se.end) {
+      el("circle", { cx: x(lp[0]), cy: y(lp[1]), r: 4, fill: se.color, stroke: css("--panel"), "stroke-width": 2 }, s);
+    }
+    if (se.label) el("text", { x: x(se.labelAt[0]), y: y(se.labelAt[1]), class: "lbl-strong", "text-anchor": se.anchor || "start" }, s, se.label);
+  });
+  const t = tip(host);
+  const cross = el("line", { y1: T, y2: H - B, stroke: css("--ink-3"), "stroke-width": 1 }, s);
+  cross.style.display = "none";
+  const dots = series.map(se => { const c = el("circle", { r: 4, fill: se.color, stroke: css("--panel"), "stroke-width": 2 }, s); c.style.display = "none"; return c; });
+  const hit = el("rect", { x: L, y: T, width: W - L - R, height: H - T - B, fill: "transparent" }, s);
+  hit.addEventListener("pointermove", ev => {
+    const p = s.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY;
+    const m = xmin + (p.matrixTransform(s.getScreenCTM().inverse()).x - L) / (W - L - R) * (xmax - xmin);
+    let html = "", any = false, at = null;
+    series.forEach((se, i) => {
+      let best = null;
+      se.pts.forEach(q => { if (best === null || Math.abs(q[0] - m) < Math.abs(best[0] - m)) best = q; });
+      if (best && Math.abs(best[0] - m) <= opt.snap) {
+        dots[i].setAttribute("cx", x(best[0])); dots[i].setAttribute("cy", y(best[1])); dots[i].style.display = "";
+        html += `${se.name}: <b>${se.fmt ? se.fmt(best[1]) : best[1]}</b><br>`; any = true; at = at ?? best[0];
+      } else dots[i].style.display = "none";
+    });
+    if (!any) { t.hidden = true; cross.style.display = "none"; return; }
+    cross.setAttribute("x1", x(at)); cross.setAttribute("x2", x(at)); cross.style.display = "";
+    const hh = String(Math.floor(at / 60)).padStart(2, "0") + ":" + String(Math.round(at % 60)).padStart(2, "0");
+    placeTip(host, s, t, x(at), T + 40, `${hh} CDT<br>${html}`);
+  });
+  hit.addEventListener("pointerleave", () => { t.hidden = true; cross.style.display = "none"; dots.forEach(d => d.style.display = "none"); });
+}
+
+function drawJuly() {
+  const hunt = JULY["08165500"].map(([t, v]) => [toMin(t), v]);
+  const kerr = JULY["08166200"].map(([t, v]) => [toMin(t), v]);
+  lineChart("july", {
+    W: 1100, H: 330, L: 50, R: 30, T: 16, B: 30, xmin: 0, xmax: 480, ymax: 40, ystep: 10, snap: 12, ylabel: "ft",
+    xticks: [0, 60, 120, 180, 240, 300, 360, 420, 480],
+    series: [
+      { name: "Hunt gauge", pts: hunt, color: css("--s1"), end: true, fmt: v => v.toFixed(2) + " ft", label: "Hunt (gauge dies 05:10)", labelAt: [hunt[hunt.length - 1][0] - 6, 38.6], anchor: "end" },
+      { name: "Kerrville gauge", pts: kerr, color: css("--s2"), end: true, fmt: v => v.toFixed(2) + " ft", label: "Kerrville", labelAt: [kerr[kerr.length - 1][0] - 4, kerr[kerr.length - 1][1] - 3], anchor: "end" }],
+    events: [
+      { m: 74, time: "01:14", label: "NWS Flash Flood Warning", color: css("--warn"), row: 0 },
+      { m: 137, time: "02:17", label: "Flood Watch shelter call", color: css("--ours"), strong: true, row: 2 },
+      { m: 244, time: "04:04", label: "FF Emergency, Hunt", color: css("--warn"), row: 0 },
+      { m: 336, time: "05:36", label: "FF Emergency, Kerrville", color: css("--warn"), row: 2 }]
+  });
+}
+
+function drawLat() {
+  const times = ["03:30","03:45","04:00","04:15","04:30","04:45","05:00","05:15","05:30","05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30"].map(toMin);
+  const truth = [60,75,91,121,204,429,486,492,527,561,602,702,773,975,1095,1086,863];
+  const flat  = [18,29,36,40,46,76,99,111,167,200,238,304,446,698,842,960,834];
+  const proj  = [23,32,36,42,48,96,115,137,213,239,296,355,724,958,1070,1019,846];
+  const zip = a => times.map((m, i) => [m, a[i]]);
+  lineChart("lat", {
+    W: 1100, H: 300, L: 60, R: 120, T: 14, B: 30, xmin: 210, xmax: 450, ymax: 1200, ystep: 300, snap: 8, ylabel: "segments",
+    xticks: [210, 240, 270, 300, 330, 360, 390, 420, 450],
+    series: [
+      { name: "Modeled truth", pts: zip(truth), color: css("--ink-3"), dash: "6 4", fmt: fmt },
+      { name: "Latency-aware", pts: zip(proj), color: css("--s1"), end: true, fmt: fmt, label: "958 at 06:45", labelAt: [405 + 6, 958 + 60] },
+      { name: "Held flat", pts: zip(flat), color: css("--s2"), end: true, fmt: fmt, label: "698", labelAt: [405 + 6, 698 - 30] }],
+    events: [{ m: 405, time: "06:45", label: "truth 975", color: css("--ink-2"), row: 0 }]
+  });
+}
+
+function drawSources() {
+  const used = [["USGS river gauges", "Water on roads, rising fast"], ["NWS alerts", "Which crossings are in a warning"],
+    ["NOAA MRMS radar", "Heavy rain at each crossing"], ["NWS storm reports", "Flooded road reported ≤ 500 m away"],
+    ["NOAA NWPS", "Official flood stages and forecast crests"]];
+  const not = [["DriveTexas work zones", "Construction only; flood closures need access we don't have yet"],
+    ["LCRA Hydromet", "Lower Colorado basin; Kerr County is outside it"], ["San Antonio River crossings", "Bexar County and south; timestamps lack a timezone"],
+    ["Austin flood closures", "Austin-area roads only"], ["HCFCD water levels", "Harris County only"], ["HCFCD inundation", "Harris County only; raster not georeferenced"],
+    ["TxDOT cameras", "No timestamped images, no water detection"], ["Houston TranStar", "Houston only; access pending"],
+    ["NOAA FLASH", "Modeled runoff guidance, not evidence"], ["USGS flood impact points", "At Kerrville these are a bank, pool, parking lot and restaurant, not roads"]];
+  const rows = document.getElementById("srcrows");
+  const add = (name, why, on) => { const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${name}</td><td><span class="pill ${on ? "on" : ""}">${on ? "drives detection" : "context only"}</span></td><td>${why}</td>`; rows.appendChild(tr); };
+  used.forEach(([n, w]) => add(n, w, true));
+  not.forEach(([n, w]) => add(n, w, false));
+}
+
+function drawAll() { drawCadence(); drawBars(); drawHist(); drawJuly(); drawLat(); }
+drawSources(); drawAll();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</html>
