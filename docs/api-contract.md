@@ -133,3 +133,32 @@ The **feed status** keys returned by `GET /api/feeds` are `nws_alerts`, `usgs_ga
 ### Expanded source previews
 
 The statewide recent response now includes regional sensors, NOAA rainfall/runoff grids and NWPS stations, crossing statuses, camera context and TranStar access markers. Source batches add label, notes, errors and context fields. Admitted records may include a preview object with title, detail, provider-derived time, timestamp_role, evidence_type, geometry, optional value/unit and safe public link. Context records have unverified freshness and require an explicit UI opt-in. The raw payload and envelope remain available independently of the preview.
+
+## Live drone (real DJI Tello)
+
+> Added 2026-11-08. Separate from the **simulated** drone above (`drone.update`, `DroneState`, `/static/drone/*`), which stays as is. Design notes: [tello-drone-handoff.md](tello-drone-handoff.md).
+
+The backend does not talk to the drone itself. It forwards to the **Tello bridge** (`backend/scripts/tello_dashboard.py`, its own venv, `http://127.0.0.1:8765`, override with `TELLO_BRIDGE_URL`). When the bridge isn't running, `bridge` is `"offline"` and the UI shows `fallback_image_url`, labelled as cached footage. The offline demo never needs a drone.
+
+| Method | Path | Returns / body |
+|---|---|---|
+| GET | `/api/live-drone/status` | `LiveDroneStatus` (below). Poll about once a second. Always 200. |
+| GET | `/api/live-drone/video` | MJPEG stream (`multipart/x-mixed-replace`) for an `<img src>`. 503 when the bridge is offline. |
+| POST | `/api/live-drone/action/{action}` | `action` is `takeoff`, `land` or `emergency`. Returns `{"result": "ok"}` or `{"result": "<reason it was refused>"}`. 503 when the bridge is offline. |
+| POST | `/api/live-drone/rc` | body `{"lr","fb","ud","yaw"}`, each an int from -100 to 100. Resend every 200 ms while held; the drone hovers if nothing arrives for 0.6 s. |
+
+POSTs use the same trusted-origin guard as the other state-changing routes.
+
+`LiveDroneStatus`:
+
+```json
+{"bridge": "online", "fallback_image_url": "/static/drone/flood_03.jpg", "controls_url": "http://127.0.0.1:8765",
+ "connected": true, "flying": false, "busy": "", "battery": 88, "temp": 61, "height": 0, "tof": 10,
+ "flight_time": 0, "speed": [0, 0, 0], "attitude": [0, 0, 0], "state_age": 0.2, "video_age": 0.1,
+ "log": ["05:47:09  Takeoff done, hovering"]}
+```
+
+- `bridge`: `online` (the bridge answered) or `offline` (everything after `controls_url` is absent).
+- `connected`: the bridge is receiving telemetry from the drone right now. False means show "link lost"; values are the last known ones.
+- `busy`: `""`, `"takeoff"` or `"land"`. **Land is always allowed**, including during takeoff.
+- `video_age`: seconds since the last frame, or null before any video.

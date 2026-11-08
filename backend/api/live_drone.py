@@ -1,0 +1,106 @@
+"""Live (real DJI Tello) drone routes. Contract: docs/api-contract.md, "Live drone".
+
+The backend never talks to the drone directly. It forwards to the Tello bridge
+(backend/scripts/tello_dashboard.py, its own venv), which owns the drone's UDP ports and
+safety logic. An offline bridge is a normal state: status reports it and the UI shows
+cached footage, so the offline demo never depends on a drone.
+"""
+
+from __future__ import annotations
+
+import os
+from typing import Any, Literal
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
+
+from app.security import require_trusted_origin
+
+router = APIRouter(prefix="/api/live-drone", tags=["live-drone"])
+
+FALLBACK_IMAGE_URL = "/static/drone/flood_03.jpg"
+STATUS_TIMEOUT = httpx.Timeout(1.5)
+COMMAND_TIMEOUT = httpx.Timeout(3.0)
+VIDEO_TIMEOUT = httpx.Timeout(5.0, read=None)  # MJPEG never "finishes"
+RC_LIMIT = 100
+STATUS_FIELDS = (
+    "connected", "flying", "busy", "battery", "temp", "height", "tof", "flight_time",
+    "speed", "attitude", "state_age", "video_age", "log",
+)
+MJPEG_TYPE = "multipart/x-mixed-replace; boundary=frame"
+
+_transport: httpx.AsyncBaseTransport | None = None  # tests swap in a MockTransport
+
+
+def bridge_url() -> str:
+    return os.environ.get("TELLO_BRIDGE_URL", "http://127.0.0.1:8765").rstrip("/")
+
+
+def _client(timeout: httpx.Timeout) -> httpx.AsyncClient:
+    return httpx.AsyncClient(base_url=bridge_url(), timeout=timeout, transport=_transport)
+
+
+class RcIn(BaseModel):
+    lr: int = Field(0, ge=-RC_LIMIT, le=RC_LIMIT)
+    fb: int = Field(0, ge=-RC_LIMIT, le=RC_LIMIT)
+    ud: int = Field(0, ge=-RC_LIMIT, le=RC_LIMIT)
+    yaw: int = Field(0, ge=-RC_LIMIT, le=RC_LIMIT)
+
+
+@router.get("/status")
+async def status() -> dict[str, Any]:
+    base = {"fallback_image_url": FALLBACK_IMAGE_URL, "controls_url": bridge_url()}
+    try:
+        async with _client(STATUS_TIMEOUT) as client:
+            response = await client.get("/status")
+            response.raise_for_status()
+            data = response.json()
+    except (httpx.HTTPError, ValueError):
+        return {**base, "bridge": "offline"}
+    if not isinstance(data, dict) or "connected" not in data:
+        return {**base, "bridge": "outdated"}  # an old bridge build: restart tello_dashboard.py
+    return {**{k: data[k] for k in STATUS_FIELDS if k in data}, **base, "bridge": "online"}
+
+
+async def _forward(path: str, payload: dict[str, Any]) -> dict[str, Any]:
+    try:
+        async with _client(COMMAND_TIMEOUT) as client:
+            response = await client.post(path, json=payload)
+            response.raise_for_status()
+            return response.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail="Tello bridge is offline") from exc
+
+
+@router.post("/action/{action}", dependencies=[Depends(require_trusted_origin)])
+async def action(action: Literal["takeoff", "land", "emergency"]) -> dict[str, Any]:
+    return await _forward(f"/action/{action}", {})
+
+
+@router.post("/rc", dependencies=[Depends(require_trusted_origin)])
+async def rc(body: RcIn) -> dict[str, Any]:
+    return await _forward("/rc", body.model_dump())
+
+
+@router.get("/video")
+async def video() -> StreamingResponse:
+    client = _client(VIDEO_TIMEOUT)
+    try:
+        upstream = await client.send(client.build_request("GET", "/video"), stream=True)
+        upstream.raise_for_status()
+    except httpx.HTTPError as exc:
+        await client.aclose()
+        raise HTTPException(status_code=503, detail="Tello bridge is offline") from exc
+
+    async def relay():
+        try:
+            async for chunk in upstream.aiter_raw():
+                yield chunk
+        finally:
+            await upstream.aclose()
+            await client.aclose()
+
+    media_type = upstream.headers.get("content-type", MJPEG_TYPE)
+    return StreamingResponse(relay(), media_type=media_type, headers={"Cache-Control": "no-store"})

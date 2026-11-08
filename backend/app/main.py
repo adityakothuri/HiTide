@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from api.live_drone import router as live_drone_router
 from api.routes import router
 from app.config import DATA_DIR
 from app.runtime import build_runtime
@@ -78,4 +79,5 @@ app.add_middleware(
 )
 app.include_router(router)
 app.include_router(evidence_router)
+app.include_router(live_drone_router)
 app.mount("/static/drone", StaticFiles(directory=DATA_DIR / "drone_samples"), name="drone")

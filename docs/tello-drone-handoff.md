@@ -79,9 +79,30 @@ The server binds to 127.0.0.1 only and logs to `~/tello-test/dashboard.log`.
 - A solid red LED means the self-check failed: restart on a flat surface, let it cool, or run IMU
   calibration in the official Tello app. A blinking red LED means low battery.
 
+## Wired into Flood Watch (2026-11-08)
+
+The real drone now shows up in the ops console (`/console`, "Live drone" panel under the road map).
+
+```
+browser /console --(Vite proxy)--> backend :8000 /api/live-drone/* --(httpx)--> Tello bridge :8765 --(UDP)--> drone
+```
+
+- **Backend:** `backend/api/live_drone.py` forwards status, MJPEG video, take off/land/emergency and
+  rc to the bridge (`TELLO_BRIDGE_URL`, default `http://127.0.0.1:8765`). No new backend dependencies;
+  the bridge keeps its own venv and owns the drone's UDP ports. POSTs use the trusted-origin guard.
+  Tests: `backend/tests/test_live_drone.py`. Contract: `docs/api-contract.md`, "Live drone".
+- **Frontend:** `frontend/src/evidence/LiveDronePanel.tsx`, mounted in `Operations.tsx` (2 lines).
+  It shows a LIVE badge with video and telemetry when the drone is connected, and otherwise a cached
+  `/static/drone/flood_03.jpg` labelled "CACHED · NOT LIVE". Land is never disabled, including during
+  takeoff. Keyboard flight stays on the bridge page (linked from the panel).
+- **To demo live:** start the backend and frontend as usual, double-click `Tello dashboard` (the bridge),
+  then connect the laptop to the TELLO Wi-Fi. Everything is on `localhost`, so losing internet on the
+  drone Wi-Fi does not affect the demo. Use USB tethering from a phone if internet is also needed.
+- Verified end to end with a fake-drone bridge (live video through the backend, takeoff/land, offline
+  fallback). **Not yet verified with the real drone through the console.**
+
 ## Next steps
 
-- Confirm video and flight on the real drone.
-- Move the drone into `backend/drone/`: an MJPEG endpoint plus status/control routes in FastAPI, a
-  drone panel in the ops dashboard (`frontend/`), and a fallback to cached footage in `data/` when no
-  Tello is connected. Add the payloads to `docs/api-contract.md` first.
+- Fly the real drone from the console once, with lights on over a patterned floor.
+- Optional: link a live-drone snapshot to the stage-3 case (`vision.image_url`) instead of the
+  sample image when the bridge is online.
