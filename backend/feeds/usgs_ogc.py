@@ -7,6 +7,7 @@ import logging
 from typing import Any
 
 from feeds.base import fetch_with_fallback
+from feeds.intake import FeedRequest, RawEnvelope, collect_request
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,19 @@ _BASE_PARAMS = {
     "parameter_code": GAGE_HEIGHT_PARAM,
     "f": "json",
 }
+
+_SCOPE = {"monitoring_location_id": MONITORING_LOCATION}
+LATEST_REQUEST = FeedRequest("usgs_gage", "usgs_gage_latest", f"{OGC_BASE}/collections/latest-continuous/items",
+                             _BASE_PARAMS, _SCOPE, "features")
+SERIES_REQUEST = FeedRequest("usgs_gage", "usgs_gage_24h", f"{OGC_BASE}/collections/continuous/items",
+                             {**_BASE_PARAMS, "time": SERIES_WINDOW, "limit": SERIES_LIMIT}, _SCOPE, "features", 10.0)
+
+
+async def collect_gage(*, cache_only: bool = False) -> list[RawEnvelope]:
+    latest, series = await asyncio.gather(
+        collect_request(LATEST_REQUEST, cache_only=cache_only), collect_request(SERIES_REQUEST, cache_only=cache_only)
+    )
+    return latest + series
 
 
 def _to_point(feature: dict[str, Any]) -> dict[str, Any] | None:
@@ -47,13 +61,10 @@ async def gage_height() -> dict[str, Any]:
     "latest": {"time", "value_ft"} | None, "series_24h": [...], "series_source"}.
     """
     latest_env, series_env = await asyncio.gather(
-        fetch_with_fallback("usgs_gage_latest", f"{OGC_BASE}/collections/latest-continuous/items", _BASE_PARAMS),
-        fetch_with_fallback(
-            "usgs_gage_24h",
-            f"{OGC_BASE}/collections/continuous/items",
-            {**_BASE_PARAMS, "time": SERIES_WINDOW, "limit": SERIES_LIMIT},
-            timeout_s=10.0,
-        ),
+        fetch_with_fallback(LATEST_REQUEST.product, LATEST_REQUEST.url, LATEST_REQUEST.params,
+                            shape=LATEST_REQUEST.shape),
+        fetch_with_fallback(SERIES_REQUEST.product, SERIES_REQUEST.url, SERIES_REQUEST.params,
+                            SERIES_REQUEST.timeout_s, shape=SERIES_REQUEST.shape),
     )
     latest_points = _points(latest_env["data"])
     series = _points(series_env["data"])

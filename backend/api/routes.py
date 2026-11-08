@@ -7,7 +7,7 @@ import logging
 import os
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 from api.schemas import ReplyIn
@@ -15,7 +15,8 @@ from outreach.inbound import handle_inbound
 
 from app.runtime import Runtime
 from app.security import origin_ok, require_trusted_origin
-from feeds import all_feeds
+from feeds import Scope, all_feeds
+from feeds.recent import RecentSnapshot, recent_feeds
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -46,6 +47,17 @@ async def state(request: Request) -> dict[str, Any]:
 @router.get("/api/feeds")
 async def feeds() -> dict[str, Any]:
     return await all_feeds()
+
+
+@router.get("/api/feeds/recent")
+async def recent(request: Request, max_age_minutes: int = Query(30, ge=15, le=30),
+                 scope: Scope = "texas") -> dict[str, Any]:
+    if not hasattr(request.app.state, "recent_snapshots"):
+        request.app.state.recent_snapshots = {}
+    snapshots = request.app.state.recent_snapshots
+    if scope not in snapshots:
+        snapshots[scope] = RecentSnapshot()
+    return await recent_feeds(max_age_minutes, scope, snapshots[scope])
 
 
 @router.post("/api/demo/start", dependencies=[Depends(require_trusted_origin)])

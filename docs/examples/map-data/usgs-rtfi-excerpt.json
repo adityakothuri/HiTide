@@ -1,0 +1,27 @@
+[
+  {
+    "id": 22119,
+    "site_name": "Guadalupe Rv at Kerrville, TX",
+    "description": "Flood Impact Statement from National Weather Service (WGRFC) NWS ID: KRRT2\n\"Flow is over the right bank.\"",
+    "nws_id": "KRRT2",
+    "rp_name": "BANK",
+    "state_id": 51,
+    "county_id": null,
+    "latitude": 30.050558,
+    "longitude": -99.162028,
+    "nwis_id": "08166200",
+    "rp_elevation": 7.0,
+    "unit": "ft",
+    "gage_height": 1.32,
+    "is_flooding": false,
+    "active": true,
+    "days_flooded": null,
+    "days_with_data": null,
+    "range_max_value": null,
+    "range_max_date": null,
+    "range_max_parameter_code": null,
+    "currently_flooding": null,
+    "plot_param": "00065",
+    "plot_series_id": "5e304c399d314c69b48eee9ab4446323"
+  }
+]

@@ -1,5 +1,7 @@
 # State Farm Flood Watch
 
+Open `/texas` (or the home page) for the **Texas flood monitor**. It shows recent river stage, flood bulletins and road-related flood reports across the state. The observation window defaults to 30 minutes. Each source reports its own availability. The Kerrville test console is at `/console`.
+
 > **Current team status:** read [State of the Union](docs/STATE_OF_THE_UNION.md)
 > for the integrated evidence database, inspection workflow, setup, verification,
 > limitations, and next milestones. The operations console is at `/console`.
@@ -19,6 +21,8 @@ HackUTD 2026: State Farm track ("The Worst Day, at Scale") + Photon track.
 Outreach order uses data State Farm already has (age, time of day, rising water, vehicle type). It never affects pricing.
 
 Demo town: Kerrville, Texas, on the Guadalupe River. The roads come from OpenStreetMap and the elevation from USGS 3DEP (10 m), both cached offline.
+
+Replay a historical NWS warning from `backend/` with `uv run python -m scripts.demo_flood_monitor`. The [map data access handoff](docs/MAP_DATA_ACCESS.md) covers raw collection, provider examples and the proposed normalization and MongoDB schema.
 
 ## Run it
 
