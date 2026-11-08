@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
-from contextlib import asynccontextmanager
+import os
+from contextlib import asynccontextmanager, suppress
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -13,18 +15,48 @@ from fastapi.staticfiles import StaticFiles
 from api.routes import router
 from app.config import DATA_DIR
 from app.runtime import build_runtime
+from evidence.factory import open_store
+from evidence.routes import router as evidence_router
+from evidence.service import EvidenceService
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger(__name__)
+
+
+async def poll_evidence(service: EvidenceService, interval_s: float) -> None:
+    """Refresh evidence independently of simulation time; outages keep historical data."""
+    while True:
+        try:
+            await service.ingest()
+        except Exception:
+            log.exception("Evidence refresh failed; retaining existing observations")
+        await asyncio.sleep(interval_s)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     runtime = build_runtime()
-    app.state.runtime = runtime
-    runtime.engine.start()
-    yield
-    await runtime.engine.stop()
+    store = await asyncio.to_thread(open_store)
+    worker = None
+    try:
+        app.state.runtime = runtime
+        app.state.evidence = await asyncio.to_thread(EvidenceService, store, runtime.town)
+        interval_s = float(os.environ.get("EVIDENCE_POLL_SECONDS", "120"))
+        if interval_s < 0 or (interval_s > 0 and interval_s < 30):
+            raise ValueError("EVIDENCE_POLL_SECONDS must be 0 (manual) or at least 30")
+        if interval_s:
+            worker = asyncio.create_task(poll_evidence(app.state.evidence, interval_s))
+        runtime.engine.start()
+        yield
+    finally:
+        runtime.demo.cancel()
+        await runtime.engine.stop()
+        if worker:
+            worker.cancel()
+            with suppress(asyncio.CancelledError):
+                await worker
+        await asyncio.to_thread(store.close)
 
 
 app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)
@@ -35,4 +67,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
+app.include_router(evidence_router)
 app.mount("/static/drone", StaticFiles(directory=DATA_DIR / "drone_samples"), name="drone")

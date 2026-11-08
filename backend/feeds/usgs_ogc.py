@@ -58,12 +58,15 @@ async def gage_height() -> dict[str, Any]:
     latest_points = _points(latest_env["data"])
     series = _points(series_env["data"])
     latest = latest_points[-1] if latest_points else (series[-1] if series else None)
+    selected_env = latest_env if latest_points else series_env
     return {
         "name": "usgs_gage",
-        "source": latest_env["source"],
-        "fetched_at": latest_env["fetched_at"],
+        "source": selected_env["source"] if latest else "unavailable",
+        "fetched_at": selected_env["fetched_at"],
+        "latest_endpoint_source": latest_env["source"],
         "monitoring_location_id": MONITORING_LOCATION,
         "latest": latest,
         "series_24h": series,
         "series_source": series_env["source"],
+        "series_fetched_at": series_env["fetched_at"],
     }

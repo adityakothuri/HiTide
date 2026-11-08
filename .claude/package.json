@@ -1,0 +1,7 @@
+{
+  "name": "floodwatch-ecc-tools",
+  "private": true,
+  "description": "Runtime dependencies for the repository's bundled ECC harness checks",
+  "scripts": { "audit": "node scripts/harness-audit.js --scope repo --root .." },
+  "dependencies": { "@iarna/toml": "^2.2.5" }
+}
