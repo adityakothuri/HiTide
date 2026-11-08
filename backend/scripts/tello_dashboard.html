@@ -361,6 +361,7 @@
 </main>
 
 <script>
+const JSON_HEADERS = { "Content-Type": "application/json" };  // the bridge refuses non-JSON POSTs (CSRF guard)
 const AXES = {
   KeyW: ["fb", 1], KeyS: ["fb", -1], KeyA: ["lr", -1], KeyD: ["lr", 1],
   ArrowUp: ["ud", 1], ArrowDown: ["ud", -1], ArrowLeft: ["yaw", -1], ArrowRight: ["yaw", 1],
@@ -376,7 +377,7 @@ function rcValues() {
   return v;
 }
 function sendRc() {
-  fetch("/rc", { method: "POST", body: JSON.stringify(rcValues()) }).catch(() => {});
+  fetch("/rc", { method: "POST", headers: JSON_HEADERS, body: JSON.stringify(rcValues()) }).catch(() => {});
 }
 function press(code, on) {
   if (on) held.add(code); else held.delete(code);
@@ -388,7 +389,7 @@ function releaseAll() { [...held].forEach((c) => press(c, false)); }
 let localLog = [];
 async function action(name) {
   try {
-    const r = await fetch(`/action/${name}`, { method: "POST", body: "{}" });
+    const r = await fetch(`/action/${name}`, { method: "POST", headers: JSON_HEADERS, body: "{}" });
     const { result } = await r.json();
     if (result !== "ok") addLocalLog(`${name}: ${result}`);
   } catch { addLocalLog(`${name}: no connection to dashboard`); }
@@ -514,7 +515,7 @@ let overlayTimer = null;
 
 async function gaugeAction(name) {
   try {
-    const r = await fetch(`/gauge/${name}`, { method: "POST", body: "{}" });
+    const r = await fetch(`/gauge/${name}`, { method: "POST", headers: JSON_HEADERS, body: "{}" });
     const { result, error } = await r.json();
     if (result !== "ok") addLocalLog(`gauge ${name}: ${result ?? error}`);
   } catch { addLocalLog(`gauge ${name}: no connection to dashboard`); }

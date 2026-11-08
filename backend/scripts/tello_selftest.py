@@ -118,7 +118,8 @@ def test_dashboard(tello: Tello) -> str:
     while time.time() - start < 3:
         data += stream.read(4096)
     frames = data.count(b"--frame")
-    urllib.request.urlopen(urllib.request.Request(f"{base}/rc", data=b'{"fb":0}', method="POST"), timeout=5)
+    urllib.request.urlopen(urllib.request.Request(f"{base}/rc", data=b'{"fb":0}', method="POST",
+                                                  headers={"Content-Type": "application/json"}), timeout=5)
     server.shutdown()
     if frames == 0:
         raise RuntimeError("dashboard served no video frames")

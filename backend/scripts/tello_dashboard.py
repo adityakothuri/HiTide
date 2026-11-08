@@ -6,6 +6,7 @@ It opens http://127.0.0.1:8765 in your browser. Works offline. Press Ctrl+C in t
 """
 
 import json
+import re
 import os
 import sys
 import threading
@@ -791,6 +792,33 @@ def gauge_action(gauge: GaugeService | None, name: str) -> tuple[dict, int]:
     return {"result": handlers[name]()}, 200
 
 
+# Request guards. Any web page in the demo browser can send "simple" cross-origin POSTs to
+# 127.0.0.1 without a preflight, and a DNS-rebinding page can even read responses. So: only
+# accept our own Host, only local Origins, JSON bodies for POSTs (forces a CORS preflight, which
+# this server never approves), and no cross-site GETs (no embedding the camera feed elsewhere).
+ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]"})
+LOCAL_ORIGIN_RE = re.compile(r"https?://(localhost|127\.0\.0\.1|\[::1\])(:\d+)?")
+MAX_BODY_BYTES = 1024
+MAX_VIDEO_STREAMS = 4
+_video_slots = threading.BoundedSemaphore(MAX_VIDEO_STREAMS)
+
+
+def request_problem(headers, is_post: bool) -> tuple[int, str] | None:
+    """Why a request must be refused (status, message), or None if it is fine."""
+    host = headers.get("Host", "")
+    hostname = host.split("]", 1)[0] + "]" if host.startswith("[") else host.rsplit(":", 1)[0]
+    if hostname not in ALLOWED_HOSTS:
+        return 403, "bad host"
+    origin = headers.get("Origin")
+    if origin and not LOCAL_ORIGIN_RE.fullmatch(origin):
+        return 403, "origin not allowed"
+    if is_post and not headers.get("Content-Type", "").startswith("application/json"):
+        return 415, "send JSON (Content-Type: application/json)"
+    if not is_post and headers.get("Sec-Fetch-Site") == "cross-site":
+        return 403, "cross-site request"
+    return None
+
+
 def make_handler(drone: Drone, gauge: GaugeService | None = None):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args) -> None:  # keep the console readable
@@ -807,7 +835,15 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
         def _json(self, data: dict, code: int = 200) -> None:
             self._send(json.dumps(data).encode(), "application/json", code)
 
+        def _refused(self, is_post: bool) -> bool:
+            problem = request_problem(self.headers, is_post)
+            if problem:
+                self._json({"error": problem[1]}, problem[0])
+            return problem is not None
+
         def do_GET(self) -> None:
+            if self._refused(is_post=False):
+                return
             if self.path == "/":
                 self._send(PAGE.read_bytes(), "text/html; charset=utf-8")
             elif self.path == "/status":
@@ -836,11 +872,15 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
             return self._json({"error": "not found"}, 404)
 
         def do_POST(self) -> None:
-            length = min(int(self.headers.get("Content-Length", 0)), 1024)
+            if self._refused(is_post=True):
+                return None
             try:
+                length = max(0, min(int(self.headers.get("Content-Length", 0)), MAX_BODY_BYTES))
                 body = json.loads(self.rfile.read(length) or b"{}")
             except ValueError:
                 return self._json({"error": "bad json"}, 400)
+            if not isinstance(body, dict):
+                return self._json({"error": "body must be a JSON object"}, 400)
             if self.path == "/rc":
                 drone.set_rc(body)
                 return self._json({"result": "ok"})
@@ -857,11 +897,13 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
             self._json({"error": "not found"}, 404)
 
         def _stream_video(self) -> None:
-            self.send_response(200)
-            self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
-            self.send_header("Cache-Control", "no-store")
-            self.end_headers()
+            if not _video_slots.acquire(blocking=False):
+                return self._json({"error": "too many video streams open"}, 503)
             try:
+                self.send_response(200)
+                self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
                 while True:
                     jpeg = drone.jpeg
                     if jpeg:
@@ -869,7 +911,9 @@ def make_handler(drone: Drone, gauge: GaugeService | None = None):
                         self.wfile.write(head.encode() + jpeg + b"\r\n")
                     time.sleep(FRAME_SECONDS)
             except OSError:
-                return  # browser closed the stream
+                return None  # browser closed the stream
+            finally:
+                _video_slots.release()
 
     return Handler
 
@@ -882,7 +926,8 @@ def bind_server() -> DashboardServer | None:
         pass
     write_log("Another dashboard is running; asking it to shut down...")
     try:
-        req = urllib.request.Request(f"http://{HOST}:{PORT}/shutdown", data=b"{}", method="POST")
+        req = urllib.request.Request(f"http://{HOST}:{PORT}/shutdown", data=b"{}", method="POST",
+                                     headers={"Content-Type": "application/json"})
         urllib.request.urlopen(req, timeout=3).read()
     except OSError:
         pass  # older versions have no /shutdown; fall through to the retry and message
