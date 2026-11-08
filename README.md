@@ -4,6 +4,8 @@ Open `/texas` (or the home page) for the **Texas flood monitor**. It shows recen
 
 The monitor also includes decoded NOAA rainfall/runoff previews, NWPS river summaries, LCRA and Harris County measurements, and construction restrictions. Expand Source availability for access failures and timestamp exclusions. Camera locations and timestamp-unverified crossing status require the source-context checkbox. Detailed source mappings and remaining integration limits are in [the data handoff](docs/MAP_DATA_ACCESS.md).
 
+> **Test evidence for the presentation:** [docs/TEST_EVIDENCE.md](docs/TEST_EVIDENCE.md) (811 tests pass; July 2025 replay; 2,000-user stress test).
+>
 > **Current team status:** read [State of the Union](docs/STATE_OF_THE_UNION.md)
 > for the integrated evidence database, inspection workflow, setup, verification,
 > limitations, and next milestones. The operations console is at `/console`.

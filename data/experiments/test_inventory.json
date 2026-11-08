@@ -1,0 +1,158 @@
+{
+ "run": {
+  "tests": "818",
+  "failures": "0",
+  "errors": "0",
+  "skipped": "7",
+  "time": "160.164",
+  "timestamp": "2026-11-08T02:54:00.145839-06:00"
+ },
+ "passed": 811,
+ "files": 68,
+ "layers": [
+  {
+   "layer": "Live Texas feeds + observation layer",
+   "passed": 75,
+   "failed": 0,
+   "skipped": 0
+  },
+  {
+   "layer": "Flood model + evidence fusion",
+   "passed": 89,
+   "failed": 0,
+   "skipped": 2
+  },
+  {
+   "layer": "Per-user danger (new)",
+   "passed": 85,
+   "failed": 0,
+   "skipped": 0
+  },
+  {
+   "layer": "Driver stages + profile risk",
+   "passed": 133,
+   "failed": 0,
+   "skipped": 0
+  },
+  {
+   "layer": "Outreach: Photon texts, ElevenLabs calls, replies",
+   "passed": 199,
+   "failed": 0,
+   "skipped": 0
+  },
+  {
+   "layer": "Evidence store",
+   "passed": 43,
+   "failed": 0,
+   "skipped": 5
+  },
+  {
+   "layer": "Drone + vision (next layer)",
+   "passed": 187,
+   "failed": 0,
+   "skipped": 0
+  }
+ ],
+ "guarantees": [
+  {
+   "claim": "Unknown water depth is never read as a dry road",
+   "file": "test_safety_hazard",
+   "test": "test_unknown_depth_is_not_dry_and_not_flooded",
+   "status": "passed"
+  },
+  {
+   "claim": "Deeper water never lowers the danger level",
+   "file": "test_safety_hazard",
+   "test": "test_monotone_in_depth",
+   "status": "passed"
+  },
+  {
+   "claim": "Your own car's stall depth sets the critical line",
+   "file": "test_safety_hazard",
+   "test": "test_depth_on_your_road_uses_your_stall_depth",
+   "status": "passed"
+  },
+  {
+   "claim": "An NWS outage never reads as all-clear",
+   "file": "test_safety_hazard",
+   "test": "test_nws_outage_does_not_read_as_all_clear",
+   "status": "passed"
+  },
+  {
+   "claim": "A car stopped in water is CRITICAL",
+   "file": "test_safety_region",
+   "test": "test_stopped_in_water_is_critical",
+   "status": "passed"
+  },
+  {
+   "claim": "Vulnerability raises a level but never invents one",
+   "file": "test_safety_region",
+   "test": "test_vulnerability_bumps_but_never_invents",
+   "status": "passed"
+  },
+  {
+   "claim": "Water ahead while driving means turn around",
+   "file": "test_safety_region",
+   "test": "test_water_ahead_while_driving",
+   "status": "passed"
+  },
+  {
+   "claim": "No reply: poll, then call, then family",
+   "file": "test_safety_policy",
+   "test": "test_danger_poll_then_call_then_family",
+   "status": "passed"
+  },
+  {
+   "claim": "Never the same alert twice inside a cooldown",
+   "file": "test_safety_policy",
+   "test": "test_never_duplicates_same_level_within_cooldown",
+   "status": "passed"
+  },
+  {
+   "claim": "HELP flags responders and beats a later SAFE",
+   "file": "test_safety_policy",
+   "test": "test_help_flags_responders_once_and_beats_a_later_safe",
+   "status": "passed"
+  },
+  {
+   "claim": "Users with hearing loss are never called",
+   "file": "test_safety_policy",
+   "test": "test_no_voice_users_are_never_called",
+   "status": "passed"
+  },
+  {
+   "claim": "No all-clear after HELP, an open case, or dark evidence",
+   "file": "test_safety_policy",
+   "test": "test_no_all_clear_after_help_or_with_an_open_case",
+   "status": "passed"
+  },
+  {
+   "claim": "GPS jitter at home never looks like driving",
+   "file": "test_safety_motion",
+   "test": "test_gps_jitter_while_parked_never_drives_or_walks",
+   "status": "passed"
+  },
+  {
+   "claim": "Real numbers are never texted unless allowlisted",
+   "file": "test_outreach_guard",
+   "test": "test_real_number_never_sent_even_in_photon_mode",
+   "status": "passed"
+  },
+  {
+   "claim": "Phone numbers never appear in API responses",
+   "file": "test_safety_api",
+   "test": "test_enroll_validates_and_never_echoes_phone",
+   "status": "passed"
+  },
+  {
+   "claim": "July 4, 2025: Ruth is at DANGER before SH 39 floods",
+   "file": "test_safety_region",
+   "test": "test_replay_finds_ruth_in_danger_before_the_emergency",
+   "status": "passed"
+  }
+ ],
+ "skipped_why": {
+  "test_evidence_mongo / test_evidence_app": "need a running MongoDB replica set",
+  "test_replay_golden": "bit-for-bit replay digest, RUN_SLOW=1 (~15 min)"
+ }
+}

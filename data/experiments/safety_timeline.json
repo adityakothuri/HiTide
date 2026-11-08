@@ -1,0 +1,2364 @@
+{
+ "users": 250,
+ "step_s": 300.0,
+ "rows": [
+  {
+   "t": "01:00",
+   "none": 250,
+   "watch": 0,
+   "warning": 0,
+   "danger": 0,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 0,
+   "alerts": []
+  },
+  {
+   "t": "01:05",
+   "none": 250,
+   "watch": 0,
+   "warning": 0,
+   "danger": 0,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 0,
+   "alerts": []
+  },
+  {
+   "t": "01:10",
+   "none": 250,
+   "watch": 0,
+   "warning": 0,
+   "danger": 0,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 0,
+   "alerts": []
+  },
+  {
+   "t": "01:15",
+   "none": 0,
+   "watch": 53,
+   "warning": 168,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 263,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:20",
+   "none": 0,
+   "watch": 53,
+   "warning": 168,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 301,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:25",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 341,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:30",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 341,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:35",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 341,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:40",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:45",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:50",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "01:55",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 0,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:00",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 2,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:05",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 2,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:10",
+   "none": 0,
+   "watch": 54,
+   "warning": 167,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 342,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:15",
+   "none": 0,
+   "watch": 53,
+   "warning": 168,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 343,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:20",
+   "none": 0,
+   "watch": 53,
+   "warning": 168,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 343,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:25",
+   "none": 0,
+   "watch": 53,
+   "warning": 168,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 343,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:30",
+   "none": 0,
+   "watch": 53,
+   "warning": 168,
+   "danger": 29,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 343,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:35",
+   "none": 0,
+   "watch": 53,
+   "warning": 166,
+   "danger": 31,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 345,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:40",
+   "none": 0,
+   "watch": 53,
+   "warning": 166,
+   "danger": 31,
+   "critical": 0,
+   "truly_near_deep_water": 4,
+   "messages_sent": 347,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:45",
+   "none": 0,
+   "watch": 53,
+   "warning": 162,
+   "danger": 32,
+   "critical": 3,
+   "truly_near_deep_water": 4,
+   "messages_sent": 360,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:50",
+   "none": 0,
+   "watch": 53,
+   "warning": 162,
+   "danger": 32,
+   "critical": 3,
+   "truly_near_deep_water": 4,
+   "messages_sent": 364,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "02:55",
+   "none": 0,
+   "watch": 53,
+   "warning": 162,
+   "danger": 32,
+   "critical": 3,
+   "truly_near_deep_water": 4,
+   "messages_sent": 372,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:00",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 4,
+   "messages_sent": 475,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:05",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 4,
+   "messages_sent": 540,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:10",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 4,
+   "messages_sent": 614,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:15",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 4,
+   "messages_sent": 724,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:20",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 4,
+   "messages_sent": 724,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:25",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 5,
+   "messages_sent": 724,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:30",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 5,
+   "messages_sent": 724,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:35",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 6,
+   "messages_sent": 726,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:40",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 6,
+   "messages_sent": 726,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:45",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 6,
+   "messages_sent": 730,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:50",
+   "none": 0,
+   "watch": 13,
+   "warning": 151,
+   "danger": 76,
+   "critical": 10,
+   "truly_near_deep_water": 7,
+   "messages_sent": 730,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "03:55",
+   "none": 0,
+   "watch": 13,
+   "warning": 150,
+   "danger": 75,
+   "critical": 12,
+   "truly_near_deep_water": 7,
+   "messages_sent": 733,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "04:00",
+   "none": 0,
+   "watch": 13,
+   "warning": 150,
+   "danger": 75,
+   "critical": 12,
+   "truly_near_deep_water": 7,
+   "messages_sent": 781,
+   "alerts": [
+    "Flash Flood Warning"
+   ]
+  },
+  {
+   "t": "04:05",
+   "none": 0,
+   "watch": 13,
+   "warning": 98,
+   "danger": 117,
+   "critical": 22,
+   "truly_near_deep_water": 7,
+   "messages_sent": 847,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:10",
+   "none": 0,
+   "watch": 13,
+   "warning": 98,
+   "danger": 117,
+   "critical": 22,
+   "truly_near_deep_water": 7,
+   "messages_sent": 911,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:15",
+   "none": 0,
+   "watch": 13,
+   "warning": 92,
+   "danger": 123,
+   "critical": 22,
+   "truly_near_deep_water": 7,
+   "messages_sent": 998,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:20",
+   "none": 0,
+   "watch": 13,
+   "warning": 93,
+   "danger": 122,
+   "critical": 22,
+   "truly_near_deep_water": 7,
+   "messages_sent": 1005,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:25",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 22,
+   "messages_sent": 1022,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:30",
+   "none": 0,
+   "watch": 9,
+   "warning": 97,
+   "danger": 123,
+   "critical": 21,
+   "truly_near_deep_water": 22,
+   "messages_sent": 1024,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:35",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 22,
+   "messages_sent": 1028,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:40",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 24,
+   "messages_sent": 1028,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:45",
+   "none": 0,
+   "watch": 9,
+   "warning": 94,
+   "danger": 125,
+   "critical": 22,
+   "truly_near_deep_water": 24,
+   "messages_sent": 1028,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:50",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 26,
+   "messages_sent": 1028,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "04:55",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 26,
+   "messages_sent": 1029,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:00",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 26,
+   "messages_sent": 1069,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:05",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 27,
+   "messages_sent": 1120,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:10",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 30,
+   "messages_sent": 1120,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:15",
+   "none": 0,
+   "watch": 9,
+   "warning": 94,
+   "danger": 125,
+   "critical": 22,
+   "truly_near_deep_water": 31,
+   "messages_sent": 1127,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:20",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 31,
+   "messages_sent": 1127,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:25",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 124,
+   "critical": 22,
+   "truly_near_deep_water": 33,
+   "messages_sent": 1128,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:30",
+   "none": 0,
+   "watch": 9,
+   "warning": 95,
+   "danger": 123,
+   "critical": 23,
+   "truly_near_deep_water": 34,
+   "messages_sent": 1129,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:35",
+   "none": 0,
+   "watch": 9,
+   "warning": 94,
+   "danger": 124,
+   "critical": 23,
+   "truly_near_deep_water": 40,
+   "messages_sent": 1129,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:40",
+   "none": 0,
+   "watch": 9,
+   "warning": 100,
+   "danger": 119,
+   "critical": 22,
+   "truly_near_deep_water": 41,
+   "messages_sent": 1129,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:45",
+   "none": 0,
+   "watch": 9,
+   "warning": 102,
+   "danger": 118,
+   "critical": 21,
+   "truly_near_deep_water": 41,
+   "messages_sent": 1130,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:50",
+   "none": 0,
+   "watch": 9,
+   "warning": 102,
+   "danger": 118,
+   "critical": 21,
+   "truly_near_deep_water": 42,
+   "messages_sent": 1130,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "05:55",
+   "none": 0,
+   "watch": 9,
+   "warning": 97,
+   "danger": 123,
+   "critical": 21,
+   "truly_near_deep_water": 40,
+   "messages_sent": 1130,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:00",
+   "none": 0,
+   "watch": 10,
+   "warning": 108,
+   "danger": 125,
+   "critical": 7,
+   "truly_near_deep_water": 39,
+   "messages_sent": 1132,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:05",
+   "none": 0,
+   "watch": 10,
+   "warning": 108,
+   "danger": 125,
+   "critical": 7,
+   "truly_near_deep_water": 39,
+   "messages_sent": 1132,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:10",
+   "none": 0,
+   "watch": 10,
+   "warning": 108,
+   "danger": 125,
+   "critical": 7,
+   "truly_near_deep_water": 37,
+   "messages_sent": 1132,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:15",
+   "none": 0,
+   "watch": 15,
+   "warning": 101,
+   "danger": 126,
+   "critical": 8,
+   "truly_near_deep_water": 37,
+   "messages_sent": 1135,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:20",
+   "none": 0,
+   "watch": 15,
+   "warning": 101,
+   "danger": 126,
+   "critical": 8,
+   "truly_near_deep_water": 44,
+   "messages_sent": 1135,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:25",
+   "none": 0,
+   "watch": 15,
+   "warning": 101,
+   "danger": 126,
+   "critical": 8,
+   "truly_near_deep_water": 64,
+   "messages_sent": 1135,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:30",
+   "none": 0,
+   "watch": 15,
+   "warning": 101,
+   "danger": 126,
+   "critical": 8,
+   "truly_near_deep_water": 73,
+   "messages_sent": 1141,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:35",
+   "none": 0,
+   "watch": 15,
+   "warning": 93,
+   "danger": 122,
+   "critical": 20,
+   "truly_near_deep_water": 100,
+   "messages_sent": 1166,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:40",
+   "none": 0,
+   "watch": 15,
+   "warning": 92,
+   "danger": 123,
+   "critical": 20,
+   "truly_near_deep_water": 106,
+   "messages_sent": 1185,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:45",
+   "none": 0,
+   "watch": 15,
+   "warning": 87,
+   "danger": 126,
+   "critical": 22,
+   "truly_near_deep_water": 110,
+   "messages_sent": 1202,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:50",
+   "none": 0,
+   "watch": 15,
+   "warning": 84,
+   "danger": 124,
+   "critical": 27,
+   "truly_near_deep_water": 117,
+   "messages_sent": 1209,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "06:55",
+   "none": 0,
+   "watch": 15,
+   "warning": 77,
+   "danger": 127,
+   "critical": 31,
+   "truly_near_deep_water": 117,
+   "messages_sent": 1222,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:00",
+   "none": 0,
+   "watch": 15,
+   "warning": 77,
+   "danger": 127,
+   "critical": 31,
+   "truly_near_deep_water": 120,
+   "messages_sent": 1233,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:05",
+   "none": 0,
+   "watch": 15,
+   "warning": 77,
+   "danger": 127,
+   "critical": 31,
+   "truly_near_deep_water": 120,
+   "messages_sent": 1253,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:10",
+   "none": 0,
+   "watch": 15,
+   "warning": 77,
+   "danger": 127,
+   "critical": 31,
+   "truly_near_deep_water": 121,
+   "messages_sent": 1253,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:15",
+   "none": 0,
+   "watch": 15,
+   "warning": 77,
+   "danger": 128,
+   "critical": 30,
+   "truly_near_deep_water": 120,
+   "messages_sent": 1264,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:20",
+   "none": 0,
+   "watch": 15,
+   "warning": 77,
+   "danger": 133,
+   "critical": 25,
+   "truly_near_deep_water": 117,
+   "messages_sent": 1264,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:25",
+   "none": 0,
+   "watch": 15,
+   "warning": 90,
+   "danger": 124,
+   "critical": 21,
+   "truly_near_deep_water": 105,
+   "messages_sent": 1264,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  },
+  {
+   "t": "07:30",
+   "none": 0,
+   "watch": 15,
+   "warning": 90,
+   "danger": 124,
+   "critical": 21,
+   "truly_near_deep_water": 61,
+   "messages_sent": 1264,
+   "alerts": [
+    "Flash Flood Warning",
+    "Flash Flood Emergency",
+    "Flash Flood Emergency"
+   ]
+  }
+ ],
+ "personas": {
+  "hc-ruth": [
+   {
+    "t": "01:00",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:05",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:10",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:15",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:20",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:25",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:30",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:35",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:40",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:45",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:50",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:55",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:00",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:05",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:10",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:15",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:20",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:25",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:30",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:35",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:40",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:45",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:50",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:55",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:00",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:05",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:10",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:15",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:20",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:25",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:30",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:35",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:40",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:45",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:50",
+    "level": "danger",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:55",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:00",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:05",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:10",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:15",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:20",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:25",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:30",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:35",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:40",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:45",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "04:50",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "04:55",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:00",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:05",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:10",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:15",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:20",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:25",
+    "level": "critical",
+    "reason": "State Highway 39 over South Fork Guadalupe River is confirmed flooded 199 m away"
+   },
+   {
+    "t": "05:30",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "05:35",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "05:40",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "05:45",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "05:50",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "05:55",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:00",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:05",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:10",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:15",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:20",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:25",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:30",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:35",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:40",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:45",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:50",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "06:55",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:00",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:05",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:10",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:15",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:20",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:25",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   },
+   {
+    "t": "07:30",
+    "level": "critical",
+    "reason": "Camp La Junta Way South over South Fork Guadalupe River is confirmed flooded 263 m away"
+   }
+  ],
+  "hc-marco": [
+   {
+    "t": "01:00",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:05",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:10",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:15",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:20",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:25",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:30",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:35",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:40",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:45",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:50",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:55",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:00",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:05",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:10",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:15",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:20",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:25",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:30",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:35",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:40",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:45",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:50",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:55",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:00",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:05",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:10",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:15",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:20",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:25",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:30",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:35",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:40",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:45",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:50",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "03:55",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:00",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:05",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:10",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:15",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:20",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:25",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:30",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:35",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:40",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:45",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:50",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "04:55",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:00",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:05",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:10",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:15",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:20",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:25",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:30",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:35",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:40",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:45",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:50",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "05:55",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:00",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:05",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:10",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:15",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:20",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:25",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:30",
+    "level": "danger",
+    "reason": "Guadalupe River is rising fast inside the warning"
+   },
+   {
+    "t": "06:35",
+    "level": "danger",
+    "reason": "Water up to 50 in on roads near you"
+   },
+   {
+    "t": "06:40",
+    "level": "danger",
+    "reason": "Water up to 50 in on roads near you"
+   },
+   {
+    "t": "06:45",
+    "level": "danger",
+    "reason": "Water up to 50 in on roads near you"
+   },
+   {
+    "t": "06:50",
+    "level": "danger",
+    "reason": "Water up to 79 in on roads near you"
+   },
+   {
+    "t": "06:55",
+    "level": "danger",
+    "reason": "Water up to 79 in on roads near you"
+   },
+   {
+    "t": "07:00",
+    "level": "danger",
+    "reason": "Water up to 79 in on roads near you"
+   },
+   {
+    "t": "07:05",
+    "level": "danger",
+    "reason": "Water up to 76 in on roads near you"
+   },
+   {
+    "t": "07:10",
+    "level": "danger",
+    "reason": "Water up to 76 in on roads near you"
+   },
+   {
+    "t": "07:15",
+    "level": "danger",
+    "reason": "Water up to 76 in on roads near you"
+   },
+   {
+    "t": "07:20",
+    "level": "danger",
+    "reason": "Water up to 44 in on roads near you"
+   },
+   {
+    "t": "07:25",
+    "level": "danger",
+    "reason": "Water up to 44 in on roads near you"
+   },
+   {
+    "t": "07:30",
+    "level": "danger",
+    "reason": "Water up to 44 in on roads near you"
+   }
+  ],
+  "hc-jess": [
+   {
+    "t": "01:00",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:05",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:10",
+    "level": "none",
+    "reason": ""
+   },
+   {
+    "t": "01:15",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:20",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:25",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:30",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:35",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:40",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:45",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:50",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "01:55",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:00",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:05",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:10",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:15",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:20",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:25",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:30",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:35",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:40",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:45",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:50",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "02:55",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:00",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:05",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:10",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:15",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:20",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:25",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:30",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:35",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:40",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:45",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:50",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "03:55",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "04:00",
+    "level": "warning",
+    "reason": "Flash Flood Warning covers your location"
+   },
+   {
+    "t": "04:05",
+    "level": "warning",
+    "reason": "Flash Flood Emergency declared for your area"
+   },
+   {
+    "t": "04:10",
+    "level": "warning",
+    "reason": "Flash Flood Emergency declared for your area"
+   },
+   {
+    "t": "04:15",
+    "level": "warning",
+    "reason": "Flash Flood Emergency declared for your area"
+   },
+   {
+    "t": "04:20",
+    "level": "warning",
+    "reason": "Flash Flood Emergency declared for your area"
+   },
+   {
+    "t": "04:25",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "04:30",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "04:35",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "04:40",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "04:45",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "04:50",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "04:55",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:00",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:05",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:10",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:15",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:20",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:25",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:30",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:35",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:40",
+    "level": "danger",
+    "reason": "Johnson Creek is rising fast inside the warning"
+   },
+   {
+    "t": "05:45",
+    "level": "danger",
+    "reason": "Water up to 37 in on roads near you"
+   },
+   {
+    "t": "05:50",
+    "level": "danger",
+    "reason": "Water up to 37 in on roads near you"
+   },
+   {
+    "t": "05:55",
+    "level": "danger",
+    "reason": "Water up to 44 in on roads near you"
+   },
+   {
+    "t": "06:00",
+    "level": "danger",
+    "reason": "Water up to 105 in on roads near you"
+   },
+   {
+    "t": "06:05",
+    "level": "danger",
+    "reason": "Water up to 105 in on roads near you"
+   },
+   {
+    "t": "06:10",
+    "level": "danger",
+    "reason": "Water up to 105 in on roads near you"
+   },
+   {
+    "t": "06:15",
+    "level": "danger",
+    "reason": "Water up to 126 in on roads near you"
+   },
+   {
+    "t": "06:20",
+    "level": "danger",
+    "reason": "Water up to 126 in on roads near you"
+   },
+   {
+    "t": "06:25",
+    "level": "danger",
+    "reason": "Water up to 126 in on roads near you"
+   },
+   {
+    "t": "06:30",
+    "level": "danger",
+    "reason": "Water up to 149 in on roads near you"
+   },
+   {
+    "t": "06:35",
+    "level": "danger",
+    "reason": "Water up to 149 in on roads near you"
+   },
+   {
+    "t": "06:40",
+    "level": "danger",
+    "reason": "Water up to 149 in on roads near you"
+   },
+   {
+    "t": "06:45",
+    "level": "danger",
+    "reason": "Water up to 137 in on roads near you"
+   },
+   {
+    "t": "06:50",
+    "level": "danger",
+    "reason": "Water up to 137 in on roads near you"
+   },
+   {
+    "t": "06:55",
+    "level": "danger",
+    "reason": "Water up to 137 in on roads near you"
+   },
+   {
+    "t": "07:00",
+    "level": "danger",
+    "reason": "Water up to 130 in on roads near you"
+   },
+   {
+    "t": "07:05",
+    "level": "danger",
+    "reason": "Water up to 130 in on roads near you"
+   },
+   {
+    "t": "07:10",
+    "level": "danger",
+    "reason": "Water up to 130 in on roads near you"
+   },
+   {
+    "t": "07:15",
+    "level": "danger",
+    "reason": "Water up to 111 in on roads near you"
+   },
+   {
+    "t": "07:20",
+    "level": "danger",
+    "reason": "Water up to 111 in on roads near you"
+   },
+   {
+    "t": "07:25",
+    "level": "danger",
+    "reason": "Water up to 111 in on roads near you"
+   },
+   {
+    "t": "07:30",
+    "level": "danger",
+    "reason": "Water up to 109 in on roads near you"
+   }
+  ]
+ },
+ "ladders": {
+  "hc-ruth": [
+   {
+    "t": "01:15",
+    "what": "danger -> voice:danger_call"
+   },
+   {
+    "t": "01:20",
+    "what": "family contacted (no reply after call)"
+   },
+   {
+    "t": "03:55",
+    "what": "critical -> voice:critical_call, open_case:case"
+   }
+  ],
+  "hc-marco": [
+   {
+    "t": "01:15",
+    "what": "warning -> text:warning"
+   },
+   {
+    "t": "03:00",
+    "what": "danger -> poll:danger_poll"
+   },
+   {
+    "t": "03:05",
+    "what": "no reply to poll -> call"
+   },
+   {
+    "t": "03:10",
+    "what": "family contacted (no reply after call)"
+   },
+   {
+    "t": "04:00",
+    "what": "danger reminder -> poll:danger_poll"
+   }
+  ],
+  "hc-jess": [
+   {
+    "t": "01:15",
+    "what": "warning -> text:warning, text:parent_copy"
+   },
+   {
+    "t": "03:15",
+    "what": "warning reminder -> text:warning_reminder"
+   },
+   {
+    "t": "04:25",
+    "what": "danger -> poll:danger_poll, text:parent_copy"
+   },
+   {
+    "t": "04:30",
+    "what": "no reply to poll -> call"
+   },
+   {
+    "t": "04:35",
+    "what": "family contacted (no reply after call)"
+   },
+   {
+    "t": "05:25",
+    "what": "danger reminder -> poll:danger_poll"
+   }
+  ]
+ },
+ "messages_by_recipient_channel": {
+  "driver:voice": 232,
+  "driver:text": 433,
+  "parent:text": 26,
+  "driver:poll": 235,
+  "emergency_contact:text": 169,
+  "emergency_contact:voice": 169
+ },
+ "levels": [
+  "none",
+  "watch",
+  "warning",
+  "danger",
+  "critical"
+ ]
+}
