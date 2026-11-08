@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tello Control</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --panel-2: #1c232d; --line: #2a3340;
+    --text: #e6edf3; --muted: #8b98a8; --accent: #3b82f6;
+    --ok: #22c55e; --warn: #f59e0b; --bad: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.4 "Segoe UI", system-ui, sans-serif;
+  }
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  .pill {
+    padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--muted);
+  }
+  .pill.ok { color: var(--ok); border-color: #22c55e55; }
+  .pill.fly { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .pill.bad { color: var(--bad); border-color: #ef444455; }
+  header .spacer { flex: 1; }
+  main {
+    display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px;
+    padding: 16px 20px; max-width: 1500px; margin: 0 auto;
+  }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .card h2 {
+    margin: 0 0 10px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--muted);
+  }
+  .video {
+    position: relative; background: #000; border-radius: 12px; overflow: hidden;
+    aspect-ratio: 4 / 3; border: 1px solid var(--line);
+  }
+  .video img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .video .overlay {
+    position: absolute; left: 12px; top: 12px; display: flex; gap: 8px;
+  }
+  .video .overlay span {
+    background: #000a; padding: 4px 10px; border-radius: 6px; font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .video .novideo {
+    position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted);
+  }
+  .video .novideo[hidden] { display: none; }
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .battery-row { display: flex; align-items: baseline; gap: 8px; }
+  .battery-row .big { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .battery-row .hint { color: var(--muted); }
+  .bar { height: 10px; background: var(--panel-2); border-radius: 6px; overflow: hidden; margin-top: 8px; }
+  .bar div { height: 100%; width: 0; background: var(--ok); transition: width .4s, background .4s; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: var(--panel-2); border-radius: 8px; padding: 8px 10px; }
+  .stat .label { font-size: 11px; color: var(--muted); }
+  .stat .value { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  button {
+    font: inherit; font-weight: 600; color: var(--text); background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--accent); border-color: var(--accent); }
+  button.danger { grid-column: 1 / -1; background: #3a1214; border-color: var(--bad); color: #fecaca; }
+  .speed { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: var(--muted); }
+  .speed input { flex: 1; accent-color: var(--accent); }
+  .pads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .key {
+    display: grid; place-items: center; height: 40px; border-radius: 6px; user-select: none;
+    background: var(--panel-2); border: 1px solid var(--line); font-weight: 600; cursor: pointer;
+    font-size: 13px; touch-action: none;
+  }
+  .key small { display: block; font-size: 9px; font-weight: 400; color: var(--muted); line-height: 1; }
+  .key.on { background: var(--accent); border-color: var(--accent); }
+  .key.on small { color: #dbeafe; }
+  .pad-label { text-align: center; color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .log {
+    font: 12px/1.5 Consolas, monospace; color: var(--muted); max-height: 160px; overflow-y: auto;
+    margin: 0; padding: 0; list-style: none;
+  }
+  .log li:first-child { color: var(--text); }
+  .help { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  kbd {
+    font: 11px Consolas, monospace; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1px 5px;
+  }
+  .focus-warn { color: var(--warn); font-size: 12px; display: none; margin-top: 8px; }
+  body.blurred .focus-warn { display: block; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tello Control</h1>
+  <span id="state" class="pill">Connecting…</span>
+  <span class="spacer"></span>
+  <span class="pill" id="clock">--:--</span>
+</header>
+
+<main>
+  <section>
+    <div class="video">
+      <img id="video" src="/video" alt="Live drone camera">
+      <div class="novideo" id="novideo" hidden>No video, waiting for the drone…</div>
+      <div class="overlay">
+        <span id="ov-bat">🔋 --%</span>
+        <span id="ov-h">↕ -- cm</span>
+        <span id="ov-t">⏱ 0:00</span>
+      </div>
+    </div>
+    <p class="help">
+      Click this page once so it has focus. <kbd>T</kbd> take off · <kbd>L</kbd> land ·
+      <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>↑</kbd><kbd>↓</kbd> climb/descend ·
+      <kbd>←</kbd><kbd>→</kbd> turn · <kbd>Backspace</kbd> emergency stop.
+      Let go of all keys and the drone hovers.
+    </p>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <h2>Battery</h2>
+      <div class="battery-row"><span class="big" id="bat">--</span><span class="hint">%</span>
+        <span class="hint" id="bat-hint"></span></div>
+      <div class="bar"><div id="bat-bar"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Telemetry</h2>
+      <div class="stats">
+        <div class="stat"><div class="label">Height</div><div class="value" id="height">--</div></div>
+        <div class="stat"><div class="label">Distance to floor</div><div class="value" id="tof">--</div></div>
+        <div class="stat"><div class="label">Temperature</div><div class="value" id="temp">--</div></div>
+        <div class="stat"><div class="label">Flight time</div><div class="value" id="ftime">--</div></div>
+        <div class="stat"><div class="label">Speed x / y / z</div><div class="value" id="speed">--</div></div>
+        <div class="stat"><div class="label">Heading (yaw)</div><div class="value" id="yaw">--</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Flight</h2>
+      <div class="buttons">
+        <button class="primary" id="btn-takeoff">Take off <kbd>T</kbd></button>
+        <button id="btn-land">Land <kbd>L</kbd></button>
+        <button class="danger" id="btn-emergency">Emergency stop <kbd>Backspace</kbd></button>
+      </div>
+      <div class="speed">Speed <input type="range" id="speed-in" min="10" max="100" step="5" value="50">
+        <span id="speed-val">50</span></div>
+      <div class="focus-warn">Page not focused. Click here to use the keyboard.</div>
+    </div>
+
+    <div class="card">
+      <h2>Controls (hold)</h2>
+      <div class="pads">
+        <div>
+          <div class="pad">
+            <span></span><div class="key" data-code="KeyW">W<small>fwd</small></div><span></span>
+            <div class="key" data-code="KeyA">A<small>left</small></div>
+            <div class="key" data-code="KeyS">S<small>back</small></div>
+            <div class="key" data-code="KeyD">D<small>right</small></div>
+          </div>
+          <div class="pad-label">Move</div>
+        </div>
+        <div>
+          <div class="pad">
+            <span></span><div class="key" data-code="ArrowUp">↑<small>up</small></div><span></span>
+            <div class="key" data-code="ArrowLeft">←<small>turn</small></div>
+            <div class="key" data-code="ArrowDown">↓<small>down</small></div>
+            <div class="key" data-code="ArrowRight">→<small>turn</small></div>
+          </div>
+          <div class="pad-label">Altitude &amp; turn</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Event log</h2>
+      <ul class="log" id="log"></ul>
+    </div>
+  </aside>
+</main>
+
+<script>
+const AXES = {
+  KeyW: ["fb", 1], KeyS: ["fb", -1], KeyA: ["lr", -1], KeyD: ["lr", 1],
+  ArrowUp: ["ud", 1], ArrowDown: ["ud", -1], ArrowLeft: ["yaw", -1], ArrowRight: ["yaw", 1],
+};
+const LOW = 20, CRITICAL = 10, HOT = 80;
+const held = new Set();
+const $ = (id) => document.getElementById(id);
+let speed = 50;
+
+function rcValues() {
+  const v = { lr: 0, fb: 0, ud: 0, yaw: 0 };
+  for (const code of held) { const [axis, sign] = AXES[code]; v[axis] += sign * speed; }
+  return v;
+}
+function sendRc() {
+  fetch("/rc", { method: "POST", body: JSON.stringify(rcValues()) }).catch(() => {});
+}
+function press(code, on) {
+  if (on) held.add(code); else held.delete(code);
+  document.querySelectorAll(`.key[data-code="${code}"]`).forEach((k) => k.classList.toggle("on", on));
+  sendRc();
+}
+function releaseAll() { [...held].forEach((c) => press(c, false)); }
+
+async function action(name) {
+  try {
+    const r = await fetch(`/action/${name}`, { method: "POST", body: "{}" });
+    const { result } = await r.json();
+    if (result !== "ok") addLocalLog(`${name}: ${result}`);
+  } catch { addLocalLog(`${name}: no connection to dashboard`); }
+}
+function addLocalLog(text) {
+  const li = document.createElement("li"); li.textContent = text; $("log").prepend(li);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (AXES[e.code]) { e.preventDefault(); if (!held.has(e.code)) press(e.code, true); return; }
+  if (e.repeat) return;
+  if (e.code === "KeyT") action("takeoff");
+  else if (e.code === "KeyL") action("land");
+  else if (e.code === "Backspace") { e.preventDefault(); action("emergency"); }
+});
+document.addEventListener("keyup", (e) => { if (AXES[e.code]) press(e.code, false); });
+window.addEventListener("blur", () => { releaseAll(); document.body.classList.add("blurred"); });
+window.addEventListener("focus", () => document.body.classList.remove("blurred"));
+if (!document.hasFocus()) document.body.classList.add("blurred");
+
+document.querySelectorAll(".key").forEach((k) => {
+  k.addEventListener("pointerdown", (e) => { k.setPointerCapture(e.pointerId); press(k.dataset.code, true); });
+  ["pointerup", "pointercancel"].forEach((ev) => k.addEventListener(ev, () => press(k.dataset.code, false)));
+});
+$("btn-takeoff").onclick = () => action("takeoff");
+$("btn-land").onclick = () => action("land");
+$("btn-emergency").onclick = () => action("emergency");
+$("speed-in").oninput = (e) => { speed = +e.target.value; $("speed-val").textContent = speed; };
+
+setInterval(() => { if (held.size) sendRc(); }, 200);  // keep-alive while holding keys
+
+$("video").onerror = () => { $("novideo").hidden = false; setTimeout(() => { $("video").src = "/video?" + Date.now(); }, 2000); };
+$("video").onload = () => { $("novideo").hidden = true; };
+
+const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+function render(s) {
+  const bat = s.battery;
+  const color = bat <= CRITICAL ? "var(--bad)" : bat <= LOW ? "var(--warn)" : "var(--ok)";
+  $("bat").textContent = bat;
+  $("bat").style.color = color;
+  $("bat-bar").style.width = bat + "%";
+  $("bat-bar").style.background = color;
+  $("bat-hint").textContent = bat <= CRITICAL ? "· land now" : bat <= LOW ? "· don't take off" : "· OK to fly";
+  $("height").textContent = s.height + " cm";
+  $("tof").textContent = s.tof + " cm";
+  $("temp").textContent = s.temp + " °C";
+  $("temp").style.color = s.temp >= HOT ? "var(--bad)" : "";
+  $("ftime").textContent = fmtTime(s.flight_time);
+  $("speed").textContent = s.speed.join(" / ");
+  $("yaw").textContent = s.attitude[2] + "°";
+  $("ov-bat").textContent = `🔋 ${bat}%`;
+  $("ov-h").textContent = `↕ ${s.height} cm`;
+  $("ov-t").textContent = `⏱ ${fmtTime(s.flight_time)}`;
+
+  const st = $("state");
+  st.className = "pill " + (s.flying ? "fly" : "ok");
+  st.textContent = s.busy ? s.busy.replace(/^./, (c) => c.toUpperCase()) + "…" : s.flying ? "Flying" : "Landed";
+  $("btn-takeoff").disabled = s.flying || !!s.busy;
+  $("btn-land").disabled = !s.flying || !!s.busy;
+  $("log").innerHTML = "";
+  s.log.forEach(addLocalLogAppend);
+}
+function addLocalLogAppend(text) {
+  const li = document.createElement("li"); li.textContent = text; $("log").append(li);
+}
+
+async function poll() {
+  try {
+    const r = await fetch("/status");
+    const s = await r.json();
+    if (s.error) throw new Error(s.error);
+    render(s);
+  } catch {
+    const st = $("state"); st.className = "pill bad"; st.textContent = "Disconnected";
+  }
+  $("clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+setInterval(poll, 500);
+poll();
+</script>
+</body>
+</html>
