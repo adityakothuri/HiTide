@@ -48,6 +48,11 @@ LOW_BATTERY_PCT = 20
 HOT_TEMP_C = 80  # the drone refuses takeoff around here
 WARM_TEMP_C = 70  # warn while it sits powered on: Tellos only cool when flying
 WARM_REPORT_EVERY = 120.0
+RECORD_EVERY_SECONDS = 1.0  # flight recorder: one telemetry row per second while flying
+SINK_CM = 25  # height lost without an "down" input over SINK_WINDOW_SECONDS = uncommanded descent
+SINK_WINDOW_SECONDS = 3.0
+SINK_REPORT_EVERY = 10.0
+SAG_BATTERY_PCT = 35  # below this, a worn battery's voltage can dip under the auto-land limit
 DRAIN_SETTLE_SECONDS = 5.0  # battery % reads low under load; read it after it recovers
 MAX_TILT_DEG = 10
 REFUSAL_HINT = (
@@ -99,6 +104,10 @@ class Drone:
         self.flight_start: tuple[float, int] | None = None  # (time, battery %) at takeoff
         self.wobbled = False  # this flight; tells a worn battery apart from a mechanical fault
         self.warm_reported = 0.0
+        self.recorded_at = 0.0
+        self.record_file: Path | None = None
+        self.heights: deque[tuple[float, int]] = deque()
+        self.sink_reported = 0.0
 
     def start(self) -> None:
         """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
@@ -162,6 +171,8 @@ class Drone:
             if connected:
                 self._check_hover()
                 self._check_idle_heat()
+                self._record_flight()
+                self._check_sink()
             time.sleep(WATCHDOG_SECONDS)
 
     def _check_hover(self) -> None:
@@ -202,6 +213,55 @@ class Drone:
         if swing <= WOBBLE_DEG and drift <= DRIFT_SPEED and not self.hover_steady_noted:
             self.hover_steady_noted = True
             self.note(f"Hover steady (tilt swing {swing} deg, drift {drift:.0f}).")
+
+    def _record_flight(self) -> None:
+        """One CSV row per second while flying, so a bad flight can be read back afterwards."""
+        if not self.tello.is_flying:
+            self.record_file = None
+            return
+        now = time.time()
+        if now - self.recorded_at < RECORD_EVERY_SECONDS:
+            return
+        self.recorded_at = now
+        v = self.value
+        try:
+            if self.record_file is None:
+                self.record_file = LOG_FILE.parent / f"flight_{time.strftime('%Y%m%d_%H%M%S')}.csv"
+                self.record_file.write_text("time,height_cm,floor_cm,battery_pct,temp_c,pitch,roll,"
+                                            "speed_x,speed_y,input_lr,input_fb,input_ud,input_yaw\n", encoding="utf-8")
+            row = [time.strftime("%H:%M:%S"), v("get_height"), v("get_distance_tof"), v("get_battery"),
+                   v("get_highest_temperature"), v("get_pitch"), v("get_roll"), v("get_speed_x"),
+                   v("get_speed_y"), *self.rc_out]
+            with self.record_file.open("a", encoding="utf-8") as f:
+                f.write(",".join(map(str, row)) + "\n")
+        except OSError:
+            pass  # recording is best-effort
+
+    def _check_sink(self) -> None:
+        """Spot the drone losing height when nobody pressed down, and say why it probably is."""
+        if not self.tello.is_flying or self.busy or self.landing:
+            self.heights.clear()
+            return
+        now = time.time()
+        self.heights.append((now, self.value("get_height")))
+        while self.heights and now - self.heights[0][0] > SINK_WINDOW_SECONDS:
+            self.heights.popleft()
+        commanded_down = self.rc_out[2] < 0 or self.rc[2] < 0
+        drop = max(h for _, h in self.heights) - self.heights[-1][1]
+        if commanded_down or drop < SINK_CM or now - self.sink_reported < SINK_REPORT_EVERY:
+            return
+        self.sink_reported = now
+        battery, temp = self.value("get_battery"), self.value("get_highest_temperature")
+        if temp >= HOT_TEMP_C:
+            why = "it is overheating and protecting itself. Land and let it cool."
+        elif battery <= SAG_BATTERY_PCT or self.flight_start and battery < self.flight_start[1] - 10:
+            why = ("the battery voltage is sagging under load below the drone's safety limit, so it starts landing "
+                   "by itself. Common with a worn battery even when it still shows a decent %. Use a fresh battery.")
+        else:
+            why = ("its height sensor is confused (flying over a table edge, a step, or a dark/shiny floor). "
+                   "Fly over flat, matte, well-lit floor.")
+        self.note(f"DESCENDING ON ITS OWN ({drop}cm in {SINK_WINDOW_SECONDS:.0f}s, no down input) at battery "
+                  f"{battery}%, {temp}C. Likely: {why} Press L rather than Kill so it lands instead of dropping.")
 
     def _check_idle_heat(self) -> None:
         temp = self.value("get_highest_temperature")
