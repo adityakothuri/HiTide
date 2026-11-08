@@ -108,7 +108,10 @@ class Engine:
         if self.flood.active:
             await self._advance_flood(dt_sim_s)
         for hook in self.hooks:
-            await hook(self)
+            try:
+                await hook(self)
+            except Exception:  # noqa: BLE001 - one broken stage must not stop the others
+                log.exception("tick hook %s failed", getattr(hook, "__name__", hook))
 
     async def _advance_flood(self, dt_sim_s: float) -> None:
         t_flood = self.flood.t_flood_s + dt_sim_s

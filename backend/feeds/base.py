@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
@@ -37,7 +38,9 @@ def _write_cache(name: str, fetched_at: str, data: Any) -> None:
     try:
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
         payload = {"fetched_at": fetched_at, "data": data}
-        _cache_path(name).write_text(json.dumps(payload, indent=2))
+        tmp = _cache_path(name).with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(payload, indent=2))
+        os.replace(tmp, _cache_path(name))
     except OSError:
         logger.exception("feed %s: failed to write cache", name)
 

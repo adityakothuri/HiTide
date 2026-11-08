@@ -55,6 +55,7 @@ async def feeds() -> dict[str, Any]:
 async def demo_start(request: Request) -> dict[str, Any]:
     r = rt(request)
     r.engine.reset()
+    await r.hub.emit("snapshot", r.snapshot())
     await r.engine.begin_flood(SIM_ALERT)
     return {"ok": True}
 
@@ -70,10 +71,12 @@ async def demo_reset(request: Request) -> dict[str, Any]:
 @router.websocket("/ws")
 async def ws(websocket: WebSocket) -> None:
     r: Runtime = websocket.app.state.runtime
-    await r.hub.connect(websocket, r.snapshot())
+    await r.hub.connect(websocket, r.snapshot)
     try:
-        while True:
-            await websocket.receive_text()  # clients don't send; keep the socket open
+        while True:  # clients don't send; just keep the socket open until it closes
+            message = await websocket.receive()
+            if message["type"] == "websocket.disconnect":
+                break
     except WebSocketDisconnect:
         pass
     finally:
