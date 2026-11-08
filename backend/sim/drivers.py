@@ -53,7 +53,6 @@ class Driver:
     id: str
     name: str
     age: int
-    sex: str
     vehicle: Vehicle
     home_node: int
     phone: str
@@ -63,6 +62,8 @@ class Driver:
     is_demo: bool = False
     demo_role: str = ""
     tags: tuple[str, ...] = field(default_factory=tuple)
+    # Simulated flood-risk profile (docs/driver-profile.md). Backend-only; never sent in DriverPublic.
+    profile: dict = field(default_factory=dict, compare=False, hash=False)
 
     @property
     def is_teen(self) -> bool:
@@ -95,11 +96,12 @@ def fake_phone(rng: random.Random) -> str:
 
 def _driver_from_dict(d: dict) -> Driver:
     return Driver(
-        id=d["id"], name=d["name"], age=d["age"], sex=d["sex"], vehicle=Vehicle(**d["vehicle"]),
+        id=d["id"], name=d["name"], age=d["age"], vehicle=Vehicle(**d["vehicle"]),
         home_node=d["home_node"], phone=d["phone"], emergency_contact=Contact(**d["emergency_contact"]),
         routes=tuple(Route(r["label"], r["dest_node"], tuple(r["edge_ids"]), r["length_m"]) for r in d["routes"]),
         parent=Contact(**d["parent"]) if d.get("parent") else None,
         is_demo=d.get("is_demo", False), demo_role=d.get("demo_role", ""), tags=tuple(d.get("tags", ())),
+        profile=d.get("profile", {}),
     )
 
 

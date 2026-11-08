@@ -34,6 +34,7 @@ Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
 
 - **Before a warning is active**, the snapshot has `drivers: []` and `drivers_opted_in: 100`, and no `drivers.update` events are sent. Locations appear once the `alert` arrives (opt-in terms).
 - `urgency_reasons` use coarse bands ("older driver (65+)", "low-clearance vehicle"), never exact age or model.
+- Drivers in `data/drivers.json` carry a simulated `profile` block (see `docs/driver-profile.md`). It is backend-only and is **not** part of any payload above. Any future field that exposes it to the frontend gets added here first.
 - `/ws` and the POST endpoints reject browser origins other than `localhost`/`127.0.0.1` (any port). If you serve the UI from elsewhere, set `FRONTEND_ORIGIN_REGEX` on the backend.
 
 ## WebSocket `ws://localhost:8000/ws`

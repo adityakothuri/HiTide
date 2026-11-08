@@ -6,7 +6,7 @@ STATUS = {"2-3-0": "closed", "3-4-0": "caution", "9-9-0": "boat"}
 
 def drv(id_="d1", age=40, edges=("1-2-0", "2-3-0", "3-4-0"), parent=False):
     p = Contact("P", "parent", "env:DEMO_PHONE_A") if parent else None
-    return Driver(id=id_, name=id_, age=age, sex="F", vehicle=Vehicle("a", "b", "sedan"), home_node=1, phone="x",
+    return Driver(id=id_, name=id_, age=age, vehicle=Vehicle("a", "b", "sedan"), home_node=1, phone="x",
                   emergency_contact=Contact("E", "spouse", "y"), routes=(Route("work", 4, edges, 300.0),), parent=p)
 
 
