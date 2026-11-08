@@ -63,7 +63,7 @@ Everything a presenter needs is in this folder. The files are **copies**: the or
 - Credit the authors when you show these. Licences (CC BY / public domain) are in `SOURCES.md`.
 
 ### `5-flood-videos/`: the model running on real Kerrville flood video
-These are **not in git**, because the footage is copyrighted news video and the repo is public. Get them from Aditya directly (AirDrop or Drive).
+Open the MP4s directly; they play in QuickTime or any browser.
 
 | File | Shows |
 |---|---|
