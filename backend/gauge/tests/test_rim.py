@@ -179,3 +179,14 @@ def test_dry_tray_baseline_is_not_mistaken_for_water(tray):
     reader.set_corners(_clicks(tray, cam, pose, np.random.default_rng(9)))
     dry = synth.render(tray, cam, pose, None, noise=synth.Noise.modest(), draw_tags=False, rng=np.random.default_rng(10))
     assert reader.set_baseline(dry) == (True, "ok")
+
+
+@pytest.mark.parametrize("az", [30, 210])  # viewed from the FLOOD WATCH side and from the opposite side
+def test_clicks_going_round_either_way_are_accepted(tray, az):
+    cam, pose, frame = _scene(tray, 55, az, 380)
+    px = camera.project(_corners_mm(tray), cam, pose)[0]
+    counter = np.roll(px[::-1], 1, axis=0)  # same first corner, other direction round the tray
+    for clicks in (px, counter):
+        fit = rim.solve_rim_pose(frame, tray, camera.tello_default(), corners_px=clicks)
+        assert fit is not None and rim.rim_problem(fit) is None
+        assert _image_error_px(tray, cam, pose, fit) < 3.0
