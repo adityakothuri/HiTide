@@ -10,3 +10,11 @@ build/
 # Personal Claude Code settings and ECC local state
 .claude/settings.local.json
 .claude/ecc/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/outreach_log.jsonl
+data/drivers.local.json

@@ -1,0 +1,43 @@
+# State Farm Flood Watch tunables. Reasoning lives in vault/Modules/Risk Scoring.md.
+
+# Road status by water depth over the road, inches (NWS "Turn Around Don't Drown").
+road_status_in:
+  caution: 3     # 3 to <6 in: caution
+  closed: 6      # >=6 in: closed for cars (stalls, loss of control)
+  float: 12      # >=12 in: most vehicles may float
+  boat: 24       # >=24 in: boat only (sweeps away SUVs and trucks)
+
+flood:
+  river_base_wse_m: null      # null = derive from lowest road elevation near the river
+  rise_m_per_min: 0.06        # simulated rate of rise (sim minutes)
+  max_rise_m: 4.0
+  decay_m_per_km: 3.0         # water surface drop per km away from the river centerline
+  reach_km: 1.2               # beyond this distance from the river, no flooding
+
+risk:
+  weights:
+    depth: 0.35               # depth on/near route, normalized to the "boat" threshold
+    rise: 0.15                # rate of rise
+    night: 0.10
+    age: 0.12
+    vehicle: 0.08
+    situation: 0.20
+  situation_levels: {planning: 0.2, driving_toward: 0.6, stopped_in_water: 1.0}
+  vehicle_levels: {sedan: 0.6, compact: 0.8, ev: 0.8, suv: 0.3, truck: 0.1, minivan: 0.4}
+  night_hours: [20, 6]        # 8 PM to 6 AM local
+  older_age: 65
+  teen_max_age: 19
+  high_risk_threshold: 0.65   # flag responders immediately at or above this
+
+stages:
+  enroute_lookahead_m: 800
+  stop_seconds: 60
+  dest_radius_m: 75
+
+escalation_s:                 # seconds from case open
+  normal: {call_driver: 0, contact_family: 120, dispatch_drone: 180}
+  demo:   {call_driver: 0, contact_family: 12,  dispatch_drone: 18}
+
+drone:
+  speed_mps: 25
+  station: {name: "Kerrville Fire Station 1", lat: 30.0505, lon: -99.1395}
