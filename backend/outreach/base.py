@@ -19,6 +19,7 @@ class OutboundMessage:
     phone: str  # raw from driver data: "env:DEMO_PHONE_A" or "+1830555xxxx"
     case_id: str | None = None
     poll_options: tuple[str, ...] = ()
+    enrolled: bool = False  # a consented, API-enrolled user (real +E.164 allowed only with OUTREACH_ALLOW_ENROLLED=1)
     # Dynamic variables for the voice agent (e.g. driver_name); excluded from hash/eq.
     variables: Mapping[str, str] = field(default_factory=dict, hash=False, compare=False)
 

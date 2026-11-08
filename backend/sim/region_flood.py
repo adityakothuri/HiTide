@@ -178,6 +178,21 @@ class RegionFlood:
         """Gauges only: what the system can infer without eyes on the road."""
         return self._depths(t, belief=True)
 
+    def belief_known(self, t: float) -> np.ndarray:
+        """Per segment: does the belief model actually know the depth here? `belief_depth_in` reports 0 where no gauge
+        reports (unknown), which must never read as dry. Known = a reporting gauge covers a named waterway in reach,
+        or no modeled waterway is in reach at all (and it isn't an unnamed-stream crossing, which belief can't see)."""
+        r = self.region
+        n = len(r.edge_ids)
+        blind = np.zeros(n, dtype=bool)   # any waterway in reach without a reporting gauge
+        for ref in r.refs:
+            rise = self.chain_rise(ref.chain, t, belief=True)[ref.sample_idx]
+            blind[ref.seg_idx[np.isnan(rise)]] = True
+        minor = np.zeros(n, dtype=bool)
+        for eid in r.minor_crossings:
+            minor[r.edge_index[eid]] = True
+        return ~blind & ~minor
+
     def gauge_status(self, t: float) -> list[dict]:
         out = []
         for gs in self.belief_gauges.values():

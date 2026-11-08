@@ -134,8 +134,29 @@ async def test_real_number_never_sent_even_in_photon_mode(tmp_path, monkeypatch)
     calls = Calls()
     svc, _, _ = _build(tmp_path, moving=False, calls=calls)
     out = await svc.send(_msg(phone="+18305550142"))
-    assert out["mode"] == "mock" and out["status"] == "sent"
+    assert out["mode"] == "mock" and out["status"] == "suppressed"  # honest: not a fake "sent"
     assert calls.requests == []
+
+
+@pytest.mark.asyncio
+async def test_enrolled_number_needs_flag_and_enrollment(tmp_path, monkeypatch):
+    monkeypatch.setenv("PHOTON_MODE", "photon")
+    calls = Calls()
+    svc, _, _ = _build(tmp_path, moving=False, calls=calls)
+    monkeypatch.delenv("OUTREACH_ALLOW_ENROLLED", raising=False)
+    assert (await svc.send(_msg(phone="+18305550142", enrolled=True)))["status"] == "suppressed"
+    monkeypatch.setenv("OUTREACH_ALLOW_ENROLLED", "1")
+    assert (await svc.send(_msg(phone="+18305550142")))["status"] == "suppressed"   # not enrolled
+    assert resolve_phone("+18305550142", enrolled=True) == "+18305550142"
+    assert resolve_phone("sim:u-1", enrolled=True) is None
+    assert resolve_phone("8305550142", enrolled=True) is None                       # must be E.164
+
+
+def test_normalize_phone_matches_formats():
+    from outreach.allowlist import normalize_phone
+    assert normalize_phone("(830) 555-0142") == normalize_phone("+1 830 555 0142") == "+18305550142"
+    assert normalize_phone("Someone@iCloud.com") == "someone@icloud.com"
+    assert normalize_phone("") == ""
 
 
 @pytest.mark.asyncio

@@ -88,10 +88,12 @@ class OutreachService:
             return _Result(msg.channel, msg.body, "mock", "blocked")
         if msg.channel == "tts_in_app":
             return _Result(msg.channel, msg.body, "mock", "sent")
-        phone = resolve_phone(msg.phone)
         mode = photon_mode()
-        if phone is None or mode == "mock":
+        if mode == "mock":
             return _Result(msg.channel, msg.body, "mock", "sent")
+        phone = resolve_phone(msg.phone, enrolled=msg.enrolled)
+        if phone is None:  # live mode, but this number isn't allowlisted: say so, never a fake "sent"
+            return _Result(msg.channel, msg.body, "mock", "suppressed")
         return await self._send_live(msg, phone, mode)
 
     async def _send_live(self, msg: OutboundMessage, phone: str, mode: str) -> _Result:

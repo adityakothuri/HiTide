@@ -91,7 +91,7 @@ class OutreachEvent(Frozen):
     channel: Literal["text", "poll", "voice", "tts_in_app"]
     body: str
     mode: Literal["mock", "photon"]
-    status: Literal["queued", "sent", "delivered", "read", "failed", "blocked"]
+    status: Literal["queued", "sent", "delivered", "read", "failed", "blocked", "suppressed"]  # suppressed: live mode, number not allowlisted
     case_id: str | None = None
     provider: Literal["stable", "photon2"] | None = None  # set only for live sends
     call_id: str | None = None  # ElevenLabs conversation_id for voice calls

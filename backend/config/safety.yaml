@@ -1,0 +1,61 @@
+# Per-user danger pipeline (backend/safety/). Tune here, not in code.
+# Danger = hazard at the user's location (live/replayed evidence) x the user's vulnerability (profile).
+
+snap:
+  on_road_m: 60            # a user within this of a road segment is "on" it
+  nearby_m: 400            # flooded crossings / deep water within this radius count as "near you"
+  crossing_on_m: 150       # a confirmed-flooded crossing this close, on your road, is CRITICAL
+  closure_m: 500           # a road-flooding report within this radius
+  rain_point_m: 5000       # MRMS is sampled at critical points; use the nearest one within this
+  densify_m: 25            # road geometry is resampled to this spacing for snapping
+
+heavy_rain_in_hr: 1.0       # MRMS 1-hour accumulation
+
+depth_in:
+  caution: 3               # water on the road (NWS: 6 in reaches most car floors)
+  danger: 6                # closed for cars
+
+low_ground_m: 5.0          # below this: low ground (an area-wide Emergency is DANGER here)
+high_ground_m: 12.0        # height above the nearest waterway; polygon-only warnings drop to WATCH at home here
+
+lookahead:
+  distance_m: 800          # while driving, look this far ahead...
+  cone_deg: 50             # ...within this half-angle of the heading
+
+motion:
+  driving_mps: 3.0         # ~7 mph
+  stopped_mps: 0.5
+  jitter_floor_m: 25       # moves smaller than max(this, reported accuracy) are GPS noise
+  stop_seconds: 60         # stopped this long on a wet road = stopped in water
+  recent_drive_s: 600      # a stop within this of driving is "stopped" (not "parked")
+  stale_location_s: 900    # no ping for this long while at WARNING+ is itself a reason to escalate
+  max_future_skew_s: 300   # pings stamped further in the future are rejected
+
+vulnerability:
+  weights:                 # sum to 1.0; each concept counted once
+    needs: 0.25            # self-reported evacuation need (wheelchair, powered medical equipment, ...)
+    age: 0.15              # older (65+) or inexperienced (teen / licensed < 3 years / Steer Clear)
+    vehicle: 0.15          # from the vehicle's own stall depth: 12 in -> 1.0, 24 in -> 0.0
+    night: 0.10            # local clock, region timezone
+    passengers: 0.10       # kids, dependents or pets aboard
+    crossing_exposure: 0.10
+    past_flood: 0.05
+    home_exposure: 0.05    # manufactured home
+    unfamiliar: 0.05       # new to the area
+  high: 0.5                # score at or above -> "high" band (one level bump)
+  medium: 0.25
+  night_hours: [20, 6]     # 8 PM to 6 AM local
+  older_age: 65
+  teen_max_age: 19
+
+# Outreach ladder per danger level. Timers (seconds) shrink by up to `vuln_speedup` for high vulnerability.
+ladder:
+  cooldown_s: {watch: 21600, warning: 7200, danger: 3600, critical: 1800}
+  max_reminders: 2             # per level per episode; then silence until the level rises (no spam)
+  poll_to_call_s: 300          # DANGER: no reply to the safety poll -> voice call
+  call_to_family_s: 300        # DANGER: still no answer -> emergency contact (text + call)
+  critical_family_s: 120       # CRITICAL: family + responders this long after the first call
+  safe_mute_s: 1800            # a SAFE reply mutes the same level this long (a higher level always gets through)
+  all_clear_hold_s: 900        # back to NONE this long after WARNING+ -> one "all clear" text
+  vuln_speedup: 0.5
+  demo_time_scale: 0.1         # SAFETY_DEMO=1: every timer x this

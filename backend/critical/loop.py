@@ -183,6 +183,7 @@ class CriticalLoop:
         self.rng = random.Random(self.seed)
         self.any_rising = False
         self.belief_now: np.ndarray = np.zeros(len(self.region.edge_ids))
+        self.belief_known: np.ndarray = np.zeros(len(self.region.edge_ids), dtype=bool)
         self.ranked: list[Breakdown] = []
         self.alerts: list[dict] = []                 # active alerts touching the region, public form
         self.alert_seen: dict[str, Alert] = {}
@@ -422,6 +423,7 @@ class CriticalLoop:
             events += self._advance_drones(t, dt, truth, truth_prev)
         belief = self.flood.belief_depth_in(t)
         self.belief_now = belief
+        self.belief_known = self.flood.belief_known(t)   # safety/: unknown depth is never 'dry'
         signals = self._point_signals(t, belief, gauges, frame)
         self.p = {pid: round(p_flooded(s), 3) for pid, s in signals.items()}
         self.status = {pid: status(p) for pid, p in self.p.items()}

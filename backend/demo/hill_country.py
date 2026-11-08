@@ -38,8 +38,10 @@ def _log_failure(task: asyncio.Task) -> None:
 
 
 class HillCountryDemo:
-    def __init__(self, loop: CriticalLoop, emit: Emit, outreach: Any):
+    def __init__(self, loop: CriticalLoop, emit: Emit, outreach: Any,
+                 after_step: Callable[[], Awaitable[None]] | None = None):
         self.loop, self.emit, self.outreach = loop, emit, outreach
+        self.after_step = after_step  # per-user danger pipeline (safety/monitor.py), run after every step
         self.task: asyncio.Task | None = None
         self.speed = DEFAULT_SPEED
         self.t: float | None = None
@@ -110,6 +112,8 @@ class HillCountryDemo:
                     counters = self.loop.snapshot.get("counters", {})
                     await self.emit("region.counters", {"scenario": "hill_country", "sim_time": iso(self.t), **counters})
                     await self._beats(events)
+                    if self.after_step is not None:
+                        await self.after_step()
                 except asyncio.CancelledError:
                     raise
                 except Exception:  # one bad tick must not freeze the demo (review #5)

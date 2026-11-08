@@ -21,6 +21,9 @@ from demo.live_region import run_live
 from observe.live import LiveObservations
 from observe.replay import ReplayObservations
 from outreach import make_outreach
+from safety.hazard import Locator
+from safety.monitor import SafetyMonitor
+from safety.users import UserRegistry
 from sim.region import Region, load_region
 from sim.region_flood import RegionFlood
 
@@ -47,6 +50,7 @@ class HillCountry:
     live: LiveObservations | None = None
     live_task: asyncio.Task | None = None
     mode_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    safety: SafetyMonitor | None = None   # per-user danger pipeline (backend/safety/)
 
     @property
     def running(self) -> bool:
@@ -77,9 +81,21 @@ def _build(emit) -> HillCountry:
     region = load_region("hill_country")
     flood = RegionFlood(region)
     loop = CriticalLoop(region, flood)
-    outreach = make_outreach(emit, lambda _driver_id: False)  # nobody in this scenario is a moving driver
+    # Persona outreach in the scripted replay: nobody there is a moving driver.
+    outreach = make_outreach(emit, lambda _driver_id: False)
+    safety = _safety(region, loop, emit)
     static = json.dumps(_static(region, flood, loop)).encode()
-    return HillCountry(region, flood, loop, HillCountryDemo(loop, emit, outreach), static, loop.observations, emit)
+    demo = HillCountryDemo(loop, emit, outreach, after_step=lambda: safety.after_step(loop))
+    return HillCountry(region, flood, loop, demo, static, loop.observations, emit, safety=safety)
+
+
+def _safety(region: Region, loop: CriticalLoop, emit) -> SafetyMonitor:
+    """Users + locator + monitor. Its outreach knows who is driving (texts to a moving driver are blocked)."""
+    holder: dict[str, SafetyMonitor] = {}
+    outreach = make_outreach(emit, lambda uid: holder["m"].is_moving(uid) if "m" in holder else False)
+    monitor = SafetyMonitor(Locator(region, loop.points), UserRegistry.load(), outreach, emit)
+    holder["m"] = monitor
+    return monitor
 
 
 def _live(h: HillCountry) -> LiveObservations:
@@ -121,10 +137,14 @@ async def _set_mode_locked(h: HillCountry, mode: RegionMode) -> None:
         live = _live(h)
         await asyncio.to_thread(h.loop.configure, live, False, h.flood)
         step_s = float(h.region.cfg["live"]["step_s"])
-        h.live_task = asyncio.create_task(run_live(h.loop, live, h.emit, step_s))
+        safety = h.safety
+        after = (lambda: safety.after_step(h.loop)) if safety is not None else None
+        h.live_task = asyncio.create_task(run_live(h.loop, live, h.emit, step_s, after_step=after))
         h.live_task.add_done_callback(_log_failure)
     else:
         await asyncio.to_thread(h.loop.configure, h.replay_obs, True, h.flood)
+    if h.safety is not None:
+        h.safety.reset(mode)
     h.mode = mode
     await h.emit("region.reset", {"scenario": "hill_country", "mode": mode})
 
@@ -159,6 +179,13 @@ def warm(app: FastAPI) -> None:
     if os.environ.get("HILL_COUNTRY_WARM", "1") == "0" and not hasattr(app.state, "hill_task"):
         return
     app.state.hill_task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit))
+    app.state.hill_task.add_done_callback(lambda t: _expose_safety(app, t))
+
+
+def _expose_safety(app: FastAPI, task: asyncio.Task) -> None:
+    """Inbound replies (outreach/inbound.py) reach the safety monitor through the runtime."""
+    if not task.cancelled() and task.exception() is None:
+        app.state.runtime.safety = task.result().safety
 
 
 async def get_hill(app: FastAPI) -> HillCountry:
@@ -166,6 +193,7 @@ async def get_hill(app: FastAPI) -> HillCountry:
         task = getattr(app.state, "hill_task", None)
         if task is None or (task.done() and (task.cancelled() or task.exception() is not None)):
             app.state.hill_task = task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit))
+            task.add_done_callback(lambda t: _expose_safety(app, t))
     try:
         return await asyncio.shield(task)  # a cancelled request never orphans the build
     except Exception as exc:

@@ -22,6 +22,7 @@ class Runtime:
     engine: Engine
     runner: StageRunner
     demo: DemoScenario
+    safety: Any = None   # safety.monitor.SafetyMonitor, set once the Hill Country region is built
 
     def snapshot(self) -> dict[str, Any]:
         e, r = self.engine, self.runner

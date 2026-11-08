@@ -27,6 +27,13 @@ def fusion_settings() -> dict[str, Any]:
         return yaml.safe_load(fh)
 
 
+@lru_cache(maxsize=1)
+def safety_settings() -> dict[str, Any]:
+    """config/safety.yaml: per-user danger pipeline (backend/safety/)."""
+    with (BACKEND_DIR / "config" / "safety.yaml").open() as fh:
+        return yaml.safe_load(fh)
+
+
 @lru_cache(maxsize=4)
 def region_settings(region_id: str = "hill_country") -> dict[str, Any]:
     with (BACKEND_DIR / "config" / "regions" / f"{region_id}.yaml").open() as fh:
