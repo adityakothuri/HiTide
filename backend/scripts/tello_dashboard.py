@@ -53,6 +53,9 @@ MIN_FLIGHT_FOR_DRAIN_S = 10
 TAKEOVER_WAIT_SECONDS = 15  # time for an old dashboard to land and release the port
 WATCHDOG_SECONDS = 0.25
 LOW_BATTERY_PCT = 20
+# Battery restrictions (low-battery takeoff block, worn-battery takeoff margin, auto-land before lift loss,
+# gentle inputs) are OFF for now. Set TELLO_BATTERY_GUARD=1 to turn them back on.
+BATTERY_GUARD = os.environ.get("TELLO_BATTERY_GUARD", "0") == "1"
 HOT_TEMP_C = 80  # the drone refuses takeoff around here
 WARM_TEMP_C = 70  # warn while it sits powered on: Tellos only cool when flying
 WARM_REPORT_EVERY = 120.0
@@ -597,7 +600,8 @@ class Drone:
 
     @property
     def worn(self) -> bool:
-        return "lift_loss_pct" in self.profile
+        """Worn-battery protections apply only with BATTERY_GUARD on (the profile is kept either way)."""
+        return BATTERY_GUARD and "lift_loss_pct" in self.profile
 
     def _remember_lift_loss(self, battery: int) -> None:
         self.profile = {**self.profile, "lift_loss_pct": battery, "updated": time.strftime("%Y-%m-%d %H:%M")}
@@ -803,7 +807,7 @@ class Drone:
     def preflight_problems(self) -> list[str]:
         t = self.tello
         problems = []
-        if t.get_battery() < LOW_BATTERY_PCT:
+        if BATTERY_GUARD and t.get_battery() < LOW_BATTERY_PCT:
             problems.append(f"battery {t.get_battery()}% is too low, charge it")
         if t.get_highest_temperature() >= HOT_TEMP_C:
             problems.append(f"drone is {t.get_highest_temperature()}C, turn it off for 15 min to cool")
