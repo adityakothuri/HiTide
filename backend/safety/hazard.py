@@ -114,6 +114,19 @@ def _densify(coords: list[list[float]], step_m: float) -> list[tuple[float, floa
     return out
 
 
+HOOD_CACHE_MAX = 100_000
+
+
+@dataclass(frozen=True)
+class Neighborhood:
+    edge: int
+    dist: float
+    near: Mapping[int, float]
+    points: tuple[tuple[str, float], ...]
+    rain_point: tuple[str, float] | None
+    closure_points: tuple[str, ...]
+
+
 @dataclass
 class Locator:
     """Spatial index for one region. Immutable after construction; safe to share across threads."""
@@ -147,10 +160,28 @@ class Locator:
         self.point_edges = {pid: frozenset(self.region.edge_index[e] for e in p["edge_ids"] if e in self.region.edge_index)
                             for pid, p in self.points.items()}
         self.minor_idx = frozenset(self.region.edge_index[e] for e in self.region.minor_crossings)
+        self._hood: dict[tuple[float, float], Neighborhood] = {}
         bb = self.region.cfg["bbox"]
         self.bbox = (bb["west"], bb["south"], bb["east"], bb["north"])
 
     # ---- geometry --------------------------------------------------------
+    def neighborhood(self, lat: float, lon: float) -> "Neighborhood":
+        """Everything static about a position, cached at ~1 m resolution (parked users re-use it every tick)."""
+        key = (round(lat, 5), round(lon, 5))
+        hit = self._hood.get(key)
+        if hit is None:
+            snap = self.cfg["snap"]
+            e, dist = self.nearest_edge(lat, lon)
+            hit = Neighborhood(
+                edge=e, dist=dist, near=self.edges_within(lat, lon, float(snap["nearby_m"])),
+                points=tuple(self.points_within(lat, lon, float(snap["nearby_m"]))),
+                rain_point=self.nearest_point(lat, lon, float(snap["rain_point_m"])),
+                closure_points=tuple(pid for pid, _ in self.points_within(lat, lon, float(snap["closure_m"]))))
+            if len(self._hood) >= HOOD_CACHE_MAX:
+                self._hood.clear()
+            self._hood[key] = hit
+        return hit
+
     def in_region(self, lat: float, lon: float) -> bool:
         w, s, e, n = self.bbox
         return w <= lon <= e and s <= lat <= n
@@ -165,16 +196,15 @@ class Locator:
     def _within(self, lat: float, lon: float, radius_m: float) -> dict[int, tuple[float, int]]:
         """Edge index -> (nearest distance m, nearest densified vertex) for every road within radius_m."""
         p = self.xy(lat, lon)
-        idx = self.tree.query_ball_point(p, radius_m)
-        out: dict[int, tuple[float, int]] = {}
-        if not idx:
-            return out
-        d = np.hypot(*(self.tree.data[idx] - p).T)
-        for k, dist in zip(idx, d):
-            e = int(self.vertex_edge[k])
-            if e not in out or dist < out[e][0]:
-                out[e] = (float(dist), int(k))
-        return out
+        idx = np.asarray(self.tree.query_ball_point(p, radius_m), dtype=np.int64)
+        if idx.size == 0:
+            return {}
+        diff = self.tree.data[idx] - p
+        d = np.hypot(diff[:, 0], diff[:, 1])
+        order = np.argsort(d, kind="stable")
+        edges = self.vertex_edge[idx[order]]
+        uniq, first = np.unique(edges, return_index=True)   # first occurrence = nearest vertex of that edge
+        return {int(e): (float(d[order[f]]), int(idx[order[f]])) for e, f in zip(uniq, first)}
 
     def edges_within(self, lat: float, lon: float, radius_m: float) -> dict[int, float]:
         """Edge index -> nearest distance (m) for every road within radius_m."""
@@ -274,18 +304,19 @@ def assess(loc: Locator, ctx: SafetyContext, lat: float, lon: float, heading_deg
 
     snap = cfg["snap"]
     caution = float(cfg["depth_in"]["caution"])
-    e, dist = loc.nearest_edge(lat, lon)
+    hood = loc.neighborhood(lat, lon)
+    e, dist, near = hood.edge, hood.dist, hood.near
     on_road = dist <= float(snap["on_road_m"])
     my_edge = e if on_road else None
-    near = loc.edges_within(lat, lon, float(snap["nearby_m"]))
-    depths = [d for i in near if (d := _depth(ctx, i)) is not None]
-    hits = [_point_hit(loc, ctx, pid, d, my_edge) for pid, d in loc.points_within(lat, lon, float(snap["nearby_m"]))]
+    idx = np.fromiter(near.keys(), dtype=np.int64, count=len(near))
+    known = ctx.known[idx] if idx.size else np.zeros(0, dtype=bool)
+    depths = ctx.belief_in[idx][known] if idx.size else np.zeros(0)
+    hits = [_point_hit(loc, ctx, pid, d, my_edge) for pid, d in hood.points]
     ww = loc.waterway[e] or None
-    rain_pt = loc.nearest_point(lat, lon, float(snap["rain_point_m"]))
-    closure = next((ctx.closures[pid] for pid, _ in loc.points_within(lat, lon, float(snap["closure_m"]))
-                    if pid in ctx.closures), None)
+    rain_pt = hood.rain_point
+    closure = next((ctx.closures[pid] for pid in hood.closure_points if pid in ctx.closures), None)
     hand = float(loc.hand[e])
-    far = not math.isfinite(hand) and not any(i in loc.minor_idx for i in near)
+    far = not math.isfinite(hand) and loc.minor_idx.isdisjoint(near)
     ahead: tuple[AheadHit, ...] = ()
     if driving and heading_deg is not None:
         ahead = _edge_hits(loc, ctx, loc.edges_ahead(lat, lon, heading_deg), caution)
@@ -297,8 +328,8 @@ def assess(loc: Locator, ctx: SafetyContext, lat: float, lon: float, heading_deg
         distance_to_road_m=dist, waterway=ww,
         height_above_water_m=None if not math.isfinite(hand) else max(0.0, hand),
         depth_in=_depth(ctx, e) if on_road else None,
-        max_depth_nearby_in=max(depths) if depths else None,
-        unknown_nearby=any(not bool(ctx.known[i]) for i in near),
+        max_depth_nearby_in=float(depths.max()) if depths.size else None,
+        unknown_nearby=bool(idx.size) and not bool(known.all()),
         worst_point=_worst_point(hits),
         rain_in_hr=ctx.rain_in_hr.get(rain_pt[0]) if rain_pt else None,
         gauge_rising=bool(ww and ww in ctx.rising_waterways),
