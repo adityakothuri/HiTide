@@ -6,10 +6,11 @@
   "scripts": {
     "generate": "npm install --prefix ../spacetimedb && spacetime generate --lang typescript --out-dir src/module_bindings --module-path ../spacetimedb",
     "start": "tsx src/index.ts",
-    "test": "node --import tsx --test src/strategy.test.ts src/portfolio.test.ts src/conversion.test.ts",
+    "test": "node --import tsx --test src/strategy.test.ts src/portfolio.test.ts src/conversion.test.ts src/replay.test.ts",
     "build": "tsc",
     "bench": "tsx bench/run.ts",
-    "eval": "tsx src/eval.ts"
+    "eval": "tsx src/eval.ts",
+    "replay": "node --import tsx bench/live/replay.mts"
   },
   "dependencies": {
     "spacetimedb": "^2.12.0",

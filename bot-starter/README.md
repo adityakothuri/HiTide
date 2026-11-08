@@ -54,6 +54,19 @@ npx tsx bench/live/report.mts 208
 npx tsx bench/live/report.mts 208 45175
 ```
 
+For a faster screen using real market histories (about 40 seconds for the cached 20-match study):
+
+```sh
+# Read-only fetch of recent completed matches and archived bids.
+node --import tsx bench/live/fetch-replay.mts 20 208
+npm run replay
+
+# Optional: compare only the two live-test candidates.
+REPLAY_STRATEGIES=market7v,market7vf REPLAY_DEALS=8 npm run replay
+```
+
+The replay uses identical observed letter sequences and rival bid thresholds for each candidate. Hidden starting racks are sampled from the aggregate dealt tile pool, constrained by public word/win history, with 2,000 feasible tile swaps to reduce allocation-order bias. Two tie/reserve assumptions test sensitivity. Results and caveats are saved to `bench/results/viability/live-replay-results.json`. Opponents are frozen and cannot react to changed purchases, so these are conditional replay scores, not predicted live win rates. The 20-match screen favors Market7VF by about 2.5–5.8 points, but its uncertainty does not establish improvement under both assumptions. Market7V remains the default.
+
 Simulator results are screening evidence. They previously overrated P1 and do not establish a live winner. Compare candidates for at least 15 completed live matches each on similar tables, recording opponent strength, points per tile, cash starvation and late bids. At the inspection checkpoint, four completed Market7Vb matches in the local log averaged 55.5 points; that sample does not settle the cash-flow question.
 
 The earlier portfolio audit is in [bench/VIABILITY.md](bench/VIABILITY.md), with raw summaries under `bench/results/viability/`. The shared simulator is `src/sim.ts`, re-exported by `bench/sim.ts`; compiled files are written under `dist/`. The bot and simulator load `../spacetimedb/wordlist.txt`, so retain that sibling server directory. Refresh SDK bindings with `npm run generate` when the server schema changes.

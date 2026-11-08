@@ -275,3 +275,76 @@ emergency cap, endgame liquidation and unchanged Market7VF word decisions.
 README now documents authentication, strategy selection, tournament entry,
 local benchmarks and read-only live reporting. Next useful live comparison:
 Market7V versus Market7VF, with Market7Vb's cash-flow result kept separate.
+
+
+## E14 — Fast paired replay of actual live auction histories
+
+The requested 30-match live comparison was not started after the user
+rejected the roughly 75-minute runtime. The existing Market7Vb process was
+not stopped or replaced. No live A/B scheduling code was retained in the
+bot. Instead, fetched 20 recent completed Pegasus matches (45115–45251),
+1,360 real auctions, through public read-only SQL. All archived winning
+bids were present. The loader verifies that observed rewards and payments
+reproduce every participant's actual final score and balance.
+
+For a Vickrey auction, the highest rival bid is the archived winning bid
+when somebody else won, or the runner-up price paid when Pegasus won.
+A Pegasus win at the reserve leaves rival maximum 0 vs 1 ambiguous; exact
+tie multiplicity is also unavailable. Replay uses two sensitivity cases:
+all equal bids lose with reserve rival 1, and all equal bids win with
+reserve rival 0. These are scenarios, not rigorous final-score bounds.
+
+The complete auction sequence reveals the aggregate initial dealt pool
+(98 tiles minus every drawn auction tile), but individual starting racks
+remain private. Public prefix deficits give minimum per-player starting
+counts. Eight feasible initial allocations per match are sampled using
+seeded deals plus 2,000 symmetric tile swaps respecting those minima.
+This reduces fixed-minimum allocation bias but does not model information
+in opponents' decisions to select particular words. It is an approximate
+conditional sampler, not an exact posterior.
+
+Each candidate receives the same starting samples, revealed tile order and
+frozen rival bids/income. Only already-public history feeds policy decisions.
+The replay honors current cash limits, dual score/cash rewards, and the
+inability to play the final awarded tile. Rivals do not change their bids,
+racks or word plays after counterfactual purchases; their recorded future
+plays may no longer be feasible. The resulting scores are **locked-market
+diagnostics, not causal performance estimates or live win rates**.
+
+Commands:
+
+```sh
+node --import tsx bench/live/fetch-replay.mts 20 208
+npm run replay
+```
+
+20 matches × 8 starting allocations × 5 strategies × 2 tie scenarios =
+1,600 full policy replays in 33–40 seconds, with cached input (final audited
+run: 39.7 seconds). Sampling
+uncertainty is computed by averaging deals within each match and then
+bootstrapping the 20 match clusters (10,000 paired resamples). Repeated
+deals are not counted as independent real games. Intervals are descriptive,
+not adjusted across candidates and do not account for all model bias.
+
+| Strategy | Mean score: ties lose / reserve 1 | Mean score: ties win / reserve 0 |
+|---|---:|---:|
+| Market7V | 55.35 | 62.08 |
+| Market7VF | 61.10 | 64.59 |
+| Market7Vb | 58.00 | 57.14 |
+| Market7VC | 53.29 | 54.86 |
+| PortfolioTuned | 49.07 | 51.63 |
+
+Market7VF paired score differences vs Market7V: +5.75 (95% match-bootstrap
+interval [0.50, 11.90]) and +2.51 ([-2.13, 7.46]). It leads both conditional
+means but does not establish improvement under both assumptions. The
+aggressive cash-in variants buy more tiles at poorer conversion rates;
+the below-35 cash-flow question remains unresolved. Retain Market7V as the
+default and prioritize Market7VF if doing a short live check later.
+
+Artifacts: `bench/results/viability/live-replay-input.json` (public archive),
+`live-replay-results.json` (per-match scores, summaries and intervals).
+Implementation: `src/replay.ts`, `bench/live/fetch-replay.mts`,
+`bench/live/replay.mts`. Build and 26 tests pass, covering rival-price
+identification, tile conservation, impossible histories, duplicate count
+constraints, reserve/tie sensitivity, conditional sampling bias, dual payouts
+and final-close timing.
