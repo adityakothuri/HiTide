@@ -60,9 +60,17 @@ def test_noise_free_recovers_water_surface_and_road_depth(above_bed):
     assert "estimators agree" in m.reasons
 
 
-def test_reported_range_is_honest_under_hover_long_pose_bias_and_mask_bias(valley):
-    """Coverage: the truth must fall inside the reported range in >= 90% of trials (plan 4)."""
+@pytest.mark.parametrize("heading", [0.0, 90.0])
+def test_reported_range_is_honest_under_hover_long_pose_bias_and_mask_bias(valley, heading):
+    """Coverage: the truth must fall inside the reported range in >= 90% of trials (plan 4).
+
+    heading 0 looks along the river; heading 90 looks ACROSS it, where altitude and pitch errors move
+    edges up and down the banks instead of along the flat channel (audit 2026-11-08).
+    """
     scene, cam, pose, rendered = valley
+    if heading:
+        pose = oblique_pose(scene, heading_deg=heading)
+        rendered = render(scene, cam, pose)
     errs, covered = [], 0
     for i in range(40):
         rng = np.random.default_rng(i)
@@ -173,10 +181,32 @@ def test_one_side_only_widens_the_range_by_the_configured_factor():
     # no pose error here: one side also loses the two-bank cancellation of pose error, tested separately
     params = replace(EXACT, pose_sigma_m=0.0, pose_sigma_deg=0.0)
     z = 100.0 + np.random.default_rng(1).normal(0, 0.02, 60)
-    two = estimate_wse(_edges(z), params)
     one = estimate_wse(_edges(z, side=np.ones(60)), params)
+    unwidened = estimate_wse(_edges(z, side=np.ones(60)), replace(params, one_side_widen=1.0))
     assert one.sides == 1 and "one side only" in one.reasons
-    assert (one.hi_m - one.wse_m) == pytest.approx(params.one_side_widen * (two.hi_m - two.wse_m), rel=1e-6)
+    assert (one.hi_m - one.wse_m) == pytest.approx(params.one_side_widen * (unwidened.hi_m - unwidened.wse_m),
+                                                   rel=1e-6)
+
+
+def test_two_banks_offset_by_a_sideways_pose_error_are_both_kept_and_averaged():
+    """Audit regression: a pooled MAD threw one bank away; per-bank fits keep both and widen by the gap."""
+    rng = np.random.default_rng(3)
+    z = np.concatenate([100.12 + rng.normal(0, 0.01, 196), 99.88 + rng.normal(0, 0.01, 193)])
+    side = np.concatenate([np.ones(196), -np.ones(193)])
+    est = estimate_wse(_edges(z, side=side), EXACT)
+    assert est.sides == 2 and est.n_inliers > 350
+    assert abs(est.wse_m - 100.0) < 0.01 and est.lo_m < 100.0 < est.hi_m
+    assert est.sigma_m >= 0.12                                   # half the bank gap is in sigma
+
+
+def test_road_along_one_bank_is_one_side_not_two():
+    """Audit regression: sides are banks (water->ground facing), not the two ends of the road."""
+    from vision.edges import bank_sides
+
+    east_only = np.column_stack([np.ones(50), np.random.default_rng(0).normal(0, 0.1, 50)])  # all face east
+    assert len(set(bank_sides(east_only))) == 1
+    both = np.vstack([east_only, -east_only])
+    assert set(bank_sides(both)) == {1, -1}
 
 
 def test_one_side_loses_the_two_bank_cancellation_of_pose_error():
@@ -212,6 +242,18 @@ def test_road_fully_visible_and_dry_is_false_but_mostly_hidden_and_dry_is_unknow
     hidden = CellObs(np.where(np.arange(41)[None, :] < 30, INVALID, GROUND).repeat(21, 0).astype(np.int8),
                      np.zeros(grid.shape))
     assert road_state(hidden, grid, road, CFG["road"]).water_on_road is None
+
+
+def test_road_with_its_low_point_hidden_is_unknown_not_dry():
+    """Audit regression: 91% of the road seen and dry, but the dip (where water collects) under a tree."""
+    z = np.zeros((21, 41))
+    z[:, 18:23] = -0.6                                       # a 2.5 m dip across the road
+    grid, road = GroundGrid(-10, -5, 0.5, z), RoadGeom(np.array([[-9.0, 0.0], [9.0, 0.0]]), 2.0)
+    g = np.full(grid.shape, GROUND, np.int8)
+    assert road_state(CellObs(g, np.zeros(grid.shape)), grid, road, CFG["road"]).water_on_road is False
+    g[:, 18:23] = INVALID                                    # canopy over the dip only
+    rs = road_state(CellObs(g, np.zeros(grid.shape)), grid, road, CFG["road"])
+    assert rs.visible_frac > 0.85 and rs.water_on_road is None
 
 
 def test_small_wet_patch_on_a_long_road_is_still_water_on_road():

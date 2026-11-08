@@ -2,6 +2,9 @@
 
 Pose convention: heading_deg clockwise from north, pitch_deg = gimbal angle below the horizon
 (90 = straight down), roll_deg about the optical axis. OpenCV camera frame: x right, y down, z forward.
+Real telemetry: DJI gimbal pitch is -90 for straight down, so pitch_deg = -gimbal_pitch here; heading is the
+aircraft yaw plus gimbal yaw (degrees from true north). Check against test_oblique_projection_matches_hand_computed
+_pinhole_values before trusting a new airframe.
 """
 
 from __future__ import annotations

@@ -84,3 +84,13 @@ def test_unknown_trend_never_reports_a_noise_rate():
         t = _trend(0.0, seed, hover_s=12.0)
         if t.trend == "unknown":
             assert t.rate_in_per_hr is None
+
+
+def test_a_quick_revisit_with_a_new_bias_is_not_read_as_a_rise():
+    """Audit regression: 15 s hover, 45 s gap, +10 cm bias on still water read 'rising 206 in/hr'."""
+    rng = np.random.default_rng(0)
+    r = RiseTracker()
+    for visit, (start, bias) in enumerate([(0.0, 0.0), (60.0, 0.10)]):
+        for t in start + np.arange(0, 15, 1 / FPS):
+            r = r.add("cp-1", float(t), 100 + bias + rng.normal(0, 0.005), 0.10, visit=visit)
+    assert r.trend("cp-1").trend != "rising"

@@ -17,7 +17,7 @@ There was no physical Tello or tabletop scene. That means:
 Limits of the synthetic checks:
 - The renderer reuses the camera and grid code. A hand-computed projection test (`test_oblique_projection_matches_hand_computed_pinhole_values`) pins that code to the pinhole maths, so a convention bug can't cancel out between renderer and estimator.
 - The DEM given to the estimator is exact.
-- These are not modelled: heading bias, lens distortion, timing lag, a sloped water surface, vegetation, or non-uniform segmentation errors such as reflections or mud read as road.
+- These are not modelled: lens distortion, timing lag, a sloped water surface, vegetation, or non-uniform segmentation errors such as reflections or mud read as road.
 
 Reproduce:
 ```
@@ -115,4 +115,10 @@ Three independent reviews covered the geometry maths, the perception, alerts and
 - A Tello flight whose vision step fails falls back to the HSV result, so the flight is never lost.
 - `POST /api/snapshots` recomputes alerts on the server and accepts an optional `X-Vision-Token`.
 - The loop API publishes `est_depth_in: null`, not 0, for snapshots with no measured depth.
+- Geometry (verified with probe scripts by the reviewer, now regression-tested):
+  - A road is called dry only if its **lowest 10% of cells** were seen. A 14 in puddle in a dip under a tree had been reported dry.
+  - "Two sides" now means **two banks**, judged by which way each edge faces from water to ground, not the two ends of the road. A road running along the river had claimed two sides from one bank.
+  - Each bank is fitted on its own and the surface is the mean of the two. A sideways GPS offset used to make the pooled MAD drop one bank.
+  - The range now includes altitude error (dz/tan of the grazing angle) and the oblique stretch of attitude error. The coverage test now runs both looking **along** and **across** the river.
+  - The rise tracker starts a new visit when the reported pose moves or drifts more than 1 m (0.5 m vertically). A revisit 45 s later with a new 10 cm bias had read "rising 206 in/hr".
 - Wording in this note is corrected as above: "self-consistency", "parameterised by", "smoke test", and the thresholds the tests assert.
