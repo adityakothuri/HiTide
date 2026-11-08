@@ -53,6 +53,8 @@ CAR_LEVELS = ("none", "wheels", "doors", "windows", "roof")
 WHEEL_HEIGHT_MM = 1.0
 OVERLAY_TINT_BGR = (255, 120, 0)
 OVERLAY_ALPHA = 0.4
+OVERLAY_DEEP_BGR = (120, 30, 0)  # deepest water is drawn darker blue
+OVERLAY_DEEP_FT = 4.0  # depth at which the shading reaches OVERLAY_DEEP_BGR
 
 
 @dataclass(frozen=True)
@@ -78,6 +80,8 @@ class WaterEstimate:
     wet_fraction: float = 0.0
     focal_px: float | None = None
     pose_source: str | None = None  # "tags", "corners" (clicked) or "rim" (auto outline)
+    # Per place: CAD ground height vs the measured water surface. See location_depths().
+    depths: tuple[dict[str, Any], ...] = ()
 
     @property
     def valid(self) -> bool:
@@ -95,9 +99,38 @@ def _finite_or_none(value: Any) -> Any:
     """NaN and infinity become None (JSON has no representation for them)."""
     if isinstance(value, float):
         return value if math.isfinite(value) else None
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         return [_finite_or_none(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _finite_or_none(v) for k, v in value.items()}
     return value
+
+
+def _locations(model: TrayModel) -> list[tuple[str, str, float]]:
+    """(id, label, CAD ground height mm) for the places the console reports depth at."""
+    river = model.height_mm[model.river] if model.river.any() else model.height_mm
+    places = [("river", "River channel", float(np.median(river))),
+              ("crossing", "Low-water crossing", float(model.road.deck_mm)),
+              ("car", "Stranded car", float(model.car.road_mm))]
+    places += [(f"house_{i + 1}", f"House {i + 1}", float(h.ground_mm)) for i, h in enumerate(model.houses)]
+    return places
+
+
+def location_depths(model: TrayModel, level_mm: float, level_range_mm: tuple[float, float]) -> tuple[dict[str, Any], ...]:
+    """The same logic as the real system: the CAD (like a terrain model) gives each place's ground height;
+    vision gives the water surface. Depth = surface - ground (0 when dry); before = at normal pool.
+    Feet use the tray scale (one terrace step = 1 ft)."""
+    def feet(surface: float, ground: float) -> float:
+        return round(max(0.0, surface - ground) / model.step_mm, 2)
+
+    out = []
+    for place, label, ground in _locations(model):
+        before = feet(model.pool_mm, ground)
+        now = feet(level_mm, ground)
+        out.append({"id": place, "label": label, "ground_mm": round(ground, 2), "before_ft": before,
+                    "now_ft": now, "now_ft_range": [feet(level_range_mm[0], ground), feet(level_range_mm[1], ground)],
+                    "change_ft": round(now - before, 2), "flooded": level_mm > ground})
+    return tuple(out)
 
 
 def car_level_index(model: TrayModel, level: float) -> int:
@@ -447,6 +480,7 @@ class GaugeReader:
 
     def _meaning(self, est: WaterEstimate, previous_car: int | None) -> WaterEstimate:
         assert est.level_mm is not None
+        est = replace(est, depths=location_depths(self.model, est.level_mm, est.level_mm_range or (est.level_mm,) * 2))
         crossing, _, houses = describe_level(self.model, est.level_mm)
         car = CAR_LEVELS[_apply_car_hysteresis(self.model, est.level_mm, previous_car)]
         return replace(est, crossing_flooded=crossing, car_level=car, houses_flooded=houses)
@@ -481,7 +515,8 @@ class GaugeReader:
         crossing, _, houses = describe_level(model, level)
         return replace(latest, level_mm=level, level_mm_range=(lo, hi), ft=ft, ft_range=ft_range,
                        confidence=conf, crossing_flooded=crossing, car_level=CAR_LEVELS[self._car_idx],
-                       houses_flooded=houses, reason=note or latest.reason)
+                       houses_flooded=houses, reason=note or latest.reason,
+                       depths=location_depths(model, level, (lo, hi)))
 
     def update(self, frame: np.ndarray) -> WaterEstimate:
         """Smoothed estimate: median of the last valid frames; occluded or implausible frames are dropped."""
@@ -518,12 +553,15 @@ class GaugeReader:
             cv2.polylines(out, [np.rint(rim).astype(np.int32).reshape(-1, 1, 2)], True, (0, 255, 0), 2)
             self._label_edges(out, view)
         if view is not None and estimate.level_mm is not None:
-            wet = self._grid.height_mm[view.cell_idx] < estimate.level_mm
-            mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+            depth_ft = (estimate.level_mm - self._grid.height_mm[view.cell_idx]) / self.model.step_mm
+            wet = depth_ft > 0
+            shade = np.zeros(frame.shape[:2], dtype=np.float32)  # 0 = dry, 1..2 = shallow..deep
             pts = np.rint(view.px[wet]).astype(int)
-            mask[pts[:, 1], pts[:, 0]] = 1
-            mask = cv2.dilate(mask, np.ones((3, 3), np.uint8)).astype(bool)
-            tint = np.array(OVERLAY_TINT_BGR, dtype=np.float32)
+            shade[pts[:, 1], pts[:, 0]] = 1.0 + np.clip(depth_ft[wet] / OVERLAY_DEEP_FT, 0.0, 1.0)
+            shade = cv2.dilate(shade, np.ones((3, 3), np.uint8))
+            mask = shade > 0
+            t = (shade[mask] - 1.0)[:, None]
+            tint = (1 - t) * np.array(OVERLAY_TINT_BGR, np.float32) + t * np.array(OVERLAY_DEEP_BGR, np.float32)
             out[mask] = (out[mask] * (1 - OVERLAY_ALPHA) + tint * OVERLAY_ALPHA).astype(np.uint8)
         for row, text in enumerate(self._overlay_lines(estimate)):
             _draw_label(out, text, (10, 24 + 24 * row))

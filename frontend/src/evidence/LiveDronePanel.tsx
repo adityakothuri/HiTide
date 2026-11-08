@@ -49,6 +49,19 @@ export type GaugeStatus = {
   pose_source?: 'tags' | 'corners' | 'rim' | null
   /** The 4 clicked tray corners (frame px), when set. */
   corners?: [number, number][] | null
+  /** Per place: CAD ground height vs the measured water surface (feet, tray scale). */
+  depths?: LocationDepth[] | null
+}
+
+export type LocationDepth = {
+  id: string
+  label: string
+  ground_mm: number
+  before_ft: number
+  now_ft: number
+  now_ft_range: [number, number]
+  change_ft: number
+  flooded: boolean
 }
 
 type GaugeCommand = 'baseline' | 'start' | 'stop'
@@ -145,6 +158,40 @@ function isStale(gauge: GaugeStatus) {
   return gauge.age_s != null && (gauge.age_s > GAUGE_STALE_S || !gauge.running)
 }
 
+function signedFeet(value: number) {
+  return `${value > 0 ? '+' : ''}${value.toFixed(1)}`
+}
+
+function DepthRow({ depth }: { depth: LocationDepth }) {
+  return (
+    <tr className={depth.flooded ? s.depthWet : ''}>
+      <th scope="row">{depth.label}</th>
+      <td>{depth.before_ft.toFixed(1)}</td>
+      <td title={`range ${depth.now_ft_range[0].toFixed(1)}–${depth.now_ft_range[1].toFixed(1)} ft`}>{depth.now_ft.toFixed(1)}</td>
+      <td className={depth.change_ft > 0 ? s.depthRise : ''}>{signedFeet(depth.change_ft)}</td>
+    </tr>
+  )
+}
+
+/** Same logic as the real system: before = CAD ground at normal pool, now = measured surface minus ground. */
+function DepthTable({ depths }: { depths: LocationDepth[] }) {
+  const main = depths.filter((d) => !d.id.startsWith('house_'))
+  const houses = depths.filter((d) => d.id.startsWith('house_'))
+  const head = (
+    <thead><tr><th scope="col">Place</th><th scope="col">Before</th><th scope="col">Now</th><th scope="col">Change</th></tr></thead>
+  )
+  return (
+    <div className={s.depths}>
+      <p className={s.depthsTitle}>Water depth by place (ft): CAD ground vs measured surface</p>
+      <table className={s.depthTable}>{head}<tbody>{main.map((d) => <DepthRow key={d.id} depth={d} />)}</tbody></table>
+      {houses.length > 0 && <details className={s.depthHouses}>
+        <summary>Houses ({houses.filter((d) => d.flooded).length} of {houses.length} flooded)</summary>
+        <table className={s.depthTable}>{head}<tbody>{houses.map((d) => <DepthRow key={d.id} depth={d} />)}</tbody></table>
+      </details>}
+    </div>
+  )
+}
+
 type GaugeCardProps = {
   gauge: GaugeStatus
   showOverlay: boolean
@@ -209,6 +256,7 @@ function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, me
         <div><dt>Dry baseline</dt><dd className={gauge.baseline_moved ? s.baselineMoved : ''}>{baselineText(gauge)}</dd></div>
         <div><dt>Pose from</dt><dd>{poseText(gauge)}</dd></div>
       </dl>
+      {hasLevel && gauge.depths?.length ? <DepthTable depths={gauge.depths} /> : null}
       <div className={s.confidence}>
         <span id="gauge-confidence-label">Confidence {gauge.confidence == null ? '—' : `${confidence}%`}</span>
         <div className={s.confidenceBar} role="meter" aria-labelledby="gauge-confidence-label"

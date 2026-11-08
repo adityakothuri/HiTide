@@ -130,7 +130,7 @@ GAUGE_ENCODE_ERROR = "Overlay error: JPEG encode failed"
 ESTIMATE_FIELDS = (
     "level_mm", "level_mm_range", "ft", "ft_range", "confidence", "crossing_flooded", "car_level",
     "houses_flooded", "houses_total", "visible_cells", "wet_cells", "wet_fraction", "tags_seen",
-    "reproj_err_px", "has_baseline", "baseline_moved", "simulated", "reason", "ts", "pose_source",
+    "reproj_err_px", "has_baseline", "baseline_moved", "simulated", "reason", "ts", "pose_source", "depths",
 )
 
 

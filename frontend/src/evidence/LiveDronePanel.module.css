@@ -75,3 +75,13 @@
 
 .feedPicking { cursor: crosshair; outline: 2px dashed var(--brand-red); outline-offset: -2px; }
 .cornerDot { position: absolute; z-index: 2; width: 22px; height: 22px; margin: -11px 0 0 -11px; display: grid; place-items: center; border-radius: 50%; background: var(--brand-red); color: var(--on-dark); font-size: 12px; font-weight: 700; pointer-events: none; box-shadow: 0 0 0 2px var(--surface); }
+
+.depths { display: grid; gap: 6px; }
+.depthsTitle { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; color: var(--neutral-5); }
+.depthTable { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.depthTable th, .depthTable td { padding: 5px 6px; border-bottom: var(--border); text-align: right; }
+.depthTable th[scope="row"], .depthTable thead th:first-child { text-align: left; font-weight: 600; }
+.depthTable thead th { font-size: 10px; color: var(--neutral-5); font-weight: 700; }
+.depthWet th[scope="row"] { color: var(--water-5); }
+.depthRise { color: var(--critical-deep); font-weight: 700; }
+.depthHouses summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--info); padding: 4px 0; }

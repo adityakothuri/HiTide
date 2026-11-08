@@ -410,3 +410,35 @@ def test_to_dict_has_fields_and_no_non_finite(model):
     assert data["baseline_moved"] is True and data["wet_fraction"] == 0.5
     assert data["confidence"] is None and data["reproj_err_px"] is None and data["ft_range"] == [None, 4.0]
     json.dumps(data, allow_nan=False)
+
+
+def test_depths_are_water_surface_minus_cad_ground():
+    """Same logic as the real system: CAD ground (before) vs the measured surface (now), and the change."""
+    from gauge.water import location_depths
+    tray = load_tray()
+    level = tray.pool_mm + 2.5 * tray.step_mm
+    depths = {d["id"]: d for d in location_depths(tray, level, (level - 1.0, level + 1.0))}
+    crossing, car, river = depths["crossing"], depths["car"], depths["river"]
+    assert crossing["before_ft"] == 0.0  # the road is dry at normal pool
+    assert crossing["now_ft"] == pytest.approx((level - tray.road.deck_mm) / tray.step_mm, abs=0.01)
+    assert car["now_ft"] == pytest.approx((level - tray.car.road_mm) / tray.step_mm, abs=0.01)
+    assert river["before_ft"] > 0  # the channel holds water at normal pool
+    for d in depths.values():
+        assert d["change_ft"] == pytest.approx(d["now_ft"] - d["before_ft"], abs=0.01)
+        assert d["now_ft_range"][0] <= d["now_ft"] <= d["now_ft_range"][1]
+        assert d["flooded"] == (level > d["ground_mm"])
+    high = [d for d in depths.values() if d["ground_mm"] >= level]
+    assert high and all(d["now_ft"] == 0.0 for d in high)  # ground above the water stays dry
+    assert len(depths) == 3 + len(tray.houses)
+
+
+def test_estimate_carries_depths():
+    tray = load_tray()
+    cam = tello_default()
+    pose = look_at_pose(tray, distance_mm=360, elevation_deg=55, azimuth_deg=30)
+    reader = GaugeReader(tray)
+    reader.set_baseline(render(tray, cam, pose, None, noise=Noise.modest()))
+    est = reader.update(render(tray, cam, pose, tray.pool_mm + 3.5 * tray.step_mm, noise=Noise.modest()))
+    crossing = next(d for d in est.depths if d["id"] == "crossing")
+    assert crossing["now_ft"] > 0 and crossing["flooded"]
+    assert "depths" in est.to_dict() and len(est.to_dict()["depths"]) == 3 + len(tray.houses)
