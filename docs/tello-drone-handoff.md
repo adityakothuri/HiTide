@@ -57,8 +57,15 @@ The server binds to 127.0.0.1 only and logs to `~/tello-test/dashboard.log`.
 - **Self-test run 2 on the real drone: 0 failures.** Video at 34 fps (first frame after 0.1 s),
   960x720; dashboard served 29 fps over HTTP with live status (battery 89%, 66 C).
 - Video colors are not yet judged: the test snapshot was taken in a near-dark room.
-- Dashboard take off/land verified against a fake drone. **Flight on the real drone has not been
-  tested yet.**
+- Dashboard take off/land verified against a fake drone.
+- **Flight attempt 1 (03:34): the drone refused takeoff and land with a bare `error`, so no control
+  was possible** (movement is only sent while flying). The laptop side worked: connected at 82%,
+  video started. Suspects: IMU calibration needed (the drone showed a solid red LED earlier), heat
+  after sitting powered on, a dark room, or an uneven surface. The dashboard now runs a preflight
+  check (battery, temperature, tilt), sends one raw `takeoff` instead of 4 silent retries, and logs
+  the exact reply plus battery/temperature/tilt/floor-sensor readings on refusal.
+- The dashboard now refuses to start if another copy is already running. Windows otherwise let two
+  copies share port 8765, and one was left running after the flight attempt.
 
 ## Known quirks
 

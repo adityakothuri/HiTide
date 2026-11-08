@@ -26,6 +26,15 @@ JPEG_QUALITY = 70
 RC_LIMIT = 100
 ACTIONS = ("takeoff", "land", "emergency")
 FLUSH_WAIT_SECONDS = 0.3
+TAKEOFF_TIMEOUT = 20
+LOW_BATTERY_PCT = 20
+HOT_TEMP_C = 80
+MAX_TILT_DEG = 10
+REFUSAL_HINT = (
+    "Fixes to try: 1) IMU calibration in the Tello phone app (Settings > More > IMU Calibration), "
+    "2) turn it off 15 min if hot, 3) flat surface, 4) turn the lights on (its downward camera "
+    "needs to see the floor), 5) restart the drone."
+)
 
 
 def flush_replies(tello: Tello) -> None:
@@ -50,7 +59,7 @@ class Drone:
     def start(self) -> None:
         self.tello.connect()
         flush_replies(self.tello)
-        self.note(f"Connected, battery {self.tello.get_battery()}%")
+        self.note(f"Connected | {self.readings()}")
         # Video can take a while (or fail) to start; never let it block telemetry and controls.
         for loop in (self._video_loop, self._rc_loop):
             threading.Thread(target=loop, daemon=True).start()
@@ -127,12 +136,45 @@ class Drone:
         self.note(f"{name.capitalize()}...")
         try:
             flush_replies(self.tello)
-            getattr(self.tello, name)()
-            self.note(f"{name.capitalize()} done")
+            if name == "takeoff":
+                self._takeoff()
+            else:
+                self.tello.land()
+                self.note("Land done")
         except Exception as exc:
-            self.note(f"{name.capitalize()} failed: {exc}")
+            self.note(f"{name.capitalize()} failed: {exc} | {self.readings()}")
         finally:
             self.busy = ""
+
+    def readings(self) -> str:
+        t = self.tello
+        return (f"battery {t.get_battery()}%, temp {t.get_lowest_temperature()}-{t.get_highest_temperature()}C, "
+                f"pitch {t.get_pitch()} roll {t.get_roll()}, floor sensor {t.get_distance_tof()}cm")
+
+    def preflight_problems(self) -> list[str]:
+        t = self.tello
+        problems = []
+        if t.get_battery() < LOW_BATTERY_PCT:
+            problems.append(f"battery {t.get_battery()}% is too low, charge it")
+        if t.get_highest_temperature() >= HOT_TEMP_C:
+            problems.append(f"drone is {t.get_highest_temperature()}C, turn it off for 15 min to cool")
+        if max(abs(t.get_pitch()), abs(t.get_roll())) > MAX_TILT_DEG:
+            problems.append("drone is tilted, put it on a flat surface")
+        return problems
+
+    def _takeoff(self) -> None:
+        problems = self.preflight_problems()
+        if problems:
+            self.note("Take off blocked: " + "; ".join(problems))
+            return
+        # One raw attempt (no silent retries) so we log the drone's exact reply.
+        reply = self.tello.send_command_with_return("takeoff", timeout=TAKEOFF_TIMEOUT)
+        if reply.strip().lower() == "ok":
+            self.tello.is_flying = True
+            self.note("Takeoff done")
+            return
+        self.note(f"Drone refused takeoff: '{reply}' | {self.readings()}")
+        self.note(REFUSAL_HINT)
 
     def status(self) -> dict:
         t = self.tello
@@ -156,6 +198,13 @@ class Drone:
             self.tello.land()
         self.tello.streamoff()
         self.tello.end()
+
+
+class DashboardServer(ThreadingHTTPServer):
+    # Windows lets a second process share a port when SO_REUSEADDR is set; refuse instead,
+    # so a forgotten dashboard can't silently fight a new one for the drone.
+    allow_reuse_address = False
+    daemon_threads = True
 
 
 def make_handler(drone: Drone):
@@ -220,11 +269,16 @@ def make_handler(drone: Drone):
 
 
 def main() -> None:
+    try:
+        server = DashboardServer((HOST, PORT), make_handler(None))
+    except OSError:
+        print(f"The dashboard is ALREADY RUNNING (port {PORT} is in use).")
+        print("Close the other black 'Tello dashboard' window (click it, press Ctrl+C), then try again.")
+        return
     drone = Drone(Tello())
     print("Connecting to the drone...")
     drone.start()
-    server = ThreadingHTTPServer((HOST, PORT), make_handler(drone))
-    server.daemon_threads = True
+    server.RequestHandlerClass = make_handler(drone)
     url = f"http://{HOST}:{PORT}"
     print(f"Dashboard running at {url}  (press Ctrl+C here to stop)")
     webbrowser.open(url)

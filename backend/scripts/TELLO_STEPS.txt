@@ -30,6 +30,16 @@ HEALTH CHECK (run this first if the drone light is red)
 
 IF SOMETHING GOES WRONG
 -----------------------
+Dashboard log says "Drone refused takeoff: 'error'"
+  -> The drone itself is saying no. In order:
+     1. Turn on the room lights (its downward camera must see the floor).
+     2. Put it on a flat, textured floor (not glossy or plain white).
+     3. If it feels hot, or the log shows temp 80C+, turn it off for 15 minutes.
+     4. Restart the drone.
+     5. Calibrate: Tello phone app > Settings > More > IMU Calibration (and install any firmware update).
+
+"The dashboard is ALREADY RUNNING"
+  -> Find the other black console window, click it, and press Ctrl+C. Then start again.
 "Did not receive a state packet from the Tello"
   -> The firewall is blocking Python. See the firewall fix below, then run again.
 
