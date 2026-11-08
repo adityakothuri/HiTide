@@ -128,6 +128,15 @@ Why 300-350 mm: a 16 mm tag is about 49 px wide at 300 mm and 33 px at 450 mm (f
 45 degrees it is foreshortened to about 0.7 of that in one direction. Closer gives sharper tags. The
 whole 160 mm tray still fits in the frame at 300 mm.
 
+### Level stand (the Tello can't tip nose-down)
+
+The Tello's camera points straight ahead; the bottom of the picture sees about 28 deg below level. So put
+the drone **level on a stand higher than the tray**: a box or book stack about **15 cm tall**, about **43 cm
+back from the tray's centre**, facing it. The camera then sits about 16 cm above the rim and looks about
+20 deg down, with the whole tray in the lower half of the frame. Tested on synthetic frames with no tags and
+clicked corners: at about 20 deg down, 31 of 32 levels correct and 1 withheld, none wrong. Below 16 deg the
+gauge withholds the reading ("view too shallow: raise the drone"), because at 12-14 deg it reads a step off.
+
 ### Hover mode (lower confidence)
 
 Flying works only at a shallow angle (about 20-25 degrees): the tray sits low in the frame and many

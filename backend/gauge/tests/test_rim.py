@@ -129,3 +129,53 @@ def test_no_pose_holds_the_last_reading(tray):
     blank = np.zeros_like(wet)  # lens covered / hand over the camera
     held = reader.update(blank)
     assert first.valid and held.ft == first.ft
+
+
+def _level_pose(tray, height_above_rim, back, azimuth_deg):
+    """A level Tello camera (it can't tilt) on a stand above and behind the tray, looking straight ahead."""
+    w, d, z = tray.size_mm[0], tray.size_mm[1], tray.rim_top_mm
+    a = np.radians(azimuth_deg)
+    centre = np.array([w / 2, d / 2, z])
+    c = centre + np.array([-back * np.cos(a), -back * np.sin(a), height_above_rim])
+    f = np.array([np.cos(a), np.sin(a), 0.0])
+    x = np.cross(f, [0.0, 0.0, 1.0])
+    x /= np.linalg.norm(x)
+    rot = np.stack([x, np.cross(f, x), f])
+    return camera.Pose(cv2.Rodrigues(rot)[0].ravel(), -rot @ c)
+
+
+@pytest.mark.parametrize("az", [20, 260])
+def test_level_camera_on_a_stand_reads_the_level(tray, az):
+    """The drone can't tip nose-down: level camera about 20 deg above the tray, clicked corners, no tags."""
+    cam = camera.tello_default()
+    pose = _level_pose(tray, 160, 430, az)
+    reader = GaugeReader(tray)
+    reader.set_corners(_clicks(tray, cam, pose, np.random.default_rng(6)))
+    dry = synth.render(tray, cam, pose, None, noise=synth.Noise.modest(), draw_tags=False, rng=np.random.default_rng(40))
+    assert reader.set_baseline(dry) == (True, "ok")
+    for ft in (1.5, 4.5):
+        wet = synth.render(tray, cam, pose, model.level_mm(tray, ft), noise=synth.Noise.modest(), draw_tags=False,
+                           rng=np.random.default_rng(41 + int(ft)))
+        est = reader.read(wet)
+        assert est.ft is not None and abs(est.ft - ft) <= 0.5, (ft, est.reason)
+
+
+def test_too_shallow_view_is_withheld_not_guessed(tray):
+    cam = camera.tello_default()
+    pose = _level_pose(tray, 90, 420, 320)  # about 12 deg down: reads a step off if allowed
+    reader = GaugeReader(tray)
+    reader.set_corners(_clicks(tray, cam, pose, np.random.default_rng(7)))
+    reader.set_baseline(synth.render(tray, cam, pose, None, noise=synth.Noise.modest(), draw_tags=False))
+    est = reader.read(synth.render(tray, cam, pose, model.level_mm(tray, 2.5), noise=synth.Noise.modest(),
+                                   draw_tags=False, rng=np.random.default_rng(8)))
+    assert est.ft is None and "too shallow" in est.reason
+
+
+def test_dry_tray_baseline_is_not_mistaken_for_water(tray):
+    """Shallow views see the lowest channel cells; a dry tray must still be accepted as dry."""
+    cam = camera.tello_default()
+    pose = _level_pose(tray, 110, 450, 20)
+    reader = GaugeReader(tray)
+    reader.set_corners(_clicks(tray, cam, pose, np.random.default_rng(9)))
+    dry = synth.render(tray, cam, pose, None, noise=synth.Noise.modest(), draw_tags=False, rng=np.random.default_rng(10))
+    assert reader.set_baseline(dry) == (True, "ok")
