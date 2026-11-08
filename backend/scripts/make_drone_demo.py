@@ -51,7 +51,11 @@ Nothing else from Flood Watch is needed.
 3. Stop with **Ctrl+C** in the black window (it lands the drone first if flying).
 
 ## Read the water level (stand mode)
-1. Prop the Tello nose-down about 45 deg, motors off, 300-350 mm from the tray, whole tray in view.
+1. **Place the Tello level, on a stand above the tray, motors off** (its camera can't tilt, so height does the
+   work). Recipe: the drone on a box or book stack about **15 cm tall**, about **43 cm back from the tray's
+   centre**, facing the tray. That puts the camera about 16 cm above the rim, looking about 20 deg down, with
+   the whole tray in the lower half of the picture. Too low/far and the dashboard says "view too shallow:
+   raise the drone" instead of guessing. (Nose-down propping also works if you can manage it.)
 2. **Set tray corners** (required: this tray has no readable tags). Click the 4 top outer corners of the rim
    on the video, starting at the LEFT end of the FLOOD WATCH edge, then going round. Turn on
    **Show gauge overlay** and check the green outline traces the rim and the FLOOD WATCH / RIVER labels sit

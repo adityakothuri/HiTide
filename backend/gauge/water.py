@@ -43,6 +43,9 @@ INVALID_STREAK_TO_CLEAR = 3
 INTRINSICS_SCALE_TOLERANCE = 0.02
 OVERLAY_TEXT_PAD_PX = 2
 WET_THRESHOLD = 0.5
+BASELINE_WET_FRACTION = 0.03  # a 'dry' baseline with more of the visible tray looking dyed than this is refused
+MIN_VIEW_DEG = 16.0  # shallower views hide the terraces and read a step off: withhold, ask to raise it
+MIN_REPORT_FRACTION = 0.5  # withhold a reading below this share of its mode's top confidence
 FOCAL_SAMPLES = 15
 FOCAL_MIN_RATIO, FOCAL_MAX_RATIO = 0.5, 2.0
 CAR_HYSTERESIS_MM = 0.3
@@ -385,8 +388,13 @@ class GaugeReader:
         return True, "ok"
 
     def _shows_water(self, lab_obs: np.ndarray, view: _View) -> bool:
-        """True when the dye colour alone shows a clear waterline above the floor."""
+        """True when enough of the tray looks dyed AND that wetness forms a waterline above the floor.
+
+        Requiring actual dyed cells matters: on a dry tray the level fit still "agrees" with an all-dry
+        picture at the lowest plateau, which would otherwise read as water just above the floor."""
         wet = wetness_from_dye(lab_obs, self._direction)
+        if float((wet > WET_THRESHOLD).mean()) < BASELINE_WET_FRACTION:
+            return False
         fit = fit_level(self._grid.height_mm[view.cell_idx], wet, self._grid.quality[view.cell_idx],
                         self.model.floor_mm, self.model.rim_top_mm)
         return fit.contrast >= MIN_CONTRAST and fit.level_hi_mm > self.model.floor_mm + 0.5
@@ -423,6 +431,12 @@ class GaugeReader:
         pose_factor = 1.0 - 0.5 * float(np.clip((err - REPROJ_OK_PX) / REPROJ_SPAN_PX, 0.0, 1.0))
         return float(np.clip(cap * quality * narrow * cells * source_factor * pose_factor, 0.0, 1.0))
 
+    def _view_angle_deg(self, view: _View) -> float:
+        """How far below horizontal the camera looks at the tray centre."""
+        w, d = self.model.size_mm[0], self.model.size_mm[1]
+        offset = np.asarray(view.fix.camera_mm, float) - np.array([w / 2, d / 2, self.model.rim_top_mm])
+        return float(np.degrees(np.arctan2(offset[2], np.hypot(offset[0], offset[1]))))
+
     def _wetness(self, lab_obs: np.ndarray, view: _View, moved: bool) -> tuple[np.ndarray, np.ndarray, bool]:
         """Wetness, validity mask and whether the baseline was used."""
         base = None if (self._baseline is None or moved) else self._baseline.lab[view.cell_idx]
@@ -449,6 +463,10 @@ class GaugeReader:
                        visible_cells=len(view.cell_idx), pose_source=source)
         if len(view.cell_idx) < MIN_VISIBLE_CELLS:
             return self._none("too few tray cells visible", **base_kw)
+        view_deg = self._view_angle_deg(view)
+        if view_deg < MIN_VIEW_DEG:
+            return self._none(f"view too shallow ({view_deg:.0f} deg down, need {MIN_VIEW_DEG:.0f}+): raise the drone "
+                              "or move it closer so it looks down on the tray more", **base_kw)
         moved, note = False, None
         if self._baseline is None:
             self._moved = False
@@ -474,6 +492,9 @@ class GaugeReader:
         confidence = self._confidence(fit.agreement, fit.level_hi_mm - fit.level_lo_mm, int(valid.sum()),
                                       pose_factor, 0.0 if source != "tags" else view.fix.reproj_err_px,
                                       BASELINE_CAP if used_base else DYE_ONLY_CAP)
+        if confidence < MIN_REPORT_FRACTION * (BASELINE_CAP if used_base else DYE_ONLY_CAP):
+            return self._none(f"low confidence ({confidence:.2f}): too much of the tray is hidden at this angle. "
+                              "Raise the drone or view the tray from another side.", **common)
         return self._meaning(WaterEstimate(level_mm=level, level_mm_range=level_range, ft=ft, ft_range=ft_range,
                                            confidence=confidence, reason=note, ts=time.time(),
                                            houses_total=len(self.model.houses), **common), self._car_idx)
