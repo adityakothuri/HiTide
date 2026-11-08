@@ -31,6 +31,12 @@ TAKEOFF_TIMEOUT = 20
 STATE_STALE_SECONDS = 2.0  # no telemetry for this long = drone connection lost
 VIDEO_STALE_SECONDS = 4.0
 RECONNECT_EVERY_SECONDS = 3.0
+LAND_RESEND_SECONDS = 1.5  # keep repeating "land" until the drone is down (works mid-takeoff too)
+LAND_MIN_SENDS = 3
+LAND_TIMEOUT_SECONDS = 15
+DRIFT_SPEED = 3  # Tello speed units; above this while hovering with no keys held = drifting
+DRIFT_SECONDS = 2.0
+DRIFT_REPORT_EVERY = 10.0
 TAKEOVER_WAIT_SECONDS = 15  # time for an old dashboard to land and release the port
 WATCHDOG_SECONDS = 0.25
 LOW_BATTERY_PCT = 20
@@ -71,12 +77,15 @@ class Drone:
         self.tello = tello
         self.rc = (0, 0, 0, 0)
         self.rc_at = 0.0
-        self.busy = ""
+        self.busy = ""  # "takeoff" while a takeoff is in progress
+        self.landing = False  # separate from busy: landing must be able to interrupt a takeoff
         self.jpeg: bytes | None = None
         self.log: deque[str] = deque(maxlen=30)
         self.state_at = time.time()
         self.frame_at = 0.0
         self.reconnect_at = 0.0
+        self.drift_since = 0.0
+        self.drift_reported = 0.0
 
     def start(self) -> None:
         """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
@@ -137,7 +146,31 @@ class Drone:
                     self.tello.send_command_without_return("streamon")
                 except OSError:
                     pass  # no network yet; try again next round
+            if connected:
+                self._check_drift()
             time.sleep(WATCHDOG_SECONDS)
+
+    def _check_drift(self) -> None:
+        """Hovering with no keys held should be still; say why when it isn't.
+
+        The Tello holds position with its downward camera (VPS). Dim light or a plain,
+        shiny, or uniform floor blinds it and it slides around. Software can't fix that,
+        but it can tell the pilot.
+        """
+        holding = (self.tello.is_flying and not self.busy and not self.landing
+                   and (self.rc == (0, 0, 0, 0) or time.time() - self.rc_at > DEADMAN_SECONDS))
+        speed = max(abs(self.value("get_speed_x")), abs(self.value("get_speed_y")))
+        if not holding or speed <= DRIFT_SPEED:
+            self.drift_since = 0.0
+            return
+        self.drift_since = self.drift_since or time.time()
+        if time.time() - self.drift_since < DRIFT_SECONDS or time.time() - self.drift_reported < DRIFT_REPORT_EVERY:
+            return
+        self.drift_reported = time.time()
+        floor = self.value("get_distance_tof")
+        self.note(f"DRIFTING while hovering (speed {speed}, floor {floor}cm). It holds position by watching the "
+                  "floor: turn on bright lights, fly over a patterned rug or tape marks, stay 0.5-2m up, "
+                  "and avoid shiny or plain floors.")
 
     def note(self, text: str) -> None:
         self.log.appendleft(write_log(text))
@@ -161,7 +194,7 @@ class Drone:
 
     def _rc_loop(self) -> None:
         while True:
-            if self.tello.is_flying and not self.busy:
+            if self.tello.is_flying and not self.busy and not self.landing:
                 fresh = time.time() - self.rc_at < DEADMAN_SECONDS
                 try:
                     self.tello.send_rc_control(*(self.rc if fresh else (0, 0, 0, 0)))
@@ -182,9 +215,14 @@ class Drone:
             self.tello.is_flying = False
             self.note("EMERGENCY STOP: motors cut")
             return "ok"
-        if self.busy:
-            return f"busy ({self.busy})"
-        # Land is always allowed: if our flying flag is ever wrong, landing must still work.
+        if name == "land":  # always allowed, even mid-takeoff or if our flying flag is wrong
+            if self.landing:
+                return "already landing"
+            self.landing = True
+            threading.Thread(target=self._land, daemon=True).start()
+            return "ok"
+        if self.busy or self.landing:
+            return f"busy ({'landing' if self.landing else self.busy})"
         if name == "takeoff" and self.tello.is_flying:
             return "already flying"
         if name == "takeoff" and not self.connected:
@@ -197,15 +235,35 @@ class Drone:
         self.note(f"{name.capitalize()}...")
         try:
             flush_replies(self.tello)
-            if name == "takeoff":
-                self._takeoff()
-            else:
-                self.tello.land()
-                self.note("Land done")
+            self._takeoff()
         except Exception as exc:
             self.note(f"{name.capitalize()} failed: {exc} | {self.readings()}")
         finally:
             self.busy = ""
+
+    def _land(self) -> None:
+        """Fire "land" repeatedly instead of waiting on one reply.
+
+        A waiting reply can be stolen by an in-flight takeoff, and the drone may ignore
+        a single "land" while it is still climbing. Repeating is harmless once it is down.
+        """
+        self.note("Landing...")
+        self.rc = (0, 0, 0, 0)
+        start, sends, grounded = time.time(), 0, 0
+        try:
+            while time.time() - start < LAND_TIMEOUT_SECONDS:
+                self.tello.send_command_without_return("land")
+                sends += 1
+                time.sleep(LAND_RESEND_SECONDS)
+                grounded = grounded + 1 if self.value("get_height") <= 0 else 0
+                if sends >= LAND_MIN_SENDS and grounded >= 2 and not self.busy:
+                    break
+            self.tello.is_flying = False
+            self.note(f"Landed | {self.readings()}")
+        except Exception as exc:
+            self.note(f"Land error: {exc}")
+        finally:
+            self.landing = False
 
     def readings(self) -> str:
         v = self.value
@@ -231,8 +289,11 @@ class Drone:
         # One raw attempt (no silent retries) so we log the drone's exact reply.
         reply = self.tello.send_command_with_return("takeoff", timeout=TAKEOFF_TIMEOUT)
         if reply.strip().lower() == "ok":
+            if self.landing:  # Land was pressed during the climb; don't flip back to flying
+                self.note("Takeoff finished but a landing is in progress")
+                return
             self.tello.is_flying = True
-            self.note("Takeoff done")
+            self.note("Takeoff done, hovering")
             return
         self.note(f"Drone refused takeoff: '{reply}' | {self.readings()}")
         self.note(REFUSAL_HINT)
@@ -252,7 +313,7 @@ class Drone:
             "connected": self.connected,
             "state_age": round(time.time() - self.state_at, 1) if self.state_at else 999,
             "video_age": round(time.time() - self.frame_at, 1) if self.frame_at else None,
-            "busy": self.busy,
+            "busy": "land" if self.landing else self.busy,
             "log": list(self.log),
         }
 
