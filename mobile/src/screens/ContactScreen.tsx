@@ -104,7 +104,7 @@ export function ContactScreen() {
               </View>
             </View>
             <Text style={sheetText.muted}>
-              If you ask for help, Flood Watch lets {contact.name.split(' ')[0]} know where you are. In this demo,
+              If you ask for help, HiTide lets {contact.name.split(' ')[0]} know where you are. In this demo,
               notifications are simulated and nothing is sent.
             </Text>
           </>

@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, frontend, design]
+tags: [hitide, frontend, design]
 status: checkpoint-1
 updated: 2026-11-07
 ---
@@ -126,12 +126,12 @@ Every screen has a top bar (wordmark) and a bottom tab bar (Home, Trips, Claims,
 **5.1 Home, calm**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch        (gear)│
+│ ■ HiTide        (gear)│
 ├──────────────────────────────────────┤
 │ Good evening, Margaret               │
 │                                      │
 │ ┌──────────────────────────────────┐ │
-│ │ (shield) Flood Watch is on       │ │
+│ │ (shield) HiTide is on       │ │
 │ │ No flood warnings near you.      │ │
 │ │ Checked 2 min ago                │ │
 │ └──────────────────────────────────┘ │
@@ -158,7 +158,7 @@ Every screen has a top bar (wordmark) and a bottom tab bar (Home, Trips, Claims,
 **5.2 Warning active**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │▌(!) Flash flood warning              │  caution banner, left rule
 │▌ Kerr County until 2:15 AM           │
@@ -210,7 +210,7 @@ The tab bar is hidden while the takeover shows. `role="alertdialog"`, and focus 
 **5.4 Check-in**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │ Your car stopped on a flooded road   │
 │ Water St, 8:42 PM                    │
@@ -235,7 +235,7 @@ The tab bar is hidden while the takeover shows. `role="alertdialog"`, and focus 
 **5.5 Help is on the way**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │ Help is on the way                   │
 │ Stay on the roof if water is rising. │
@@ -261,7 +261,7 @@ Step states are shown by icon shape (filled check / half ring / empty ring) **an
 **5.6 After: claim started**
 ```
 ┌──────────────────────────────────────┐
-│ ■ State Farm Flood Watch             │
+│ ■ HiTide             │
 ├──────────────────────────────────────┤
 │ You're safe. We started your claim.  │
 │                                      │
@@ -286,9 +286,9 @@ Step states are shown by icon shape (filled check / half ring / empty ring) **an
 **5.7 Settings (gear icon on Home)**
 ```
 ┌──────────────────────────────────────┐
-│ ← Flood Watch settings               │
+│ ← HiTide settings               │
 ├──────────────────────────────────────┤
-│ Flood Watch                    [on ] │  switch
+│ HiTide                    [on ] │  switch
 │ We check your usual routes against   │
 │ National Weather Service and USGS    │
 │ flood data.                          │
@@ -311,7 +311,7 @@ Step states are shown by icon shape (filled check / half ring / empty ring) **an
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
-│ ■ State Farm Flood Watch   Flash flood warning, Kerr County (simulated)                       │
+│ ■ HiTide   Flash flood warning, Kerr County (simulated)                       │
 │  Warned 42   Rerouted 17   Stopped in water 3   Confirmed safe 9      NWS 8:41 PM  USGS 8:40 PM│
 ├─────────────────────┬────────────────────────────────────────────────┬────────────────────────┤
 │ Cases               │                                                │ (!) Critical           │
@@ -430,7 +430,7 @@ Skills used:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ ◇ State Farm Flood Watch  Flood operations │ Flash flood warning, Kerr Co │ 11 warned  2 rerouted  1 stopped  1 verified  $16,500 │ ● Live │
+│ ◇ HiTide  Flood operations │ Flash flood warning, Kerr Co │ 11 warned  2 rerouted  1 stopped  1 verified  $16,500 │ ● Live │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ ┌Cases──────────┐   full-bleed dark street map                ┌Margaret Hale──────┐ │
 │ │All Critical … │   flooded roads glow cyan→violet            │ Critical, 75+      │ │

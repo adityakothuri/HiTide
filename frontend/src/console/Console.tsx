@@ -14,7 +14,7 @@ import { TimeSlider } from './TimeSlider'
 import { TopBar } from './TopBar'
 import s from './Console.module.css'
 
-const BASE_TITLE = 'Flood operations | State Farm Flood Watch'
+const BASE_TITLE = 'Flood operations | HiTide'
 const GAP = 8
 
 /** `?autostart=1` starts the offline scenario on load (used for screenshots). */

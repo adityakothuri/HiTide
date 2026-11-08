@@ -1,4 +1,4 @@
-# Flood Watch — consumer app (Expo)
+# HiTide — consumer app (Expo)
 
 React Native + Expo (SDK 58) + TypeScript app for people traveling through flood-prone areas. It covers the overview, route planning, updates, the turn-around voice alert, the safety check-in, support status, and profile/preferences. All data is **local demo data**. There is no backend in this milestone.
 
@@ -36,7 +36,7 @@ npx expo-doctor
 
 Every reference state can be reached immediately:
 
-- **Long-press the Flood Watch mark** in any header, or use **Profile → Developer: scenario controls**. Choose Normal, Flood warning, Alternate route, Turn-around, Check-in, Help requested, Resolved, or Reset. A toggle simulates network write failures.
+- **Long-press the HiTide mark** in any header, or use **Profile → Developer: scenario controls**. Choose Normal, Flood warning, Alternate route, Turn-around, Check-in, Help requested, Resolved, or Reset. A toggle simulates network write failures.
 - **Deep link** (scripted review): `exp://127.0.0.1:8081/--/dev-action?do=<scenario|action>&to=<screen>`
   - `do`: any scenario above (`normal`, `flood_warning`, `alternate_route`, `turn_around`, `check_in`, `help_requested`, `resolved`) or an action: `safe`, `help`, `ack`, `select-alt`, `minimize`, `restore`, `dismiss`, `reset`
   - `to`: `home`, `trips`, `updates`, `profile`, `warning`, `route`, `contact`, `call`
@@ -76,7 +76,7 @@ src/
 
 ## Future backend (SpaceTimeDB)
 
-Replace one boundary: **`FloodWatchRepository`** in `src/data/repository.ts`.
+Replace one boundary: **`HiTideRepository`** in `src/data/repository.ts`.
 
 1. Implement the interface in a new adapter (e.g. `src/data/spacetimeRepository.ts`). Map backend records to `src/domain/types.ts` and emit through `subscribe`/`getSnapshot`.
 2. Return it from `createRepository()` in `src/data/RepositoryProvider.tsx` (or pass it via the provider's `repository` prop).

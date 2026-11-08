@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Droplets, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
+import { LogoMark } from '../ui/LogoMark'
 import { useNow } from '../lib/useNow'
 import boundary from './texasBoundary.json'
 import s from './Operations.module.css'
@@ -170,7 +171,7 @@ export function TexasMonitor() {
   return <div className={s.app}>
     <a className={s.skip} href="#texas-main">Skip to Texas monitoring</a>
     <header className={s.header}>
-      <a href="/" className={s.brand}><span className={s.brandMark}><Droplets size={23} /></span>Flood Watch</a>
+      <a href="/" className={s.brand}><LogoMark size={40} />HiTide</a>
       <nav aria-label="Main"><a href="/texas" aria-current="page">Texas monitor</a><a href="/console">Kerrville test case</a></nav>
     </header>
     <main id="texas-main" className={s.main}>

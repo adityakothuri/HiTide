@@ -1,22 +1,22 @@
 {
   "expo": {
-    "name": "Flood Watch",
-    "slug": "flood-watch",
+    "name": "HiTide",
+    "slug": "hitide",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "floodwatch",
+    "scheme": "hitide",
     "userInterfaceStyle": "light",
     "description": "Independent flood safety for people traveling through flood-prone areas. Demo build with sample data.",
     "ios": {
-      "bundleIdentifier": "app.floodwatch.consumer",
+      "bundleIdentifier": "app.hitide.consumer",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "app.floodwatch.consumer",
+      "package": "app.hitide.consumer",
       "adaptiveIcon": {
         "backgroundColor": "#2448E8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -41,7 +41,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Flood Watch uses your location during flood alerts to check on you near reported flooding.",
+          "locationWhenInUsePermission": "HiTide uses your location during flood alerts to check on you near reported flooding.",
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }

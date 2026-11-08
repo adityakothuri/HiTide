@@ -33,8 +33,8 @@ export function Settings({ view }: { view: DriverView }) {
     <>
       <LargeTitle>Settings</LargeTitle>
 
-      <Section header="Flood Watch" id="fw" footer="We check your usual routes against National Weather Service and USGS flood data. We use your location only while a flood warning is active near you.">
-        <SwitchRow icon={ShieldCheck} label="Flood Watch" checked={watch} onChange={setWatch} />
+      <Section header="HiTide" id="fw" footer="We check your usual routes against National Weather Service and USGS flood data. We use your location only while a flood warning is active near you.">
+        <SwitchRow icon={ShieldCheck} label="HiTide" checked={watch} onChange={setWatch} />
         <Row icon={LocateFixed} title="Location" trailing="During warnings" />
       </Section>
 
@@ -52,7 +52,7 @@ export function Settings({ view }: { view: DriverView }) {
           type="button"
           className={`${iosStyles.row} ${iosStyles.withIcon} ${iosStyles.tappable}`}
           disabled={!voice}
-          onClick={() => speak('This is a test of Flood Watch spoken alerts.')}
+          onClick={() => speak('This is a test of HiTide spoken alerts.')}
         >
           <Glyph icon={Volume2} />
           <span className={`${iosStyles.rowTitle} ${voice ? s.action : s.actionDisabled}`}>Test spoken alert</span>

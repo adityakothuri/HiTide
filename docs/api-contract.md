@@ -1,4 +1,4 @@
-# Flood Watch API contract (backend ⇄ frontend)
+# HiTide API contract (backend ⇄ frontend)
 
 > This contract covers the legacy driver-rescue REST/WebSocket workflow.
 > The new `/api/evidence/*` endpoints, operations polling, request examples, and
@@ -54,7 +54,7 @@ Every message has this envelope:
 | `snapshot` | `StateSnapshot` | Sent first on connect. Replace all state with it. |
 | `segments.update` | `{t_sim_s, river_wse_m, segments:[{edge_id, depth_in, status}]}` | Diff (changed segments only). Recolour roads. |
 | `drivers.update` | `{drivers:[{id,name,lat,lon,heading_deg,situation,is_demo,urgency}]}` | Move markers. `situation`: parked, planning, driving, stopped_in_water. |
-| `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "Flood Watch active" status |
+| `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "HiTide active" status |
 | `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id,provider?,call_id?}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent; live sends report `mode: photon`. `provider` (`stable` or `photon2`) is present only on live sends. `call_id` (ElevenLabs conversation id) is present only on placed voice calls. Both are optional and additive. |
 | `turn_around` | `{driver_id,message,hazard_edge_id,hazard_depth_in,distance_m}` | **Driver view: full-screen red alert + `speechSynthesis.speak(message)`** |
 | `reroute` | `{driver_id,reason,route:GeoJSON LineString,blocked_edge_ids,distance_m}` | Draw the new route (green), mark blocked segments |

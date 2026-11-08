@@ -1,6 +1,6 @@
 ---
 date: 2026-11-07
-tags: [floodwatch, experiment, flood]
+tags: [hitide, experiment, flood]
 changed: config/weights.yaml flood block
 result: ~6% of road segments closed at crest, concentrated along the Guadalupe
 ---

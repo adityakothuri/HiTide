@@ -1,7 +1,7 @@
 import { type Href, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { useRepository } from '@/data/RepositoryProvider';
-import type { FloodWatchRepository } from '@/data/repository';
+import type { HiTideRepository } from '@/data/repository';
 import type { Scenario } from '@/domain/types';
 import { setFlowExit } from '@/state/flowGate';
 import { deriveFlowMode } from '@/state/reducer';
@@ -22,7 +22,7 @@ const SCENARIOS: readonly Scenario[] = [
   'resolved',
 ];
 
-const ACTIONS: Record<string, (r: FloodWatchRepository) => unknown> = {
+const ACTIONS: Record<string, (r: HiTideRepository) => unknown> = {
   safe: (r) => r.markSafe(),
   help: (r) => r.requestHelp(),
   ack: (r) => r.acknowledgeTurnAround(),

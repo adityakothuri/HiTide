@@ -13,12 +13,12 @@ def mongo():
     uri = os.environ.get("MONGODB_TEST_URI")
     if not uri:
         pytest.skip("set MONGODB_TEST_URI to run MongoDB integration tests")
-    name = f"floodwatch_test_{uuid.uuid4().hex}"
+    name = f"hitide_test_{uuid.uuid4().hex}"
     store = MongoStore(uri, name)
     try:
         yield store
     finally:
-        assert name.startswith("floodwatch_test_") and len(name) == 48
+        assert name.startswith("hitide_test_") and len(name) == 48
         store.client.drop_database(name)
         store.close()
 

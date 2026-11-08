@@ -1,4 +1,4 @@
-"""Create (or update) the Flood Watch ElevenLabs voice agent and attach the Photon SMS number over SIP.
+"""Create (or update) the HiTide ElevenLabs voice agent and attach the Photon SMS number over SIP.
 
 Run: uv run python -m scripts.elevenlabs_setup
 Reads ELEVENLABS_API_KEY, PHOTON2_SMS_NUMBER, PHOTON2_SIP_HOST, PHOTON2_SIP_USERNAME, PHOTON2_SIP_OUTBOUND_PASSWORD
@@ -22,7 +22,7 @@ API = "https://api.elevenlabs.io/v1/convai"
 TIMEOUT_S = 20.0
 log = logging.getLogger("elevenlabs_setup")
 
-SYSTEM_PROMPT = """You are the State Farm Flood Watch voice assistant. You are calling {{driver_first_name}}, whose car \
+SYSTEM_PROMPT = """You are the HiTide voice assistant. You are calling {{driver_first_name}}, whose car \
 appears to be stopped in floodwater on {{street}}. The water is about {{water_depth_in}} inches deep. It may be night \
 and they may be scared or older. Be calm and warm.
 
@@ -56,8 +56,8 @@ DRIVER_STATUS_DESC = (
 
 def agent_body() -> dict[str, Any]:
     return {
-        "name": "State Farm Flood Watch",
-        "tags": ["hackutd", "floodwatch"],
+        "name": "HiTide",
+        "tags": ["hackutd", "hitide"],
         "conversation_config": {
             "agent": {
                 "first_message": FIRST_MESSAGE,
@@ -65,7 +65,7 @@ def agent_body() -> dict[str, Any]:
                 "dynamic_variables": {"dynamic_variable_placeholders": {
                     "driver_first_name": "there", "street": "your road", "water_depth_in": "unknown",
                     "call_purpose": "driver",
-                    "opening_line": "Hi, this is State Farm Flood Watch. Are you safe, or do you need help?"}},
+                    "opening_line": "Hi, this is HiTide. Are you safe, or do you need help?"}},
                 "prompt": {
                     "prompt": SYSTEM_PROMPT,
                     "llm": "gemini-2.5-flash",
@@ -81,7 +81,7 @@ def agent_body() -> dict[str, Any]:
                         "name": "voicemail_detection",
                         "description": "Use when the call reaches voicemail or an answering machine.",
                         "params": {"system_tool_type": "voicemail_detection",
-                                   "voicemail_message": "This is State Farm Flood Watch. Your car appears stopped in "
+                                   "voicemail_message": "This is HiTide. Your car appears stopped in "
                                                         "floodwater on {{street}}. Responders have been flagged. If you "
                                                         "can, reply SAFE or HELP to our text."},
                     }},
@@ -101,7 +101,7 @@ def agent_body() -> dict[str, Any]:
 def phone_body(agent_id: str) -> dict[str, Any]:
     return {
         "phone_number": os.environ["PHOTON2_SMS_NUMBER"],
-        "label": "Flood Watch (Photon 2.0 SIP)",
+        "label": "HiTide (Photon 2.0 SIP)",
         "provider": "sip_trunk",
         "supports_inbound": True,
         "supports_outbound": True,

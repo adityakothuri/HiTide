@@ -7,6 +7,7 @@ import { Queue } from './ops/Queue'
 import { RoadDetail } from './ops/RoadDetail'
 import { SourceHealth } from './ops/SourceHealth'
 import s from './ops/ops.module.css'
+import { LogoMark } from '../ui/LogoMark'
 
 const POLL_MS = 5_000
 const TICK_MS = 5_000
@@ -30,19 +31,10 @@ async function request(path: string, signal: AbortSignal, body?: unknown) {
   return response.json()
 }
 
-function WaveMark() {
-  return (
-    <svg width="34" height="20" viewBox="0 0 40 24" aria-hidden="true">
-      <path d="M3 9.5c4.2-4.6 8.4-4.6 12.6 0s8.4 4.6 12.6 0 6.3-3.4 8.8-1.3M3 17.5c4.2-4.6 8.4-4.6 12.6 0s8.4 4.6 12.6 0 6.3-3.4 8.8-1.3"
-        stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" fill="none" />
-    </svg>
-  )
-}
-
 function Sidebar() {
   return (
     <aside className={s.sidebar} aria-label="Workspace">
-      <a href="/console" className={s.brand}><WaveMark /><span>Flood Watch</span></a>
+      <a href="/console" className={s.brand}><LogoMark size={34} /><span>HiTide</span></a>
       <div className={s.workspace}><span>Workspace</span><strong>Kerr County</strong></div>
       <nav aria-label="Main" className={s.nav}>
         <a href="/texas"><Activity size={20} aria-hidden />Flood monitor</a>

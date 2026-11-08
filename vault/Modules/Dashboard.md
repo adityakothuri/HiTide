@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, module, frontend]
+tags: [hitide, module, frontend]
 status: in-progress
 updated: 2026-11-07
 ---

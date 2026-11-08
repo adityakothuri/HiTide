@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flood Watch Data Brief</title>
+<title>HiTide Data Brief</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -104,7 +104,7 @@ th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing
 <!-- 1. Hero -->
 <section class="slide" aria-labelledby="s1">
   <div>
-    <div class="eyebrow">Flood Watch · Kerr County, TX · Guadalupe River</div>
+    <div class="eyebrow">HiTide · Kerr County, TX · Guadalupe River</div>
     <h1 id="s1">Every 30 seconds, five federal feeds decide which roads are flooded</h1>
     <p class="lede">Live USGS river gauges, NWS warnings, NOAA radar rain, storm spotter reports and river forecasts, fused into a flood probability for each of 98 critical crossings.</p>
   </div>
@@ -425,7 +425,7 @@ function drawJuly() {
       { name: "Kerrville gauge", pts: kerr, color: css("--s2"), end: true, fmt: v => v.toFixed(2) + " ft", label: "Kerrville", labelAt: [kerr[kerr.length - 1][0] - 4, kerr[kerr.length - 1][1] - 3], anchor: "end" }],
     events: [
       { m: 74, time: "01:14", label: "NWS Flash Flood Warning", color: css("--warn"), row: 0 },
-      { m: 137, time: "02:17", label: "Flood Watch shelter call", color: css("--ours"), strong: true, row: 2 },
+      { m: 137, time: "02:17", label: "HiTide shelter call", color: css("--ours"), strong: true, row: 2 },
       { m: 244, time: "04:04", label: "FF Emergency, Hunt", color: css("--warn"), row: 0 },
       { m: 336, time: "05:36", label: "FF Emergency, Kerrville", color: css("--warn"), row: 2 }]
   });

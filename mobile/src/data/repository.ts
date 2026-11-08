@@ -2,10 +2,10 @@ import type { AppState, EmergencyContact, Preferences, RouteId, Scenario } from 
 
 /**
  * The single data boundary between screens and any backend.
- * Today: MockFloodWatchRepository (local fixtures + AsyncStorage).
+ * Today: MockHiTideRepository (local fixtures + AsyncStorage).
  * Later: a SpaceTimeDB-backed adapter implements this same interface.
  */
-export interface FloodWatchRepository {
+export interface HiTideRepository {
   /** Loads persisted preferences and contact. Resolves once state is ready. */
   load(): Promise<void>;
   getSnapshot(): AppState;

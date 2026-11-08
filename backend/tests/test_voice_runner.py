@@ -106,7 +106,7 @@ def test_street_and_first_name_helpers_via_call_driver(staged):
     runner, cid, new, started = asyncio.run(go())
     voice = [m for m in runner.outreach.sent if m.channel == "voice"][0]
     first = runner.drivers["demo-d"].name.split()[0]
-    assert voice.body.startswith(f"Hi {first}, this is State Farm Flood Watch.")
+    assert voice.body.startswith(f"Hi {first}, this is HiTide.")
     assert voice.body.endswith("Are you safe?")
     if HAS_VARIABLES:
         assert set(voice.variables) == {"driver_first_name", "street", "water_depth_in", "call_purpose"}

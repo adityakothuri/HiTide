@@ -15,7 +15,7 @@ const SCENARIOS: { id: Scenario; label: string; hint: string }[] = [
   { id: 'resolved', label: 'Resolved', hint: 'Marked safe' },
 ];
 
-/** Development-only scenario controls. Reached by long-pressing the Flood Watch mark. */
+/** Development-only scenario controls. Reached by long-pressing the HiTide mark. */
 export function DevScreen() {
   const state = useAppState();
   const repo = useRepository();

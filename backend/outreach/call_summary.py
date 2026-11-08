@@ -97,7 +97,7 @@ def call_variables(driver_name: str, street: str, depth_in: float) -> dict[str, 
 
 
 def opening_line(first: str, street: str) -> str:
-    return (f"Hi {first}, this is State Farm Flood Watch. Your car looks stopped in floodwater on {street}. "
+    return (f"Hi {first}, this is HiTide. Your car looks stopped in floodwater on {street}. "
             "Are you safe?")
 
 
@@ -110,5 +110,5 @@ def follow_up_text(outcome: CallOutcome, street: str) -> str:
     if outcome.answered:
         return ("Following up on our call: we couldn't tell if you're okay. Reply SAFE if you are, or HELP "
                 "if you need us. Responders are being notified.")
-    return ("State Farm Flood Watch: we missed you on our call. Reply SAFE if you're okay, or HELP if you "
+    return ("HiTide: we missed you on our call. Reply SAFE if you're okay, or HELP if you "
             "need us. Responders are being notified.")

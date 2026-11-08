@@ -1,5 +1,5 @@
 /**
- * Domain types for the Flood Watch consumer app.
+ * Domain types for the HiTide consumer app.
  * These are the only shapes screens see. A future backend adapter maps its records to these.
  */
 

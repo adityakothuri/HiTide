@@ -6,7 +6,7 @@ import { color, font, gutter, touchTarget } from '@/theme/tokens';
 import { Icon } from './Icon';
 import { Wordmark } from './WaveMark';
 
-/** Development-only entry to scenario controls: long-press the Flood Watch mark. */
+/** Development-only entry to scenario controls: long-press the HiTide mark. */
 export const openDevControls: (() => void) | undefined = __DEV__ ? () => router.push('/dev') : undefined;
 
 interface BlueHeaderProps {

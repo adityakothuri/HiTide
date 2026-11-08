@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-State Farm Flood Watch: a HackUTD 2026 project built by a small team in about 24 hours. Submissions close Sun Nov 8, 12:00 PM CT.
+HiTide: a HackUTD 2026 project built by a small team in about 24 hours. Submissions close Sun Nov 8, 12:00 PM CT.
 
 ## Mission
 

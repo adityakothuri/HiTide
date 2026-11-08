@@ -1,4 +1,4 @@
-# State Farm Flood Watch tunables. Reasoning lives in vault/Modules/Risk Scoring.md.
+# HiTide tunables. Reasoning lives in vault/Modules/Risk Scoring.md.
 
 # Road status by water depth over the road, inches (NWS "Turn Around Don't Drown").
 road_status_in:

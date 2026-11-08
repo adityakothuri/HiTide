@@ -6,11 +6,11 @@ from evidence.store import Store
 
 
 def open_store():
-    backend = os.environ.get("FLOODWATCH_DB_BACKEND", "mongodb").lower()
+    backend = (os.environ.get("HITIDE_DB_BACKEND") or os.environ.get("FLOODWATCH_DB_BACKEND", "mongodb")).lower()
     if backend == "sqlite":
         return Store()
     if backend != "mongodb":
-        raise ValueError("FLOODWATCH_DB_BACKEND must be mongodb or sqlite")
+        raise ValueError("HITIDE_DB_BACKEND must be mongodb or sqlite")
     from evidence.mongo_store import MongoStore
 
     return MongoStore(

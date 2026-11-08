@@ -1,5 +1,5 @@
 {
-  "name": "floodwatch-ecc-tools",
+  "name": "hitide-ecc-tools",
   "private": true,
   "description": "Runtime dependencies for the repository's bundled ECC harness checks",
   "scripts": { "audit": "node scripts/harness-audit.js --scope repo --root .." },

@@ -1,16 +1,16 @@
 ---
-tags: [floodwatch, privacy, security]
+tags: [hitide, privacy, security]
 status: in-progress
 updated: 2026-11-07
 ---
 
 # Privacy and Consent
 
-Flood Watch handles live location and personal data. These rules are shown in the app and enforced in code.
+HiTide handles live location and personal data. These rules are shown in the app and enforced in code.
 
 ## Rules (from the project brief, section 12)
 
-1. **Opt-in.** Flood Watch is opt-in in the State Farm app. Live location is shared **only during an active flash flood warning**.
+1. **Opt-in.** HiTide is opt-in in the State Farm app. Live location is shared **only during an active flash flood warning**.
 2. **Emergency contacts are added by the customer.** We never infer them.
 3. **Age and vehicle data only affect outreach order, never pricing.** See [[Risk Scoring]].
 4. **Responders see location, number of people, and water depth only.** This is the `responder_view` object in the [[Architecture|API contract]].

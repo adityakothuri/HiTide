@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-/** Flood Watch consumer palette. Royal blue and white dominate; amber and red are semantic only. */
+/** HiTide consumer palette. Royal blue and white dominate; amber and red are semantic only. */
 export const color = {
   primary: '#2448E8',
   primaryPressed: '#1B39C4',

@@ -25,7 +25,7 @@ interface Props {
   onBack?: () => void;
   backLabel?: string;
   right?: ReactNode;
-  /** Show the Flood Watch mark in the bar (used on focused safety screens). */
+  /** Show the HiTide mark in the bar (used on focused safety screens). */
   showMark?: boolean;
 }
 

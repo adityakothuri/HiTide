@@ -1,4 +1,4 @@
-"""State Farm Flood Watch backend. Run: uv run uvicorn app.main:app --reload"""
+"""HiTide backend. Run: uv run uvicorn app.main:app --reload"""
 
 from __future__ import annotations
 
@@ -80,7 +80,7 @@ async def lifespan(app: FastAPI):
         await asyncio.to_thread(store.close)
 
 
-app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="HiTide", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=ORIGIN_RE.pattern,  # pin with FRONTEND_ORIGIN_REGEX if the UI is served from elsewhere

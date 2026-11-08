@@ -1,4 +1,4 @@
-# Handoff: State Farm Flood Watch (as of Sat Nov 7, ~8:45 PM CT)
+# Handoff: HiTide (as of Sat Nov 7, ~8:45 PM CT)
 
 > **Historical driver-rescue handoff.** For the current integrated branch and
 > evidence-to-inspection milestone, read [STATE_OF_THE_UNION.md](STATE_OF_THE_UNION.md).
@@ -8,10 +8,10 @@
 Deadline: **Sun Nov 8, 12:00 PM CT**. Feature freeze at 9 AM. Tracks: State Farm ("The Worst Day, at Scale") and Photon.
 
 ## The idea in 30 seconds
-Most flood deaths happen in vehicles. Flood Watch protects opted-in State Farm drivers in a flash flood:
+Most flood deaths happen in vehicles. HiTide protects opted-in State Farm drivers in a flash flood:
 1. **Pre-trip:** if your usual route crosses a flooded road, you get a text with a safer route. A teen's parent gets a copy.
 2. **En route:** the app speaks "Flooded road ahead. Turn around." and reroutes. Moving drivers never get texts.
-3. **Stopped in water:** Flood Watch calls the driver, then their emergency contact, flags responders, and sends a drone. Its vision reports the water level and people on the car.
+3. **Stopped in water:** HiTide calls the driver, then their emergency contact, flags responders, and sends a drone. Its vision reports the water level and people on the car.
 
 Demo town: Kerrville, TX (Guadalupe River). Roads come from OpenStreetMap and elevation from USGS, cached offline.
 
@@ -43,7 +43,7 @@ Without creds, everything runs in **mock mode**: outreach is logged and shown in
 ## Photon 2.0 + voice (done tonight, live)
 - **Mode:** `PHOTON_MODE=photon2` in `.env` (`stable` = old sidecar fallback, `mock` = no real sends).
 - **Texts:** Photon 2.0 shared iMessage line. Each teammate has their own assigned line (`PHOTON2_AGENT_MAP`). Re-enroll with `cd backend && uv run python -m scripts.photon2_enroll --write-env`.
-- **Voice:** ElevenLabs agent "State Farm Flood Watch" calling from Photon SMS number **+1 339-210-2263**. Recreate or update it with `uv run python -m scripts.elevenlabs_setup`.
+- **Voice:** ElevenLabs agent "HiTide" calling from Photon SMS number **+1 339-210-2263**. Recreate or update it with `uv run python -m scripts.elevenlabs_setup`.
   - The call opens with the driver's name and street.
   - After the call, the transcript summary goes on the case, "safe" or "need help" resolves or escalates the case, and a follow-up iMessage refers to the call.
   - Voicemail gets one short message.

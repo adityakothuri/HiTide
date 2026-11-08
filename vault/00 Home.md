@@ -1,10 +1,10 @@
 ---
-tags: [floodwatch, home, status]
+tags: [hitide, home, status]
 status: in-progress
 updated: 2026-11-08
 ---
 
-# State Farm Flood Watch
+# HiTide
 
 > **Current integration:** see [State of the Union](../docs/STATE_OF_THE_UNION.md)
 > and [[2026-11-07 Evidence milestone]]. The evidence-to-inspection workflow now

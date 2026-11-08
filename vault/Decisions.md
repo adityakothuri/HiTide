@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, decisions]
+tags: [hitide, decisions]
 status: in-progress
 updated: 2026-11-07
 ---
@@ -107,7 +107,7 @@ User request: every area gets a 0–100 risk score (access, water, ground height
 - **Decision:** we took the palette, button shapes and header, tab and notification patterns from statefarm.com's published CSS.
 - **Limits kept:** we don't use State Farm's logo. The mark is a neutral shield with a waterline, and every surface keeps the "Concept prototype" footer. The demo can look like their tooling without passing as an official product.
 - **Demo features added in this round:**
-  - An in-app mirror of the Flood Watch voice call (answer or decline; answering plays the script and lets the driver tap "I'm safe" or "I need help").
+  - An in-app mirror of the HiTide voice call (answer or decline; answering plays the script and lets the driver tap "I'm safe" or "I need help").
   - A lock-screen style banner for the pre-trip text.
   - A presenter control for which persona the phone shows.
 
@@ -120,3 +120,8 @@ User request: every area gets a 0–100 risk score (access, water, ground height
 - **Flood depth:** the HAND-style model from `sim/hand_flood.py`, run on every cell of a 10 m 3DEP grid (`backend/sim/depth_grid.py`, tested). One PNG per 0.5 m of Kerrville gauge rise; the client picks the frame for the gauge stage at time t. Not a hydraulic model, labelled "modelled".
 - **Gauges:** NWS NWPS categories exist only for Hunt (HNTT2) and Kerrville (KRRT2); the other three show gray. A gauge with no reading (Hunt after 05:10) shows dark gray, not a guess.
 - **Polish pass (2026-11-08):** rain bins under 0.25 in are partly transparent so widespread light rain doesn't hide the basemap; rain draws from z8 tiles overzoomed with linear resampling (smooth field like radar viewers, not 1 km blocks); the left panel gains an NWS-style river gauge table (ranked by category, stage and trend, click opens the gauge); NWS warning issuance times are marked on the time slider.
+
+## 2026-11-08: Product renamed to HiTide
+The product is now **HiTide** (was Flood Watch / State Farm Flood Watch), with the shield-and-wave logo from the team (`design/brand/hitide-logo.png`; web copies in `frontend/public/`, mobile in `mobile/assets/images/`). Two things kept the old name on purpose:
+- The NWS alert type "Flood Watch" is a real weather product, so alert parsing, tests and fixtures still match it.
+- Local database names (Mongo replica set and database `floodwatch`, `data/floodwatch.sqlite3`, the Windows `%LOCALAPPDATA%/FloodWatch` folder) stay, so existing local databases keep working. `HITIDE_DB_BACKEND` / `HITIDE_DB_PATH` replace the old env vars; `FLOODWATCH_*` is still read as a fallback.

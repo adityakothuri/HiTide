@@ -97,7 +97,7 @@ export function ProfileScreen() {
             <View style={styles.notice} accessibilityLiveRegion="polite">
               <Text style={styles.noticeText}>
                 {locationNotice === 'denied'
-                  ? 'Location access is off. Flood Watch will use your saved area, Kerrville, Texas, instead.'
+                  ? 'Location access is off. HiTide will use your saved area, Kerrville, Texas, instead.'
                   : 'We couldn’t check location access. Your saved area will be used instead.'}
               </Text>
               {locationNotice === 'denied' ? (
@@ -121,7 +121,7 @@ export function ProfileScreen() {
         <View style={styles.about}>
           <Text style={styles.aboutTitle}>About this demo</Text>
           <Text style={styles.aboutText}>
-            Flood Watch is shown with sample data. Warnings, closures, and help requests are simulated. It never places
+            HiTide is shown with sample data. Warnings, closures, and help requests are simulated. It never places
             calls or sends messages.
           </Text>
           {__DEV__ ? (

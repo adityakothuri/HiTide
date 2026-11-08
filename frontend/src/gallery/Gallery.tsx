@@ -95,7 +95,7 @@ export function Gallery() {
         <Section title="Banners">
           <div className={s.stack}>
             <Banner tone="caution" title="Flash flood warning">Kerr County until 2:15 AM. Simulated warning for this demo.</Banner>
-            <Banner tone="safe" title="Flood Watch is on">No flood warnings near you.</Banner>
+            <Banner tone="safe" title="HiTide is on">No flood warnings near you.</Banner>
             <Banner tone="critical" title="Car stopped in floodwater">Water St at the Guadalupe River, about 20 in of water.</Banner>
             <Banner tone="info" title="Using safer route">Adds about 4 minutes.</Banner>
           </div>

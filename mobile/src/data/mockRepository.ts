@@ -1,6 +1,6 @@
 import type { AppState, EmergencyContact, PersistedState, Preferences, RouteId, Scenario } from '@/domain/types';
 import { type Action, initialState, reducer, toPersisted } from '@/state/reducer';
-import { type FloodWatchRepository, RepositoryError, validateContact } from './repository';
+import { type HiTideRepository, RepositoryError, validateContact } from './repository';
 
 export interface KeyValueStore {
   getItem(key: string): Promise<string | null>;
@@ -17,7 +17,7 @@ export interface MockOptions {
   now?: () => string;
 }
 
-export const STORAGE_KEY = 'floodwatch/state/v1';
+export const STORAGE_KEY = 'hitide/state/v1';
 const DEFAULT_LATENCY_MS = 250;
 const DEFAULT_CONTACT_NOTIFY_MS = 1800;
 
@@ -36,7 +36,7 @@ function isPersisted(value: unknown): value is PersistedState {
 }
 
 /** Local, deterministic implementation of the data boundary. No network, no real outreach. */
-export class MockFloodWatchRepository implements FloodWatchRepository {
+export class MockHiTideRepository implements HiTideRepository {
   private state: AppState;
   private readonly listeners = new Set<() => void>();
   private readonly timers = new Set<ReturnType<typeof setTimeout>>();
@@ -181,7 +181,7 @@ export class MockFloodWatchRepository implements FloodWatchRepository {
   /** Simulates a network round trip and the optional failure mode. */
   private async write(): Promise<void> {
     if (this.latencyMs > 0) await new Promise<void>((resolve) => setTimeout(resolve, this.latencyMs));
-    if (this.failNextWrites) throw new RepositoryError('Couldn’t reach Flood Watch. Check your connection and try again.');
+    if (this.failNextWrites) throw new RepositoryError('Couldn’t reach HiTide. Check your connection and try again.');
   }
 
   private later(ms: number, fn: () => void): void {

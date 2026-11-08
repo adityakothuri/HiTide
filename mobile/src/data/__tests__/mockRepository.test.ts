@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { deriveFlowMode } from '@/state/reducer';
-import { type KeyValueStore, MockFloodWatchRepository, STORAGE_KEY } from '../mockRepository';
+import { type KeyValueStore, MockHiTideRepository, STORAGE_KEY } from '../mockRepository';
 import { validateContact } from '../repository';
 
 function memoryStore(initial: Record<string, string> = {}): KeyValueStore & { data: Record<string, string> } {
@@ -18,11 +18,11 @@ function memoryStore(initial: Record<string, string> = {}): KeyValueStore & { da
 }
 
 const make = (storage = memoryStore()) =>
-  new MockFloodWatchRepository({ storage, latencyMs: 0, contactNotifyDelayMs: 10 });
+  new MockHiTideRepository({ storage, latencyMs: 0, contactNotifyDelayMs: 10 });
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
 
-describe('MockFloodWatchRepository', () => {
+describe('MockHiTideRepository', () => {
   it('records concurrent help taps once and simulates the contact notification', async () => {
     const repo = make();
     repo.setScenario('check_in');
@@ -61,7 +61,7 @@ describe('MockFloodWatchRepository', () => {
   it('surfaces simulated write failures without changing state', async () => {
     const repo = make();
     repo.setSimulateFailures(true);
-    await expect(repo.selectRoute('alternate')).rejects.toThrow(/reach Flood Watch/);
+    await expect(repo.selectRoute('alternate')).rejects.toThrow(/reach HiTide/);
     expect(repo.getSnapshot().selectedRouteId).toBe('original');
   });
 

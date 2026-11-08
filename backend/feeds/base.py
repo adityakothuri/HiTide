@@ -16,7 +16,7 @@ from app.config import DATA_DIR
 
 logger = logging.getLogger(__name__)
 
-USER_AGENT = "StateFarmFloodWatch-HackUTD/0.1"
+USER_AGENT = "HiTide-HackUTD/0.1"
 CACHE_DIR = DATA_DIR / "feeds_cache"
 Source = Literal["live", "cached", "unavailable"]
 RecordShape = Literal["features", "array"]

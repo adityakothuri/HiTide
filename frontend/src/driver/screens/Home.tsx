@@ -33,7 +33,7 @@ export function Home({ view, onSettings }: { view: DriverView; onSettings: () =>
             <ShieldMark />
             State Farm
           </span>
-          <button type="button" className={s.bandButton} onClick={onSettings} aria-label="Flood Watch settings">
+          <button type="button" className={s.bandButton} onClick={onSettings} aria-label="HiTide settings">
             <Gear aria-hidden="true" />
           </button>
         </div>
@@ -47,7 +47,7 @@ export function Home({ view, onSettings }: { view: DriverView; onSettings: () =>
               ? <TriangleAlert className={`${s.statusGlyph} ${s.statusCaution}`} aria-hidden="true" />
               : <ShieldCheck className={`${s.statusGlyph} ${s.statusSafe}`} aria-hidden="true" />}
             <span className={s.statusText}>
-              <span className={s.statusTitle}>{warningNearby ? 'Flood warning in your area' : 'Flood Watch is on'}</span>
+              <span className={s.statusTitle}>{warningNearby ? 'Flood warning in your area' : 'HiTide is on'}</span>
               <span className={s.statusSub}>
                 {warningNearby
                   ? 'Your usual routes are clear right now. We will alert you if that changes.'

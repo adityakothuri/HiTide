@@ -1,5 +1,5 @@
 ---
-tags: [floodwatch, module, scoring, tdd]
+tags: [hitide, module, scoring, tdd]
 status: in-progress
 updated: 2026-11-07
 ---

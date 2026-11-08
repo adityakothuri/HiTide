@@ -11,7 +11,7 @@ export function PushBanner({ message, onOpen, onDismiss }: { message: OutreachEv
     return () => window.clearTimeout(t)
   }, [onDismiss])
 
-  const body = message.body.replace(/^State Farm Flood Watch:\s*/, '')
+  const body = message.body.replace(/^HiTide:\s*/, '')
   return (
     <div className={s.wrap} role="status" data-push>
       <button type="button" className={s.banner} onClick={onOpen}>
@@ -22,7 +22,7 @@ export function PushBanner({ message, onOpen, onDismiss }: { message: OutreachEv
         </span>
         <span className={s.text}>
           <span className={s.head}>
-            <span className={s.app}>Flood Watch</span>
+            <span className={s.app}>HiTide</span>
             <span className={s.when}>now</span>
           </span>
           <span className={s.body}>{body}</span>

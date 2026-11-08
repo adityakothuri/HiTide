@@ -28,7 +28,7 @@ const TABS: { key: Tab; label: string; icon: typeof House }[] = [
 
 const URGENT = new Set(['en_route', 'check_in', 'help'])
 
-const TAB_TITLE: Record<Tab, string> = { home: 'Flood Watch', trips: 'Trips', claims: 'Claims', profile: 'Settings' }
+const TAB_TITLE: Record<Tab, string> = { home: 'HiTide', trips: 'Trips', claims: 'Claims', profile: 'Settings' }
 
 const clock = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' })
 
@@ -66,7 +66,7 @@ function HomeContent({ view, onSettings }: { view: DriverView; onSettings: () =>
   }
 }
 
-/** The State Farm driver app with Flood Watch. `framed` draws a phone around it for desktop and /present. */
+/** The State Farm driver app with HiTide. `framed` draws a phone around it for desktop and /present. */
 export function DriverApp({ framed = false, driverId }: { framed?: boolean; driverId?: string | null }) {
   const view = useDriverView(driverId ?? driverFromUrl())
   const status = useUi((u) => u.status)
@@ -116,15 +116,15 @@ export function DriverApp({ framed = false, driverId }: { framed?: boolean; driv
       {!brand && (
         <header className={`${s.nav} ${tab !== 'home' ? s.navLarge : ''}`} inert={takeover}>
           <span />
-          {tab === 'home' ? <h1 className={s.navTitle}>Flood Watch</h1> : <h1 className="visually-hidden">{TAB_TITLE[tab]}</h1>}
+          {tab === 'home' ? <h1 className={s.navTitle}>HiTide</h1> : <h1 className="visually-hidden">{TAB_TITLE[tab]}</h1>}
           {tab === 'home' ? (
-            <button type="button" className={s.navButton} onClick={() => setTab('profile')} aria-label="Flood Watch settings">
+            <button type="button" className={s.navButton} onClick={() => setTab('profile')} aria-label="HiTide settings">
               <Gear aria-hidden="true" />
             </button>
           ) : <span />}
         </header>
       )}
-      {brand && <h1 className="visually-hidden">State Farm Flood Watch</h1>}
+      {brand && <h1 className="visually-hidden">HiTide</h1>}
       {status === 'reconnecting' && (
         <div className={s.connection}>
           <ConnectionChip status={status} />

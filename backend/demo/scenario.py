@@ -84,7 +84,7 @@ class DemoScenario:
 
         world.motions["demo-d"] = self._stall_d()
         await self._step(4, "Car stopped in floodwater at night",
-                         "Margaret, 78, stalls in a flooded low spot at night. Flood Watch calls her. No answer.")
+                         "Margaret, 78, stalls in a flooded low spot at night. HiTide calls her. No answer.")
         await self._wait(lambda: "demo-d" in world.case_by_driver, 20, "case open")
         cid = world.case_by_driver.get("demo-d", "")
         state = lambda: world.cases[cid].state if cid in world.cases else ""  # noqa: E731
