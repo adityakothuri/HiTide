@@ -346,3 +346,73 @@ Outreach, cases, drone snapshots and evidence stay on the REST/WS API above. Tho
 - **Private tables** are not visible to clients: `user_contact`, `user_profile`, `user_track`, `response_state`, `outreach_event`, `escalation_case`, `vision_snapshot`, `observation`, `raw_record`, `setting`, `inspection_task`, `kv`, `config`.
 - **All writes go through the backend.** The module rejects reducer calls from any identity but the backend's.
 - `/api/health` gains `database: {backend, requested, fallback_reason, writes: {queued, failed, dropped, last_error}, spacetime: {url, database, authenticated}}`, and `modes.db` is the backend actually in use. That reads `spacetime`, or `sqlite (fallback: …)` when SpacetimeDB isn't running.
+The statewide recent response now includes regional sensors, NOAA rainfall/runoff grids and NWPS stations, crossing statuses, camera context and TranStar access markers. Source batches add label, notes, errors and context fields. Admitted records may include a preview object with title, detail, provider-derived time, timestamp_role, evidence_type, geometry, optional value/unit and safe public link. Context records have unverified freshness and require an explicit UI opt-in. The raw payload and envelope remain available independently of the preview.
+
+## Live drone (real DJI Tello)
+
+> Added 2026-11-08. Separate from the **simulated** drone above (`drone.update`, `DroneState`, `/static/drone/*`), which stays as is. Design notes: [tello-drone-handoff.md](tello-drone-handoff.md).
+
+The backend does not talk to the drone itself. It forwards to the **Tello bridge** (`backend/scripts/tello_dashboard.py`, its own venv, `http://127.0.0.1:8765`, override with `TELLO_BRIDGE_URL`). When the bridge isn't running, `bridge` is `"offline"` and the UI shows `fallback_image_url`, labelled as cached footage. The offline demo never needs a drone.
+
+| Method | Path | Returns / body |
+|---|---|---|
+| GET | `/api/live-drone/status` | `LiveDroneStatus` (below). Poll about once a second. Always 200. |
+| GET | `/api/live-drone/video` | MJPEG stream (`multipart/x-mixed-replace`) for an `<img src>`. 503 when the bridge is offline. |
+| POST | `/api/live-drone/action/{action}` | `action` is `takeoff`, `land` or `emergency`. Returns `{"result": "ok"}` or `{"result": "<reason it was refused>"}`. 503 when the bridge is offline. |
+| POST | `/api/live-drone/rc` | body `{"lr","fb","ud","yaw"}`, each an int from -100 to 100. Resend every 200 ms while held; the drone hovers if nothing arrives for 0.6 s. |
+
+POSTs use the same trusted-origin guard as the other state-changing routes.
+
+`LiveDroneStatus`:
+
+```json
+{"bridge": "online", "fallback_image_url": "/static/drone/flood_03.jpg", "controls_url": "http://127.0.0.1:8765",
+ "connected": true, "flying": false, "busy": "", "battery": 88, "temp": 61, "height": 0, "tof": 10,
+ "flight_time": 0, "speed": [0, 0, 0], "attitude": [0, 0, 0], "state_age": 0.2, "video_age": 0.1,
+ "log": ["05:47:09  Takeoff done, hovering"]}
+```
+
+- `bridge`: `online` (the bridge answered) or `offline` (everything after `controls_url` is absent).
+- `connected`: the bridge is receiving telemetry from the drone right now. False means show "link lost"; values are the last known ones.
+- `busy`: `""`, `"takeoff"` or `"land"`. **Land is always allowed**, including during takeoff.
+- `video_age`: seconds since the last frame, or null before any video.
+
+### Gauge tray water level
+
+> Added 2026-11-08. Design: [gauge-water-level-plan.md](gauge-water-level-plan.md). The bridge reads the flood depth off the printed gauge tray in the Tello camera view (`backend/gauge/`, runs in the bridge venv). The backend only forwards.
+
+| Method | Path | Returns / body |
+|---|---|---|
+| GET | `/api/live-drone/gauge` | `GaugeStatus` (below). Poll about once a second. Always 200. |
+| POST | `/api/live-drone/gauge/baseline` | Captures the dry baseline from the current frame (pour no water yet, same camera pose as the readings). Returns `{"result": "ok"}` or `{"result": "<why it was refused>"}`, for example `"tray already has water; capture the baseline dry"`. UIs show "Dry baseline captured" or the refusal reason. |
+| POST | `/api/live-drone/gauge/start` | Starts reading at about 2 Hz. Returns `{"result": "ok"}` or a reason (for example the gauge module is unavailable). |
+| POST | `/api/live-drone/gauge/corners` | **Tag-free pose.** Body `{"points": [[x, y], [x, y], [x, y], [x, y]]}` (the 4 rim-top corners in frame pixels, starting at the left end of the FLOOD WATCH edge and going round) or `{"clear": true}`. Returns `{"result": "ok"}` or why it was refused. 422 for a malformed body. |
+| POST | `/api/live-drone/gauge/stop` | Stops reading; the last estimate stays visible. Returns `{"result": "ok"}`. |
+| GET | `/api/live-drone/gauge/overlay.jpg` | The latest annotated frame (tags, wet cells tinted, level text) as `image/jpeg`, `Cache-Control: no-store`. 404 before the first reading, 503 when the bridge is offline. Reload with a cache-busting query (`?t=...`). |
+
+POSTs use the trusted-origin guard and return 503 when the bridge is offline, or 504 when it is running but did not answer within 8 s. While the bridge is still loading the gauge model, `baseline` and `start` answer at once with `{"result": "loading the gauge model, try again in a moment"}`.
+
+`GaugeStatus` (the bridge's `WaterEstimate.to_dict()` fields, flat, plus service state):
+
+```json
+{"gauge": "online", "enabled": true, "running": true, "error": null, "age_s": 0.4,
+ "level_mm": 9.0, "level_mm_range": [8.0, 10.0], "ft": 2.5, "ft_range": [2.0, 3.0], "confidence": 0.82,
+ "crossing_flooded": true, "car_level": "doors", "houses_flooded": 4, "houses_total": 10,
+ "visible_cells": 18240, "wet_cells": 6120, "wet_fraction": 0.34, "tags_seen": 4, "reproj_err_px": 0.9,
+ "has_baseline": true, "baseline_moved": false, "simulated": false, "reason": null, "ts": 1762600000.0,
+ "pose_source": "tags", "corners": null}
+```
+
+- `gauge`: `online` (the bridge answered and the gauge module loaded), `unavailable` (the bridge runs but `backend/gauge` failed to import; `error` says why; video and flight still work), or `offline` (no bridge; every other field is absent).
+- `enabled`: reading was started with `/gauge/start`. `running`: the reader thread is alive and producing estimates.
+- `error`: the last import, reader or overlay-encode error, or null. On a reader error the last estimate stays in the payload; `age_s` grows, so the UI shows it as stale.
+- `pose_source`: where the camera pose came from: `tags` (ArUco), `corners` (the 4 clicked rim corners) or `rim` (the automatically detected tray outline, accepted only when one orientation clearly fits). Null when there is no pose. Tags win when at least 3 are readable. `corners`: the clicked points, or null.
+- `age_s`: seconds since `ts` (the last reading), or null before any reading. **When `age_s` > 5 or `running` is false, dim the reading and show "Last reading Ns ago"**: it is not live.
+- Estimate fields are null until the first reading. **`ft` is null when the evidence is weak** (fewer than 3 tags, high reprojection error, too few visible cells, flat score) and `reason` then says why: show the reason, never a guess. `reason` can also be set on a valid reading (a caveat); **show `reason` whenever it is non-null.**
+- **Always show the range** (`ft_range`) next to `ft`. Each tray terrace step is 1 ft of rise above the normal pool. The reading resolves which step the water is in: `ft_range` is that step's bounds and `ft` is its centre (water between the 2 ft and 3 ft terraces reads `"ft": 2.5, "ft_range": [2.0, 3.0]`).
+- `"ft": 0` with `"ft_range": [0, 0]` means the water is at or below the normal pool: show "At or below normal pool", not "0–0 ft".
+- `baseline_moved`: true when the camera moved since the dry baseline, so the reader ignores the baseline and uses the dye colour only (lower confidence). Show "Camera moved, using dye only" in place of "Captured" for the dry baseline.
+- `wet_fraction`: 0 to 1, wet cells over visible cells in the current frame (a diagnostic).
+- `car_level`: `none`, `wheels`, `doors`, `windows` or `roof` (the `VisionResult.water_level` vocabulary), or null.
+- `confidence`: 0 to 1; capped lower when `has_baseline` is false (dye-hue only).
+- `simulated`: true when the frame was synthetic (`gauge.synth`); label it "SIMULATED" in the UI.

@@ -1,0 +1,87 @@
+.panel { margin-top: 20px; border: var(--border); border-radius: 9px; background: var(--surface); overflow: hidden; }
+.heading { min-height: 85px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 22px; border-bottom: var(--border); }
+.heading h2 { font-size: 18px; line-height: 25px; letter-spacing: -0.3px; }
+.eyebrow { color: var(--neutral-5); font-size: 9px; font-weight: 700; line-height: 12px; letter-spacing: 1.7px; margin-bottom: 5px; }
+.liveTag, .cachedTag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.liveTag { color: var(--on-dark); background: var(--brand-red); }
+.cachedTag { color: var(--caution); background: var(--caution-bg); border: 1px solid var(--caution-mark); }
+
+.body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 20px; padding: 20px 22px; }
+
+@media (width <= 980px) { .body { grid-template-columns: 1fr; } }
+
+.feed { position: relative; aspect-ratio: 4 / 3; align-self: start; background: var(--water-5); border-radius: 6px; overflow: hidden; }
+.feed img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.feedNote { position: absolute; left: 12px; right: 12px; bottom: 12px; display: grid; gap: 2px; padding: 10px 12px; border-radius: 5px; background: rgb(11 45 82 / 86%); color: var(--on-dark); font-size: 12px; line-height: 17px; }
+.feedNote strong { font-size: 10px; letter-spacing: 1.4px; color: var(--water-2); }
+
+.side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.telemetry { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.telemetry > div { padding: 10px 12px; border: var(--border); border-radius: 6px; }
+.telemetry dt { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; color: var(--neutral-5); }
+.telemetry dd { margin: 4px 0 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+.warn { border-color: var(--critical) !important; background: var(--critical-bg); }
+.warn dd { color: var(--critical-deep); }
+
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.launch, .land, .landHot, .kill { min-height: 44px; padding: 10px 14px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--neutral-3); background: var(--surface); color: var(--ink); }
+.launch { background: var(--ink); border-color: var(--ink); color: var(--on-dark); }
+.launch:hover:not(:disabled) { background: var(--neutral-6); }
+.land:hover:not(:disabled) { background: var(--neutral-1); }
+.landHot { background: var(--brand-red); border-color: var(--brand-red); color: var(--on-dark); box-shadow: 0 0 0 3px rgb(179 18 31 / 18%); }
+.landHot:hover:not(:disabled) { background: var(--brand-red-hover); }
+.kill { grid-column: 1 / -1; color: var(--critical-deep); border-color: var(--critical); background: var(--critical-bg); }
+.kill:hover:not(:disabled) { background: var(--critical); color: var(--on-dark); }
+.launch:disabled, .land:disabled, .landHot:disabled, .kill:disabled { opacity: 0.45; cursor: not-allowed; }
+.launch:focus-visible, .land:focus-visible, .landHot:focus-visible, .kill:focus-visible, .controlsLink:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+
+.message, .messageOk { min-height: 18px; font-size: 12px; color: var(--critical-deep); overflow-wrap: anywhere; }
+.messageOk { color: var(--safe); }
+.controlsLink { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--info); }
+.log { margin: 0; padding: 10px 12px; list-style: none; border-radius: 6px; background: var(--neutral-1); font: 11px/1.6 Consolas, ui-monospace, monospace; color: var(--neutral-6); overflow-wrap: anywhere; }
+
+.gauge { display: grid; gap: 12px; padding: 14px; border: var(--border); border-radius: 8px; background: var(--surface); }
+.gaugeHead { display: flex; align-items: center; gap: 8px; }
+.gaugeHead h3 { display: flex; align-items: center; gap: 6px; margin: 0 auto 0 0; font-size: 14px; font-weight: 700; color: var(--water-5); }
+.simTag { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--info); background: var(--info-bg); border: 1px solid var(--info); }
+.gaugeReading { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.gaugeReading strong { font-size: 40px; line-height: 1; font-weight: 700; letter-spacing: -1.2px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.gaugeReading span { font-size: 13px; font-weight: 600; color: var(--neutral-5); font-variant-numeric: tabular-nums; }
+.gaugeNote { margin: 0; padding: 8px 10px; border-left: 3px solid var(--caution-mark); border-radius: 4px; background: var(--caution-bg); color: var(--caution); font-size: 12px; line-height: 17px; overflow-wrap: anywhere; }
+.gaugeNote:empty { display: none; }
+.gaugeAge { margin: -4px 0 0; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--caution); }
+.gaugeStale .gaugeReading, .gaugeStale .gaugeFacts, .gaugeStale .confidence { opacity: 0.45; filter: grayscale(1); }
+.baselineMoved { color: var(--caution); }
+.gaugeFacts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.gaugeFacts > div { padding: 8px 10px; border-radius: 6px; background: var(--neutral-1); }
+.gaugeFacts dt { font-size: 10px; font-weight: 600; color: var(--neutral-5); }
+.gaugeFacts dd { margin: 3px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.flooded { color: var(--critical-deep); }
+.levelTag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+.sevNone { color: var(--safe); background: var(--safe-bg); }
+.sevLow { color: var(--caution); background: var(--caution-bg); }
+.sevMid { color: var(--critical-deep); background: var(--critical-bg); }
+.sevHigh { color: var(--on-dark); background: var(--critical); }
+.confidence { display: grid; gap: 5px; font-size: 11px; font-weight: 600; color: var(--neutral-5); }
+.confidenceBar { height: 8px; border-radius: 4px; background: var(--neutral-2); overflow: hidden; }
+.confidenceBar > div { height: 100%; background: var(--water-4); transition: width var(--dur-slide) var(--ease-out); }
+.gaugeButtons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gaugeButtons > button:first-child { grid-column: 1 / -1; }
+.overlayToggle.overlayToggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.overlayToggle.overlayToggle input { width: 16px; height: 16px; min-height: 0; flex: none; accent-color: var(--water-4); }
+.overlayToggle input:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .confidenceBar > div { transition: none; } }
+
+.feedPicking { cursor: crosshair; outline: 2px dashed var(--brand-red); outline-offset: -2px; }
+.cornerDot { position: absolute; z-index: 2; width: 22px; height: 22px; margin: -11px 0 0 -11px; display: grid; place-items: center; border-radius: 50%; background: var(--brand-red); color: var(--on-dark); font-size: 12px; font-weight: 700; pointer-events: none; box-shadow: 0 0 0 2px var(--surface); }
+
+.depths { display: grid; gap: 6px; }
+.depthsTitle { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; color: var(--neutral-5); }
+.depthTable { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.depthTable th, .depthTable td { padding: 5px 6px; border-bottom: var(--border); text-align: right; }
+.depthTable th[scope="row"], .depthTable thead th:first-child { text-align: left; font-weight: 600; }
+.depthTable thead th { font-size: 10px; color: var(--neutral-5); font-weight: 700; }
+.depthWet th[scope="row"] { color: var(--water-5); }
+.depthRise { color: var(--critical-deep); font-weight: 700; }
+.depthHouses summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--info); padding: 4px 0; }

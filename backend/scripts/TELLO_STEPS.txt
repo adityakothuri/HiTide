@@ -1,0 +1,79 @@
+TELLO LIVE VIDEO - OFFLINE STEPS
+================================
+Everything is already installed in C:\Users\ayush_aw7x\tello-env.
+No internet is needed for any of this.
+
+1. Charge the Tello battery. Put the drone on a flat surface.
+2. Press the power button on the side once. The light blinks yellow when it is ready.
+3. Laptop Wi-Fi: connect to TELLO-XXXXXX (no password).
+   Windows may say "No internet". That's fine. Stay connected.
+4. Open File Explorer and go to:
+   C:\Users\ayush_aw7x\OneDrive\Documents\ChatGPT\Lifeguard\backend\scripts
+5. Double-click tello_stream.bat.
+6. A black console prints "Battery: NN %", then a window called "Tello" shows the video.
+   (The first second can look smeared. That's normal.)
+7. To stop: click the Tello video window and press q. Then press any key to close the console.
+8. Reconnect Wi-Fi to your normal network to get internet back.
+
+HEALTH CHECK (run this first if the drone light is red)
+-------------------------------------------------------
+1. Connect the laptop Wi-Fi to TELLO-XXXXXX.
+2. Double-click tello_check.bat (same folder as tello_stream.bat).
+3. Read the result:
+   "OK: the drone answered" + battery/temperature list
+       -> The drone works. Run tello_stream.bat for video.
+   WARNING: battery is low  -> Charge fully.
+   WARNING: the drone is hot -> Turn it off for 15 minutes.
+   "FAILED: the drone did not answer"
+       -> Power-cycle it and check the Wi-Fi. If it still fails with a solid red light,
+          the drone has a fault (DJI support).
+
+IF SOMETHING GOES WRONG
+-----------------------
+Dashboard log says "Drone refused takeoff: 'error'"
+  -> The drone itself is saying no. In order:
+     1. Turn on the room lights (its downward camera must see the floor).
+     2. Put it on a flat, textured floor (not glossy or plain white).
+     3. If it feels hot, or the log shows temp 80C+, turn it off for 15 minutes.
+     4. Restart the drone.
+     5. Calibrate: Tello phone app > Settings > More > IMU Calibration (and install any firmware update).
+
+"The dashboard is ALREADY RUNNING"
+  -> Find the other black console window, click it, and press Ctrl+C. Then start again.
+"Did not receive a state packet from the Tello"
+  -> The firewall is blocking Python. See the firewall fix below, then run again.
+
+"Command 'command' was unsuccessful ... Did not receive a response"
+  -> The laptop is not on the Tello Wi-Fi, or the drone is off or asleep.
+     Turn the drone off and on again, reconnect to TELLO-XXXXXX, and run it again.
+
+Windows Security / Firewall popup about Python
+  -> Tick BOTH "Private" and "Public", then click Allow.
+
+Battery prints, but the video window never appears or stays black
+  -> The firewall is blocking the video. Open Start > "Allow an app through Windows Firewall"
+     > Change settings > find python.exe (tello-env) > tick Private AND Public > OK. Run again.
+  -> If the firewall is already allowed: power-cycle the drone and run again.
+
+Colors look swapped (blue faces, orange sky)
+  -> Open tello_stream.py in Notepad. Change
+        cv2.imshow("Tello", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+     to
+        cv2.imshow("Tello", frame)
+     Save, then run again.
+
+Drone turns off by itself
+  -> It sleeps after a few minutes idle. Press power again and reconnect the Wi-Fi.
+
+Low battery (under about 15%)
+  -> The video may stop. Swap or charge the battery.
+
+DASHBOARD (video + battery + controls in one page)
+--------------------------------------------------
+1. Connect the laptop Wi-Fi to TELLO-XXXXXX.
+2. Double-click "Tello dashboard" on the Desktop. Your browser opens http://127.0.0.1:8765
+   (works with no internet). If it doesn't open, type that address into Chrome.
+3. Click the page once, then: T take off, L land, WASD move, arrows climb/descend/turn,
+   Backspace = EMERGENCY motor stop. Or click the on-screen buttons and hold the key tiles.
+4. To stop: click the black console window and press Ctrl+C (it lands first if flying).
+Only run one Tello program at a time.

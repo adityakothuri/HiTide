@@ -1,0 +1,318 @@
+{
+ "name": "FloodWatch gauge tray",
+ "size_mm": [
+  200.0,
+  200.0,
+  22.86003324405892
+ ],
+ "res_mm": 0.4,
+ "xy_scale": 1.0,
+ "triangles": 506000,
+ "watertight": true,
+ "volume_cm3": 465.0,
+ "levels": {
+  "floor_mm": 1.6,
+  "pool_mm": 4.0,
+  "step_mm": 2.0,
+  "step_means": "1 ft of rise",
+  "terraces_mm": [
+   6.0,
+   8.0,
+   10.0,
+   12.0,
+   14.0,
+   16.0,
+   18.0
+  ],
+  "rim_top_mm": 22.0
+ },
+ "pour_table": [
+  {
+   "ft": 0,
+   "level_mm": 4.0,
+   "ml": 8.5,
+   "wet_fraction": 0.093
+  },
+  {
+   "ft": 1,
+   "level_mm": 6.0,
+   "ml": 16.1,
+   "wet_fraction": 0.097
+  },
+  {
+   "ft": 2,
+   "level_mm": 8.0,
+   "ml": 41.9,
+   "wet_fraction": 0.327
+  },
+  {
+   "ft": 3,
+   "level_mm": 10.0,
+   "ml": 77.0,
+   "wet_fraction": 0.445
+  },
+  {
+   "ft": 4,
+   "level_mm": 12.0,
+   "ml": 119.7,
+   "wet_fraction": 0.542
+  },
+  {
+   "ft": 5,
+   "level_mm": 14.0,
+   "ml": 169.6,
+   "wet_fraction": 0.628
+  },
+  {
+   "ft": 6,
+   "level_mm": 16.0,
+   "ml": 227.5,
+   "wet_fraction": 0.727
+  },
+  {
+   "ft": 7,
+   "level_mm": 18.0,
+   "ml": 288.8,
+   "wet_fraction": 0.767
+  }
+ ],
+ "creek": {
+  "bed_mm": 3.0,
+  "half_width_mm": 2.6
+ },
+ "road": {
+  "y_mm": 122.0,
+  "width_mm": 9.2,
+  "deck_mm": 4.6,
+  "crossing_x_mm": 83.62078686114825
+ },
+ "car": {
+  "centre_mm": [
+   99.12078686114825,
+   120.2
+  ],
+  "road_mm": 6.98,
+  "body_top_mm": 8.98,
+  "roof_mm": 10.38
+ },
+ "houses": [
+  {
+   "centre_mm": [
+    54.7,
+    160
+   ],
+   "ground_mm": 6.0,
+   "eave_mm": 8.4,
+   "ridge_mm": 10.0
+  },
+  {
+   "centre_mm": [
+    42.0,
+    150
+   ],
+   "ground_mm": 10.0,
+   "eave_mm": 12.4,
+   "ridge_mm": 14.0
+  },
+  {
+   "centre_mm": [
+    104.6,
+    40
+   ],
+   "ground_mm": 8.0,
+   "eave_mm": 10.4,
+   "ridge_mm": 12.0
+  },
+  {
+   "centre_mm": [
+    91.1,
+    55
+   ],
+   "ground_mm": 8.0,
+   "eave_mm": 10.4,
+   "ridge_mm": 12.0
+  },
+  {
+   "centre_mm": [
+    97.9,
+    165
+   ],
+   "ground_mm": 6.0,
+   "eave_mm": 8.4,
+   "ridge_mm": 10.0
+  },
+  {
+   "centre_mm": [
+    161.6,
+    52
+   ],
+   "ground_mm": 6.0,
+   "eave_mm": 8.4,
+   "ridge_mm": 10.0
+  },
+  {
+   "centre_mm": [
+    143.7,
+    70
+   ],
+   "ground_mm": 6.0,
+   "eave_mm": 8.4,
+   "ridge_mm": 10.0
+  },
+  {
+   "centre_mm": [
+    132.0,
+    150
+   ],
+   "ground_mm": 14.0,
+   "eave_mm": 16.4,
+   "ridge_mm": 18.0
+  },
+  {
+   "centre_mm": [
+    48.9,
+    90
+   ],
+   "ground_mm": 8.0,
+   "eave_mm": 10.4,
+   "ridge_mm": 12.0
+  },
+  {
+   "centre_mm": [
+    176.3,
+    34
+   ],
+   "ground_mm": 8.0,
+   "eave_mm": 10.4,
+   "ridge_mm": 12.0
+  }
+ ],
+ "trees": 70,
+ "fiducials": {
+  "dictionary": "DICT_4X4_50",
+  "tag_mm": 20.0,
+  "pad_mm": 26.0,
+  "tags": [
+   {
+    "id": 0,
+    "centre_mm": [
+     13.0,
+     13.0,
+     21.6
+    ],
+    "corners_mm": [
+     [
+      3.0,
+      23.0,
+      21.6
+     ],
+     [
+      23.0,
+      23.0,
+      21.6
+     ],
+     [
+      23.0,
+      3.0,
+      21.6
+     ],
+     [
+      3.0,
+      3.0,
+      21.6
+     ]
+    ]
+   },
+   {
+    "id": 1,
+    "centre_mm": [
+     187.0,
+     13.0,
+     21.6
+    ],
+    "corners_mm": [
+     [
+      177.0,
+      23.0,
+      21.6
+     ],
+     [
+      197.0,
+      23.0,
+      21.6
+     ],
+     [
+      197.0,
+      3.0,
+      21.6
+     ],
+     [
+      177.0,
+      3.0,
+      21.6
+     ]
+    ]
+   },
+   {
+    "id": 2,
+    "centre_mm": [
+     187.0,
+     187.0,
+     21.6
+    ],
+    "corners_mm": [
+     [
+      177.0,
+      197.0,
+      21.6
+     ],
+     [
+      197.0,
+      197.0,
+      21.6
+     ],
+     [
+      197.0,
+      177.0,
+      21.6
+     ],
+     [
+      177.0,
+      177.0,
+      21.6
+     ]
+    ]
+   },
+   {
+    "id": 3,
+    "centre_mm": [
+     13.0,
+     187.0,
+     21.6
+    ],
+    "corners_mm": [
+     [
+      3.0,
+      197.0,
+      21.6
+     ],
+     [
+      23.0,
+      197.0,
+      21.6
+     ],
+     [
+      23.0,
+      177.0,
+      21.6
+     ],
+     [
+      3.0,
+      177.0,
+      21.6
+     ]
+    ]
+   }
+  ]
+ }
+}

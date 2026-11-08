@@ -8,6 +8,7 @@ import { EvidenceMap } from './ops/EvidenceMap'
 import { Queue } from './ops/Queue'
 import { RoadDetail } from './ops/RoadDetail'
 import s from './ops/ops.module.css'
+import { LiveDronePanel } from './LiveDronePanel'
 
 const POLL_MS = 5_000
 const TICK_MS = 5_000
@@ -170,6 +171,10 @@ export function Operations() {
             </div>
           )}
           <div role="status" aria-live="polite" className={message ? s.notice : s.srOnly}>{message && <><Check size={16} aria-hidden />{message}</>}</div>
+          <details className={s.liveDrone}>
+            <summary>Live drone (DJI Tello) and gauge tray</summary>
+            <LiveDronePanel />
+          </details>
 
           {!state || !counts ? (
             <section className={s.loading} aria-label="Loading evidence">

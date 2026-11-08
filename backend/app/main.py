@@ -14,6 +14,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from api.live_drone import router as live_drone_router
 from api.routes import router
 from api.routes_region import router as region_router
 from api.routes_safety import router as safety_router
@@ -124,4 +125,5 @@ app.include_router(evidence_router)
 app.include_router(region_router)
 app.include_router(safety_router)
 app.include_router(snapshots_router)
+app.include_router(live_drone_router)
 app.mount("/static/drone", StaticFiles(directory=DATA_DIR / "drone_samples"), name="drone")

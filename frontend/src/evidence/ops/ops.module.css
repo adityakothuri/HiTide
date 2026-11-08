@@ -866,3 +866,6 @@ a.hazard:hover {
     width: 100%;
   }
 }
+
+.liveDrone { margin: 0 0 12px; }
+.liveDrone > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }

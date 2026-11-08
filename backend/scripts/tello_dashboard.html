@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TELLO // CTRL</title>
+<style>
+  /* Cyberpunk HUD. Offline-safe: Windows system fonts only (Bahnschrift + Consolas). */
+  :root {
+    --void: #05040a; --panel: #0c0a16cc; --panel-solid: #0e0b1a; --line: #2a1f4a;
+    --cyan: #00f0ff; --magenta: #ff2bd6; --yellow: #f5ff3b; --ok: #39ff88; --bad: #ff3355;
+    --text: #e8f7ff; --muted: #7d74a8;
+    --display: "Bahnschrift", "Bahnschrift SemiCondensed", "Arial Narrow", sans-serif;
+    --mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+    --cut: 14px;
+    --glow-cyan: 0 0 6px #00f0ff99, 0 0 18px #00f0ff44;
+    --glow-mag: 0 0 6px #ff2bd699, 0 0 18px #ff2bd644;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--void); }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text); font: 14px/1.4 var(--mono);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, #ff2bd61f, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #00f0ff1a, transparent 60%),
+      linear-gradient(#ffffff06 1px, transparent 1px) 0 0 / 100% 32px,
+      linear-gradient(90deg, #ffffff06 1px, transparent 1px) 0 0 / 32px 100%,
+      var(--void);
+  }
+  /* CRT scanlines over everything, very faint */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    background: repeating-linear-gradient(#0000 0 2px, #0000001f 2px 3px);
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex; align-items: center; gap: 16px; padding: 14px 24px;
+    border-bottom: 1px solid var(--line); background: #07060ee6; position: sticky; top: 0; z-index: 10;
+  }
+  .logo {
+    font: 700 22px/1 var(--display); letter-spacing: 3px; margin: 0; color: var(--cyan);
+    text-shadow: var(--glow-cyan), 2px 0 0 #ff2bd655;
+  }
+  .logo b { color: var(--magenta); text-shadow: var(--glow-mag); font-weight: 700; }
+  .sub { color: var(--muted); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+  .spacer { flex: 1; }
+  .pill {
+    font: 600 12px/1 var(--display); letter-spacing: 2px; text-transform: uppercase;
+    padding: 7px 14px 7px 12px; color: var(--muted); border: 1px solid var(--line);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    background: #ffffff08; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .pill::before { content: ""; width: 7px; height: 7px; background: currentColor; box-shadow: 0 0 8px currentColor; }
+  .pill.ok { color: var(--ok); border-color: #39ff8855; }
+  .pill.fly { color: var(--cyan); border-color: var(--cyan); animation: pulse 1.2s ease-in-out infinite; }
+  .pill.bad { color: var(--bad); border-color: #ff335588; animation: blink 1s steps(2) infinite; }
+  #clock { color: var(--cyan); }
+  #clock::before { display: none; }
+  @keyframes pulse { 50% { box-shadow: 0 0 16px #00f0ff66; } }
+  @keyframes blink { 50% { opacity: .55; } }
+
+  /* ---------- layout ---------- */
+  main {
+    display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px;
+    padding: 20px 24px 28px; max-width: 1560px; margin: 0 auto;
+  }
+  @media (max-width: 1050px) { main { grid-template-columns: 1fr; padding: 16px; } }
+
+  .card {
+    position: relative; background: var(--panel); padding: 16px 16px 14px;
+    border: 1px solid var(--line); backdrop-filter: blur(6px);
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+  }
+  .card::before { /* neon corner tick */
+    content: ""; position: absolute; top: 0; right: 0; width: calc(var(--cut) * 1.42); height: 1px;
+    background: var(--magenta); box-shadow: var(--glow-mag);
+    transform-origin: right top; transform: translateX(0) rotate(45deg);
+  }
+  .card h2 {
+    margin: 0 0 12px; font: 600 12px/1 var(--display); letter-spacing: 3px; text-transform: uppercase;
+    color: var(--magenta); display: flex; align-items: center; gap: 8px;
+  }
+  .card h2::before { content: "//"; color: var(--cyan); }
+  .side { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---------- video ---------- */
+  .feed { display: flex; flex-direction: column; gap: 10px; }
+  .video {
+    position: relative; background: #000; aspect-ratio: 4 / 3; overflow: hidden;
+    border: 1px solid #00f0ff55; box-shadow: 0 0 0 1px #00f0ff11, 0 0 40px #00f0ff1a inset;
+  }
+  .video img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .video::after { /* scanlines + vignette on the feed */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(#0000 0 3px, #00000038 3px 4px),
+                radial-gradient(ellipse at center, transparent 55%, #000a 100%);
+  }
+  .bracket { position: absolute; width: 34px; height: 34px; border: 2px solid var(--cyan); z-index: 2;
+             filter: drop-shadow(0 0 4px var(--cyan)); pointer-events: none; }
+  .bracket.tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+  .bracket.tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
+  .bracket.bl { bottom: 10px; left: 10px; border-right: 0; border-top: 0; }
+  .bracket.br { bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
+  .reticle { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; z-index: 2;
+             transform: translate(-50%, -50%); pointer-events: none; opacity: .7; }
+  .reticle::before, .reticle::after { content: ""; position: absolute; background: var(--cyan); box-shadow: var(--glow-cyan); }
+  .reticle::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .reticle::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+  .overlay { position: absolute; left: 56px; right: 56px; top: 16px; display: flex; gap: 10px; z-index: 3; }
+  .overlay span {
+    font: 600 13px/1 var(--mono); padding: 6px 10px; background: #05040acc; color: var(--cyan);
+    border-left: 2px solid var(--cyan); font-variant-numeric: tabular-nums; letter-spacing: 1px;
+  }
+  .overlay .rec { margin-left: auto; color: var(--bad); border-color: var(--bad); }
+  .overlay .rec::before { content: "● "; animation: blink 1s steps(2) infinite; }
+  .video .novideo {
+    position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; padding: 32px;
+    text-align: center; font: 600 16px/1.5 var(--display); letter-spacing: 2px; text-transform: uppercase;
+    color: var(--bad); text-shadow: 0 0 10px #ff335599;
+    background: repeating-linear-gradient(45deg, #0000 0 14px, #ff335512 14px 28px), #05040ae6;
+  }
+  .video .novideo[hidden] { display: none; }
+  .video.picking { cursor: crosshair; outline: 2px dashed var(--yellow); outline-offset: -2px; }
+  .depths { margin-top: 12px; }
+  .depths .label { font: 600 10px var(--display); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .depth-table { width: 100%; margin-top: 6px; border-collapse: collapse; font: 12px/1.4 var(--mono);
+                 font-variant-numeric: tabular-nums; }
+  .depth-table th, .depth-table td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+  .depth-table th:first-child, .depth-table td:first-child { text-align: left; }
+  .depth-table thead th { font: 600 10px var(--display); letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .depth-table td.wet { color: var(--cyan); }
+  .depth-table td.rise { color: var(--magenta); font-weight: 700; }
+  .depths details summary { cursor: pointer; margin-top: 6px; font: 600 11px var(--display); letter-spacing: 1px;
+                            color: var(--cyan); }
+  .corner-dot {
+    position: absolute; z-index: 6; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none;
+    display: grid; place-items: center; border-radius: 50%; background: var(--magenta); color: var(--void);
+    font: 700 12px/1 var(--mono); box-shadow: var(--glow-mag);
+  }
+
+  .help { color: var(--muted); font-size: 12px; margin: 0; letter-spacing: .3px; }
+  kbd {
+    font: 600 11px var(--mono); color: var(--cyan); background: #00f0ff12;
+    border: 1px solid #00f0ff55; padding: 1px 6px; margin: 0 1px;
+  }
+
+  /* ---------- battery ---------- */
+  .battery-row { display: flex; align-items: baseline; gap: 6px; }
+  .battery-row .big {
+    font: 700 52px/0.9 var(--display); font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 14px currentColor; transition: color .3s;
+  }
+  .battery-row .unit { font: 600 20px var(--display); color: var(--muted); }
+  .battery-row .hint { margin-left: auto; font: 600 12px var(--display); letter-spacing: 2px; text-transform: uppercase; }
+  .bar { position: relative; height: 14px; margin-top: 12px; background: #ffffff0a; border: 1px solid var(--line); }
+  .bar div { height: 100%; width: 0; background: var(--ok); box-shadow: 0 0 12px currentColor;
+             transition: width .5s, background .3s; }
+  .bar::after { /* segment the bar */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(90deg, #0000 0 calc(10% - 2px), var(--void) calc(10% - 2px) 10%);
+  }
+
+  /* ---------- telemetry ---------- */
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: #ffffff05; border-left: 2px solid #00f0ff66; padding: 8px 10px; }
+  .stat .label { font: 600 10px var(--display); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .stat .value { font: 600 19px var(--mono); font-variant-numeric: tabular-nums; color: var(--cyan);
+                 text-shadow: 0 0 8px #00f0ff55; transition: color .3s, opacity .3s; }
+  .stat.wide { grid-column: 1 / -1; }
+  body.stale .stat .value, body.stale .battery-row, body.stale .bar { opacity: .3; filter: grayscale(1); }
+
+  /* ---------- buttons ---------- */
+  .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  button {
+    font: 700 14px/1 var(--display); letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer;
+    color: var(--cyan); background: #00f0ff0d; border: 1px solid var(--cyan); padding: 14px 10px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition: background .15s, box-shadow .15s, transform .08s, color .15s;
+  }
+  button:hover:not(:disabled) { background: var(--cyan); color: var(--void); box-shadow: var(--glow-cyan); }
+  button:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+  button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+  button:disabled { opacity: .3; cursor: not-allowed; filter: grayscale(.6); }
+  button kbd { background: transparent; border-color: currentColor; color: inherit; }
+  button.alt { color: var(--magenta); border-color: var(--magenta); background: #ff2bd60d; }
+  button.alt:hover:not(:disabled) { background: var(--magenta); color: var(--void); box-shadow: var(--glow-mag); }
+  button.alt.hot { background: var(--magenta); color: var(--void); box-shadow: var(--glow-mag);
+                   animation: pulse-mag 1.1s ease-in-out infinite; }
+  @keyframes pulse-mag { 50% { box-shadow: 0 0 26px #ff2bd6cc; } }
+  button.danger {
+    grid-column: 1 / -1; color: #fff; border-color: var(--bad); padding: 16px;
+    background: repeating-linear-gradient(-45deg, #ff335533 0 12px, #ff335514 12px 24px);
+    text-shadow: 0 0 8px #ff3355;
+  }
+  button.danger:hover:not(:disabled) { background: var(--bad); color: #fff; box-shadow: 0 0 22px #ff335599; }
+
+  .speed { display: flex; align-items: center; gap: 12px; margin-top: 14px;
+           font: 600 11px var(--display); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .speed input { flex: 1; accent-color: var(--magenta); }
+  #speed-val { color: var(--magenta); font: 700 16px var(--mono); min-width: 3ch; text-align: right; }
+  .focus-warn {
+    display: none; margin-top: 10px; padding: 6px 10px; font: 600 11px var(--display); letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--void); background: var(--yellow);
+  }
+  body.blurred .focus-warn { display: block; }
+
+  /* ---------- key pads ---------- */
+  .pads { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .key {
+    display: grid; place-items: center; height: 44px; user-select: none; touch-action: none; cursor: pointer;
+    font: 700 15px/1 var(--display); color: var(--text); background: #ffffff06; border: 1px solid var(--line);
+    transition: background .08s, box-shadow .08s, color .08s, border-color .08s;
+  }
+  .key:hover { border-color: #00f0ff88; }
+  .key small { display: block; font: 600 8px/1 var(--display); letter-spacing: 1.5px; text-transform: uppercase;
+               color: var(--muted); margin-top: 3px; }
+  .key.on { background: var(--cyan); color: var(--void); border-color: var(--cyan); box-shadow: var(--glow-cyan); }
+  .key.on small { color: #05040a99; }
+  .pad.alt .key.on { background: var(--magenta); border-color: var(--magenta); box-shadow: var(--glow-mag); }
+  .pad-label { text-align: center; margin-top: 6px; font: 600 10px var(--display); letter-spacing: 2px;
+               text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- log ---------- */
+  .log { font: 12px/1.6 var(--mono); color: var(--muted); max-height: 170px; overflow-y: auto;
+         margin: 0; padding: 0; list-style: none; }
+  .log li::before { content: "> "; color: var(--magenta); }
+  .log li:first-child { color: var(--ok); }
+  .log::-webkit-scrollbar { width: 6px; }
+  .log::-webkit-scrollbar-thumb { background: var(--line); }
+
+  /* ---------- water gauge ---------- */
+  .gauge-row { display: flex; align-items: baseline; gap: 6px; }
+  .gauge-row .big { font: 700 52px/0.9 var(--display); font-variant-numeric: tabular-nums; color: var(--cyan);
+                    text-shadow: 0 0 14px currentColor; }
+  .gauge-row .unit { font: 600 20px var(--display); color: var(--muted); }
+  .gauge-row .range { margin-left: auto; font: 600 13px var(--mono); color: var(--muted); }
+  .tag { font: 700 10px/1 var(--display); letter-spacing: 2px; text-transform: uppercase; padding: 4px 8px;
+         border: 1px solid currentColor; }
+  .tag.sim { color: var(--yellow); }
+  .tag.off { color: var(--bad); }
+  .gauge-reason { margin: 10px 0 0; padding: 6px 10px; font-size: 12px; color: var(--yellow);
+                  border-left: 2px solid var(--yellow); background: #f5ff3b0d; }
+  .gauge-reason[hidden] { display: none; }
+  .gauge-age { margin: 8px 0 0; font: 600 11px var(--display); letter-spacing: 1.5px; text-transform: uppercase;
+               color: var(--yellow); }
+  .gauge-age[hidden] { display: none; }
+  .gauge-msg { min-height: 16px; margin: 10px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+  .gauge-msg.ok { color: var(--ok); } .gauge-msg.bad { color: var(--yellow); }
+  /* A reading older than GAUGE_STALE_S, or from a stopped reader, must not look live. */
+  .card.gauge-stale .gauge-row, .card.gauge-stale .stats { opacity: .4; filter: grayscale(1); }
+  .conf { position: relative; height: 8px; margin-top: 4px; background: #ffffff0a; border: 1px solid var(--line); }
+  .conf div { height: 100%; width: 0; background: var(--magenta); box-shadow: var(--glow-mag); transition: width .5s; }
+  .gauge-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .gauge-buttons button:first-child { grid-column: 1 / -1; }
+  .gauge-buttons button { font-size: 11px; letter-spacing: 1.5px; padding: 11px 6px; }
+  .toggle { display: flex; align-items: center; gap: 8px; margin-top: 12px; cursor: pointer;
+            font: 600 11px var(--display); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .toggle input { accent-color: var(--magenta); }
+  .lvl-none { color: var(--ok) !important; } .lvl-wheels { color: var(--yellow) !important; }
+  .lvl-doors, .lvl-windows, .lvl-roof { color: var(--bad) !important; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 class="logo">TELLO<b>//</b>CTRL</h1>
+  <span class="sub">HiTide · recon unit</span>
+  <span class="spacer"></span>
+  <span id="state" class="pill">Linking…</span>
+  <span class="pill" id="clock">--:--</span>
+</header>
+
+<main>
+  <section class="feed" aria-label="Live drone camera">
+    <div class="video">
+      <img id="video" src="/video" alt="Live drone camera">
+      <span class="bracket tl"></span><span class="bracket tr"></span>
+      <span class="bracket bl"></span><span class="bracket br"></span>
+      <span class="reticle"></span>
+      <div class="overlay">
+        <span id="ov-bat">BAT --%</span>
+        <span id="ov-h">ALT -- CM</span>
+        <span id="ov-t">T+0:00</span>
+        <span id="ov-lift" hidden></span>
+        <span class="rec">LIVE</span>
+      </div>
+      <div class="novideo" id="novideo" hidden>Waiting for video…</div>
+    </div>
+    <p class="help">
+      Click the page to arm the keyboard. <kbd>T</kbd> take off · <kbd>L</kbd> land ·
+      <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>↑</kbd><kbd>↓</kbd> altitude ·
+      <kbd>←</kbd><kbd>→</kbd> yaw · <kbd>Backspace</kbd> kill motors. Release all keys and it holds a hover.
+    </p>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <h2>Power cell</h2>
+      <div class="battery-row">
+        <span class="big" id="bat">--</span><span class="unit">%</span>
+        <span class="hint" id="bat-hint"></span>
+      </div>
+      <div class="bar"><div id="bat-bar"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Telemetry</h2>
+      <div class="stats">
+        <div class="stat"><div class="label">Altitude</div><div class="value" id="height">--</div></div>
+        <div class="stat"><div class="label">Floor sensor</div><div class="value" id="tof">--</div></div>
+        <div class="stat"><div class="label">Core temp</div><div class="value" id="temp">--</div></div>
+        <div class="stat"><div class="label">Flight time</div><div class="value" id="ftime">--</div></div>
+        <div class="stat"><div class="label">Velocity x/y/z</div><div class="value" id="speed">--</div></div>
+        <div class="stat"><div class="label">Heading</div><div class="value" id="yaw">--</div></div>
+      </div>
+    </div>
+
+    <div class="card" id="g-card" aria-labelledby="gauge-h">
+      <h2 id="gauge-h">Water gauge <span class="spacer"></span><span class="tag sim" id="g-sim" hidden>Simulated</span>
+        <span class="tag off" id="g-off" hidden>Offline</span></h2>
+      <div class="gauge-row">
+        <span class="big" id="g-ft">--</span><span class="unit">ft</span>
+        <span class="range" id="g-range">range --</span>
+      </div>
+      <p class="gauge-age" id="g-age" hidden></p>
+      <p class="gauge-reason" id="g-reason" hidden></p>
+      <div class="stats" style="margin-top: 12px">
+        <div class="stat"><div class="label">Car level</div><div class="value" id="g-car">--</div></div>
+        <div class="stat"><div class="label">Crossing</div><div class="value" id="g-cross">--</div></div>
+        <div class="stat"><div class="label">Houses flooded</div><div class="value" id="g-houses">--</div></div>
+        <div class="stat"><div class="label">Pose from</div><div class="value" id="g-tags">--</div></div>
+        <div class="stat wide"><div class="label">Dry baseline</div><div class="value" id="g-base">--</div></div>
+        <div class="stat wide"><div class="label">Confidence <span id="g-conf-v"></span></div>
+          <div class="conf"><div id="g-conf"></div></div></div>
+      </div>
+      <div class="depths" id="g-depths" hidden>
+        <div class="label">Depth by place (ft) // CAD ground vs measured surface</div>
+        <table class="depth-table"><thead><tr><th>Place</th><th>Before</th><th>Now</th><th>Change</th></tr></thead>
+          <tbody id="g-depth-main"></tbody></table>
+        <details><summary id="g-depth-houses-label">Houses</summary>
+          <table class="depth-table"><tbody id="g-depth-houses"></tbody></table></details>
+      </div>
+      <div class="gauge-buttons">
+        <button class="alt" id="g-baseline" title="Before pouring: capture the dry tray from this exact camera pose">Capture dry baseline</button>
+        <button id="g-start">Start</button>
+        <button class="alt" id="g-stop">Stop</button>
+        <button class="alt" id="g-corners" title="Click the 4 tray corners on the video: the pose comes from these, no tags needed">Set tray corners</button>
+        <button class="alt" id="g-corners-clear">Clear corners</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
+      <p class="gauge-msg" id="g-msg" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="card">
+      <h2>Flight</h2>
+      <div class="buttons">
+        <button id="btn-takeoff">Launch <kbd>T</kbd></button>
+        <button class="alt" id="btn-land">Land <kbd>L</kbd></button>
+        <button class="danger" id="btn-emergency">Kill motors <kbd>Backspace</kbd></button>
+      </div>
+      <div class="speed">Thrust <input type="range" id="speed-in" min="10" max="100" step="5" value="30"
+        aria-label="Speed"><span id="speed-val">30</span></div>
+      <div class="focus-warn">Keyboard not armed: click the page</div>
+    </div>
+
+    <div class="card">
+      <h2>Manual control</h2>
+      <div class="pads">
+        <div>
+          <div class="pad">
+            <span></span><div class="key" data-code="KeyW">W<small>fwd</small></div><span></span>
+            <div class="key" data-code="KeyA">A<small>left</small></div>
+            <div class="key" data-code="KeyS">S<small>back</small></div>
+            <div class="key" data-code="KeyD">D<small>right</small></div>
+          </div>
+          <div class="pad-label">Translate</div>
+        </div>
+        <div>
+          <div class="pad alt">
+            <span></span><div class="key" data-code="ArrowUp">↑<small>up</small></div><span></span>
+            <div class="key" data-code="ArrowLeft">←<small>yaw</small></div>
+            <div class="key" data-code="ArrowDown">↓<small>down</small></div>
+            <div class="key" data-code="ArrowRight">→<small>yaw</small></div>
+          </div>
+          <div class="pad-label">Altitude · yaw</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>System log</h2>
+      <ul class="log" id="log"></ul>
+    </div>
+  </aside>
+</main>
+
+<script>
+const JSON_HEADERS = { "Content-Type": "application/json" };  // the bridge refuses non-JSON POSTs (CSRF guard)
+const AXES = {
+  KeyW: ["fb", 1], KeyS: ["fb", -1], KeyA: ["lr", -1], KeyD: ["lr", 1],
+  ArrowUp: ["ud", 1], ArrowDown: ["ud", -1], ArrowLeft: ["yaw", -1], ArrowRight: ["yaw", 1],
+};
+const LOW = 20, CRITICAL = 10, WARM = 70, HOT = 80, VIDEO_STALE = 4;
+const held = new Set();
+const $ = (id) => document.getElementById(id);
+let speed = 30;  // gentle default; raise it once flying feels comfortable
+
+function rcValues() {
+  const v = { lr: 0, fb: 0, ud: 0, yaw: 0 };
+  for (const code of held) { const [axis, sign] = AXES[code]; v[axis] += sign * speed; }
+  return v;
+}
+function sendRc() {
+  fetch("/rc", { method: "POST", headers: JSON_HEADERS, body: JSON.stringify(rcValues()) }).catch(() => {});
+}
+function press(code, on) {
+  if (on) held.add(code); else held.delete(code);
+  document.querySelectorAll(`.key[data-code="${code}"]`).forEach((k) => k.classList.toggle("on", on));
+  sendRc();
+}
+function releaseAll() { [...held].forEach((c) => press(c, false)); }
+
+let localLog = [];
+async function action(name) {
+  try {
+    const r = await fetch(`/action/${name}`, { method: "POST", headers: JSON_HEADERS, body: "{}" });
+    const { result } = await r.json();
+    if (result !== "ok") addLocalLog(`${name}: ${result}`);
+  } catch { addLocalLog(`${name}: no connection to dashboard`); }
+}
+function addLocalLog(text) {
+  const t = new Date().toLocaleTimeString([], { hour12: false });
+  localLog = [`${t}  ${text}`, ...localLog].slice(0, 5);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (AXES[e.code]) { e.preventDefault(); if (!held.has(e.code)) press(e.code, true); return; }
+  if (e.repeat) return;
+  if (e.code === "KeyT") action("takeoff");
+  else if (e.code === "KeyL") action("land");
+  else if (e.code === "Backspace") { e.preventDefault(); action("emergency"); }
+});
+document.addEventListener("keyup", (e) => { if (AXES[e.code]) press(e.code, false); });
+window.addEventListener("blur", () => { releaseAll(); document.body.classList.add("blurred"); });
+window.addEventListener("focus", () => document.body.classList.remove("blurred"));
+if (!document.hasFocus()) document.body.classList.add("blurred");
+
+document.querySelectorAll(".key").forEach((k) => {
+  k.addEventListener("pointerdown", (e) => { k.setPointerCapture(e.pointerId); press(k.dataset.code, true); });
+  ["pointerup", "pointercancel"].forEach((ev) => k.addEventListener(ev, () => press(k.dataset.code, false)));
+});
+$("btn-takeoff").onclick = () => action("takeoff");
+$("btn-land").onclick = () => action("land");
+$("btn-emergency").onclick = () => action("emergency");
+$("speed-in").oninput = (e) => { speed = +e.target.value; $("speed-val").textContent = speed; };
+
+setInterval(() => { if (held.size) sendRc(); }, 200);  // keep-alive while holding keys
+
+$("video").onerror = () => {
+  // A missing overlay (no reading yet, or its JPEG failed) falls back to the live feed right away.
+  if ($("video").src.includes("/gauge/overlay.jpg")) { $("video").src = "/video?" + Date.now(); return; }
+  setTimeout(() => { $("video").src = "/video?" + Date.now(); }, 2000);
+};
+
+const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+function render(s) {
+  const bat = s.battery;
+  const color = bat <= CRITICAL ? "var(--bad)" : bat <= LOW ? "var(--yellow)" : "var(--ok)";
+  $("bat").textContent = bat;
+  $("bat").style.color = color;
+  $("bat-bar").style.width = bat + "%";
+  $("bat-bar").style.background = color;
+  $("bat-bar").style.color = color;
+  $("bat-hint").textContent = bat <= CRITICAL ? "Land now" : bat <= LOW ? "No launch" : "Flight ready";
+  $("bat-hint").style.color = color;
+  $("height").textContent = s.height + " cm";
+  $("tof").textContent = s.tof + " cm";
+  $("temp").textContent = s.temp + " °C";
+  $("temp").style.color = s.temp >= HOT ? "var(--bad)" : s.temp >= WARM ? "var(--yellow)" : "";
+  $("ftime").textContent = fmtTime(s.flight_time);
+  $("speed").textContent = s.speed.join(" / ");
+  $("yaw").textContent = s.attitude[2] + "°";
+  $("ov-bat").textContent = `BAT ${bat}%`;
+  $("ov-h").textContent = `ALT ${s.height} CM`;
+  $("ov-t").textContent = `T+${fmtTime(s.flight_time)}`;
+  // Seconds of flight before the worn battery reaches its auto-land level (see battery_profile.json).
+  const lift = $("ov-lift");
+  lift.hidden = s.lift_left_s == null;
+  if (s.lift_left_s != null) {
+    lift.textContent = `LIFT ${s.lift_left_s}s`;
+    lift.style.color = s.lift_left_s <= 10 ? "var(--bad)" : s.lift_left_s <= 20 ? "var(--yellow)" : "";
+  }
+
+  document.body.classList.toggle("stale", !s.connected);
+  const videoLost = s.connected && (s.video_age === null || s.video_age > VIDEO_STALE);
+  $("novideo").hidden = s.connected && !videoLost;
+  $("novideo").textContent = !s.connected
+    ? `Signal lost · ${Math.round(s.state_age)}s · reconnecting… (laptop on TELLO Wi-Fi? drone powered on?)`
+    : "Acquiring video feed…";
+
+  const st = $("state");
+  if (!s.connected) {
+    st.className = "pill bad"; st.textContent = "Link lost · retrying";
+  } else if (s.busy) {
+    st.className = "pill fly"; st.textContent = s.busy === "takeoff" ? "Launching" : "Landing";
+  } else {
+    st.className = "pill " + (s.flying ? "fly" : "ok"); st.textContent = s.flying ? "Airborne" : "Grounded";
+  }
+  // Land is never disabled: it must work mid-takeoff and if our flying flag is ever wrong.
+  const airborne = s.flying || s.busy === "takeoff";
+  $("btn-takeoff").disabled = airborne || !!s.busy || !s.connected;
+  $("btn-land").disabled = s.busy === "land";
+  $("btn-land").classList.toggle("hot", airborne);
+
+  const log = $("log");
+  log.replaceChildren(...[...localLog, ...s.log].map((text) => {
+    const li = document.createElement("li"); li.textContent = text; return li;
+  }));
+}
+
+async function poll() {
+  try {
+    const r = await fetch("/status");
+    const s = await r.json();
+    if (s.error) throw new Error(s.error);
+    if (!("connected" in s)) {  // an old dashboard process is serving this page
+      const st = $("state"); st.className = "pill bad"; st.textContent = "Outdated dashboard running";
+      $("novideo").hidden = false;
+      $("novideo").textContent = "An old dashboard is still running and showing stale data. "
+        + "Close its black console window, then double-click Tello dashboard again.";
+      document.body.classList.add("stale");
+      return;
+    }
+    render(s);
+  } catch (err) {
+    const st = $("state"); st.className = "pill bad"; st.textContent = "Dashboard offline";
+    $("novideo").hidden = false;
+    $("novideo").textContent = "Lost contact with the dashboard program. Is its black console window still open? "
+      + "If not, double-click Tello dashboard again.";
+    console.error(err);
+  }
+  $("clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+setInterval(poll, 500);
+poll();
+// ---------- water gauge (GET /gauge/status, 1 s) ----------
+const GAUGE_POLL_MS = 1000, GAUGE_STALE_S = 5;
+const fmtFt = (v) => (v == null ? "--" : Number(v).toFixed(1));
+let overlayTs = null;  // ts of the reading the overlay image shows; reload only when it changes
+let lastGauge = null;
+
+function gaugeMessage(text, ok) {
+  const m = $("g-msg");
+  m.textContent = text;
+  m.className = "gauge-msg" + (text ? (ok ? " ok" : " bad") : "");
+}
+
+async function gaugeAction(name) {
+  gaugeMessage("", true);
+  try {
+    const r = await fetch(`/gauge/${name}`, { method: "POST", headers: JSON_HEADERS, body: "{}" });
+    const { result, error } = await r.json();
+    const answer = result ?? error;
+    if (name === "baseline") {
+      gaugeMessage(answer === "ok" ? "Dry baseline captured" : `Baseline refused: ${answer}`, answer === "ok");
+    } else if (answer !== "ok") {
+      gaugeMessage(`${name[0].toUpperCase()}${name.slice(1)}: ${answer}`, false);
+    }
+    if (answer !== "ok") addLocalLog(`gauge ${name}: ${answer}`);
+  } catch {
+    gaugeMessage("No connection to the dashboard program", false);
+    addLocalLog(`gauge ${name}: no connection to dashboard`);
+  }
+  pollGauge();
+}
+$("g-baseline").onclick = () => gaugeAction("baseline");
+$("g-start").onclick = () => gaugeAction("start");
+$("g-stop").onclick = () => gaugeAction("stop");
+
+function showOverlay(ts) {
+  overlayTs = ts;
+  $("video").src = `/gauge/overlay.jpg?t=${ts}`;
+}
+function setOverlay(on) {
+  overlayTs = null;
+  if (on && lastGauge?.ts) showOverlay(lastGauge.ts);  // the latest reading's overlay, even after Stop
+  else $("video").src = "/video?" + Date.now();
+}
+function rangeText(r) {
+  if (!r) return "range --";
+  return r[0] === r[1] ? "At or below normal pool" : `${fmtFt(r[0])}–${fmtFt(r[1])} ft`;
+}
+function baselineText(g) {
+  if (g.baseline_moved) return "Camera moved, using dye only";
+  return g.has_baseline ? "Captured" : "None";
+}
+$("g-overlay").onchange = (e) => setOverlay(e.target.checked);
+
+// Depth by place: the CAD gives each place's ground height (before = at normal pool); vision gives the
+// water surface; depth now = surface - ground. Built with textContent only (no HTML from the network).
+function depthRow(d) {
+  const tr = document.createElement("tr");
+  const cells = [d.label, d.before_ft.toFixed(1), d.now_ft.toFixed(1), `${d.change_ft > 0 ? "+" : ""}${d.change_ft.toFixed(1)}`];
+  cells.forEach((text, i) => {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (i === 0 && d.flooded) td.className = "wet";
+    if (i === 3 && d.change_ft > 0) td.className = "rise";
+    if (i === 2) td.title = `range ${d.now_ft_range[0].toFixed(1)}-${d.now_ft_range[1].toFixed(1)} ft`;
+    tr.append(td);
+  });
+  return tr;
+}
+function renderDepths(g) {
+  const depths = Array.isArray(g.depths) && g.ft != null ? g.depths : [];
+  $("g-depths").hidden = depths.length === 0;
+  const houses = depths.filter((d) => d.id.startsWith("house_"));
+  $("g-depth-main").replaceChildren(...depths.filter((d) => !d.id.startsWith("house_")).map(depthRow));
+  $("g-depth-houses").replaceChildren(...houses.map(depthRow));
+  $("g-depth-houses-label").textContent = `Houses (${houses.filter((d) => d.flooded).length} of ${houses.length} flooded)`;
+}
+
+function poseText(g) {
+  if (g.pose_source === "tags") return `tags (${g.tags_seen})`;
+  if (g.pose_source === "corners") return "clicked corners";
+  if (g.pose_source === "rim") return "tray outline";
+  return g.corners ? "clicked corners (waiting)" : "--";
+}
+
+// ---------- Set tray corners: tag-free pose from 4 clicks on the video ----------
+const CORNER_PROMPTS = [
+  "Click corner 1: the LEFT end of the FLOOD WATCH edge",
+  "Corner 2: the RIGHT end of the FLOOD WATCH edge",
+  "Corner 3: the next corner going round (far right)",
+  "Corner 4: the last corner (far left)",
+];
+let picking = null;  // clicked points in frame pixels while picking, else null
+
+function framePoint(event) {
+  // The video is drawn object-fit: contain, so undo the letterbox to get frame pixels.
+  const img = $("video"), box = img.getBoundingClientRect();
+  const nw = img.naturalWidth || 960, nh = img.naturalHeight || 720;
+  const scale = Math.min(box.width / nw, box.height / nh);
+  const x = (event.clientX - box.left - (box.width - nw * scale) / 2) / scale;
+  const y = (event.clientY - box.top - (box.height - nh * scale) / 2) / scale;
+  return x >= 0 && y >= 0 && x <= nw && y <= nh ? [Math.round(x), Math.round(y)] : null;
+}
+
+function clearDots() { document.querySelectorAll(".corner-dot").forEach((d) => d.remove()); }
+
+function addDot(event, n) {
+  const wrap = document.querySelector(".video"), box = wrap.getBoundingClientRect();
+  const dot = document.createElement("span");
+  dot.className = "corner-dot";
+  dot.textContent = String(n);
+  dot.style.left = `${event.clientX - box.left}px`;
+  dot.style.top = `${event.clientY - box.top}px`;
+  wrap.append(dot);
+}
+
+function stopPicking(message, ok) {
+  picking = null;
+  document.querySelector(".video").classList.remove("picking");
+  clearDots();
+  if (message) gaugeMessage(message, ok);
+}
+
+async function sendCorners(body) {
+  try {
+    const r = await fetch("/gauge/corners", { method: "POST", headers: JSON_HEADERS, body: JSON.stringify(body) });
+    const { result, error } = await r.json();
+    return result ?? error;
+  } catch { return "no connection to the dashboard program"; }
+}
+
+$("g-corners").onclick = () => {
+  if ($("g-overlay").checked) { $("g-overlay").checked = false; setOverlay(false); }  // click on the live feed
+  picking = [];
+  clearDots();
+  document.querySelector(".video").classList.add("picking");
+  gaugeMessage(`${CORNER_PROMPTS[0]} (Esc to cancel)`, true);
+};
+
+document.querySelector(".video").addEventListener("click", async (event) => {
+  if (!picking) return;
+  const point = framePoint(event);
+  if (!point) return;
+  picking.push(point);
+  addDot(event, picking.length);
+  if (picking.length < 4) { gaugeMessage(CORNER_PROMPTS[picking.length], true); return; }
+  const points = picking;
+  const answer = await sendCorners({ points });
+  stopPicking(answer === "ok"
+    ? "Corners set. Turn on the overlay and check the FLOOD WATCH / RIVER labels sit on the right edges, then capture the dry baseline."
+    : `Corners refused: ${answer}`, answer === "ok");
+  pollGauge();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (picking && event.key === "Escape") { event.stopPropagation(); stopPicking("Corner picking cancelled", false); }
+}, true);
+
+$("g-corners-clear").onclick = async () => {
+  stopPicking("", true);
+  const answer = await sendCorners({ clear: true });
+  gaugeMessage(answer === "ok" ? "Corners cleared: using tags or the automatic outline" : `Clear failed: ${answer}`, answer === "ok");
+  pollGauge();
+};
+
+function renderGauge(g) {
+  const online = g.gauge === "online";
+  $("g-off").hidden = online;
+  $("g-off").textContent = g.gauge === "unavailable" ? "Unavailable" : "Offline";
+  $("g-sim").hidden = !g.simulated;
+  $("g-ft").textContent = fmtFt(g.ft);
+  $("g-range").textContent = rangeText(g.ft_range);
+  const car = $("g-car");
+  car.textContent = g.car_level ?? "--";
+  car.className = "value" + (g.car_level ? ` lvl-${g.car_level}` : "");
+  const cross = $("g-cross");
+  cross.textContent = g.crossing_flooded == null ? "--" : g.crossing_flooded ? "FLOODED" : "clear";
+  cross.className = "value" + (g.crossing_flooded ? " lvl-roof" : g.crossing_flooded === false ? " lvl-none" : "");
+  $("g-houses").textContent = g.houses_flooded == null ? "--" : `${g.houses_flooded} / ${g.houses_total}`;
+  $("g-tags").textContent = poseText(g);
+  renderDepths(g);
+  $("g-base").textContent = baselineText(g);
+  $("g-base").style.color = g.baseline_moved ? "var(--yellow)" : "";
+  const conf = Math.round((g.confidence ?? 0) * 100);
+  $("g-conf").style.width = conf + "%";
+  $("g-conf-v").textContent = g.confidence == null ? "" : `${conf}%`;
+  // Weak evidence gives no number, and a valid reading can still carry a caveat: always say why.
+  const why = !online ? (g.error || "gauge module not loaded") : (g.reason ?? g.error ?? null);
+  $("g-reason").hidden = !why;
+  $("g-reason").textContent = why || "";
+  // An old reading (reader stopped, or failing) must not look live.
+  const stale = g.age_s != null && (g.age_s > GAUGE_STALE_S || !g.running);
+  $("g-card").classList.toggle("gauge-stale", stale);
+  $("g-age").hidden = !stale;
+  $("g-age").textContent = stale ? `Last reading ${Math.round(g.age_s)}s ago` : "";
+  // Overlay: reload only for a new reading, and never after Stop.
+  if ($("g-overlay").checked && g.running && g.ts && g.ts !== overlayTs) showOverlay(g.ts);
+  lastGauge = g;
+  $("g-baseline").disabled = !online;
+  $("g-start").disabled = !online || g.enabled;
+  $("g-stop").disabled = !g.enabled;
+}
+
+async function pollGauge() {
+  try {
+    const r = await fetch("/gauge/status");
+    renderGauge(await r.json());
+  } catch { renderGauge({ gauge: "offline", error: "no connection to dashboard" }); }
+}
+setInterval(pollGauge, GAUGE_POLL_MS);
+pollGauge();
+</script>
+</body>
+</html>
