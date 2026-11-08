@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "id": "4",
+      "type": "Feature",
+      "properties": {
+        "wfo": "HGX",
+        "type": "F",
+        "magf": null,
+        "county": "Polk",
+        "typetext": "FLASH FLOOD",
+        "state": "TX",
+        "remark": "6-8 inches of water across Johnson Branch Road.",
+        "city": "12 SE Seven Oaks",
+        "source": "Emergency Mngr",
+        "unit": null,
+        "valid": "2026-09-02T11:08:00Z",
+        "lon": -94.72,
+        "lat": 30.72,
+        "qualifier": null,
+        "product_id": "202609021136-KHGX-NWUS54-LSRHGX",
+        "st": "TX",
+        "magnitude": ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -94.72,
+          30.72
+        ]
+      }
+    }
+  ]
+}

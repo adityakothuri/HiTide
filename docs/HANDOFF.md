@@ -1,5 +1,10 @@
 # Handoff: State Farm Flood Watch (as of Sat Nov 7, ~8:45 PM CT)
 
+> **Historical driver-rescue handoff.** For the current integrated branch and
+> evidence-to-inspection milestone, read [STATE_OF_THE_UNION.md](STATE_OF_THE_UNION.md).
+> Its setup instructions supersede the database-free startup and branch-state
+> instructions below. The latest backend changes have been merged into `feat/frontend`.
+
 Deadline: **Sun Nov 8, 12:00 PM CT**. Feature freeze at 9 AM. Tracks: State Farm ("The Worst Day, at Scale") and Photon.
 
 ## The idea in 30 seconds

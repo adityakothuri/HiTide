@@ -6,6 +6,11 @@ updated: 2026-11-07
 
 # State Farm Flood Watch
 
+> **Current integration:** see [State of the Union](../docs/STATE_OF_THE_UNION.md)
+> and [[2026-11-07 Evidence milestone]]. The evidence-to-inspection workflow now
+> has MongoDB persistence, an operations console, and a verified synthetic feedback
+> loop. Legacy phase notes below retain their original driver-rescue scope.
+
 Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadalupe River. Submissions close **Sun Nov 8, 12:00 PM CT**.
 
 > [!note] How to read this vault
@@ -26,6 +31,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 |---|---|---|
 | Phase 0 | Setup: ECC, CLAUDE.md, vault, `.env.example`, API contract | done (2026-11-07) |
 | Phase 1 | Data layer: town cache, flood sim, road status, feeds, API | done: CHECKPOINT 1 backend verified 2026-11-07 |
+| Map data access | [Collector and event-monitor handoff](../docs/MAP_DATA_ACCESS.md) | Texas-wide alerts, river readings, decoded rainfall/runoff grids, regional sensors, construction and optional crossing/camera context at `/texas`. TranStar live access pending. Normalization, grading and durable event storage are planned. |
 | Phase 2 | Risk scoring + Stages 1-2 | done: CHECKPOINT 2 passed on a real phone |
 | Phase 3 | Stage 3 escalation state machine | done: CHECKPOINT 3 passed on a real phone (reply closed the case) |
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |

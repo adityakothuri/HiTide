@@ -20,7 +20,10 @@ def test_upsert_env_creates_file_with_0600(tmp_path):
     p = tmp_path / ".env"
     upsert_env(p, "PHOTON2_AGENT_USER_ID", AGENT)
     assert p.read_text() == f"PHOTON2_AGENT_USER_ID={AGENT}\n"
-    assert stat.S_IMODE(os.stat(p).st_mode) == 0o600
+    # Windows chmod does not implement POSIX owner/group permission bits.
+    # Content/atomic-write behavior is portable; ACL privacy needs separate validation.
+    if os.name != "nt":
+        assert stat.S_IMODE(os.stat(p).st_mode) == 0o600
 
 
 def test_upsert_env_replaces_existing_and_keeps_others(tmp_path):
@@ -29,7 +32,8 @@ def test_upsert_env_replaces_existing_and_keeps_others(tmp_path):
     p.chmod(0o644)
     upsert_env(p, "PHOTON2_AGENT_USER_ID", AGENT)
     assert p.read_text() == f"A=1\nPHOTON2_AGENT_USER_ID={AGENT}\n# c\nB=2\n"
-    assert stat.S_IMODE(os.stat(p).st_mode) == 0o600
+    if os.name != "nt":
+        assert stat.S_IMODE(os.stat(p).st_mode) == 0o600
 
 
 def test_upsert_env_appends_when_missing(tmp_path):

@@ -1,8 +1,18 @@
 # Flood Watch API contract (backend ⇄ frontend)
 
+> This contract covers the legacy driver-rescue REST/WebSocket workflow.
+> The new `/api/evidence/*` endpoints, operations polling, request examples, and
+> persistence requirements are documented in [State of the Union, section 10](STATE_OF_THE_UNION.md#10-api-inventory).
+> The evidence and legacy simulation state are separate; the existing WebSocket
+> snapshot is not the evidence state endpoint.
+
 Source of truth: `backend/api/schemas.py` (Pydantic). Interactive docs: http://localhost:8000/docs once the backend is running.
 
 Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
+
+### Statewide monitoring
+
+`GET /api/feeds/recent` defaults to `scope=texas&max_age_minutes=30`. Supported ages are integers from 15 through 30. Use `scope=kerrville` for the local test query. The result includes `scope`, UTC `as_of`, `max_age_minutes` and `sources`. Each source includes `records` (raw intake envelopes), `excluded` (counts by reason) and `status` (complete, partial, unavailable). Construction context uses source drivetexas_work_zones, with publication time in provider_metadata.feed_updated_at and original WZDx LineString features. The Texas observation sources are `nws_alerts`, `usgs_gage` and `nws_local_storm_reports`. An empty live result is a completed request. Unreported road conditions remain unknown. [Source mappings and freshness rules](MAP_DATA_ACCESS.md)
 
 > **To see live data:** start the backend (`cd backend && uv run uvicorn app.main:app --reload`), connect to `/ws`, then `curl -X POST localhost:8000/api/demo/start`. The flood starts rising and `segments.update` events stream in (sim runs 60x real time).
 >
@@ -28,6 +38,7 @@ Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
 
 - **Before a warning is active**, the snapshot has `drivers: []` and `drivers_opted_in: 100`, and no `drivers.update` events are sent. Locations appear once the `alert` arrives (opt-in terms).
 - `urgency_reasons` use coarse bands ("older driver (65+)", "low-clearance vehicle"), never exact age or model.
+- Drivers in `data/drivers.json` carry a simulated `profile` block (see `docs/driver-profile.md`). It is backend-only and is **not** part of any payload above. Any future field that exposes it to the frontend gets added here first.
 - `/ws` and the POST endpoints reject browser origins other than `localhost`/`127.0.0.1` (any port). If you serve the UI from elsewhere, set `FRONTEND_ORIGIN_REGEX` on the backend.
 
 ## WebSocket `ws://localhost:8000/ws`
@@ -118,3 +129,7 @@ The UI must label simulated parts: `thermal_simulated`, `alert.simulated`, `outr
 | `StateSnapshot` | `reroutes: Reroute[]`, `turn_arounds: TurnAround[]` | A driver view that reconnects mid-trip can restore its route and alert | Lost on reconnect |
 
 The **feed status** keys returned by `GET /api/feeds` are `nws_alerts`, `usgs_gage`, `usgs_flood_impacts` (each with `source` and `fetched_at`), not `nws` / `flood_impacts` as written in the REST table above. The frontend reads the actual keys.
+
+### Expanded source previews
+
+The statewide recent response now includes regional sensors, NOAA rainfall/runoff grids and NWPS stations, crossing statuses, camera context and TranStar access markers. Source batches add label, notes, errors and context fields. Admitted records may include a preview object with title, detail, provider-derived time, timestamp_role, evidence_type, geometry, optional value/unit and safe public link. Context records have unverified freshness and require an explicit UI opt-in. The raw payload and envelope remain available independently of the preview.

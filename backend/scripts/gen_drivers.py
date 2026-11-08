@@ -15,7 +15,9 @@ import numpy as np
 from app.config import settings
 from sim.drivers import (FIRST, LAST, VEHICLES, Contact, Driver, Route, Vehicle, fake_phone, save_drivers,
                          shortest_route)
+from sim.profiles import attach_profiles
 from sim.flood import FloodParams, depth_in, river_wse, wse_at
+from scripts.gen_profiles import load_segments
 from sim.town import Town, load_town
 
 log = logging.getLogger("gen_drivers")
@@ -51,7 +53,7 @@ def random_driver(i: int, rng: random.Random, town: Town, nodes: list[int]) -> D
     first, last = rng.choice(FIRST), rng.choice(LAST)
     parent = Contact(f"{rng.choice(FIRST)} {last}", "parent", fake_phone(rng)) if age <= 19 else None
     return Driver(
-        id=f"d-{i:03d}", name=f"{first} {last}", age=age, sex=rng.choice(["F", "M"]),
+        id=f"d-{i:03d}", name=f"{first} {last}", age=age,
         vehicle=Vehicle(make, model, vtype), home_node=home, phone=fake_phone(rng),
         emergency_contact=Contact(f"{rng.choice(FIRST)} {last}", rng.choice(["spouse", "sibling", "child", "friend"]), fake_phone(rng)),
         routes=tuple(routes), parent=parent,
@@ -86,20 +88,20 @@ def demo_drivers(town: Town, rng: random.Random, nodes: list[int]) -> list[Drive
         raise RuntimeError("could not find demo routes; adjust DEMO_FLOOD_MIN")
     start = lambda r: int(r.edge_ids[0].split("-")[0])  # noqa: E731
     return [
-        Driver(id="demo-a", name="Teammate A (demo)", age=34, sex="F", vehicle=Vehicle("Honda", "Civic", "compact"),
+        Driver(id="demo-a", name="Teammate A (demo)", age=34, vehicle=Vehicle("Honda", "Civic", "compact"),
                home_node=start(a), phone="env:DEMO_PHONE_A",
                emergency_contact=Contact("Emergency contact", "spouse", "+18305550101"),
                routes=(Route("work", a.dest_node, a.edge_ids, a.length_m),), is_demo=True, demo_role="pretrip"),
-        Driver(id="demo-b", name="Teammate B (demo)", age=27, sex="M", vehicle=Vehicle("Toyota", "Camry", "sedan"),
+        Driver(id="demo-b", name="Teammate B (demo)", age=27, vehicle=Vehicle("Toyota", "Camry", "sedan"),
                home_node=start(b), phone="env:DEMO_PHONE_B",
                emergency_contact=Contact("Emergency contact", "sibling", "+18305550102"),
                routes=(Route("school", b.dest_node, b.edge_ids, b.length_m),), is_demo=True, demo_role="enroute"),
-        Driver(id="demo-d", name="Margaret Hale", age=78, sex="F", vehicle=Vehicle("Toyota", "Camry", "sedan"),
+        Driver(id="demo-d", name="Margaret Hale", age=78, vehicle=Vehicle("Toyota", "Camry", "sedan"),
                home_node=start(d), phone="+18305550199",
                emergency_contact=Contact("Teammate C (demo relative)", "daughter", "env:DEMO_PHONE_C"),
                routes=(Route("church", d.dest_node, d.edge_ids, d.length_m),), is_demo=True, demo_role="stopped",
                tags=("night_trip",)),
-        Driver(id="demo-t", name="Jordan Ruiz", age=17, sex="M", vehicle=Vehicle("Hyundai", "Elantra", "compact"),
+        Driver(id="demo-t", name="Jordan Ruiz", age=17, vehicle=Vehicle("Hyundai", "Elantra", "compact"),
                home_node=start(a), phone="+18305550177",
                emergency_contact=Contact("Teammate A (demo parent)", "parent", "env:DEMO_PHONE_A"),
                parent=Contact("Teammate A (demo parent)", "parent", "env:DEMO_PHONE_A"),
@@ -120,7 +122,7 @@ def main() -> None:
         i += 1
         if drv:
             drivers.append(drv)
-    save_drivers(drivers)
+    save_drivers(attach_profiles(drivers, load_segments()))
     teens = sum(d.is_teen for d in drivers)
     log.info("wrote %d drivers (%d demo, %d teens)", len(drivers), sum(d.is_demo for d in drivers), teens)
 

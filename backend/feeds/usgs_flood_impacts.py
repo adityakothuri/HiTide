@@ -10,9 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from feeds.base import fetch_with_fallback
+from feeds.intake import FeedRequest, RawEnvelope, collect_request
 
 RTFI_BASE = "https://api.waterdata.usgs.gov/rtfi-api"
 NWIS_SITE = "08166200"
+IMPACTS_REQUEST = FeedRequest("usgs_flood_impacts", "usgs_flood_impacts",
+                              f"{RTFI_BASE}/referencepoints/nwis/{NWIS_SITE}", {}, {"nwis_id": NWIS_SITE}, "array")
+
+
+async def collect_impacts(*, cache_only: bool = False) -> list[RawEnvelope]:
+    return await collect_request(IMPACTS_REQUEST, cache_only=cache_only)
 
 
 def _simplify_point(rp: dict[str, Any]) -> dict[str, Any]:
@@ -38,5 +45,6 @@ def simplify_impacts(data: Any) -> list[dict[str, Any]]:
 
 async def flood_impacts() -> dict[str, Any]:
     """Envelope plus `impacts`: reference points sorted by flood stage (lowest first)."""
-    envelope = await fetch_with_fallback("usgs_flood_impacts", f"{RTFI_BASE}/referencepoints/nwis/{NWIS_SITE}")
+    envelope = await fetch_with_fallback(IMPACTS_REQUEST.product, IMPACTS_REQUEST.url, IMPACTS_REQUEST.params,
+                                         shape=IMPACTS_REQUEST.shape)
     return {**envelope, "simulated": False, "impacts": simplify_impacts(envelope["data"])}
