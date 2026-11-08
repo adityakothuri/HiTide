@@ -135,10 +135,10 @@ Claude Code setup for this repo: the ECC add-on (agents, skills, commands, hooks
 
 | Asset | When | Why | Status |
 |---|---|---|---|
-| `planner` agent | Start of each phase | Break the phase into tasks before coding. Phase 1 breakdown done here. | Done for Phase 1 (2026-11-07) |
-| `tdd-workflow` skill | Core logic (risk, road status, stop detection, escalation, route check) | Tests first. Road status went RED, then GREEN with 19 tests. See [[Risk Scoring]]. | Done for road status |
+| `planner` agent | Start of each phase | Break the phase into tasks before coding. Phase 1 breakdown done here. | Done for Phase 1 and Phases 2-3 (2026-11-07). The Phases 2-3 plan set the demo clock rule: fast-forward the flood, then run at 1x. |
+| `tdd-workflow` skill | Core logic (risk, road status, stop detection, escalation, route check) | Tests first. Road status went RED, then GREEN with 19 tests. See [[Risk Scoring]]. | Done: road status (19), flood model (8), risk scoring (12). RED and GREEN commits are on `feat/backend-sim`. |
 | `doc-updater` agent | After each phase | Keeps this vault and the module notes in step with the code. | Used for this vault (2026-11-07) |
-| `python-reviewer`, `fastapi-reviewer`, `code-reviewer` agents | Before each phase is marked done | Catch Python, FastAPI, and general issues before the phase closes. | Planned, run per phase |
+| `python-reviewer`, `fastapi-reviewer`, `code-reviewer` agents | Before each phase is marked done | Catch Python, FastAPI, and general issues before the phase closes. | `python-reviewer` ran for Phase 1: 0 critical, 2 high, 6 medium. Both high and 5 medium fixed in commit `fix: address python-reviewer findings`. Skipped: demo-key auth. |
 | `security-scan` skill + `security-reviewer` agent | Before submission | Check secrets, input validation, and the WS and webhook surface. Results go in [[Privacy and Consent]]. | Planned, Phase 6 |
 | `Explore` agent (built-in) | Reading unfamiliar code or docs | Fast read-only search across the repo. Built into Claude Code, not in `.claude/agents/`. | Used as needed |
 

@@ -23,9 +23,9 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 
 | Phase | Scope | Status |
 |---|---|---|
-| Phase 0 | Setup: ECC, CLAUDE.md, vault, `.env.example`, API contract | in progress |
-| Phase 1 | Data layer: town cache, flood sim, road status, feeds, API | in progress |
-| Phase 2 | Risk scoring + Stages 1-2 | todo |
+| Phase 0 | Setup: ECC, CLAUDE.md, vault, `.env.example`, API contract | done (2026-11-07) |
+| Phase 1 | Data layer: town cache, flood sim, road status, feeds, API | done: CHECKPOINT 1 backend verified 2026-11-07 |
+| Phase 2 | Risk scoring + Stages 1-2 | in progress: risk scoring done (TDD) |
 | Phase 3 | Stage 3 escalation state machine | todo |
 | Phase 4 | Photon integration (spike, timeboxed) | todo |
 | Phase 5 | Drone + vision | todo |
@@ -44,7 +44,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 
 ## Next step
 
-Run the Checkpoint 1 check: `curl /api/town` and `/api/state`, open `/ws`, and start the demo with `POST /api/demo/start` to confirm segment colors change as the clock advances. Then the remaining Phase 1 item is `backend/sim/movement.py`. Flood depth (`backend/sim/flood.py`), road status (`backend/scoring/road_status.py`), and the contract (`docs/api-contract.md`) already exist.
+Next: Phase 2/3 per the planner breakdown. Shared world state and routing, movement, outreach guard (TDD), pre-trip route check (TDD), en-route lookahead, stop detection and escalation (TDD), then the demo scenario. Frontend team: see `docs/api-contract.md`. The live data is ready.
 
 ## Related
 
