@@ -53,6 +53,11 @@ SINK_CM = 25  # height lost without an "down" input over SINK_WINDOW_SECONDS = u
 SINK_WINDOW_SECONDS = 3.0
 SINK_REPORT_EVERY = 10.0
 SAG_BATTERY_PCT = 35  # below this, a worn battery's voltage can dip under the auto-land limit
+PROFILE_FILE = LOG_FILE.parent / "battery_profile.json"  # where this battery lost lift; delete after a swap
+LIFT_MARGIN_PCT = 4  # auto-land this far above the level where the battery last lost lift
+TAKEOFF_RESERVE_SECONDS = 60  # refuse takeoff with less flight than this above that level
+WORN_RC_LIMIT = 30  # gentler inputs on a worn battery: current spikes are what collapse it
+WORN_RC_STEP = 4
 GROUND_FLOOR_CM = 15  # floor sensor reads ~10 cm when sitting on the ground
 GROUNDED_SECONDS = 2.0  # "flying" but on the floor this long = lost lift; land to stop the motors
 DRAIN_SETTLE_SECONDS = 5.0  # battery % reads low under load; read it after it recovers
@@ -87,6 +92,22 @@ def write_log(text: str) -> str:
     return line
 
 
+def load_profile() -> dict:
+    try:
+        data = json.loads(PROFILE_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def save_profile(profile: dict) -> None:
+    try:
+        PROFILE_FILE.parent.mkdir(exist_ok=True)
+        PROFILE_FILE.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    except OSError:
+        pass  # best-effort; the in-memory profile still protects this session
+
+
 class Drone:
     def __init__(self, tello: Tello) -> None:
         self.tello = tello
@@ -111,6 +132,7 @@ class Drone:
         self.heights: deque[tuple[float, int]] = deque()
         self.sink_reported = 0.0
         self.grounded_since = 0.0
+        self.profile = load_profile()  # {"lift_loss_pct", "drain_pct_per_min", "updated"}
 
     def start(self) -> None:
         """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
@@ -177,6 +199,7 @@ class Drone:
                 self._record_flight()
                 self._check_sink()
                 self._check_grounded_motors_on()
+                self._check_lift_reserve()
             time.sleep(WATCHDOG_SECONDS)
 
     def _check_hover(self) -> None:
@@ -259,6 +282,7 @@ class Drone:
         if temp >= HOT_TEMP_C:
             why = "it is overheating and protecting itself. Land and let it cool."
         elif battery <= SAG_BATTERY_PCT or self._draining_fast(battery):
+            self._remember_lift_loss(battery)
             why = ("the battery can't supply enough power under load, so all four motors lose lift at once "
                    "(the drop is level, not tipped). Typical of a worn battery even at 40-60%. Use a fresh, full battery.")
         else:
@@ -266,6 +290,47 @@ class Drone:
                    "Fly over flat, matte, well-lit floor.")
         self.note(f"DESCENDING ON ITS OWN ({drop}cm in {SINK_WINDOW_SECONDS:.0f}s, no down input) at battery "
                   f"{battery}%, {temp}C. Likely: {why} Press L rather than Kill so it lands instead of dropping.")
+
+    @property
+    def worn(self) -> bool:
+        return "lift_loss_pct" in self.profile
+
+    def _remember_lift_loss(self, battery: int) -> None:
+        self.profile = {**self.profile, "lift_loss_pct": battery, "updated": time.strftime("%Y-%m-%d %H:%M")}
+        save_profile(self.profile)
+        self.note(f"Saved: this battery loses lift around {battery}%. Future flights land automatically at "
+                  f"{battery + LIFT_MARGIN_PCT}%. After swapping in a new battery, delete {PROFILE_FILE}.")
+
+    def _land_floor_pct(self) -> int:
+        return int(self.profile["lift_loss_pct"]) + LIFT_MARGIN_PCT
+
+    def _drain_per_second(self) -> float:
+        """Measured this flight if possible, else this battery's last known rate."""
+        if self.flight_start:
+            started, start_battery = self.flight_start
+            elapsed = time.time() - started
+            used = start_battery - self.value("get_battery")
+            if elapsed > 5 and used > 0:
+                return used / elapsed
+        return float(self.profile.get("drain_pct_per_min", NORMAL_DRAIN_PCT_PER_MIN)) / 60
+
+    def lift_left_seconds(self) -> int | None:
+        """Seconds of flight before the battery reaches its auto-land level; None if unknown."""
+        if not self.worn or not self.tello.is_flying:
+            return None
+        rate = self._drain_per_second()
+        return max(0, int((self.value("get_battery") - self._land_floor_pct()) / rate)) if rate > 0 else None
+
+    def _check_lift_reserve(self) -> None:
+        """Land on purpose before the worn battery collapses and drops the drone."""
+        if not self.worn or not self.tello.is_flying or self.busy or self.landing:
+            return
+        battery = self.value("get_battery")
+        if battery > self._land_floor_pct():
+            return
+        self.note(f"Battery {battery}%: landing now, before it reaches {self.profile['lift_loss_pct']}% "
+                  "where this battery loses lift.")
+        self.action("land")
 
     def _draining_fast(self, battery: int) -> bool:
         """Battery use since takeoff well above normal: a worn battery that will sag and lose lift."""
@@ -309,6 +374,8 @@ class Drone:
         if seconds < MIN_FLIGHT_FOR_DRAIN_S or used <= 0:
             return
         rate = used / seconds * 60
+        self.profile = {**self.profile, "drain_pct_per_min": round(rate, 1)}
+        save_profile(self.profile)
         if rate <= NORMAL_DRAIN_PCT_PER_MIN * HIGH_DRAIN_FACTOR:
             verdict = "normal"
         elif self.wobbled:
@@ -343,9 +410,10 @@ class Drone:
         while True:
             if self.tello.is_flying and not self.busy and not self.landing:
                 fresh = time.time() - self.rc_at < DEADMAN_SECONDS
-                target = self.rc if fresh else (0, 0, 0, 0)
+                limit, step = (WORN_RC_LIMIT, WORN_RC_STEP) if self.worn else (RC_LIMIT, RC_STEP)
+                target = tuple(max(-limit, min(limit, v)) for v in (self.rc if fresh else (0, 0, 0, 0)))
                 # Ramp toward the target instead of jumping, so key presses and releases are smooth.
-                self.rc_out = tuple(o + max(-RC_STEP, min(RC_STEP, t - o)) for o, t in zip(self.rc_out, target))
+                self.rc_out = tuple(o + max(-step, min(step, t - o)) for o, t in zip(self.rc_out, target))
                 try:
                     self.tello.send_rc_control(*self.rc_out)
                 except Exception as exc:
@@ -432,6 +500,13 @@ class Drone:
             problems.append(f"drone is {t.get_highest_temperature()}C, turn it off for 15 min to cool")
         if max(abs(t.get_pitch()), abs(t.get_roll())) > MAX_TILT_DEG:
             problems.append("drone is tilted, put it on a flat surface")
+        if self.worn:
+            rate = float(self.profile.get("drain_pct_per_min", NORMAL_DRAIN_PCT_PER_MIN)) / 60
+            seconds = (t.get_battery() - self._land_floor_pct()) / rate
+            if seconds < TAKEOFF_RESERVE_SECONDS:
+                problems.append(f"battery {t.get_battery()}% leaves only ~{max(0, int(seconds))}s before this battery "
+                                f"loses lift (around {self.profile['lift_loss_pct']}%). Charge it fully, or after "
+                                f"swapping batteries delete {PROFILE_FILE}")
         return problems
 
     def _takeoff(self) -> None:
@@ -469,6 +544,8 @@ class Drone:
             "connected": self.connected,
             "state_age": round(time.time() - self.state_at, 1) if self.state_at else 999,
             "video_age": round(time.time() - self.frame_at, 1) if self.frame_at else None,
+            "lift_left_s": self.lift_left_seconds(),
+            "battery_worn": self.worn,
             "busy": "land" if self.landing else self.busy,
             "log": list(self.log),
         }

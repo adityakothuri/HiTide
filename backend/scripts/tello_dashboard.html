@@ -236,6 +236,7 @@
         <span id="ov-bat">BAT --%</span>
         <span id="ov-h">ALT -- CM</span>
         <span id="ov-t">T+0:00</span>
+        <span id="ov-lift" hidden></span>
         <span class="rec">LIVE</span>
       </div>
       <div class="novideo" id="novideo" hidden>Waiting for video…</div>
@@ -397,6 +398,13 @@ function render(s) {
   $("ov-bat").textContent = `BAT ${bat}%`;
   $("ov-h").textContent = `ALT ${s.height} CM`;
   $("ov-t").textContent = `T+${fmtTime(s.flight_time)}`;
+  // Seconds of flight before the worn battery reaches its auto-land level (see battery_profile.json).
+  const lift = $("ov-lift");
+  lift.hidden = s.lift_left_s == null;
+  if (s.lift_left_s != null) {
+    lift.textContent = `LIFT ${s.lift_left_s}s`;
+    lift.style.color = s.lift_left_s <= 10 ? "var(--bad)" : s.lift_left_s <= 20 ? "var(--yellow)" : "";
+  }
 
   document.body.classList.toggle("stale", !s.connected);
   const videoLost = s.connected && (s.video_age === null || s.video_age > VIDEO_STALE);

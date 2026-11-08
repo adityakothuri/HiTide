@@ -106,3 +106,11 @@ browser /console --(Vite proxy)--> backend :8000 /api/live-drone/* --(httpx)--> 
 - Fly the real drone from the console once, with lights on over a patterned floor.
 - Optional: link a live-drone snapshot to the stage-3 case (`vision.image_url`) instead of the
   sample image when the bridge is online.
+
+## Worn battery protection (2026-11-08)
+
+The current battery loses lift around 41% (level drop to the floor at ~27%/min drain; see
+`~/tello-test/flight_20261108_063702.csv`). `~/tello-test/battery_profile.json` stores that level, and the
+dashboard then: lands automatically 4% above it, refuses takeoff with under 60 s of margin, shows a
+`LIFT Ns` countdown on the video HUD, and caps control inputs at 30 with a slower ramp. A new lift-loss
+event updates the file. **Delete the file after swapping in a new battery.**
