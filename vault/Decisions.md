@@ -70,3 +70,23 @@ B gets no texts during the demo (B is the moving driver), so B's phone ringing a
 - The console map has no basemap tiles. It's drawn from our own OSM segments and river on a neutral surface, so it works offline and the water scale is the only saturated color.
 - Anti-template review changed: KPI cards → inline counters, shadow cards → bordered sections, dot-only timeline → icon shape + text state, middle-dot meta → written-out phrases. Full table in [[Design System]] §6.
 - Frontend work runs in a separate worktree on branch `feat/frontend`, so it doesn't touch the backend agent's tree.
+
+## 2026-11-07: Frontend follows State Farm's public design tokens
+
+- **Context:** the user wanted the UI to read as official State Farm tooling.
+- **Decision:** we took the palette, button shapes and header, tab and notification patterns from statefarm.com's published CSS.
+- **Limits kept:** we don't use State Farm's logo. The mark is a neutral shield with a waterline, and every surface keeps the "Concept prototype" footer. The demo can look like their tooling without passing as an official product.
+- **Demo features added in this round:**
+  - An in-app mirror of the Flood Watch voice call (answer or decline; answering plays the script and lets the driver tap "I'm safe" or "I need help").
+  - A lock-screen style banner for the pre-trip text.
+  - A presenter control for which persona the phone shows.
+
+## 2026-11-07: Ops console becomes a weather and flood dashboard
+
+- **Context:** the console looked like a dispatch toy (glow, counters, "minutes gained"). The user asked for a professional NWS/Windy-style map.
+- **Decision:** full-bleed CARTO Dark Matter map; thin left panel (layer toggles + compact case list); detail only on click; colorbar always visible; time slider at the bottom. State Farm red only in the wordmark.
+- **Time source:** one `WxSource` interface. The July 4, 2025 replay (01:00 to 07:30 CDT) is computed in the browser from cached files, so the slider scrubs freely and the demo runs offline. A live source is stubbed (`src/wx/liveSource.ts`) for when the partner's keys and data arrive.
+- **Rain:** archived MRMS from the Iowa Environmental Mesonet tile cache. IEM's ramp starts in saturated blue and hid the blue depth layer, so tiles are decoded back to inches and redrawn with an NWS-style ramp (greens to magenta, transparent under 0.01 in). The archived `p1h` tiles use the `p24h` legend scale, not the linear 1-9 in `p1h` image (checked: hourly sums match the 24 h total at Hunt and Kerrville).
+- **Flood depth:** the HAND-style model from `sim/hand_flood.py`, run on every cell of a 10 m 3DEP grid (`backend/sim/depth_grid.py`, tested). One PNG per 0.5 m of Kerrville gauge rise; the client picks the frame for the gauge stage at time t. Not a hydraulic model, labelled "modelled".
+- **Gauges:** NWS NWPS categories exist only for Hunt (HNTT2) and Kerrville (KRRT2); the other three show gray. A gauge with no reading (Hunt after 05:10) shows dark gray, not a guess.
+- **Polish pass (2026-11-08):** rain bins under 0.25 in are partly transparent so widespread light rain doesn't hide the basemap; rain draws from z8 tiles overzoomed with linear resampling (smooth field like radar viewers, not 1 km blocks); the left panel gains an NWS-style river gauge table (ranked by category, stage and trend, click opens the gauge); NWS warning issuance times are marked on the time slider.

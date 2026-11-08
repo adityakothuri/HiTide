@@ -26,7 +26,23 @@ curl -X POST localhost:8000/api/demo/reset
 
 # Photon (real iMessage texts/polls); needs creds in .env, see .env.example
 cd photon-sidecar && npm install && npm start
+
+# frontend (Node 22+)
+cd frontend && npm install && npm run dev       # http://localhost:5173
 ```
+
+Frontend views (add `?mode=live` or `?mode=mock` to force a data source; the default tries the backend and falls back to the recorded offline demo after 2.5 s):
+
+| URL | What it is |
+|---|---|
+| `/present` | Demo view: the driver's phone next to the ops console, one shared data stream |
+| `/driver` | Driver app (390×844). `?driver=demo-a\|demo-b\|demo-d` pins a persona |
+| `/console` | State Farm flood operations console (1440×900) |
+| `/gallery` | Component gallery in every state |
+
+Maps use CARTO's keyless vector basemaps (OpenStreetMap data), so they need internet. If the tiles can't load within 4 s, the map falls back to the bundled Kerrville road data automatically and the demo keeps running.
+
+Press **Shift+D** for presenter controls (run, next step, reset, which persona the phone shows). Before presenting, tap "Test spoken alert" in the phone's settings once: browsers block speech until the page has had a click.
 
 Copy `.env.example` to `.env`. Without Photon creds everything runs in **mock mode**: outreach is logged and shown in the UI, but nothing is sent.
 

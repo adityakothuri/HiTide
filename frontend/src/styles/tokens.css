@@ -1,18 +1,21 @@
 /* The only file allowed to contain hex colors (enforced by stylelint). See vault/Design System.md. */
 :root {
   /* Brand: wordmark, primary buttons, selected states. Never danger. */
-  --brand-red: #b3121f;
-  --brand-red-hover: #960f1a;
+  --brand-red: #d62311;
+  --brand-red-hover: #a11b13;
+  --brand-red-active: #701611;
+  --brand-red-tint: #fdf1ef;
 
-  --ink: #24272b;
-  --neutral-1: #f0f2f4;
-  --neutral-2: #dde1e5;
-  --neutral-3: #bcc3ca;
-  --neutral-4: #838c95;
-  --neutral-5: #5f6870;
-  --neutral-6: #3e454c;
+  --ink: #403c3c;
+  --ink-strong: #212121;
+  --neutral-1: #f4f3f3;
+  --neutral-2: #e4e3e3;
+  --neutral-3: #cbcbcb;
+  --neutral-4: #8e8b8b;
+  --neutral-5: #696565;
+  --neutral-6: #4f4b4b;
   --surface: #fff;
-  --surface-page: #f4f6f8;
+  --surface-page: #f4f3f3;
   --on-dark: #fff;
 
   /* Water depth scale */
@@ -26,26 +29,26 @@
   --safe: #1e6b3a;
   --safe-bg: #e6f2ea;
   --caution: #7a4f00;
-  --caution-bg: #fff1d1;
+  --caution-bg: #fdf3dc;
   --caution-mark: #b07800;
   --critical: #931566;
   --critical-bg: #fbe9f3;
   --critical-deep: #7a0f46;
-  --info: #3a5a82;
-  --info-bg: #e8eef6;
+  --info: #0073a8;
+  --info-bg: #e8f2f8;
 
   /* Type */
-  --font: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --text-xs: 13px;
-  --lh-xs: 18px;
-  --text-sm: 15px;
-  --lh-sm: 22px;
-  --text-md: 17px;
+  --font: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-xs: 14px;
+  --lh-xs: 20px;
+  --text-sm: 16px;
+  --lh-sm: 24px;
+  --text-md: 18px;
   --lh-md: 26px;
-  --text-lg: 22px;
-  --lh-lg: 28px;
-  --text-xl: 30px;
-  --lh-xl: 36px;
+  --text-lg: 24px;
+  --lh-lg: 30px;
+  --text-xl: 32px;
+  --lh-xl: 38px;
   --text-2xl: 44px;
   --lh-2xl: 50px;
 
@@ -62,8 +65,10 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
+  --radius-pill: 999px;
   --border: 1px solid var(--neutral-2);
-  --shadow-float: 0 4px 16px rgb(36 39 43 / 12%);
+  --shadow-float: 0 4px 16px rgb(33 33 33 / 14%);
+  --shadow-card: 0 1px 2px rgb(33 33 33 / 8%);
   --focus-ring: 2px solid var(--info);
   --focus-ring-on-dark: 2px solid var(--on-dark);
 
@@ -75,4 +80,85 @@
   /* Touch */
   --tap-min: 44px;
   --tap-primary: 56px;
+
+  /* ---- Dispatch palette (ops console). Slate-navy night taken from the basemap, not neutral black. ---- */
+  --d-bg: #0e1620;
+  --d-panel: #141e29;
+  --d-raised: #1b2734;
+  --d-hover: #223040;
+  --d-text: #e6edf3;
+  --d-strong: #f5f8fa;
+  --d-muted: #97a6b5;
+  --d-faint: #6f8193;
+  --d-critical: #e08a9f;
+  --d-caution: #d6b878;
+  --d-safe: #8dbfa3;
+  --d-info: #9bb8d6;
+  --d-water-1: #4f6a87;
+  --d-water-2: #6585a8;
+  --d-water-3: #7f9fc4;
+  --d-water-4: #a1bddc;
+  --d-water-5: #c9daee;
+
+  /* ---- Hydromet map (ops console). NWS flood-category convention; depth and rain ramps come from the data manifests. ---- */
+  --wx-cat-below: #8b97a4;
+  --wx-cat-action: #f2d43d;
+  --wx-cat-minor: #f28c28;
+  --wx-cat-moderate: #e5322b;
+  --wx-cat-major: #b25fd9;
+  --wx-cat-none: #4f5b68;
+  --wx-road-closed: #c0261d;
+  --wx-road-likely: #f28c28;
+
+  /* ---- Phone (iOS grouped style) ---- */
+  --ios-font: -apple-system, 'SF Pro Text', 'SF Pro Display', system-ui, 'Helvetica Neue', sans-serif;
+  --ios-bg: #f2f2f7;
+  --ios-group: #fff;
+  --ios-separator: #c6c6c8;
+  --ios-label: #000;
+  --ios-secondary: #6c6c70;
+  --ios-tertiary: #8a8a8e;
+  --ios-fill: #e9e9eb;
+  --ios-green: #1f7a36;
+  --ios-blue: #0a66c2;
+}
+
+/*
+ * Ops console theme. Re-points the shared tokens so primitives (buttons, badges, tabs, timeline)
+ * render correctly on dark panels without forks.
+ */
+[data-theme='dispatch'] {
+  color-scheme: dark;
+
+  --font: 'IBM Plex Sans', system-ui, sans-serif;
+  --surface: var(--d-panel);
+  --surface-page: var(--d-bg);
+  --on-dark: #fff;
+  --ink: var(--d-text);
+  --ink-strong: var(--d-strong);
+  --neutral-1: var(--d-raised);
+  --neutral-2: rgb(255 255 255 / 8%);
+  --neutral-3: rgb(255 255 255 / 16%);
+  --neutral-4: var(--d-faint);
+  --neutral-5: var(--d-muted);
+  --neutral-6: var(--d-text);
+  --border: 1px solid rgb(255 255 255 / 8%);
+  --shadow-card: none;
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 45%);
+  --brand-red-tint: rgb(214 35 17 / 16%);
+  --critical: var(--d-critical);
+  --critical-bg: rgb(224 138 159 / 12%);
+  --caution: var(--d-caution);
+  --caution-mark: var(--d-caution);
+  --caution-bg: rgb(214 184 120 / 12%);
+  --safe: var(--d-safe);
+  --safe-bg: rgb(141 191 163 / 12%);
+  --info: var(--d-info);
+  --info-bg: rgb(155 184 214 / 12%);
+  --water-1: var(--d-water-1);
+  --water-2: var(--d-water-2);
+  --water-3: var(--d-water-3);
+  --water-4: var(--d-water-4);
+  --water-5: var(--d-water-5);
+  --focus-ring: 2px solid var(--d-info);
 }

@@ -21,11 +21,15 @@ function ratio(a, b) {
 const PAIRS = [
   ['ink', 'surface', 4.5], ['ink', 'surface-page', 4.5], ['neutral-5', 'surface', 4.5], ['neutral-5', 'surface-page', 4.5],
   ['neutral-6', 'surface', 4.5], ['neutral-6', 'neutral-1', 4.5], ['on-dark', 'brand-red', 4.5], ['on-dark', 'brand-red-hover', 4.5],
-  ['brand-red', 'surface', 4.5], ['brand-red', 'surface-page', 4.5],
+  ['brand-red', 'surface', 4.5], ['brand-red', 'surface-page', 4.5], ['brand-red', 'brand-red-tint', 4.5],
   ['safe', 'surface', 4.5], ['safe', 'safe-bg', 4.5], ['caution', 'surface', 4.5], ['caution', 'caution-bg', 4.5],
   ['critical', 'surface', 4.5], ['critical', 'critical-bg', 4.5], ['on-dark', 'critical-deep', 4.5],
   ['info', 'surface', 4.5], ['info', 'info-bg', 4.5], ['on-dark', 'ink', 4.5], ['on-dark', 'neutral-6', 4.5],
   ['ink', 'water-1', 4.5], ['ink', 'water-2', 4.5], ['on-dark', 'water-4', 4.5], ['on-dark', 'water-5', 4.5], ['water-5', 'surface', 4.5],
+  ['d-text', 'd-panel', 4.5], ['d-text', 'd-raised', 4.5], ['d-muted', 'd-panel', 4.5], ['d-muted', 'd-raised', 4.5],
+  ['d-critical', 'd-panel', 4.5], ['d-caution', 'd-panel', 4.5], ['d-safe', 'd-panel', 4.5], ['d-info', 'd-panel', 4.5],
+  ['d-faint', 'd-panel', 3], ['on-dark', 'brand-red', 4.5], ['d-water-3', 'd-bg', 3], ['d-water-4', 'd-bg', 3], ['d-water-5', 'd-bg', 3],
+  ['ios-secondary', 'ios-group', 4.5], ['ios-secondary', 'ios-bg', 4.5], ['ios-green', 'ios-group', 4.5], ['ios-blue', 'ios-group', 4.5],
   ['neutral-4', 'surface', 3], ['neutral-4', 'surface-page', 3], ['info', 'surface', 3], ['info', 'surface-page', 3], ['on-dark', 'critical-deep', 3], ['neutral-5', 'surface', 3], ['caution-mark', 'surface', 3],
 ]
 

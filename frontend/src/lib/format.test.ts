@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ageBand, firstName, formatClock, formatDepth, formatDistance, formatRelative } from './format'
+import { ageBand, firstName, formatClock, formatDepth, formatDistance, formatRelative, sentenceCase } from './format'
 
 const MIN = 60_000
 
@@ -73,5 +73,14 @@ describe('firstName', () => {
   })
   it('handles an empty name', () => {
     expect(firstName('')).toBe('Unknown driver')
+  })
+})
+
+describe('sentenceCase', () => {
+  it('lowercases every word after the first', () => {
+    expect(sentenceCase('Flash Flood Warning')).toBe('Flash flood warning')
+  })
+  it('keeps acronyms', () => {
+    expect(sentenceCase('NWS Flood Watch')).toBe('NWS flood watch')
   })
 })

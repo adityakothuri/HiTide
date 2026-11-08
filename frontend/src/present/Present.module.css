@@ -1,0 +1,23 @@
+.present {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--d-bg);
+}
+
+.phoneCol {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-2);
+}
+
+.phoneBox { overflow: visible; }
+
+.consoleCol {
+  min-width: 0;
+  height: 100dvh;
+  border-left: 1px solid rgb(255 255 255 / 6%);
+}

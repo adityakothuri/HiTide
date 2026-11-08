@@ -1,32 +1,20 @@
-# React + TypeScript + Vite
+# Flood Watch frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite + TypeScript. Driver app, ops console and presentation mode for State Farm Flood Watch (concept prototype).
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev          # http://localhost:5173  (/present, /driver, /console, /gallery)
+npm run sync-wx      # copy ../data/wx (rain, depth, gauges) into public/wx; WX_SRC=<path> to copy from another checkout
+npm test             # vitest: reducer, screen logic, formatting, geo
+npx playwright test  # e2e: full 7-step demo plus screenshots into ../vault/Experiments/screenshots
+npm run build        # type check + production build
+npm run lint:css     # stylelint (hex colors are only allowed in src/styles/tokens.css)
+npm run contrast     # WCAG contrast check of every documented token pair
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- **Data:** `src/data/` has one `DataProvider` interface with two implementations. `WsProvider` talks to the backend through the Vite proxy (`/api`, `/ws`, `/static` → `VITE_BACKEND_URL`, default `http://localhost:8000`). `MockProvider` replays `src/demo/recording.json`, a recording of the backend's own scripted demo, re-timed to now.
+- **Maps:** `src/map/` puts MapLibre on top of CARTO GL styles: dark-matter for the console, voyager for the phone. It tunes the style, draws our flood layers under the street labels, and falls back to `public/town/*.geojson` if the tiles are unreachable (`e2e/maptest.spec.ts` checks both paths).
+- **State:** `src/state/` is a pure reducer over the WS events (`reducer.ts`), plus UI-only flags (`store.ts`).
+- **Design:** tokens in `src/styles/tokens.css` follow State Farm's public web palette (red `#D62311`, warm grays, link blue `#0073A8`). Critical status uses a separate magenta-crimson with an icon and a label, never brand red. See `vault/Design System.md`.
+- No State Farm logo is used. Every surface carries "Concept prototype. Not an official State Farm product."

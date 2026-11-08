@@ -31,7 +31,8 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
-| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
+| Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Built: driver app, ops console and `/present`, styled to State Farm's public design system. 86 unit tests plus a full 7-step Playwright demo. Verified on the live backend. |
+| Ops console redesign | Weather and flood dashboard (NWS/Windy style): MRMS rain 1h/24h, modelled flood depth (10 m 3DEP), NWS-category gauges, closed/likely-flooded roads, colorbar, time slider over the July 4, 2025 replay | done 2026-11-07 (uncommitted on `feat/frontend`, for review). Live data source stubbed in `src/wx/liveSource.ts` |
 
 ## Checkpoints
 

@@ -73,6 +73,12 @@ describe('helpSteps', () => {
     expect(steps[2].detail).toBe('At your car')
   })
 
+  it('times the contact step from the backend emergency-contact entry', () => {
+    const tl = [{ ts: '2026-11-08T02:52:39Z', t_case_s: 12, kind: 'outreach', text: 'Text + call to emergency contact (mock, sent)' }]
+    const steps = helpSteps(caseAt('contacting_family', { timeline: tl }), null, 'Maria')
+    expect(steps[1].ts).toBe('2026-11-08T02:52:39Z')
+  })
+
   it('leaves later steps waiting early in the case', () => {
     const steps = helpSteps(caseAt('calling', { timeline: [], responder_flag: false }), null, 'Maria')
     expect(steps.map((s) => s.status)).toEqual(['done', 'waiting', 'waiting', 'waiting'])
