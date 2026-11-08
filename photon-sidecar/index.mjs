@@ -14,7 +14,11 @@ const SIDECAR_KEY = process.env.SIDECAR_KEY ?? "";
 if (!SIDECAR_KEY) throw new Error("SIDECAR_KEY must be set (shared with the backend)");
 const redact = (msg) => String(msg ?? "").replace(/\+?\d{8,}/g, "[redacted]");
 
-const app = await Spectrum({ providers: [imessage.config()] }); // reads SPECTRUM_PROJECT_ID / SECRET from env
+// Accept Photon's starter names (PROJECT_ID / PROJECT_SECRET) or ours (SPECTRUM_PROJECT_ID / SPECTRUM_PROJECT_SECRET).
+const projectId = process.env.SPECTRUM_PROJECT_ID || process.env.PROJECT_ID;
+const projectSecret = process.env.SPECTRUM_PROJECT_SECRET || process.env.PROJECT_SECRET;
+if (!projectId || !projectSecret) throw new Error("Set SPECTRUM_PROJECT_ID and SPECTRUM_PROJECT_SECRET in .env");
+const app = await Spectrum({ projectId, projectSecret, providers: [imessage.config()] });
 const im = imessage(app);
 const dms = new Map();
 
