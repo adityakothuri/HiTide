@@ -317,7 +317,7 @@ const AXES = {
   KeyW: ["fb", 1], KeyS: ["fb", -1], KeyA: ["lr", -1], KeyD: ["lr", 1],
   ArrowUp: ["ud", 1], ArrowDown: ["ud", -1], ArrowLeft: ["yaw", -1], ArrowRight: ["yaw", 1],
 };
-const LOW = 20, CRITICAL = 10, HOT = 80, VIDEO_STALE = 4;
+const LOW = 20, CRITICAL = 10, WARM = 70, HOT = 80, VIDEO_STALE = 4;
 const held = new Set();
 const $ = (id) => document.getElementById(id);
 let speed = 30;  // gentle default; raise it once flying feels comfortable
@@ -390,7 +390,7 @@ function render(s) {
   $("height").textContent = s.height + " cm";
   $("tof").textContent = s.tof + " cm";
   $("temp").textContent = s.temp + " °C";
-  $("temp").style.color = s.temp >= HOT ? "var(--bad)" : "";
+  $("temp").style.color = s.temp >= HOT ? "var(--bad)" : s.temp >= WARM ? "var(--yellow)" : "";
   $("ftime").textContent = fmtTime(s.flight_time);
   $("speed").textContent = s.speed.join(" / ");
   $("yaw").textContent = s.attitude[2] + "°";

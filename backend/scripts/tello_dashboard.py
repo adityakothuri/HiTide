@@ -45,7 +45,10 @@ MIN_FLIGHT_FOR_DRAIN_S = 10
 TAKEOVER_WAIT_SECONDS = 15  # time for an old dashboard to land and release the port
 WATCHDOG_SECONDS = 0.25
 LOW_BATTERY_PCT = 20
-HOT_TEMP_C = 80
+HOT_TEMP_C = 80  # the drone refuses takeoff around here
+WARM_TEMP_C = 70  # warn while it sits powered on: Tellos only cool when flying
+WARM_REPORT_EVERY = 120.0
+DRAIN_SETTLE_SECONDS = 5.0  # battery % reads low under load; read it after it recovers
 MAX_TILT_DEG = 10
 REFUSAL_HINT = (
     "Fixes to try: 1) IMU calibration in the Tello phone app (Settings > More > IMU Calibration), "
@@ -94,6 +97,8 @@ class Drone:
         self.hover_steady_noted = False
         self.rc_out = (0, 0, 0, 0)  # what we actually send: ramps toward self.rc
         self.flight_start: tuple[float, int] | None = None  # (time, battery %) at takeoff
+        self.wobbled = False  # this flight; tells a worn battery apart from a mechanical fault
+        self.warm_reported = 0.0
 
     def start(self) -> None:
         """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
@@ -156,6 +161,7 @@ class Drone:
                     pass  # no network yet; try again next round
             if connected:
                 self._check_hover()
+                self._check_idle_heat()
             time.sleep(WATCHDOG_SECONDS)
 
     def _check_hover(self) -> None:
@@ -185,6 +191,7 @@ class Drone:
         drift = sum(sp for *_, sp in self.hover_samples) / len(self.hover_samples)
         self.hover_reported = now
         if swing > WOBBLE_DEG:
+            self.wobbled = True
             self.note(f"WOBBLING while hovering (tilt swings {swing} deg). That's mechanical: check each "
                       "propeller for chips and the right A/B motor, spin each motor by hand for grit or hair, "
                       "seat the prop guards, push the battery fully in. A corner that sounds different is a weak motor.")
@@ -196,19 +203,34 @@ class Drone:
             self.hover_steady_noted = True
             self.note(f"Hover steady (tilt swing {swing} deg, drift {drift:.0f}).")
 
-    def _note_battery_drain(self) -> None:
+    def _check_idle_heat(self) -> None:
+        temp = self.value("get_highest_temperature")
+        if self.tello.is_flying or temp < WARM_TEMP_C or time.time() - self.warm_reported < WARM_REPORT_EVERY:
+            return
+        self.warm_reported = time.time()
+        self.note(f"Drone is {temp}C sitting on the ground. Tellos only cool while flying, and it refuses takeoff "
+                  f"at {HOT_TEMP_C}C. Turn it off between flights (or fly now if you're about to).")
+
+    def _note_battery_drain(self, landed_at: float) -> None:
+        """Called a few seconds after landing, once the battery reading has recovered from load sag."""
         if not self.flight_start:
             return
         started, battery = self.flight_start
         self.flight_start = None
-        seconds = time.time() - started
+        seconds = landed_at - started
         used = battery - self.value("get_battery")
         if seconds < MIN_FLIGHT_FOR_DRAIN_S or used <= 0:
             return
         rate = used / seconds * 60
-        verdict = ("HIGH: the motors are working too hard (damaged/swapped propeller, weak motor, or worn battery)"
-                   if rate > NORMAL_DRAIN_PCT_PER_MIN * HIGH_DRAIN_FACTOR else "normal")
-        self.note(f"Flight used {used}% battery in {seconds:.0f}s ({rate:.0f}%/min, {verdict}).")
+        if rate <= NORMAL_DRAIN_PCT_PER_MIN * HIGH_DRAIN_FACTOR:
+            verdict = "normal"
+        elif self.wobbled:
+            verdict = "HIGH, and it wobbled: likely a damaged or swapped propeller or a weak motor"
+        else:
+            verdict = "HIGH with a steady hover: likely a worn battery, expect short flights"
+        minutes_left = self.value("get_battery") / rate if rate else 0
+        self.note(f"Flight used {used}% battery in {seconds:.0f}s ({rate:.0f}%/min, {verdict}). "
+                  f"About {minutes_left:.1f} min of flight left at this rate.")
 
     def note(self, text: str) -> None:
         self.log.appendleft(write_log(text))
@@ -303,7 +325,7 @@ class Drone:
                     break
             self.tello.is_flying = False
             self.note(f"Landed | {self.readings()}")
-            self._note_battery_drain()
+            threading.Timer(DRAIN_SETTLE_SECONDS, self._note_battery_drain, args=(time.time(),)).start()
         except Exception as exc:
             self.note(f"Land error: {exc}")
         finally:
@@ -338,6 +360,7 @@ class Drone:
                 return
             self.tello.is_flying = True
             self.flight_start = (time.time(), self.value("get_battery"))
+            self.wobbled = False
             self.hover_steady_noted = False
             self.note("Takeoff done, hovering")
             return
