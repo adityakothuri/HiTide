@@ -71,8 +71,8 @@ def fly_first_leg(bearing_deg: float, distance_m: float, tello: Any | None = Non
         tello.connect()
         tello.streamon()
         reader = tello.get_frame_read()
+        flying = True  # before takeoff: if takeoff raises after the drone lifts, we still land
         tello.takeoff()
-        flying = True
         for cmd, value in indoor_moves(bearing_deg, distance_m):
             if cmd == "rotate":
                 (tello.rotate_clockwise if value > 0 else tello.rotate_counter_clockwise)(abs(value))

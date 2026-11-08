@@ -152,7 +152,7 @@ class HillCountryDemo:
                              f"Every exit is flooded. Responders flagged: {'boat required' if st.rescue == 'boat_required' else 'a high-clearance truck can still get in'}. "
                              "The next flight checks the rescue approach.")
         if "gauge.status" in types and not loop.gauges_online.get(HUNT_GAUGE, True):
-            await self._beat(5, "The Hunt gauge goes dark (real: last reading 05:10 CDT)",
+            await self._beat(6, "The Hunt gauge goes dark (real: last reading 05:10 CDT)",
                              "Its last reading was a record 37.52 ft; after 30 min of silence it counts as offline. "
                              "Downstream uncertainty jumps and the drones re-plan.")
         await self._outreach()
@@ -171,7 +171,7 @@ class HillCountryDemo:
                 if route:
                     self.sent["A"] = {"node": nid}
                     await self._send("A", "poll", route_message(loop.nodes[nid]["name"], route), ("I'm safe", "I need help", "I've left"))
-                    await self._beat(6, "Instructions go out", "Kerrville subdivision: a route out by text with a poll. "
+                    await self._beat(5, "Instructions go out", "Kerrville subdivision: a route out by text with a poll. "
                                      "A cut-off older resident: a voice call to shelter in place. Then her daughter.")
         if "B" not in self.sent:
             nid = next((n for n, st in loop.node_state.items() if st.instruction == "shelter_in_place"

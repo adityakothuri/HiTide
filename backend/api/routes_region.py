@@ -15,6 +15,7 @@ from app.security import require_trusted_origin
 from drone.dispatch import distance_m
 
 router = APIRouter()
+_tello_lock = asyncio.Lock()  # one real flight at a time (two clients would fight over the UDP port)
 JSON = "application/json"
 
 
@@ -55,7 +56,10 @@ async def fly_tello(request: Request) -> dict:
     bearing = math.degrees(math.atan2((target["lon"] - drone.leg_from[0]) * math.cos(math.radians(target["lat"])),
                                       target["lat"] - drone.leg_from[1])) % 360
     dist = distance_m(drone.leg_from[1], drone.leg_from[0], target["lat"], target["lon"])
-    res = await asyncio.to_thread(fly_first_leg, bearing, dist)
+    if _tello_lock.locked():
+        raise HTTPException(status_code=409, detail="the Tello is already flying")
+    async with _tello_lock:
+        res = await asyncio.to_thread(fly_first_leg, bearing, dist)
     if not res.ok:  # failure drill: the task fails, the previous status stands
         return {"ok": False, "error": res.error, "point_id": target["id"]}
     snap = loop.external_snapshot(target["id"], drone.id, res.water_on_road, res.road_covered_pct)

@@ -50,7 +50,7 @@ def build_graph(roads: Iterable[Road]) -> nx.MultiGraph:
     return g
 
 
-_SINKED: dict[tuple[int, frozenset[str]], nx.MultiGraph] = {}
+_SINKED: dict[tuple[int, frozenset[str]], tuple[nx.MultiGraph, nx.MultiGraph]] = {}
 
 
 def with_sink(g: nx.MultiGraph, targets: set[str]) -> nx.MultiGraph:
@@ -62,8 +62,8 @@ def with_sink(g: nx.MultiGraph, targets: set[str]) -> nx.MultiGraph:
         for t in targets:
             if t in h:
                 h.add_edge(t, SINK, key=f"sink-{t}", length=0.0, truck_only=False)
-        _SINKED[key] = h
-    return _SINKED[key]
+        _SINKED[key] = (g, h)  # keep g alive so its id can't be reused by another graph
+    return _SINKED[key][1]
 
 
 def _view(h: nx.MultiGraph, point_of: dict[str, str], removed: frozenset[str], cars: bool) -> nx.MultiGraph:

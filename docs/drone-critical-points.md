@@ -84,11 +84,11 @@ bands        < 0.15 open | < 0.5 unknown | < 0.9 likely | >= 0.9 confirmed
 
 **Result on the real map:**
 - 262 floodable points, of which 98 matter to someone, across 87 areas.
-- Every true chokepoint is rural:
+- The largest chokepoints are rural:
   - The SH 39 bridge over Cypress Creek is the only way out for 138 households, including two riverside camps.
   - The FM 1340 bridges on the North Fork carry 73 households each.
   - South Fork crossings on Arrow Head Rd and Flaming Arrow Rd are single exits too.
-- Every Kerrville neighborhood has alternatives.
+- A few small Kerrville pockets also depend on a single crossing (6 areas, the largest 13 households). Large Kerrville neighborhoods have alternatives.
 
 **Re-scoring captures sequential cuts.** When a snapshot confirms a crossing flooded, it is removed and the cut tests re-run. A crossing that was optional can become unavoidable. This is overview §8.5's "the next most useful flight may be the back road".
 
@@ -154,7 +154,7 @@ flight + hover(15 s, +25 s waterline hold if urgent) + return to the nearest sta
 
 **Dispatch rules.**
 - No flights before a warning.
-- Never fly to an "open" point (p < 0.15), because the answer wouldn't change an instruction.
+- Never fly to an "open" point (p < 0.15), because the answer wouldn't change an instruction. The exception is a point on a cut-off area's high-clearance truck approach.
 - A point re-enters the queue only after its snapshot decays (overview §8.6).
 
 ## 6. What each area is told, and its risk score: move people from low to high ground
@@ -187,7 +187,21 @@ risk = 35·access + 25·water + 25·ground + 15·vulnerability
 
 ## 7. Results on the July 4, 2025 replay
 
-From `uv run python -m scripts.replay_report`. Results are recorded in `vault/Experiments/2026-11-08 July 2025 replay calibration.md`.
+From `uv run python -m scripts.replay_report` (2026-11-08, after review fixes). Results are recorded in `vault/Experiments/2026-11-08 July 2025 replay calibration.md`.
+
+| Measure (same 3 drones, same night) | Priority planner | Naive patrol (stalest-first sweep) | Gauges only, no drones |
+|---|---|---|---|
+| Flooded chokepoints (some area's only exit), 243 households behind them | 12 | 12 | 12 |
+| Households whose chokepoint a drone confirmed flooded | **186 (77 %)** | 7 (3 %) | n/a |
+| Flooded crossings known at all (of 69) | 33 by drone | (not measured) | 21 (mostly gauged main stem) |
+| Flooded South Fork / Cypress Creek crossings flagged | most, 2–90 min after the water | | almost none |
+| First area told to shelter | **02:17 CDT, 107 min before the real 04:04 Flash Flood Emergency for Hunt** | | |
+
+Reading it honestly:
+- On the gauged main stem, gauges alone flag crossings early (the median is 67 min before the water, because the rules are cautious). Drones add little there.
+- On the ungauged forks, where the camps were, nothing but a drone ever sees the water.
+- The planner's advantage over a patrol isn't more checks. It checks the crossings that people's only way out depends on.
+
 
 ## 8. Limits we state openly
 
