@@ -25,9 +25,9 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 |---|---|---|
 | Phase 0 | Setup: ECC, CLAUDE.md, vault, `.env.example`, API contract | done (2026-11-07) |
 | Phase 1 | Data layer: town cache, flood sim, road status, feeds, API | done: CHECKPOINT 1 backend verified 2026-11-07 |
-| Phase 2 | Risk scoring + Stages 1-2 | done in mock mode. Real-phone check waits on Photon creds |
-| Phase 3 | Stage 3 escalation state machine | done in mock mode. Full 7-step demo runs in 62 s |
-| Phase 4 | Photon integration (spike, timeboxed) | adapters + sidecar built, blocked on creds |
+| Phase 2 | Risk scoring + Stages 1-2 | done: CHECKPOINT 2 passed on a real phone |
+| Phase 3 | Stage 3 escalation state machine | done: CHECKPOINT 3 passed on a real phone (reply closed the case) |
+| Phase 4 | Photon integration (spike, timeboxed) | texts, polls and replies live on real phones (CHECKPOINT 2 + 3). Voice pending ElevenLabs |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
 
