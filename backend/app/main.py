@@ -8,8 +8,10 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from api.routes import router
+from app.config import DATA_DIR
 from app.runtime import build_runtime
 
 load_dotenv()
@@ -33,3 +35,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
+app.mount("/static/drone", StaticFiles(directory=DATA_DIR / "drone_samples"), name="drone")

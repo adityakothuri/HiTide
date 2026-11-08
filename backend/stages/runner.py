@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass, field, replace
-from typing import Any
+from typing import Any, Literal
 
 from api.schemas import Case, TimelineEntry, VisionResult
 from app.config import settings
@@ -232,7 +232,8 @@ class StageRunner:
         entry = TimelineEntry(ts=now_iso(), t_case_s=round(t, 1), kind="outreach", text=text)
         return case.model_copy(update={"timeline": [*case.timeline, entry]})
 
-    async def reply(self, case_id: str, kind: str, by: str = "driver") -> Case | None:
+    async def reply(self, case_id: str, kind: Literal["safe", "need_help"],
+                    by: Literal["driver", "emergency_contact"] = "driver") -> Case | None:
         case = self.world.cases.get(case_id)
         if not case:
             return None

@@ -7,7 +7,9 @@ dependencies = [
     "httpx>=0.28.1",
     "networkx>=3.7",
     "numpy>=2.5.4",
+    "opencv-python-headless>=5.0.0.93",
     "osmnx>=2.1.1",
+    "pillow>=13.0.0",
     "py3dep>=0.19.0",
     "pydantic>=2.14.3",
     "pydantic-settings>=2.16.2",
@@ -15,6 +17,7 @@ dependencies = [
     "pyyaml>=6.0.3",
     "rioxarray>=0.23.0",
     "shapely>=2.2.0",
+    "ultralytics>=8.4.207",
     "uvicorn[standard]>=0.54.0",
 ]
 
