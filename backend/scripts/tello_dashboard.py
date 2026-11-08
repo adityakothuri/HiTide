@@ -47,6 +47,19 @@ def flush_replies(tello: Tello) -> None:
     tello.get_own_udp_object()["responses"].clear()
 
 
+def write_log(text: str) -> str:
+    """Print and append to the log file, so failures can be read after reconnecting to the internet."""
+    line = f"{time.strftime('%H:%M:%S')}  {text}"
+    print(text)
+    try:
+        LOG_FILE.parent.mkdir(exist_ok=True)
+        with LOG_FILE.open("a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except OSError:
+        pass  # logging to disk is best-effort
+    return line
+
+
 class Drone:
     def __init__(self, tello: Tello) -> None:
         self.tello = tello
@@ -76,15 +89,7 @@ class Drone:
         self._encode_loop()
 
     def note(self, text: str) -> None:
-        line = f"{time.strftime('%H:%M:%S')}  {text}"
-        self.log.appendleft(line)
-        print(text)
-        try:
-            LOG_FILE.parent.mkdir(exist_ok=True)
-            with LOG_FILE.open("a", encoding="utf-8") as f:
-                f.write(line + "\n")
-        except OSError:
-            pass  # logging to disk is best-effort
+        self.log.appendleft(write_log(text))
 
     def _encode_loop(self) -> None:
         params = [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
@@ -269,15 +274,22 @@ def make_handler(drone: Drone):
 
 
 def main() -> None:
+    write_log("Dashboard starting")
     try:
         server = DashboardServer((HOST, PORT), make_handler(None))
     except OSError:
-        print(f"The dashboard is ALREADY RUNNING (port {PORT} is in use).")
+        write_log(f"The dashboard is ALREADY RUNNING (port {PORT} is in use).")
         print("Close the other black 'Tello dashboard' window (click it, press Ctrl+C), then try again.")
         return
     drone = Drone(Tello())
-    print("Connecting to the drone...")
-    drone.start()
+    write_log("Connecting to the drone...")
+    try:
+        drone.start()
+    except Exception as exc:
+        write_log(f"Could not connect to the drone: {exc}")
+        print("Is the laptop on the TELLO Wi-Fi and the drone on (blinking yellow)? Then try again.")
+        server.server_close()
+        return
     server.RequestHandlerClass = make_handler(drone)
     url = f"http://{HOST}:{PORT}"
     print(f"Dashboard running at {url}  (press Ctrl+C here to stop)")
@@ -292,4 +304,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        import traceback
+
+        write_log("CRASH: " + traceback.format_exc())
+        raise
