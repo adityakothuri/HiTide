@@ -11,8 +11,6 @@ from uuid import uuid4
 
 import httpx
 import numpy as np
-from rasterio.io import MemoryFile
-from rasterio.windows import from_bounds
 from shapely.geometry import Point, Polygon
 
 from app.config import REPO_DIR
@@ -94,6 +92,9 @@ async def collect_grid(product: tuple) -> list[RawEnvelope]:
 
 def decode_texas_grid(compressed: bytes) -> list[dict]:
     """Coarse-cell previews with explicit aggregation, never road depth."""
+    from rasterio.io import MemoryFile  # lazy: a missing GDAL must not break every feed import
+    from rasterio.windows import from_bounds
+
     rings = json.loads((REPO_DIR / "frontend/src/evidence/texasBoundary.json").read_text())["rings"]
     polygons = [Polygon(ring) for ring in rings]
     result = []

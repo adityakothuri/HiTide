@@ -34,28 +34,31 @@ class Gauge:
     times: np.ndarray         # epoch seconds, ascending
     stage_ft: np.ndarray
     base_ft: float            # pre-event stage
+    max_gap_s: float = MAX_GAP_S   # no reading within this -> unknown (live telemetry lags, so it can be longer)
 
     def reported_rise_m(self, t: float) -> float | None:
         """Belief: the last reading at or before t (no interpolation toward a reading that doesn't exist yet)."""
         k = int(np.searchsorted(self.times, t, side="right")) - 1
-        if k < 0 or t - self.times[k] > MAX_GAP_S:
+        if k < 0 or t - self.times[k] > self.max_gap_s:
             return None
         return max(0.0, float(self.stage_ft[k]) - self.base_ft) * FT_TO_M
 
     def rise_m(self, t: float) -> float | None:
-        if self.times.size == 0 or t < self.times[0] - MAX_GAP_S or t > self.times[-1] + MAX_GAP_S:
+        if self.times.size == 0 or t < self.times[0] - self.max_gap_s or t > self.times[-1] + self.max_gap_s:
             return None
         i = int(np.searchsorted(self.times, t))
         neighbours = [self.times[j] for j in (i - 1, i) if 0 <= j < self.times.size]
-        if min(abs(t - n) for n in neighbours) > MAX_GAP_S:
+        if min(abs(t - n) for n in neighbours) > self.max_gap_s:
             return None
         stage = float(np.interp(t, self.times, self.stage_ft))
         return max(0.0, stage - self.base_ft) * FT_TO_M
 
     def reported_rise_m_vec(self, ts: np.ndarray) -> np.ndarray:
         ts = np.asarray(ts, dtype=float)
+        if self.times.size == 0:
+            return np.full(ts.shape, np.nan)
         k = np.searchsorted(self.times, ts, side="right") - 1
-        ok = (k >= 0) & (ts - self.times[np.clip(k, 0, None)] <= MAX_GAP_S)
+        ok = (k >= 0) & (ts - self.times[np.clip(k, 0, None)] <= self.max_gap_s)
         rise = np.maximum(0.0, self.stage_ft[np.clip(k, 0, None)] - self.base_ft) * FT_TO_M
         return np.where(ok, rise, np.nan)
 
@@ -70,7 +73,7 @@ class Gauge:
             gap = np.abs(ts - self.times[0])
         stage = np.interp(ts, self.times, self.stage_ft)
         rise = np.maximum(0.0, stage - self.base_ft) * FT_TO_M
-        return np.where(gap <= MAX_GAP_S, rise, np.nan)
+        return np.where(gap <= self.max_gap_s, rise, np.nan)
 
 
 def interp_rise_m(gauges: Sequence[Gauge], s: float, t: float, celerity_mps: float,

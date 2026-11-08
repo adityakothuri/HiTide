@@ -42,6 +42,14 @@ curl -X POST localhost:8000/api/demo/reset
 curl -X POST 'localhost:8000/api/demo/start?scenario=hill_country&speed=150'   # ~2.5 min, 7 beats
 curl localhost:8000/api/region/state | jq '.critical_points[0], .nodes[0].risk'
 uv run python -m scripts.replay_report        # drones vs gauges-only vs naive patrol (two full replays)
+
+# Hill Country LIVE: same detection on real-time Texas feeds (USGS gauges, NWS alerts, MRMS radar rain,
+# NWS storm reports, NWPS river forecasts) for Hunt -> Kerrville, stepping every 30 s
+REGION_MODE=live uv run uvicorn app.main:app   # or switch at runtime:
+curl -X POST -H 'Origin: http://localhost:5173' 'localhost:8000/api/region/mode?mode=live'
+curl localhost:8000/api/region/sources | jq   # each source: status, provenance, age of its newest data
+# no MongoDB running? FLOODWATCH_DB_BACKEND=sqlite
+RUN_SLOW=1 uv run pytest tests/test_replay_golden.py   # replay is bit-for-bit unchanged (~15 min)
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
 

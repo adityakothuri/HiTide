@@ -172,6 +172,27 @@ A second, separate demo replays the **real July 4, 2025 flood** over Hunt → In
 
 **Snapshot**: `{point_id, drone_id, time, water_on_road, road_covered_pct, est_depth_in, depth_method: car_reference|visual, rising, people_seen, confidence, image_url, simulated: true}`.
 
-### Expanded source previews
+### Live mode (added 2026-11-08): the same detection on real-time Texas feeds
 
-The statewide recent response now includes regional sensors, NOAA rainfall/runoff grids and NWPS stations, crossing statuses, camera context and TranStar access markers. Source batches add label, notes, errors and context fields. Admitted records may include a preview object with title, detail, provider-derived time, timestamp_role, evidence_type, geometry, optional value/unit and safe public link. Context records have unverified freshness and require an explicit UI opt-in. The raw payload and envelope remain available independently of the preview.
+The Hill Country loop runs in one of two modes. **`replay`** (default) is the July 4, 2025 replay above. **`live`** steps the same fusion every 30 s on wall-clock time over live public data for the same region. Both modes feed the loop through one observation layer (`backend/observe/`), so every payload has the same shape.
+
+| Method | Path | Returns |
+|---|---|---|
+| POST | `/api/region/mode?mode=live\|replay` | `{ok, mode}`. Stops whatever is running, clears the loop, emits `region.reset {scenario, mode}`. Live starts polling and stepping at once. Replay waits for `/api/demo/start?scenario=hill_country`, which also switches back to replay. |
+| GET | `/api/region/sources` | `{mode, sources: {id: SourceStatus}}`. Shows which evidence drives detection, where it came from and how old it is. |
+
+**SourceStatus**: `{status: ok|stale|unavailable|pending|not_used, provenance: live|cached|replay|none, as_of (provider observation/product time), checked_at, detail, error}`.
+- Detection sources: `usgs_gage`, `nws_alerts`, `mrms`, `lsr`, `nwps`.
+- The statewide collectors that don't apply to this region are listed as `not_used`, with the reason in `detail`.
+- Show `stale` and `unavailable` prominently. They mean "we can't see", never "all clear".
+
+Additions to `/api/region/state` and the WS events. All are additive; existing fields are unchanged.
+
+| Where | What changed |
+|---|---|
+| `/api/region/state` | Adds `mode`, `forecasts[]` and `sources`. `scenario_running` is true while the replay or live monitoring runs. |
+| `region.alert` | Now `{id, event, level: warning\|watch\|advisory\|statement\|forecast, headline, emergency, simulated, source: replay\|nws\|nwps, at, area, effective, expires, active}`. |
+| Alert lifecycle | In live mode an alert is sent once with `active: true` and again with `active: false` when it ends, is cancelled or is superseded. Drop it from the map then. Replay alerts never end. Only `level: warning` sets `in_warning` and lets drones fly; the other levels are context. |
+| `gauge.status` / `gauges[]` | Adds `flood_category: none\|action\|minor\|moderate\|major\|null`. It is official NWS stages, for Hunt (HNTT2) and Kerrville (KRRT2) only. |
+| `forecasts[]` | `{lid, site, name, observed_ft, observed_at, observed_category, crest_ft, crest_at, crest_category, issued_at, thresholds}`. `crest_*` is null when NWS has no current forecast. |
+| Drones in live mode | They get planned `tour`/`path` but stay `idle` at their station. There is no replay truth to simulate a flight from. Draw the path as "recommended tour". `snapshot.created` in live mode comes only from a real drone. |

@@ -33,6 +33,20 @@ Each source, its auth, and what we use it for. Checked 2026-11-07 unless noted.
 > [!note] USGS Flood Impacts
 > Verified live on 2026-11-07. The impact points describe nearby road and bridge flooding, but none is itself a road segment, so the ops panel shows them as context only. USGS gage values arrive as strings and are converted to floats.
 
+## Live detection inputs (REGION_MODE=live, checked 2026-11-08)
+
+These drive the Hill Country fusion; see [[Live Observations]]. Statewide collectors from the teammate handoff (`data_handoff.md`, `docs/MAP_DATA_ACCESS.md`) feed the `/texas` map.
+
+| Source | Endpoint | Cadence | Becomes |
+|---|---|---|---|
+| USGS gage height, 5 region gauges | OGC `continuous` items, `P7D` hourly + `PT3H` every 2 min, merged | 2 min | Gauge series → HAND belief depth, rising rate. Rise is measured over the 7-day low (no datum needed). Telemetry lands 7–22 min late |
+| NWS active alerts | `api.weather.gov/alerts/active?area=TX` | 60 s | Flood alerts touching the region (polygon, else zones TXC265/TXZ186). Only warnings set `in_warning` |
+| NOAA MRMS RadarOnly_QPE_01H | `mrms.ncep.noaa.gov/2D/RadarOnly_QPE_01H/` (GRIB2, 0.01°) | 2 min | Inches in the last hour at each crossing (3×3 px max). `heavy_rain` when ≥ 1.0. Older than 20 min = no evidence |
+| NWS Local Storm Reports (IEM) | `mesonet.agron.iastate.edu/geojson/lsr.geojson` | 2 min | A flood report naming a road within 500 m of a crossing, in the last 3 h → `closure` |
+| NOAA NWPS | `api.water.noaa.gov/nwps/v1/gauges/{KRRT2,HNTT2}` + `/stageflow/forecast` | 15 min | Official flood categories; forecast crest at or above minor → `forecast` alert |
+
+Not used for this region (listed with the reason in `/api/region/sources`): DriveTexas WZDx (construction only; flood conditions are 401), LCRA (Colorado basin), SA River / ATX / HCFCD / TranStar (other regions), TxDOT cameras (no images), NOAA FLASH (horizon unverified), and USGS impact points. The Kerrville impact points are a bank, a pool, a parking lot and a restaurant, not road crossings, so they are context only.
+
 ## Feed rules
 
 - Every feed has a 5 s timeout and falls back to `data/feeds_cache/`.

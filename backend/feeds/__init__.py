@@ -21,12 +21,17 @@ __all__ = ["active_alerts", "all_feeds", "collect_raw", "flood_impacts", "gage_h
 
 Scope = Literal["texas", "kerrville"]
 
+# Failure envelopes must carry the real source id, not the collector's function name.
+_COLLECTOR_SOURCE = {"collect_texas_alerts": "nws_alerts", "collect_texas_gages": "usgs_gage",
+                     "collect_texas_road_reports": "nws_local_storm_reports", "collect_work_zones": "drivetexas_work_zones"}
+
+
 async def _bounded_collection(collector) -> list[RawEnvelope]:
     try:
         return await asyncio.wait_for(collector(), timeout=60)
     except Exception as exc:  # noqa: BLE001 - isolate provider failures at the collection boundary
-        name = collector.__name__.removeprefix("collect_")
-        request = FeedRequest(name, name, "", {}, {"state": "TX"}, "features")
+        name = _COLLECTOR_SOURCE.get(collector.__name__, collector.__name__.removeprefix("collect_"))
+        request = FeedRequest(name, collector.__name__.removeprefix("collect_"), "", {}, {"state": "TX"}, "features")
         return split_response(request, {"source": "unavailable", "data": None,
                                        "errors": (f"collector_{type(exc).__name__}",)})
 

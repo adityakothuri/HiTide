@@ -32,3 +32,6 @@ htmlcov/
 
 # osmnx Overpass HTTP cache (build scripts)
 backend/cache/
+
+# live observation last-good caches (REGION_MODE=live)
+data/feeds_cache/live_*.json

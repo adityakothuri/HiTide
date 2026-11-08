@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from api.schemas import ReplyIn
 from outreach.inbound import handle_inbound
 
-from app.hill_runtime import get_hill
+from app.hill_runtime import get_hill, set_mode, start_replay
 from app.runtime import Runtime
 from app.security import origin_ok, require_trusted_origin
 from feeds import Scope, all_feeds
@@ -56,8 +56,7 @@ Scenario = Literal["kerrville", "hill_country"]
 async def _stop_hill(request: Request) -> None:
     if getattr(request.app.state, "hill_task", None) is not None and request.app.state.hill_task.done():
         hill = await get_hill(request.app)
-        await hill.demo.reset()
-        await request.app.state.runtime.hub.emit("region.reset", {"scenario": "hill_country"})
+        await set_mode(hill, "replay")  # stops the replay or live monitoring, clears, emits region.reset
 
 
 @router.get("/api/feeds/recent")
@@ -79,7 +78,7 @@ async def demo_start(request: Request, scenario: Scenario = "kerrville",
     if scenario == "hill_country":
         hill = await get_hill(request.app)
         await rt(request).reset()
-        await hill.demo.start(speed=speed)
+        await start_replay(hill, speed)
         return {"ok": True, "scenario": scenario, "speed": speed}
     await _stop_hill(request)
     r = rt(request)
@@ -92,9 +91,8 @@ async def demo_start(request: Request, scenario: Scenario = "kerrville",
 async def demo_reset(request: Request, scenario: Scenario = "kerrville") -> dict[str, Any]:
     if scenario == "hill_country":
         hill = await get_hill(request.app)
-        await hill.demo.reset()
-        await request.app.state.runtime.hub.emit("region.reset", {"scenario": scenario})
-        return {"ok": True, "scenario": scenario}
+        await set_mode(hill, hill.mode)  # clean state; live restarts monitoring, replay waits for start
+        return {"ok": True, "scenario": scenario, "mode": hill.mode}
     await rt(request).reset()
     return {"ok": True, "scenario": scenario}
 

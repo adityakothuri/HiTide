@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from api.routes import router
 from api.routes_region import router as region_router
 from app.config import DATA_DIR
+from app.hill_runtime import shutdown as hill_shutdown
 from app.hill_runtime import warm
 from app.runtime import build_runtime
 from app.security import ORIGIN_RE
@@ -62,8 +63,12 @@ async def lifespan(app: FastAPI):
     finally:
         runtime.demo.cancel()
         hill_task = getattr(app.state, "hill_task", None)
-        if hill_task is not None and hill_task.done() and not hill_task.cancelled() and hill_task.exception() is None:
-            await hill_task.result().demo.stop()
+        if hill_task is not None and not hill_task.done():
+            hill_task.cancel()  # still building / starting live: don't let pollers start after teardown
+            with suppress(asyncio.CancelledError, Exception):
+                await hill_task
+        elif hill_task is not None and not hill_task.cancelled() and hill_task.exception() is None:
+            await hill_shutdown(hill_task.result())
         if inbound is not None:
             await inbound.stop()
         runtime.runner.cancel_pending()

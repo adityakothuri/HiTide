@@ -4,7 +4,8 @@ fusion:
   prior_outside: 0.02
   add_gauge_rising: 0.15        # nearest upstream reporting gauge rising fast
   add_model_above_road: 0.15    # gauge-interpolated stage is above the road (belief model, gauges only)
-  add_heavy_rain: 0.15          # > 1 in/hr at the nearest rain gauge
+  add_heavy_rain: 0.15          # >= heavy_rain_in_hr at the point (MRMS 1-hour radar accumulation live)
+  heavy_rain_in_hr: 1.0
   add_driver_signals: 0.20      # Drive Safe & Save stops / U-turns at the segment (synthetic in the demo)
   drone_wet: 0.95
   drone_dry: 0.10               # never 0: we never declare a road safe

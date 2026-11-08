@@ -1,31 +1,56 @@
-"""Hill Country replay runtime: region + flood + critical-point loop + demo. Built lazily (~5 s) on first use."""
+"""Hill Country runtime: region + flood + critical-point loop, in replay (July 4, 2025) or live mode.
+
+Built lazily (~5 s) on first use. REGION_MODE=live starts on live Texas feeds; POST /api/region/mode switches.
+"""
 
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
+import logging
 import os
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException
 
 from critical.loop import CriticalLoop
 from demo.hill_country import HillCountryDemo
+from demo.live_region import run_live
+from observe.live import LiveObservations
+from observe.replay import ReplayObservations
 from outreach import make_outreach
 from sim.region import Region, load_region
 from sim.region_flood import RegionFlood
 
+RegionMode = Literal["replay", "live"]
 _lock = asyncio.Lock()
+log = logging.getLogger(__name__)
+
+
+def _log_failure(task: asyncio.Task) -> None:
+    if not task.cancelled() and task.exception() is not None:
+        log.error("hill country live monitoring stopped", exc_info=task.exception())
 
 
 @dataclass
 class HillCountry:
     region: Region
-    flood: RegionFlood
+    flood: RegionFlood          # replay flood (also: gauge positions and the fitted wave celerity)
     loop: CriticalLoop
     demo: HillCountryDemo
     static_json: bytes          # /api/region body, encoded once (about 3.5 MB)
+    replay_obs: ReplayObservations
+    emit: Any
+    mode: RegionMode = "replay"
+    live: LiveObservations | None = None
+    live_task: asyncio.Task | None = None
+    mode_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+
+    @property
+    def running(self) -> bool:
+        return self.demo.running or (self.live_task is not None and not self.live_task.done())
 
 
 def _static(region: Region, flood: RegionFlood, loop: CriticalLoop) -> dict[str, Any]:
@@ -38,7 +63,8 @@ def _static(region: Region, flood: RegionFlood, loop: CriticalLoop) -> dict[str,
     return {"id": region.id, "name": region.cfg["name"], "bbox": region.cfg["bbox"],
             "segments": {"type": "FeatureCollection", "features": segs},
             "waterways": {"type": "FeatureCollection", "features": waterways},
-            "gauges": [{"site": g.site, "name": g.name, "waterway": g.chain, "lon": g.lon, "lat": g.lat} for g in flood.info.values()],
+            "gauges": [{"site": g.site, "name": g.name, "waterway": g.chain, "lon": g.lon, "lat": g.lat,
+                        "flood_stages_ft": g.flood_stages_ft} for g in flood.info.values()],
             "stations": [{"id": s.id, "lon": s.lon, "lat": s.lat} for s in loop.stations]}
 
 
@@ -53,22 +79,93 @@ def _build(emit) -> HillCountry:
     loop = CriticalLoop(region, flood)
     outreach = make_outreach(emit, lambda _driver_id: False)  # nobody in this scenario is a moving driver
     static = json.dumps(_static(region, flood, loop)).encode()
-    return HillCountry(region, flood, loop, HillCountryDemo(loop, emit, outreach), static)
+    return HillCountry(region, flood, loop, HillCountryDemo(loop, emit, outreach), static, loop.observations, emit)
+
+
+def _live(h: HillCountry) -> LiveObservations:
+    if h.live is None:
+        static = {s: (i.lon, i.lat) for s, i in h.flood.info.items()}
+        h.live = LiveObservations(h.region, h.loop.points, static, h.flood.celerity)
+    return h.live
+
+
+async def _stop_live(h: HillCountry) -> None:
+    task, h.live_task = h.live_task, None
+    if task is not None and not task.done():
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            try:
+                await task
+            except Exception:
+                log.warning("live monitoring raised while stopping", exc_info=True)
+
+
+async def set_mode(h: HillCountry, mode: RegionMode) -> None:
+    """Stop whatever runs, clear the loop, and (live) start polling + stepping. Replay waits for /api/demo/start."""
+    async with h.mode_lock:
+        await _set_mode_locked(h, mode)
+
+
+async def start_replay(h: HillCountry, speed: float) -> None:
+    """Switch to replay (if needed) and start it under the same lock, so a concurrent switch can't interleave."""
+    async with h.mode_lock:
+        if h.mode != "replay":
+            await _set_mode_locked(h, "replay")
+        await h.demo.start(speed=speed)
+
+
+async def _set_mode_locked(h: HillCountry, mode: RegionMode) -> None:
+    await h.demo.stop()
+    await _stop_live(h)
+    if mode == "live":
+        live = _live(h)
+        await asyncio.to_thread(h.loop.configure, live, False, h.flood)
+        step_s = float(h.region.cfg["live"]["step_s"])
+        h.live_task = asyncio.create_task(run_live(h.loop, live, h.emit, step_s))
+        h.live_task.add_done_callback(_log_failure)
+    else:
+        await asyncio.to_thread(h.loop.configure, h.replay_obs, True, h.flood)
+    h.mode = mode
+    await h.emit("region.reset", {"scenario": "hill_country", "mode": mode})
+
+
+async def shutdown(h: HillCountry) -> None:
+    async with h.mode_lock:
+        await h.demo.stop()
+        await _stop_live(h)
+
+
+def env_mode() -> RegionMode:
+    mode = os.environ.get("REGION_MODE", "replay")
+    if mode not in ("replay", "live"):
+        raise ValueError("REGION_MODE must be 'replay' or 'live'")
+    return mode  # type: ignore[return-value]
+
+
+async def _build_and_start(emit) -> HillCountry:
+    h = await asyncio.to_thread(_build, emit)
+    if env_mode() == "live":
+        try:
+            await set_mode(h, "live")
+        except Exception:  # keep the built region (replay) rather than rebuilding on every request
+            log.exception("REGION_MODE=live failed to start; staying in replay")
+    return h
 
 
 def warm(app: FastAPI) -> None:
     """Start building in the background at startup so the first request doesn't wait ~5 s.
     HILL_COUNTRY_WARM=0 defers it to first use (the test suite sets this)."""
+    env_mode()  # fail fast on a bad value
     if os.environ.get("HILL_COUNTRY_WARM", "1") == "0" and not hasattr(app.state, "hill_task"):
         return
-    app.state.hill_task = asyncio.create_task(asyncio.to_thread(_build, app.state.runtime.hub.emit))
+    app.state.hill_task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit))
 
 
 async def get_hill(app: FastAPI) -> HillCountry:
     async with _lock:
         task = getattr(app.state, "hill_task", None)
         if task is None or (task.done() and (task.cancelled() or task.exception() is not None)):
-            app.state.hill_task = task = asyncio.create_task(asyncio.to_thread(_build, app.state.runtime.hub.emit))
+            app.state.hill_task = task = asyncio.create_task(_build_and_start(app.state.runtime.hub.emit))
     try:
         return await asyncio.shield(task)  # a cancelled request never orphans the build
     except Exception as exc:
@@ -76,4 +173,4 @@ async def get_hill(app: FastAPI) -> HillCountry:
 
 
 def state_json(h: HillCountry) -> bytes:
-    return json.dumps({**h.loop.snapshot, "scenario_running": h.demo.running}).encode()
+    return json.dumps({**h.loop.snapshot, "scenario_running": h.running}).encode()

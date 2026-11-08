@@ -46,10 +46,13 @@ async def _collect(request: FeedRequest, id_field: str) -> list[RawEnvelope]:
         body = row.raw_payload if isinstance(row.raw_payload, dict) else {}
         properties = body.get("properties", body)
         identifier = properties.get(id_field) if isinstance(properties, dict) else None
+        metadata = row.provider_metadata
         if request.source_id == "txdot_cameras":
             identifier = None
-            row.provider_metadata["logical_key_hint"] = [body.get("name"), body.get("lon"), body.get("lat")]
-        result.append(replace(row, source_record_id=str(identifier) if identifier is not None else None))
+            # Per-row hint: copy, because split_response shares one metadata dict across a response's rows.
+            metadata = {**metadata, "logical_key_hint": [body.get("name"), body.get("lon"), body.get("lat")]}
+        result.append(replace(row, source_record_id=str(identifier) if identifier is not None else None,
+                              provider_metadata=metadata))
     return result
 
 
