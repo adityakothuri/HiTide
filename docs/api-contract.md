@@ -162,3 +162,36 @@ POSTs use the same trusted-origin guard as the other state-changing routes.
 - `connected`: the bridge is receiving telemetry from the drone right now. False means show "link lost"; values are the last known ones.
 - `busy`: `""`, `"takeoff"` or `"land"`. **Land is always allowed**, including during takeoff.
 - `video_age`: seconds since the last frame, or null before any video.
+
+### Gauge tray water level
+
+> Added 2026-11-08. Design: [gauge-water-level-plan.md](gauge-water-level-plan.md). The bridge reads the flood depth off the printed gauge tray in the Tello camera view (`backend/gauge/`, runs in the bridge venv). The backend only forwards.
+
+| Method | Path | Returns / body |
+|---|---|---|
+| GET | `/api/live-drone/gauge` | `GaugeStatus` (below). Poll about once a second. Always 200. |
+| POST | `/api/live-drone/gauge/baseline` | Captures the dry baseline from the current frame (pour no water yet, same camera pose as the readings). Returns `{"result": "ok"}` or `{"result": "<why it failed>"}`. |
+| POST | `/api/live-drone/gauge/start` | Starts reading at about 2 Hz. Returns `{"result": "ok"}` or a reason (for example the gauge module is unavailable). |
+| POST | `/api/live-drone/gauge/stop` | Stops reading; the last estimate stays visible. Returns `{"result": "ok"}`. |
+| GET | `/api/live-drone/gauge/overlay.jpg` | The latest annotated frame (tags, wet cells tinted, level text) as `image/jpeg`, `Cache-Control: no-store`. 404 before the first reading, 503 when the bridge is offline. Reload with a cache-busting query (`?t=...`). |
+
+POSTs use the trusted-origin guard and return 503 when the bridge is offline.
+
+`GaugeStatus` (the bridge's `WaterEstimate.to_dict()` fields, flat, plus service state):
+
+```json
+{"gauge": "online", "enabled": true, "running": true, "error": null,
+ "level_mm": 10.0, "level_mm_range": [9.0, 11.0], "ft": 3.0, "ft_range": [2.5, 3.5], "confidence": 0.82,
+ "crossing_flooded": true, "car_level": "windows", "houses_flooded": 1, "houses_total": 4,
+ "visible_cells": 18240, "wet_cells": 6120, "tags_seen": 4, "reproj_err_px": 0.9,
+ "has_baseline": true, "simulated": false, "reason": null, "ts": 1762600000.0}
+```
+
+- `gauge`: `online` (the bridge answered and the gauge module loaded), `unavailable` (the bridge runs but `backend/gauge` failed to import; `error` says why; video and flight still work), or `offline` (no bridge; every other field is absent).
+- `enabled`: reading was started with `/gauge/start`. `running`: the reader thread is alive and producing estimates.
+- `error`: the last import or reader error, or null.
+- Estimate fields are null until the first reading. **`ft` is null when the evidence is weak** (fewer than 3 tags, high reprojection error, too few visible cells, flat score) and `reason` then says why: show the reason, never a guess.
+- **Always show the range** (`ft_range`) next to `ft`. `ft` is feet of rise above the pool (each tray step is 1 ft).
+- `car_level`: `none`, `wheels`, `doors`, `windows` or `roof` (the `VisionResult.water_level` vocabulary), or null.
+- `confidence`: 0 to 1; capped lower when `has_baseline` is false (dye-hue only).
+- `simulated`: true when the frame was synthetic (`gauge.synth`); label it "SIMULATED" in the UI.

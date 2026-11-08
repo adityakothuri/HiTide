@@ -6,15 +6,21 @@ It opens http://127.0.0.1:8765 in your browser. Works offline. Press Ctrl+C in t
 """
 
 import json
+import os
+import sys
 import threading
 import time
 import urllib.request
 import webbrowser
 from collections import deque
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import Any, Protocol
+from urllib.parse import urlsplit
 
 import cv2
+import numpy as np
 from djitellopy import Tello
 
 HOST, PORT = "127.0.0.1", 8765
@@ -106,6 +112,201 @@ def save_profile(profile: dict) -> None:
         PROFILE_FILE.write_text(json.dumps(profile, indent=2), encoding="utf-8")
     except OSError:
         pass  # best-effort; the in-memory profile still protects this session
+
+
+# ---------- gauge tray water level (docs/gauge-water-level-plan.md, "Integration") ----------
+
+BACKEND_DIR = Path(__file__).resolve().parents[1]  # holds the `gauge` package
+GAUGE_HZ = 2
+GAUGE_DYE_DEFAULT = "blue"
+GAUGE_LOADING = "loading the gauge model"
+GAUGE_ERROR_WAIT_SECONDS = 1.0  # back off after a reader error so a bad frame can't spin the CPU
+ESTIMATE_FIELDS = (
+    "level_mm", "level_mm_range", "ft", "ft_range", "confidence", "crossing_flooded", "car_level",
+    "houses_flooded", "houses_total", "visible_cells", "wet_cells", "tags_seen", "reproj_err_px",
+    "has_baseline", "simulated", "reason", "ts",
+)
+
+
+class GaugeReaderLike(Protocol):
+    """The slice of gauge.water.GaugeReader the bridge uses."""
+
+    def set_baseline(self, frame: np.ndarray) -> tuple[bool, str]: ...
+    def update(self, frame: np.ndarray) -> Any: ...
+    def overlay(self, frame: np.ndarray, estimate: Any) -> np.ndarray: ...
+
+
+def default_gauge_reader() -> GaugeReaderLike:
+    """Import backend/gauge lazily, so a missing or broken package never stops the dashboard."""
+    if str(BACKEND_DIR) not in sys.path:
+        sys.path.insert(0, str(BACKEND_DIR))
+    from gauge.water import GaugeReader
+
+    from gauge.camera import load_intrinsics
+    from gauge.model import load_tray
+
+    dye = os.environ.get("GAUGE_DYE", GAUGE_DYE_DEFAULT)
+    return GaugeReader(load_tray(), load_intrinsics(), dye=dye)
+
+
+def encode_jpeg(frame_bgr: np.ndarray) -> bytes | None:
+    ok, buf = cv2.imencode(".jpg", frame_bgr, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+    return buf.tobytes() if ok else None
+
+
+def rgb_to_bgr(frame_rgb: np.ndarray) -> np.ndarray:
+    return np.ascontiguousarray(frame_rgb[:, :, ::-1])
+
+
+def jsonable(value: Any) -> Any:
+    """numpy scalars and tuples from the estimate -> plain JSON types."""
+    if isinstance(value, dict):
+        return {k: jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, np.ndarray)):
+        return [jsonable(v) for v in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+class GaugeService:
+    """Reads the gauge tray water level from the latest frame at about GAUGE_HZ while enabled.
+
+    Runs on its own thread and touches the drone only through `frame_source`, so a slow or
+    failing reader can never stall telemetry or flight control. Reader errors are logged once
+    per distinct message and reported in status()["error"].
+    """
+
+    def __init__(self, frame_source: Callable[[], np.ndarray | None], note: Callable[[str], None],
+                 reader_factory: Callable[[], GaugeReaderLike] = default_gauge_reader,
+                 encoder: Callable[[np.ndarray], bytes | None] = encode_jpeg,
+                 interval: float = 1 / GAUGE_HZ) -> None:
+        self._frame_source = frame_source  # RGB frames, as djitellopy delivers them
+        self._note = note
+        self._reader_factory = reader_factory
+        self._encoder = encoder
+        self._interval = interval
+        self._reader: GaugeReaderLike | None = None
+        self._unavailable = ""  # why the gauge package could not load; set once
+        self._load_lock = threading.Lock()
+        self._reader_lock = threading.Lock()  # baseline and update never run at the same time
+        self._thread: threading.Thread | None = None
+        self.enabled = False
+        self.has_baseline = False
+        self.estimate: dict[str, Any] = {}
+        self.overlay_jpeg: bytes | None = None
+        self.error: str | None = None
+        self._preloading = False
+
+    def _ensure_reader(self, retry: bool = False) -> GaugeReaderLike | None:
+        """Load once. `retry` (a button press) tries again after a failure, e.g. once the package is fixed."""
+        with self._load_lock:
+            if retry and self._reader is None:
+                self._unavailable = ""
+            if self._reader is None and not self._unavailable:
+                try:
+                    self._reader = self._reader_factory()
+                    self._note("Water gauge ready")
+                except Exception as exc:  # noqa: BLE001 - ImportError, missing tray data, bad camera json
+                    self._unavailable = f"{type(exc).__name__}: {exc}"
+                    self.error = self._unavailable
+                    self._note(f"Water gauge unavailable ({self._unavailable})")
+            return self._reader
+
+    def _frame_bgr(self) -> np.ndarray | None:
+        frame = self._frame_source()
+        return None if frame is None else rgb_to_bgr(frame)
+
+    def capture_baseline(self) -> str:
+        reader = self._ensure_reader(retry=True)
+        if reader is None:
+            return f"gauge unavailable: {self._unavailable}"
+        frame = self._frame_bgr()
+        if frame is None:
+            return "no video frame yet"
+        try:
+            with self._reader_lock:
+                ok, reason = reader.set_baseline(frame)
+        except Exception as exc:  # noqa: BLE001 - contain reader faults
+            return self._record_error("Baseline", exc)
+        self.has_baseline = self.has_baseline or bool(ok)
+        self._note("Water gauge: dry baseline captured" if ok else f"Water gauge baseline refused: {reason}")
+        return "ok" if ok else str(reason)
+
+    def start(self) -> str:
+        if self._ensure_reader(retry=True) is None:
+            return f"gauge unavailable: {self._unavailable}"
+        self.enabled = True
+        if self._thread is None or not self._thread.is_alive():
+            self._thread = threading.Thread(target=self._loop, daemon=True)
+            self._thread.start()
+            self._note("Water gauge reading started")
+        return "ok"
+
+    def stop(self) -> str:
+        if self.enabled:
+            self._note("Water gauge reading stopped")
+        self.enabled = False
+        return "ok"
+
+    def _loop(self) -> None:
+        last_frame = None
+        while self.enabled:
+            frame = self._frame_source()
+            if frame is None or frame is last_frame:
+                time.sleep(self._interval)
+                continue
+            last_frame = frame
+            self.read_once(rgb_to_bgr(frame))
+            time.sleep(self._interval if self.error is None else GAUGE_ERROR_WAIT_SECONDS)
+
+    def read_once(self, frame_bgr: np.ndarray) -> None:
+        """One reading: smoothed estimate plus the annotated overlay. Never raises."""
+        reader = self._reader
+        if reader is None:
+            return
+        try:
+            with self._reader_lock:
+                estimate = reader.update(frame_bgr)
+                overlay = reader.overlay(frame_bgr, estimate)
+            self.estimate = jsonable(estimate.to_dict())
+            self.overlay_jpeg = self._encoder(overlay) or self.overlay_jpeg
+            self.error = None
+        except Exception as exc:  # noqa: BLE001 - contain reader faults
+            self._record_error("Reader", exc)
+
+    def _record_error(self, what: str, exc: Exception) -> str:
+        message = f"{what} error: {type(exc).__name__}: {exc}"
+        if message != self.error:  # log once per distinct error, not twice a second
+            self._note(f"Water gauge {message}")
+        self.error = message
+        return message
+
+    @property
+    def running(self) -> bool:
+        return self.enabled and self._thread is not None and self._thread.is_alive()
+
+    def preload(self) -> None:
+        """Load the gauge model in the background so the first status poll answers at once."""
+        if self._preloading:
+            return
+        self._preloading = True
+        threading.Thread(target=self._ensure_reader, daemon=True).start()
+
+    def status(self) -> dict[str, Any]:
+        """Never blocks on loading: while the model loads, report unavailable with that reason."""
+        loading = self._reader is None and not self._unavailable
+        if loading:
+            self.preload()
+        estimate = {k: self.estimate.get(k) for k in ESTIMATE_FIELDS}
+        estimate["has_baseline"] = bool(estimate["has_baseline"] or self.has_baseline)
+        return {
+            "gauge": "online" if self._reader is not None else "unavailable",
+            "enabled": self.enabled,
+            "running": self.running,
+            "error": self.error or (GAUGE_LOADING if loading else None),
+            **estimate,
+        }
 
 
 class Drone:
@@ -389,6 +590,11 @@ class Drone:
     def note(self, text: str) -> None:
         self.log.appendleft(write_log(text))
 
+    def latest_frame(self) -> np.ndarray | None:
+        """The newest RGB camera frame, or None before video starts."""
+        frames = getattr(self, "frames", None)  # set by _video_loop once the stream is up
+        return None if frames is None else frames.frame
+
     def _encode_loop(self) -> None:
         params = [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
         last_frame = None
@@ -572,7 +778,20 @@ class DashboardServer(ThreadingHTTPServer):
     daemon_threads = True
 
 
-def make_handler(drone: Drone):
+GAUGE_ACTIONS = ("baseline", "start", "stop")
+
+
+def gauge_action(gauge: GaugeService | None, name: str) -> tuple[dict, int]:
+    """POST /gauge/<name>: (json body, http code)."""
+    if gauge is None:
+        return {"error": "gauge not running in this dashboard"}, 503
+    if name not in GAUGE_ACTIONS:
+        return {"error": "not found"}, 404
+    handlers = {"baseline": gauge.capture_baseline, "start": gauge.start, "stop": gauge.stop}
+    return {"result": handlers[name]()}, 200
+
+
+def make_handler(drone: Drone, gauge: GaugeService | None = None):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args) -> None:  # keep the console readable
             pass
@@ -598,8 +817,23 @@ def make_handler(drone: Drone):
                     self._json({"error": str(exc)}, 503)
             elif self.path.startswith("/video"):
                 self._stream_video()
+            elif self.path.startswith("/gauge/"):
+                self._gauge_get(urlsplit(self.path).path)
             else:
                 self._json({"error": "not found"}, 404)
+
+        def _gauge_get(self, route: str) -> None:
+            if gauge is None:
+                return self._json({"error": "gauge not running in this dashboard"}, 503)
+            if route == "/gauge/status":
+                try:
+                    return self._json(gauge.status())
+                except Exception as exc:  # noqa: BLE001
+                    return self._json({"error": str(exc)}, 503)
+            if route == "/gauge/overlay.jpg":
+                jpeg = gauge.overlay_jpeg
+                return self._send(jpeg, "image/jpeg") if jpeg else self._json({"error": "no reading yet"}, 404)
+            return self._json({"error": "not found"}, 404)
 
         def do_POST(self) -> None:
             length = min(int(self.headers.get("Content-Length", 0)), 1024)
@@ -614,6 +848,9 @@ def make_handler(drone: Drone):
                 self._json({"result": "ok"})
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return None
+            if self.path.startswith("/gauge/"):
+                data, code = gauge_action(gauge, self.path.removeprefix("/gauge/"))
+                return self._json(data, code)
             name = self.path.removeprefix("/action/")
             if name in ACTIONS:
                 return self._json({"result": drone.action(name)})
@@ -670,7 +907,9 @@ def main() -> None:
     drone = Drone(Tello())
     write_log("Connecting to the drone...")
     drone.start()
-    server.RequestHandlerClass = make_handler(drone)
+    gauge = GaugeService(frame_source=drone.latest_frame, note=drone.note)
+    gauge.preload()
+    server.RequestHandlerClass = make_handler(drone, gauge)
     url = f"http://{HOST}:{PORT}"
     print(f"Dashboard running at {url}  (press Ctrl+C here to stop)")
     webbrowser.open(url)

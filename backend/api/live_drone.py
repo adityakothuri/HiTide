@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.security import require_trusted_origin
@@ -104,3 +104,42 @@ async def video() -> StreamingResponse:
 
     media_type = upstream.headers.get("content-type", MJPEG_TYPE)
     return StreamingResponse(relay(), media_type=media_type, headers={"Cache-Control": "no-store"})
+
+
+# ---------- gauge tray water level (contract: "Gauge tray water level") ----------
+
+JPEG_TYPE = "image/jpeg"
+NO_STORE = {"Cache-Control": "no-store"}
+
+
+@router.get("/gauge")
+async def gauge_status() -> dict[str, Any]:
+    try:
+        async with _client(STATUS_TIMEOUT) as client:
+            response = await client.get("/gauge/status")
+            response.raise_for_status()
+            data = response.json()
+    except (httpx.HTTPError, ValueError):
+        return {"gauge": "offline"}
+    if not isinstance(data, dict) or "gauge" not in data:
+        return {"gauge": "offline"}  # a bridge build without the gauge routes
+    return data
+
+
+@router.post("/gauge/{command}", dependencies=[Depends(require_trusted_origin)])
+async def gauge_command(command: Literal["baseline", "start", "stop"]) -> dict[str, Any]:
+    return await _forward(f"/gauge/{command}", {})
+
+
+@router.get("/gauge/overlay.jpg")
+async def gauge_overlay() -> Response:
+    try:
+        async with _client(COMMAND_TIMEOUT) as client:
+            response = await client.get("/gauge/overlay.jpg")
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=503, detail="Tello bridge is offline") from exc
+    if response.status_code == 404:
+        raise HTTPException(status_code=404, detail="No gauge reading yet")
+    if response.is_error or not response.headers.get("content-type", "").startswith(JPEG_TYPE):
+        raise HTTPException(status_code=503, detail="Tello bridge has no gauge overlay")
+    return Response(content=response.content, media_type=JPEG_TYPE, headers=NO_STORE)

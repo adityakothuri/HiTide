@@ -38,3 +38,32 @@
 .message { min-height: 18px; font-size: 12px; color: var(--critical-deep); }
 .controlsLink { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--info); }
 .log { margin: 0; padding: 10px 12px; list-style: none; border-radius: 6px; background: var(--neutral-1); font: 11px/1.6 Consolas, ui-monospace, monospace; color: var(--neutral-6); overflow-wrap: anywhere; }
+
+.gauge { display: grid; gap: 12px; padding: 14px; border: var(--border); border-radius: 8px; background: var(--surface); }
+.gaugeHead { display: flex; align-items: center; gap: 8px; }
+.gaugeHead h3 { display: flex; align-items: center; gap: 6px; margin: 0 auto 0 0; font-size: 14px; font-weight: 700; color: var(--water-5); }
+.simTag { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--info); background: var(--info-bg); border: 1px solid var(--info); }
+.gaugeReading { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.gaugeReading strong { font-size: 40px; line-height: 1; font-weight: 700; letter-spacing: -1.2px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.gaugeReading span { font-size: 13px; font-weight: 600; color: var(--neutral-5); font-variant-numeric: tabular-nums; }
+.gaugeNote { margin: 0; padding: 8px 10px; border-left: 3px solid var(--caution-mark); border-radius: 4px; background: var(--caution-bg); color: var(--caution); font-size: 12px; line-height: 17px; }
+.gaugeFacts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.gaugeFacts > div { padding: 8px 10px; border-radius: 6px; background: var(--neutral-1); }
+.gaugeFacts dt { font-size: 10px; font-weight: 600; color: var(--neutral-5); }
+.gaugeFacts dd { margin: 3px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.flooded { color: var(--critical-deep); }
+.levelTag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+.sevNone { color: var(--safe); background: var(--safe-bg); }
+.sevLow { color: var(--caution); background: var(--caution-bg); }
+.sevMid { color: var(--critical-deep); background: var(--critical-bg); }
+.sevHigh { color: var(--on-dark); background: var(--critical); }
+.confidence { display: grid; gap: 5px; font-size: 11px; font-weight: 600; color: var(--neutral-5); }
+.confidenceBar { height: 8px; border-radius: 4px; background: var(--neutral-2); overflow: hidden; }
+.confidenceBar > div { height: 100%; background: var(--water-4); transition: width var(--dur-slide) var(--ease-out); }
+.gaugeButtons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gaugeButtons > button:first-child { grid-column: 1 / -1; }
+.overlayToggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.overlayToggle input { width: 16px; height: 16px; accent-color: var(--water-4); }
+.overlayToggle input:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .confidenceBar > div { transition: none; } }

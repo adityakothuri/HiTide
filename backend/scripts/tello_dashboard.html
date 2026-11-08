@@ -213,6 +213,29 @@
   .log::-webkit-scrollbar { width: 6px; }
   .log::-webkit-scrollbar-thumb { background: var(--line); }
 
+  /* ---------- water gauge ---------- */
+  .gauge-row { display: flex; align-items: baseline; gap: 6px; }
+  .gauge-row .big { font: 700 52px/0.9 var(--display); font-variant-numeric: tabular-nums; color: var(--cyan);
+                    text-shadow: 0 0 14px currentColor; }
+  .gauge-row .unit { font: 600 20px var(--display); color: var(--muted); }
+  .gauge-row .range { margin-left: auto; font: 600 13px var(--mono); color: var(--muted); }
+  .tag { font: 700 10px/1 var(--display); letter-spacing: 2px; text-transform: uppercase; padding: 4px 8px;
+         border: 1px solid currentColor; }
+  .tag.sim { color: var(--yellow); }
+  .tag.off { color: var(--bad); }
+  .gauge-reason { margin: 10px 0 0; padding: 6px 10px; font-size: 12px; color: var(--yellow);
+                  border-left: 2px solid var(--yellow); background: #f5ff3b0d; }
+  .gauge-reason[hidden] { display: none; }
+  .conf { position: relative; height: 8px; margin-top: 4px; background: #ffffff0a; border: 1px solid var(--line); }
+  .conf div { height: 100%; width: 0; background: var(--magenta); box-shadow: var(--glow-mag); transition: width .5s; }
+  .gauge-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .gauge-buttons button { font-size: 11px; letter-spacing: 1.5px; padding: 11px 6px; }
+  .toggle { display: flex; align-items: center; gap: 8px; margin-top: 12px; cursor: pointer;
+            font: 600 11px var(--display); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .toggle input { accent-color: var(--magenta); }
+  .lvl-none { color: var(--ok) !important; } .lvl-wheels { color: var(--yellow) !important; }
+  .lvl-doors, .lvl-windows, .lvl-roof { color: var(--bad) !important; }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -268,6 +291,30 @@
         <div class="stat"><div class="label">Velocity x/y/z</div><div class="value" id="speed">--</div></div>
         <div class="stat"><div class="label">Heading</div><div class="value" id="yaw">--</div></div>
       </div>
+    </div>
+
+    <div class="card" aria-labelledby="gauge-h">
+      <h2 id="gauge-h">Water gauge <span class="spacer"></span><span class="tag sim" id="g-sim" hidden>Simulated</span>
+        <span class="tag off" id="g-off" hidden>Offline</span></h2>
+      <div class="gauge-row">
+        <span class="big" id="g-ft">--</span><span class="unit">ft</span>
+        <span class="range" id="g-range">range --</span>
+      </div>
+      <p class="gauge-reason" id="g-reason" hidden></p>
+      <div class="stats" style="margin-top: 12px">
+        <div class="stat"><div class="label">Car level</div><div class="value" id="g-car">--</div></div>
+        <div class="stat"><div class="label">Crossing</div><div class="value" id="g-cross">--</div></div>
+        <div class="stat"><div class="label">Houses flooded</div><div class="value" id="g-houses">--</div></div>
+        <div class="stat"><div class="label">Tags · baseline</div><div class="value" id="g-tags">--</div></div>
+        <div class="stat wide"><div class="label">Confidence <span id="g-conf-v"></span></div>
+          <div class="conf"><div id="g-conf"></div></div></div>
+      </div>
+      <div class="gauge-buttons">
+        <button class="alt" id="g-baseline" title="Before pouring: capture the dry tray from this exact camera pose">Baseline</button>
+        <button id="g-start">Start</button>
+        <button class="alt" id="g-stop">Stop</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="g-overlay"> Show gauge overlay in the feed</label>
     </div>
 
     <div class="card">
@@ -374,7 +421,9 @@ $("speed-in").oninput = (e) => { speed = +e.target.value; $("speed-val").textCon
 
 setInterval(() => { if (held.size) sendRc(); }, 200);  // keep-alive while holding keys
 
-$("video").onerror = () => setTimeout(() => { $("video").src = "/video?" + Date.now(); }, 2000);
+$("video").onerror = () => setTimeout(() => {
+  if (!$("g-overlay").checked) $("video").src = "/video?" + Date.now();  // overlay mode retries on its own timer
+}, 2000);
 
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
@@ -458,6 +507,70 @@ async function poll() {
 }
 setInterval(poll, 500);
 poll();
+// ---------- water gauge (GET /gauge/status, 1 s) ----------
+const GAUGE_POLL_MS = 1000, OVERLAY_REFRESH_MS = 500;
+const fmtFt = (v) => (v == null ? "--" : Number(v).toFixed(1));
+let overlayTimer = null;
+
+async function gaugeAction(name) {
+  try {
+    const r = await fetch(`/gauge/${name}`, { method: "POST", body: "{}" });
+    const { result, error } = await r.json();
+    if (result !== "ok") addLocalLog(`gauge ${name}: ${result ?? error}`);
+  } catch { addLocalLog(`gauge ${name}: no connection to dashboard`); }
+  pollGauge();
+}
+$("g-baseline").onclick = () => gaugeAction("baseline");
+$("g-start").onclick = () => gaugeAction("start");
+$("g-stop").onclick = () => gaugeAction("stop");
+
+function setOverlay(on) {
+  clearInterval(overlayTimer);
+  if (on) {
+    const refresh = () => { $("video").src = "/gauge/overlay.jpg?t=" + Date.now(); };
+    refresh();
+    overlayTimer = setInterval(refresh, OVERLAY_REFRESH_MS);
+  } else {
+    $("video").src = "/video?" + Date.now();
+  }
+}
+$("g-overlay").onchange = (e) => setOverlay(e.target.checked);
+
+function renderGauge(g) {
+  const online = g.gauge === "online";
+  $("g-off").hidden = online;
+  $("g-off").textContent = g.gauge === "unavailable" ? "Unavailable" : "Offline";
+  $("g-sim").hidden = !g.simulated;
+  $("g-ft").textContent = fmtFt(g.ft);
+  $("g-range").textContent = g.ft_range ? `${fmtFt(g.ft_range[0])}–${fmtFt(g.ft_range[1])} ft` : "range --";
+  const car = $("g-car");
+  car.textContent = g.car_level ?? "--";
+  car.className = "value" + (g.car_level ? ` lvl-${g.car_level}` : "");
+  const cross = $("g-cross");
+  cross.textContent = g.crossing_flooded == null ? "--" : g.crossing_flooded ? "FLOODED" : "clear";
+  cross.className = "value" + (g.crossing_flooded ? " lvl-roof" : g.crossing_flooded === false ? " lvl-none" : "");
+  $("g-houses").textContent = g.houses_flooded == null ? "--" : `${g.houses_flooded} / ${g.houses_total}`;
+  $("g-tags").textContent = `${g.tags_seen ?? "-"} · ${g.has_baseline ? "yes" : "no"}`;
+  const conf = Math.round((g.confidence ?? 0) * 100);
+  $("g-conf").style.width = conf + "%";
+  $("g-conf-v").textContent = g.confidence == null ? "" : `${conf}%`;
+  // Weak evidence gives no number: say why instead of guessing.
+  const why = !online ? (g.error || "gauge module not loaded") : g.ft == null ? (g.reason || g.error) : g.error;
+  $("g-reason").hidden = !why;
+  $("g-reason").textContent = why || "";
+  $("g-baseline").disabled = !online;
+  $("g-start").disabled = !online || g.enabled;
+  $("g-stop").disabled = !g.enabled;
+}
+
+async function pollGauge() {
+  try {
+    const r = await fetch("/gauge/status");
+    renderGauge(await r.json());
+  } catch { renderGauge({ gauge: "offline", error: "no connection to dashboard" }); }
+}
+setInterval(pollGauge, GAUGE_POLL_MS);
+pollGauge();
 </script>
 </body>
 </html>

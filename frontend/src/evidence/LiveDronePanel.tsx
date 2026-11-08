@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Battery, ExternalLink, Gauge, OctagonX, PlaneLanding, PlaneTakeoff, Radio, Thermometer, Timer } from 'lucide-react'
+import { Battery, Camera, Droplets, ExternalLink, Gauge, OctagonX, PlaneLanding, PlaneTakeoff, Play, Radio, Square, Thermometer, Timer } from 'lucide-react'
 import s from './LiveDronePanel.module.css'
 
 /** Contract: docs/api-contract.md, "Live drone". Fields after controls_url exist only when bridge is online. */
@@ -20,6 +20,33 @@ export type LiveDroneStatus = {
 
 type Action = 'takeoff' | 'land' | 'emergency'
 
+export type CarLevel = 'none' | 'wheels' | 'doors' | 'windows' | 'roof'
+
+/** Contract: docs/api-contract.md, "Gauge tray water level". Estimate fields are null until the first reading. */
+export type GaugeStatus = {
+  gauge: 'online' | 'offline' | 'unavailable'
+  enabled?: boolean
+  running?: boolean
+  error?: string | null
+  ft?: number | null
+  ft_range?: [number, number] | null
+  confidence?: number | null
+  crossing_flooded?: boolean | null
+  car_level?: CarLevel | null
+  houses_flooded?: number | null
+  houses_total?: number | null
+  tags_seen?: number | null
+  has_baseline?: boolean
+  simulated?: boolean | null
+  reason?: string | null
+  ts?: number | null
+}
+
+type GaugeCommand = 'baseline' | 'start' | 'stop'
+
+const OFFLINE_GAUGE: GaugeStatus = { gauge: 'offline' }
+const CAR_SEVERITY: Record<CarLevel, string> = { none: 'sevNone', wheels: 'sevLow', doors: 'sevMid', windows: 'sevHigh', roof: 'sevHigh' }
+
 const POLL_MS = 1_000
 const VIDEO_STALE_S = 4
 const LOW_BATTERY = 20
@@ -27,6 +54,107 @@ const HOT_C = 80
 
 function clock(seconds = 0) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+}
+
+function feet(value: number) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1)
+}
+
+function isGaugeStatus(value: unknown): value is GaugeStatus {
+  return typeof value === 'object' && value !== null && typeof (value as GaugeStatus).gauge === 'string'
+}
+
+/** Polls the gauge once a second; `refresh` re-polls right away (after a button press). */
+function useGaugeStatus() {
+  const [gauge, setGauge] = useState<GaugeStatus>(OFFLINE_GAUGE)
+  const [tick, setTick] = useState(0)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const poll = async () => {
+      try {
+        const response = await fetch('/api/live-drone/gauge', { signal: controller.signal, cache: 'no-store' })
+        const body: unknown = response.ok ? await response.json() : null
+        setGauge(isGaugeStatus(body) ? body : OFFLINE_GAUGE)
+      } catch { if (!controller.signal.aborted) setGauge(OFFLINE_GAUGE) }
+      finally { if (!controller.signal.aborted) timer = setTimeout(() => void poll(), POLL_MS) }
+    }
+    void poll()
+    return () => { controller.abort(); clearTimeout(timer) }
+  }, [tick])
+
+  return { gauge, refresh: () => setTick((value) => value + 1) }
+}
+
+function gaugeNote(gauge: GaugeStatus) {
+  if (gauge.gauge === 'offline') return 'Tello bridge not running. Start it to read the gauge tray.'
+  if (gauge.gauge === 'unavailable') return gauge.error ?? 'The gauge reader is not installed in the bridge.'
+  if (gauge.ft == null) return gauge.reason ?? gauge.error ?? (gauge.enabled ? 'Waiting for the first reading.' : 'Press Start to read the water level.')
+  return gauge.error ?? ''
+}
+
+type GaugeCardProps = {
+  gauge: GaugeStatus
+  showOverlay: boolean
+  onToggleOverlay: (on: boolean) => void
+  onCommand: (command: GaugeCommand) => void
+  pending: GaugeCommand | null
+  message: string
+}
+
+function GaugeCard({ gauge, showOverlay, onToggleOverlay, onCommand, pending, message }: GaugeCardProps) {
+  const online = gauge.gauge === 'online'
+  const hasLevel = online && gauge.ft != null
+  const confidence = Math.round((gauge.confidence ?? 0) * 100)
+  const note = gaugeNote(gauge)
+  const reading = hasLevel ? `${feet(gauge.ft ?? 0)} ft` : '— ft'
+  const range = hasLevel && gauge.ft_range ? `${feet(gauge.ft_range[0])}–${feet(gauge.ft_range[1])} ft range` : 'No reading'
+  const crossing = gauge.crossing_flooded == null ? '—' : gauge.crossing_flooded ? 'Flooded' : 'Clear'
+  const houses = gauge.houses_flooded == null ? '—' : `${gauge.houses_flooded} / ${gauge.houses_total ?? '?'}`
+  const carLevel = gauge.car_level
+    ? <span className={`${s.levelTag} ${s[CAR_SEVERITY[gauge.car_level]]}`}>{gauge.car_level}</span>
+    : '—'
+  return (
+    <section className={s.gauge} aria-labelledby="gauge-heading">
+      <div className={s.gaugeHead}>
+        <h3 id="gauge-heading"><Droplets size={15} />Water gauge</h3>
+        {gauge.simulated ? <span className={s.simTag}>SIMULATED</span> : null}
+        {!online && <span className={s.cachedTag}>{gauge.gauge === 'unavailable' ? 'Unavailable' : 'Offline'}</span>}
+      </div>
+      <div className={s.gaugeReading} aria-live="polite">
+        <strong>{reading}</strong>
+        <span>{range}</span>
+      </div>
+      {note && <p className={s.gaugeNote}>{note}</p>}
+      <dl className={s.gaugeFacts}>
+        <div><dt>Car level</dt><dd>{carLevel}</dd></div>
+        <div><dt>Crossing</dt><dd className={gauge.crossing_flooded ? s.flooded : ''}>{crossing}</dd></div>
+        <div><dt>Houses flooded</dt><dd>{houses}</dd></div>
+        <div><dt>Dry baseline</dt><dd>{gauge.has_baseline ? 'Captured' : 'None'}</dd></div>
+      </dl>
+      <div className={s.confidence}>
+        <span id="gauge-confidence-label">Confidence {gauge.confidence == null ? '—' : `${confidence}%`}</span>
+        <div className={s.confidenceBar} role="progressbar" aria-labelledby="gauge-confidence-label"
+          aria-valuemin={0} aria-valuemax={100} aria-valuenow={confidence}>
+          <div style={{ width: `${confidence}%` }} />
+        </div>
+      </div>
+      <div className={s.gaugeButtons}>
+        <button className={s.land} disabled={!online || pending !== null} onClick={() => onCommand('baseline')}
+          title="Before pouring water: capture the dry tray from this exact camera pose"><Camera size={15} />Capture dry baseline</button>
+        <button className={s.launch} disabled={!online || Boolean(gauge.enabled) || pending !== null}
+          onClick={() => onCommand('start')}><Play size={15} />Start</button>
+        <button className={s.land} disabled={!online || !gauge.enabled || pending !== null}
+          onClick={() => onCommand('stop')}><Square size={15} />Stop</button>
+      </div>
+      <label className={s.overlayToggle}>
+        <input type="checkbox" checked={showOverlay} disabled={!online} onChange={(event) => onToggleOverlay(event.target.checked)} />
+        Show the gauge overlay in the feed
+      </label>
+      <p role="status" aria-live="polite" className={s.message}>{message}</p>
+    </section>
+  )
 }
 
 function feedState(status: LiveDroneStatus | null) {
@@ -43,6 +171,10 @@ export function LiveDronePanel() {
   const [pending, setPending] = useState<Action | null>(null)
   const [streamKey, setStreamKey] = useState(0)
   const wasLive = useRef(false)
+  const { gauge, refresh: refreshGauge } = useGaugeStatus()
+  const [overlayWanted, setOverlayWanted] = useState(false)
+  const [gaugePending, setGaugePending] = useState<GaugeCommand | null>(null)
+  const [gaugeMessage, setGaugeMessage] = useState('')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -79,6 +211,18 @@ export function LiveDronePanel() {
     finally { setPending(null) }
   }
 
+  async function sendGauge(command: GaugeCommand) {
+    setGaugePending(command); setGaugeMessage('')
+    try {
+      const response = await fetch(`/api/live-drone/gauge/${command}`, { method: 'POST' })
+      const body = await response.json() as { result?: string; detail?: string }
+      setGaugeMessage(response.ok ? (body.result === 'ok' ? '' : `Gauge: ${body.result}`) : (body.detail ?? `Request failed (${response.status})`))
+    } catch { setGaugeMessage('Could not reach the backend.') }
+    finally { setGaugePending(null); refreshGauge() }
+  }
+
+  // The overlay exists only after a reading; its ts changes per reading, which reloads the image.
+  const showOverlay = overlayWanted && gauge.gauge === 'online' && gauge.ts != null
   const batteryLow = (status?.battery ?? 100) <= LOW_BATTERY
   const hot = (status?.temp ?? 0) >= HOT_C
   return (
@@ -89,10 +233,12 @@ export function LiveDronePanel() {
       </div>
       <div className={s.body}>
         <div className={s.feed}>
-          {feed.live
+          {showOverlay
+            ? <img src={`/api/live-drone/gauge/overlay.jpg?t=${gauge.ts}`} alt="Gauge tray overlay: detected tags and flooded cells tinted" />
+            : feed.live
             ? <img key={streamKey} src="/api/live-drone/video" alt="Live camera feed from the drone" />
             : <img src={status?.fallback_image_url ?? '/static/drone/flood_03.jpg'} alt="Cached drone image of a flooded road (not live)" />}
-          {!feed.live && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
+          {!feed.live && !showOverlay && <p className={s.feedNote}><strong>{feed.label === 'Cached footage' ? 'CACHED · NOT LIVE' : feed.label.toUpperCase()}</strong>{feed.note}</p>}
         </div>
         <div className={s.side}>
           <dl className={s.telemetry}>
@@ -114,6 +260,8 @@ export function LiveDronePanel() {
           {online && <a className={s.controlsLink} href={status?.controls_url} target="_blank" rel="noopener noreferrer">
             Full flight controls (keyboard, hover drift log)<ExternalLink size={13} /></a>}
           {online && status?.log?.length ? <ul className={s.log} aria-label="Drone event log">{status.log.slice(0, 3).map((line) => <li key={line}>{line}</li>)}</ul> : null}
+          <GaugeCard gauge={gauge} showOverlay={overlayWanted} onToggleOverlay={setOverlayWanted}
+            onCommand={(command) => void sendGauge(command)} pending={gaugePending} message={gaugeMessage} />
         </div>
       </div>
     </section>
