@@ -64,7 +64,7 @@ def _read_cache(name: str) -> dict[str, Any]:
 
 async def _get_json(url: str, params: dict | None, timeout_s: float) -> Any:
     headers = {"User-Agent": USER_AGENT, "Accept": "application/geo+json, application/json"}
-    async with httpx.AsyncClient(timeout=timeout_s, headers=headers, follow_redirects=True) as client:
+    async with httpx.AsyncClient(timeout=timeout_s, headers=headers, follow_redirects=False) as client:
         response = await client.get(url, params=params)
         response.raise_for_status()
         return response.json()

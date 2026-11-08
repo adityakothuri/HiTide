@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.routes import router
 from app.config import DATA_DIR
+from app.security import ORIGIN_RE
 from app.runtime import build_runtime
 
 load_dotenv()
@@ -30,7 +31,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?",
+    allow_origin_regex=ORIGIN_RE.pattern,  # pin with FRONTEND_ORIGIN_REGEX if the UI is served from elsewhere
     allow_methods=["*"],
     allow_headers=["*"],
 )

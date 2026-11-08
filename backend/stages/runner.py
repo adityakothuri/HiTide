@@ -117,7 +117,7 @@ class StageRunner:
         self.world.motions = {k: advance(m, dt, e.t_sim_s, self.lengths) for k, m in self.world.motions.items()}
         visible = [self.driver_public(self.drivers[k]) for k, m in self.world.motions.items()
                    if m.moving or self.drivers[k].is_demo]
-        if visible:
+        if visible and e.alert:  # privacy: live location is shared only during an active warning
             await e.emit("drivers.update", {"drivers": visible})
 
     # ---- Stage 1: pre-trip --------------------------------------------
@@ -231,7 +231,6 @@ class StageRunner:
                                   "Reply: I'm safe / I need help.", case.id)
             return self._note(case, elapsed, f"Voice call to driver ({ev['mode']}, {ev['status']}): no answer yet")
         if kind == "contact_family":
-            c = d.emergency_contact
             body = (f"State Farm Flood Watch: {d.name}'s car has stopped in floodwater near "
                     f"{case.location.lat:.4f}, {case.location.lon:.4f} and they haven't answered. Responders are "
                     f"being notified. Reply SAFE if you've reached them.")
@@ -239,7 +238,7 @@ class StageRunner:
                 self._send(d, "emergency_contact", "text", body, case.id),
                 self._send(d, "emergency_contact", "voice", f"This is State Farm Flood Watch calling about {d.name}.", case.id),
             )
-            return self._note(case, elapsed, f"Text + call to {c.relation} {c.name} ({ev['mode']}, {ev['status']})")
+            return self._note(case, elapsed, f"Text + call to emergency contact ({ev['mode']}, {ev['status']})")
         if kind == "dispatch_drone":
             dcfg = settings()["drone"]
             cap = float(dcfg["demo_max_flight_s"]) if self.profile == "demo" else None

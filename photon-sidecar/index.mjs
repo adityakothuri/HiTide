@@ -2,6 +2,7 @@
 // POST /send {to, body}            -> iMessage text
 // POST /poll {to, question, options} -> native iMessage poll
 // Inbound messages / poll votes are forwarded to the backend: POST {BACKEND_URL}/api/photon/inbound {from, text}
+import crypto from "node:crypto";
 import http from "node:http";
 import { Spectrum, poll } from "spectrum-ts";
 import { imessage } from "spectrum-ts/providers/imessage";
@@ -41,7 +42,9 @@ function reply(res, code, obj) {
 http.createServer(async (req, res) => {
   try {
     if (req.method !== "POST" || !["/send", "/poll"].includes(req.url)) return reply(res, 404, { error: "not found" });
-    if (req.headers["x-sidecar-key"] !== SIDECAR_KEY) return reply(res, 401, { error: "bad key" });
+    const given = Buffer.from(String(req.headers["x-sidecar-key"] ?? ""));
+    const want = Buffer.from(SIDECAR_KEY);
+    if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) return reply(res, 401, { error: "bad key" });
     if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) return reply(res, 415, { error: "json only" });
     const body = await readJson(req);
     if (!E164.test(body.to ?? "")) return reply(res, 400, { error: "to must be E.164" });

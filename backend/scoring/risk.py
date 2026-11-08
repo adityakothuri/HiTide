@@ -71,11 +71,11 @@ def _reasons(inp: RiskInput, f: Mapping[str, float], cfg: Mapping[str, Any]) -> 
     if f["night"]:
         out.append("night")
     if inp.age >= cfg["older_age"]:
-        out.append(f"age {inp.age}")
+        out.append(f"older driver ({cfg['older_age']}+)")
     elif inp.age <= cfg["teen_max_age"]:
-        out.append(f"teen driver (age {inp.age})")
+        out.append("teen driver")
     if f["vehicle"] >= 0.6:
-        out.append(f"low-clearance vehicle ({inp.vehicle_type})")
+        out.append("low-clearance vehicle")
     return tuple(out)
 
 
