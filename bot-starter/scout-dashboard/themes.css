@@ -1,0 +1,166 @@
+/* Scoutroom themes. Classic is the default stylesheet in index.html.
+   Pixel: deep-sea pixel art (inspired by krillion.io: VT323, abyss blues,
+   lumen cyan/pink/gold, stepped hard-shadow borders).
+   Cyber: neon cyberpunk (Orbitron/Rajdhani, cyan + magenta + signal yellow,
+   chamfered panels, glow, scanlines). */
+
+/* ---------- shared dark-theme plumbing ---------- */
+:root[data-theme=pixel],:root[data-theme=cyber]{color-scheme:dark}
+:root[data-theme] body{background:var(--canvas);color:var(--ink)}
+:root[data-theme] ::selection{background:var(--green);color:var(--canvas)}
+:root[data-theme] :focus-visible{outline-color:var(--amber)}
+:root[data-theme] .tabs button[aria-selected=true]{background:var(--green);color:var(--canvas)}
+:root[data-theme] .tabs .count{background:var(--amber);color:var(--canvas)}
+:root[data-theme] .btn:hover:not(:disabled){background:var(--light);border-color:var(--green)}
+:root[data-theme] .btn.primary{color:var(--canvas)}
+:root[data-theme] .btn.primary:hover:not(:disabled){background:var(--green);filter:brightness(1.15)}
+:root[data-theme] .btn.danger:hover:not(:disabled){background:var(--red-soft);border-color:var(--red)}
+:root[data-theme] .rival:hover,:root[data-theme] tbody tr:hover{background:var(--light)}
+:root[data-theme] th,:root[data-theme] .roster-foot,:root[data-theme] .subhead{background:var(--light)}
+:root[data-theme] tbody tr.sel{background:var(--green-soft)}
+:root[data-theme] .track,:root[data-theme] .progress{background:var(--line)}
+:root[data-theme] .fill.old{background:var(--muted)}
+:root[data-theme] .tile.low{background:var(--light)}
+:root[data-theme] .spark i.pm{background:var(--bar2)}
+:root[data-theme] .spark i.pl{background:var(--line)}
+:root[data-theme] .pill.mid,:root[data-theme] .kind.legacy,:root[data-theme] .status-tag{background:var(--light);color:var(--muted)}
+:root[data-theme] .pill.low,:root[data-theme] .status-tag.going,:root[data-theme] .banner{background:var(--amber-soft);color:var(--amber)}
+:root[data-theme] .status-tag.here{background:var(--green-soft);color:var(--green)}
+:root[data-theme] .status-tag.away{background:var(--light);color:var(--pink)}
+:root[data-theme] .kind{background:var(--amber);color:var(--canvas)}
+:root[data-theme] .kind.own{background:var(--green);color:var(--canvas)}
+:root[data-theme] .clonebox{border-color:var(--green)}
+:root[data-theme] .clonebox-head{background:var(--light);color:var(--ink)}
+:root[data-theme] .clonebox-head p{color:var(--muted)}
+:root[data-theme] .clonebox-head .btn{border-color:var(--line);color:var(--ink)}
+:root[data-theme] .clonebox-head .btn:hover:not(:disabled){background:var(--green-soft)}
+:root[data-theme] .clonebox-head .btn.primary{background:var(--amber);border-color:var(--amber);color:var(--canvas)}
+:root[data-theme] .clonebox-head .btn.primary:hover:not(:disabled){filter:brightness(1.1)}
+:root[data-theme] .toast{background:var(--paper);color:var(--ink);border:1px solid var(--green)}
+:root[data-theme] .toast.bad{background:var(--red-soft);border-color:var(--red)}
+:root[data-theme] dialog{background:var(--paper);color:var(--ink)}
+:root[data-theme] pre{background:var(--canvas);color:var(--ink)}
+:root[data-theme] select,:root[data-theme] .stepper{background:var(--canvas);color:var(--ink);border-color:var(--line)}
+:root[data-theme] .mark{background:var(--canvas)}
+:root[data-theme] .dot{background:var(--green)}
+:root[data-theme] .dot.amber{background:var(--amber)}
+:root[data-theme] .dot.red{background:var(--red)}
+:root[data-theme] .dot.grey{background:var(--muted)}
+
+/* ---------- PIXEL: deep-sea pixel art ---------- */
+:root[data-theme=pixel]{
+  --canvas:#050a14;--paper:#0b1526;--ink:#e8f1ff;--muted:#7d93b8;--line:#1b2c47;--light:#101d33;
+  --green:#4de3ff;--green-soft:#0e2c40;--amber:#ffd166;--amber-soft:#2a220c;--red:#ff5d8f;--red-soft:#33101f;
+  --lime:#ffd166;--pink:#ff5d8f;--bar2:#bfa7ff;
+  --serif:"VT323",monospace;--sans:"VT323",monospace;--mono:"VT323",monospace;
+  --px-edge:0 0 0 2px #050a14,0 0 0 4px #1b3050,0 3px 0 4px #0d1a2e;
+  --px-card:0 0 0 3px #050a14,0 0 0 5px #1b3050,10px 10px 0 #02050bd9,0 0 38px #4de3ff1f;
+}
+:root[data-theme=pixel] body{font-size:19px;line-height:1.25;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,#123a5a66,transparent 70%),
+    radial-gradient(circle,#1b2c47 1px,transparent 1.5px) 0 0/16px 16px,
+    #050a14}
+:root[data-theme=pixel] *{border-radius:0!important}
+:root[data-theme=pixel] h1{font-size:64px;letter-spacing:0;line-height:.95;color:var(--ink);text-shadow:4px 4px 0 #0d1a2e,0 0 24px #4de3ff40}
+:root[data-theme=pixel] h2{font-size:48px;letter-spacing:0}
+:root[data-theme=pixel] h3,:root[data-theme=pixel] th,:root[data-theme=pixel] .metric h4,:root[data-theme=pixel] .summary span{text-transform:uppercase;letter-spacing:.06em}
+:root[data-theme=pixel] small,:root[data-theme=pixel] th,:root[data-theme=pixel] .meta,:root[data-theme=pixel] .readout{font-size:15px}
+:root[data-theme=pixel] .card,:root[data-theme=pixel] .clonebox{border:0;box-shadow:var(--px-card);margin:6px}
+:root[data-theme=pixel] .summary b,:root[data-theme=pixel] .metric .big{font-size:44px;color:var(--amber);text-shadow:3px 3px 0 #0d1a2e}
+:root[data-theme=pixel] .btn,:root[data-theme=pixel] .tabs{border:0;box-shadow:var(--px-edge);font-size:18px}
+:root[data-theme=pixel] .btn{background:var(--paper);transition:transform .08s steps(2)}
+:root[data-theme=pixel] .btn:hover:not(:disabled){box-shadow:0 0 0 2px #050a14,0 0 0 4px var(--green),0 3px 0 4px #123048;background:var(--paper)}
+:root[data-theme=pixel] .btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 2px #050a14,0 0 0 4px var(--green)}
+:root[data-theme=pixel] .btn.primary{background:var(--amber);color:#050a14}
+:root[data-theme=pixel] .btn.danger{color:var(--red)}
+:root[data-theme=pixel] .tile{border:0;box-shadow:0 0 0 2px #1b3050,0 3px 0 2px #0d1a2e;background:var(--light)}
+:root[data-theme=pixel] .tile.high{background:#0e2c40;box-shadow:0 0 0 2px var(--green),0 3px 0 2px #123048}
+:root[data-theme=pixel] .tile.selected{outline:3px solid var(--amber)}
+:root[data-theme=pixel] .tile strong{font-size:30px;color:var(--ink)}
+:root[data-theme=pixel] .tile small{font-size:14px;color:var(--muted)}
+:root[data-theme=pixel] .track,:root[data-theme=pixel] .progress{height:10px;box-shadow:inset 0 0 0 2px #040810}
+:root[data-theme=pixel] .fill,:root[data-theme=pixel] .progress div,:root[data-theme=pixel] .bar{background:repeating-linear-gradient(90deg,var(--green) 0 6px,#2bb8d6 6px 8px)}
+:root[data-theme=pixel] .spark i{image-rendering:pixelated;width:7px}
+:root[data-theme=pixel] .dot{width:9px;height:9px}
+:root[data-theme=pixel] .dot.pulse{animation:pixel-blink 1s steps(2) infinite;box-shadow:none}
+@keyframes pixel-blink{50%{opacity:.25}}
+:root[data-theme=pixel] .mark{box-shadow:var(--px-edge);border:0;color:var(--amber);font-size:30px}
+:root[data-theme=pixel] .brand{font:28px var(--sans);letter-spacing:.08em;text-transform:uppercase}
+:root[data-theme=pixel] .mast{border-bottom:2px dashed var(--line)}
+:root[data-theme=pixel] .matchno{font:22px var(--sans)}
+:root[data-theme=pixel] .pill,:root[data-theme=pixel] .kind,:root[data-theme=pixel] .status-tag{font-size:14px;letter-spacing:.05em;text-transform:uppercase}
+:root[data-theme=pixel] dialog{box-shadow:var(--px-card);border:0}
+
+/* ---------- CYBER: neon cyberpunk ---------- */
+:root[data-theme=cyber]{
+  --canvas:#07060d;--paper:#0e0c18;--ink:#f2f0ff;--muted:#8d88ad;--line:#2a2442;--light:#151129;
+  --green:#00f0ff;--green-soft:#06303a;--amber:#fcee0a;--amber-soft:#2a2806;--red:#ff2a6d;--red-soft:#370f20;
+  --lime:#fcee0a;--pink:#ff2a6d;--bar2:#b14dff;
+  --serif:"Orbitron",sans-serif;--sans:"Rajdhani",sans-serif;--mono:"Share Tech Mono",monospace;
+  --chamfer:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  --chamfer-sm:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+:root[data-theme=cyber] body{font-size:16px;font-weight:500;letter-spacing:.01em;
+  background:
+    linear-gradient(transparent 0 calc(100% - 1px),#00f0ff0d calc(100% - 1px)) 0 0/100% 48px,
+    linear-gradient(90deg,transparent 0 calc(100% - 1px),#ff2a6d0a calc(100% - 1px)) 0 0/48px 100%,
+    radial-gradient(ellipse 70% 45% at 85% -5%,#ff2a6d33,transparent 70%),
+    radial-gradient(ellipse 60% 40% at 0% 0%,#00f0ff26,transparent 70%),
+    #07060d}
+:root[data-theme=cyber] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:4;
+  background:repeating-linear-gradient(0deg,#0000 0 2px,#00000026 2px 3px);mix-blend-mode:multiply}
+:root[data-theme=cyber] h1{font-weight:800;font-size:44px;letter-spacing:.02em;text-transform:uppercase;color:#fff;
+  text-shadow:0 0 6px #00f0ffaa,0 0 22px #00f0ff55,3px 0 0 #ff2a6d88,-3px 0 0 #00f0ff66}
+:root[data-theme=cyber] h2{font-weight:700;font-size:30px;text-transform:uppercase;letter-spacing:.03em;color:var(--green);text-shadow:0 0 14px #00f0ff66}
+:root[data-theme=cyber] h3,:root[data-theme=cyber] th,:root[data-theme=cyber] .metric h4,:root[data-theme=cyber] .summary span,:root[data-theme=cyber] .btn,:root[data-theme=cyber] .tabs button{text-transform:uppercase;letter-spacing:.1em}
+:root[data-theme=cyber] h3{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--amber)}
+:root[data-theme=cyber] .num,:root[data-theme=cyber] td{font-family:var(--mono)}
+:root[data-theme=cyber] .card,:root[data-theme=cyber] .clonebox{border:1px solid #00f0ff55;clip-path:var(--chamfer);border-radius:0;
+  background:linear-gradient(180deg,#120f22,#0b0916);box-shadow:inset 0 0 40px #00f0ff0f}
+:root[data-theme=cyber] .summary b{font-family:var(--serif);font-weight:700;font-size:32px;color:var(--amber);text-shadow:0 0 12px #fcee0a66}
+:root[data-theme=cyber] .metric .big{color:var(--green);text-shadow:0 0 12px #00f0ff66}
+:root[data-theme=cyber] .btn,:root[data-theme=cyber] .tabs,:root[data-theme=cyber] .tile,:root[data-theme=cyber] .pill,:root[data-theme=cyber] .kind,:root[data-theme=cyber] .status-tag{border-radius:0;clip-path:var(--chamfer-sm)}
+:root[data-theme=cyber] .btn{background:#0e0c18;border-color:#00f0ff66;color:var(--green);font-weight:600;font-size:12px}
+:root[data-theme=cyber] .btn:hover:not(:disabled){background:#00f0ff1f;border-color:var(--green);box-shadow:0 0 14px #00f0ff55;color:#fff}
+:root[data-theme=cyber] .btn.primary,:root[data-theme=cyber] .clonebox-head .btn.primary{background:var(--amber);border-color:var(--amber);color:#07060d;font-weight:700}
+:root[data-theme=cyber] .btn.primary:hover:not(:disabled){background:#fff35a;box-shadow:0 0 18px #fcee0a88}
+:root[data-theme=cyber] .btn.danger{color:var(--red);border-color:#ff2a6d66}
+:root[data-theme=cyber] .btn.danger:hover:not(:disabled){box-shadow:0 0 14px #ff2a6d66}
+:root[data-theme=cyber] .tabs{border-color:#00f0ff44;background:#0e0c18}
+:root[data-theme=cyber] .tabs button[aria-selected=true]{background:var(--green);color:#07060d;box-shadow:0 0 16px #00f0ff88}
+:root[data-theme=cyber] .tile{border-color:#2a2442;background:#120f22}
+:root[data-theme=cyber] .tile strong{font-family:var(--serif);font-weight:700;font-size:19px}
+:root[data-theme=cyber] .tile.high{background:#06303a;border-color:#00f0ff88;box-shadow:inset 0 0 12px #00f0ff33}
+:root[data-theme=cyber] .tile.selected{outline:2px solid var(--pink);outline-offset:2px}
+:root[data-theme=cyber] .fill,:root[data-theme=cyber] .progress div,:root[data-theme=cyber] .bar{background:linear-gradient(90deg,var(--pink),var(--green));box-shadow:0 0 10px #00f0ff88}
+:root[data-theme=cyber] .dot{box-shadow:0 0 8px currentColor}
+:root[data-theme=cyber] .dot:not(.amber):not(.red):not(.grey){color:var(--green)}
+:root[data-theme=cyber] .mast{border-bottom:1px solid #00f0ff44;box-shadow:0 1px 0 #ff2a6d33}
+:root[data-theme=cyber] .brand{font:700 18px var(--serif);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+:root[data-theme=cyber] .mark{border-color:var(--pink);color:var(--pink);font-family:var(--serif);box-shadow:0 0 12px #ff2a6d66;clip-path:var(--chamfer-sm)}
+:root[data-theme=cyber] .matchno{font:700 13px var(--serif);letter-spacing:.06em;color:var(--green)}
+:root[data-theme=cyber] .matchno.next{color:var(--amber)}
+:root[data-theme=cyber] th{color:var(--green);background:#0b0916;border-bottom-color:#00f0ff44}
+:root[data-theme=cyber] td{border-bottom-color:#2a2442}
+:root[data-theme=cyber] .clonebox-head{background:linear-gradient(90deg,#1a0b1f,#0b1a24);border-bottom:1px solid #ff2a6d55}
+:root[data-theme=cyber] dialog{border:1px solid var(--green);box-shadow:0 0 40px #00f0ff33}
+@media(prefers-reduced-motion:reduce){:root[data-theme] .dot.pulse{animation:none}}
+
+/* ---------- theme switcher ---------- */
+.theme-switch{display:flex;gap:2px;border:1px solid var(--line);border-radius:6px;padding:2px;background:var(--paper)}
+.theme-switch button{border:0;background:none;padding:4px 9px;border-radius:4px;font-size:11px;color:var(--muted);font-family:var(--sans)}
+.theme-switch button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+:root[data-theme] .theme-switch button[aria-pressed=true]{background:var(--green);color:var(--canvas)}
+:root[data-theme=pixel] .theme-switch{border:0;box-shadow:var(--px-edge)}
+:root[data-theme=pixel] .theme-switch button{font-size:16px}
+:root[data-theme=cyber] .theme-switch{clip-path:var(--chamfer-sm);border-color:#00f0ff55}
+:root[data-theme=cyber] .theme-switch button{text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+
+/* Pixel: VT323 runs small; lift the fine print so it stays readable. */
+:root[data-theme=pixel] .rival small,:root[data-theme=pixel] .stat span,:root[data-theme=pixel] .versus,:root[data-theme=pixel] .clonebox-style,
+:root[data-theme=pixel] .clonebox-head p,:root[data-theme=pixel] .mast-right,:root[data-theme=pixel] .bar-row,:root[data-theme=pixel] .chip,
+:root[data-theme=pixel] .footer,:root[data-theme=pixel] .now,:root[data-theme=pixel] .status small,:root[data-theme=pixel] .delay,:root[data-theme=pixel] .upkeep,
+:root[data-theme=pixel] .roster-foot .row,:root[data-theme=pixel] .tag,:root[data-theme=pixel] .segmented button,:root[data-theme=pixel] .tabs button{font-size:16px}
+:root[data-theme=pixel] .stat b{font-size:32px}
+:root[data-theme=pixel] .intro p{font-size:20px;max-width:60ch}

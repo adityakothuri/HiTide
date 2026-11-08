@@ -37,7 +37,32 @@ export const L1_PARAMS = {
   minTargetLength: 5,
 };
 
+/** Numeric LexForge overrides from FORGE_OVERRIDES (JSON); invalid input fails fast. */
+function forgeOverrides(): Record<string, number> {
+  const raw = process.env.FORGE_OVERRIDES;
+  if (!raw) return {};
+  const parsed: unknown = JSON.parse(raw);
+  if (!parsed || typeof parsed !== "object" || Object.values(parsed).some(v => typeof v !== "number" || !Number.isFinite(v)))
+    throw new Error("FORGE_OVERRIDES must be a JSON object of finite numbers");
+  return parsed as Record<string, number>;
+}
+
 export const CHOICES: Record<string, () => Policy> = {
+  // Larper: LexForge plus coin-starvation fixes. Below 10 coins it cashes in its
+  // best 5+ letter word; below 7 coins it cashes any word so it can keep bidding.
+  // Replay on 38 of bot 259's live matches: +2.6..+3.0 points/match vs lexforge.
+  larper: () => lexforge({ cashBalance: 10, desperateBalance: 7, desperateMinLength: 2 }, "Larper"),
+  // Forge: LexForge tuned in the live-market replay (100 Pegasus matches, 70/30
+  // split): noiseless bids x1.35-2, no forced liquidation, cash in below 10 coins.
+  // Replay: 87-88 points/match vs 76-78 for lexforge.
+  forge: () => lexforge({ noise: 0, bidScale: 1.35, bidShift: -2, liquidateAt: 0, cashBalance: 10, desperateBalance: 10, desperateMinLength: 2 }, "Forge"),
+  // Experimental Forge: FORGE_OVERRIDES='{"bidScale":1.25}' layers replay-tested settings on top.
+  forgex: () => lexforge({ noise: 0, bidScale: 1.35, bidShift: -2, liquidateAt: 0, cashBalance: 10, desperateBalance: 10, desperateMinLength: 2, ...forgeOverrides() }, "ForgeX"),
+  // Larper v2: Forge with bids at 1.5x the fitted LexForge model (no shift).
+  // The live copy underbid high-value letters (Z/Q/X ~20 vs ~45 paid by real
+  // LexForge). Replay over 4 match sets (bots 224/253/259/285): 89.1 points/match
+  // vs 88.8 Forge and 83.5 Larper v1. Gain over Forge is within noise; run live as an A/B.
+  larperv2: () => lexforge({ noise: 0, bidScale: 1.5, bidShift: 0, liquidateAt: 0, cashBalance: 10, desperateBalance: 10, desperateMinLength: 2 }, "LarperV2"),
   lexforge: () => lexforge(),
   lexforgeTrees: () => lexforge({ useTrees: 1 }, "LexForgeTrees"),
   lexforgeMean: () => lexforge({ noise: 0 }, "LexForgeMean"),
@@ -71,4 +96,4 @@ export const CHOICES: Record<string, () => Policy> = {
   report: () => reportHybrid(REPORT_PARAMS),
 };
 
-export const STRATEGY: Policy = (CHOICES[process.env.STRATEGY ?? "lexforge"] ?? CHOICES.lexforge!)();
+export const STRATEGY: Policy = (CHOICES[process.env.STRATEGY ?? "larper"] ?? CHOICES.larper!)();

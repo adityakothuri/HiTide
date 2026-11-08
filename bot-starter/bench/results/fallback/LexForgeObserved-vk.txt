@@ -1,0 +1,23 @@
+suite: 100 games/field, seed 1, Vickrey
+
+| Field | Strategy | Win share (95% CI) | Mean place | Mean score | Best opp. | Δplace vs LexForgeObserved | won/words/left |
+|---|---|---|---:|---:|---:|---:|---|
+| fleet | LexForgeObserved | 20.0% (13.3%–28.9%) | 3.51 | 73.7 | 96.3 | — | 10.9/2.6/1.1 |
+| mixed | LexForgeObserved | 100.0% (96.3%–100.0%) | 1.00 | 345.9 | 26.6 | — | 55.2/8.2/2.6 |
+
+market: 13599 tiles sold, 1 unsold; mean winning bid 22.5, mean price paid 9.6 (live: 15.0 / 10.6)
+price paid by letter, sim/live: A 8/11  B 12/15  C 12/16  D 9/13  E 8/11  F 13/17  G 9/12  H 14/19  I 8/10  J 20/24  K 16/21  L 8/11  M 12/16  N 8/10  O 8/10  P 12/15  Q 22/19  R 8/11  S 8/12  T 7/10  U 8/10  V 12/15  W 13/17  X 21/26  Y 15/19  Z 26/31
+
+| Strategy | decision calls | mean ms | max ms |
+|---|---:|---:|---:|
+| F-vj | 8446 | 1.518 | 77.1 |
+| F-vi | 5133 | 1.518 | 73.4 |
+| F-vf | 7076 | 0.619 | 51.8 |
+| F-vc | 7625 | 1.443 | 306.4 |
+| F-vd | 6387 | 1.027 | 59.2 |
+| LexForgeObserved | 28278 | 1.894 | 187.0 |
+| F-va | 6933 | 1.113 | 41.8 |
+| F-vg | 6929 | 1.223 | 50.9 |
+| F-vb | 7215 | 1.125 | 189.0 |
+| F-ve | 6665 | 0.605 | 57.9 |
+| F-vh | 6918 | 1.423 | 59.6 |

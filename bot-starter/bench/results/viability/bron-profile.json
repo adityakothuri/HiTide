@@ -1,0 +1,10342 @@
+{
+  "generatedAt": "2026-11-08T02:03:31.682Z",
+  "botId": 114,
+  "name": "Bron",
+  "sourceMatches": 100,
+  "matchIds": [
+    45590,
+    45581,
+    45573,
+    45564,
+    45556,
+    45547,
+    45538,
+    45529,
+    45520,
+    45511,
+    45502,
+    45493,
+    45484,
+    45476,
+    45467,
+    45459,
+    45451,
+    45444,
+    45436,
+    45428,
+    45419,
+    45410,
+    45402,
+    45393,
+    45384,
+    45375,
+    45366,
+    45358,
+    45350,
+    45342,
+    45334,
+    45326,
+    45318,
+    45310,
+    45302,
+    45294,
+    45286,
+    45278,
+    45271,
+    45264,
+    45255,
+    45247,
+    45240,
+    45233,
+    45225,
+    45217,
+    45209,
+    45202,
+    45195,
+    45188,
+    45181,
+    45174,
+    45167,
+    45160,
+    45153,
+    45146,
+    45139,
+    45133,
+    45127,
+    45121,
+    45114,
+    45107,
+    45101,
+    45094,
+    45088,
+    45082,
+    45076,
+    45070,
+    45064,
+    45057,
+    43341,
+    43334,
+    43327,
+    43320,
+    43313,
+    43306,
+    43299,
+    43292,
+    43285,
+    43277,
+    43270,
+    43263,
+    43256,
+    43249,
+    43243,
+    43236,
+    43229,
+    43222,
+    43215,
+    43208,
+    43201,
+    43194,
+    43187,
+    43180,
+    43174,
+    43168,
+    43162,
+    43155,
+    43148,
+    43142
+  ],
+  "window": {
+    "start": "2026-11-07T23:52:25.617Z",
+    "end": "2026-11-08T01:55:58.876Z",
+    "gaps": []
+  },
+  "performance": {
+    "meanScore": 89.92,
+    "score95NormalCI": [
+      85.58558933000556,
+      94.25441066999444
+    ],
+    "medianScore": 87,
+    "minScore": 50,
+    "maxScore": 159,
+    "latest10MeanScore": 100.8,
+    "previous90MeanScore": 88.71111111111111,
+    "meanPlace": 2.66,
+    "outright": 25,
+    "tiedFirst": 2,
+    "winShare": 0.26,
+    "tilesWonPerMatch": 13.62,
+    "spendPerMatch": 163.47,
+    "endingBalance": 26.45
+  },
+  "words": {
+    "count": 306,
+    "lengths": {
+      "2": 32,
+      "3": 24,
+      "4": 18,
+      "5": 23,
+      "6": 30,
+      "7": 146,
+      "8": 31,
+      "9": 2
+    },
+    "pointsPerPlayedTile": 5.020658849804579,
+    "bestAvailableRewardMatches": 293,
+    "earlyCount": 176,
+    "earlyShort": [
+      {
+        "match": 45444,
+        "round": 54,
+        "left": 13,
+        "word": "FAZING",
+        "reward": 47,
+        "balance": 1,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "size": 8,
+        "best": "FAZING",
+        "bestScore": 47,
+        "best6": "FAZING",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 45384,
+        "round": 50,
+        "left": 17,
+        "word": "ARMPIT",
+        "reward": 25,
+        "balance": 5,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "ARMPIT",
+        "bestScore": 25,
+        "best6": "ARMPIT",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 45358,
+        "round": 41,
+        "left": 26,
+        "word": "BRAGGY",
+        "reward": 32,
+        "balance": 5,
+        "rack": [
+          2,
+          1,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "size": 11,
+        "best": "GAMBADO",
+        "bestScore": 39,
+        "best6": "GAMBADO",
+        "best7": "GAMBADO",
+        "valid": true
+      },
+      {
+        "match": 45358,
+        "round": 41,
+        "left": 26,
+        "word": "DOUMA",
+        "reward": 16,
+        "balance": 37,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 5,
+        "best": "DOUMA",
+        "bestScore": 16,
+        "best6": null,
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 45310,
+        "round": 52,
+        "left": 15,
+        "word": "LIBIDO",
+        "reward": 22,
+        "balance": 4,
+        "rack": [
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "LIBIDO",
+        "bestScore": 22,
+        "best6": "LIBIDO",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 45286,
+        "round": 53,
+        "left": 14,
+        "word": "ALANTS",
+        "reward": 15,
+        "balance": 2,
+        "rack": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 6,
+        "best": "ALANTS",
+        "bestScore": 15,
+        "best6": "ALANTS",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 45225,
+        "round": 51,
+        "left": 16,
+        "word": "GAIETY",
+        "reward": 25,
+        "balance": 10,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "size": 7,
+        "best": "GAIETY",
+        "bestScore": 25,
+        "best6": "GAIETY",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 45167,
+        "round": 53,
+        "left": 14,
+        "word": "QUALIA",
+        "reward": 37,
+        "balance": 6,
+        "rack": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "QUALIA",
+        "bestScore": 37,
+        "best6": "QUALIA",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 43256,
+        "round": 45,
+        "left": 22,
+        "word": "FIXATE",
+        "reward": 40,
+        "balance": 1,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "size": 13,
+        "best": "FIXATE",
+        "bestScore": 40,
+        "best6": "FIXATE",
+        "best7": null,
+        "valid": true
+      },
+      {
+        "match": 43256,
+        "round": 45,
+        "left": 22,
+        "word": "ZOOTY",
+        "reward": 34,
+        "balance": 41,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "size": 7,
+        "best": "ZOOTY",
+        "bestScore": 34,
+        "best6": null,
+        "best7": null,
+        "valid": true
+      }
+    ],
+    "healthyWeakSevenPlus": [
+      {
+        "match": 45581,
+        "round": 20,
+        "left": 47,
+        "word": "DETENTE",
+        "reward": 24,
+        "balance": 77,
+        "rack": [
+          0,
+          0,
+          0,
+          1,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "DETENTE",
+        "bestScore": 24,
+        "best6": "DETENTE",
+        "best7": "DETENTE",
+        "valid": true
+      },
+      {
+        "match": 45581,
+        "round": 50,
+        "left": 17,
+        "word": "FAITOUR",
+        "reward": 30,
+        "balance": 21,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "FAITOUR",
+        "bestScore": 30,
+        "best6": "FAITOUR",
+        "best7": "FAITOUR",
+        "valid": true
+      },
+      {
+        "match": 45564,
+        "round": 48,
+        "left": 19,
+        "word": "ELECTING",
+        "reward": 33,
+        "balance": 22,
+        "rack": [
+          0,
+          0,
+          1,
+          0,
+          2,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "ELECTING",
+        "bestScore": 33,
+        "best6": "ELECTING",
+        "best7": "ELECTING",
+        "valid": true
+      },
+      {
+        "match": 45556,
+        "round": 15,
+        "left": 52,
+        "word": "PREBOIL",
+        "reward": 33,
+        "balance": 76,
+        "rack": [
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "PREBOIL",
+        "bestScore": 33,
+        "best6": "PREBOIL",
+        "best7": "PREBOIL",
+        "valid": true
+      },
+      {
+        "match": 45538,
+        "round": 54,
+        "left": 13,
+        "word": "PRETEEN",
+        "reward": 27,
+        "balance": 20,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "PRETEEN",
+        "bestScore": 27,
+        "best6": "PRETEEN",
+        "best7": "PRETEEN",
+        "valid": true
+      },
+      {
+        "match": 45511,
+        "round": 24,
+        "left": 43,
+        "word": "OCREATE",
+        "reward": 27,
+        "balance": 63,
+        "rack": [
+          1,
+          1,
+          1,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "OCREATE",
+        "bestScore": 27,
+        "best6": "OCREATE",
+        "best7": "OCREATE",
+        "valid": true
+      },
+      {
+        "match": 45502,
+        "round": 51,
+        "left": 16,
+        "word": "OUTGREW",
+        "reward": 33,
+        "balance": 42,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "OUTGREW",
+        "bestScore": 33,
+        "best6": "OUTGREW",
+        "best7": "OUTGREW",
+        "valid": true
+      },
+      {
+        "match": 45493,
+        "round": 20,
+        "left": 47,
+        "word": "POTTAGE",
+        "reward": 30,
+        "balance": 73,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "POTTAGE",
+        "bestScore": 30,
+        "best6": "POTTAGE",
+        "best7": "POTTAGE",
+        "valid": true
+      },
+      {
+        "match": 45484,
+        "round": 23,
+        "left": 44,
+        "word": "CLINGED",
+        "reward": 33,
+        "balance": 67,
+        "rack": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "CLINGED",
+        "bestScore": 33,
+        "best6": "CLINGED",
+        "best7": "CLINGED",
+        "valid": true
+      },
+      {
+        "match": 45476,
+        "round": 56,
+        "left": 11,
+        "word": "CRUNODE",
+        "reward": 30,
+        "balance": 20,
+        "rack": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "CRUNODE",
+        "bestScore": 30,
+        "best6": "CRUNODE",
+        "best7": "CRUNODE",
+        "valid": true
+      },
+      {
+        "match": 45467,
+        "round": 19,
+        "left": 48,
+        "word": "CARTAGE",
+        "reward": 30,
+        "balance": 67,
+        "rack": [
+          2,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "CARTAGE",
+        "bestScore": 30,
+        "best6": "CARTAGE",
+        "best7": "CARTAGE",
+        "valid": true
+      },
+      {
+        "match": 45467,
+        "round": 58,
+        "left": 9,
+        "word": "INGOTED",
+        "reward": 27,
+        "balance": 22,
+        "rack": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "INGOTED",
+        "bestScore": 27,
+        "best6": "INGOTED",
+        "best7": "INGOTED",
+        "valid": true
+      },
+      {
+        "match": 45459,
+        "round": 8,
+        "left": 59,
+        "word": "GIRDING",
+        "reward": 30,
+        "balance": 82,
+        "rack": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "GIRDING",
+        "bestScore": 30,
+        "best6": "GIRDING",
+        "best7": "GIRDING",
+        "valid": true
+      },
+      {
+        "match": 45459,
+        "round": 48,
+        "left": 19,
+        "word": "ROWINGS",
+        "reward": 33,
+        "balance": 27,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "ROWINGS",
+        "bestScore": 33,
+        "best6": "ROWINGS",
+        "best7": "ROWINGS",
+        "valid": true
+      },
+      {
+        "match": 45451,
+        "round": 56,
+        "left": 11,
+        "word": "AEROBES",
+        "reward": 27,
+        "balance": 26,
+        "rack": [
+          1,
+          1,
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "AEROBES",
+        "bestScore": 27,
+        "best6": "AEROBES",
+        "best7": "AEROBES",
+        "valid": true
+      },
+      {
+        "match": 45436,
+        "round": 21,
+        "left": 46,
+        "word": "SEAWARE",
+        "reward": 30,
+        "balance": 63,
+        "rack": [
+          2,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "SEAWARE",
+        "bestScore": 30,
+        "best6": "SEAWARE",
+        "best7": "SEAWARE",
+        "valid": true
+      },
+      {
+        "match": 45436,
+        "round": 51,
+        "left": 16,
+        "word": "AROUSED",
+        "reward": 24,
+        "balance": 35,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "AROUSED",
+        "bestScore": 24,
+        "best6": "AROUSED",
+        "best7": "AROUSED",
+        "valid": true
+      },
+      {
+        "match": 45342,
+        "round": 9,
+        "left": 58,
+        "word": "DAILIES",
+        "reward": 24,
+        "balance": 86,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "DAILIES",
+        "bestScore": 24,
+        "best6": "DAILIES",
+        "best7": "DAILIES",
+        "valid": true
+      },
+      {
+        "match": 45342,
+        "round": 55,
+        "left": 12,
+        "word": "GOUTIER",
+        "reward": 24,
+        "balance": 18,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 10,
+        "best": "FOREGUT",
+        "bestScore": 33,
+        "best6": "FOREGUT",
+        "best7": "FOREGUT",
+        "valid": true
+      },
+      {
+        "match": 45334,
+        "round": 20,
+        "left": 47,
+        "word": "HOGTIES",
+        "reward": 33,
+        "balance": 53,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          2,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "HOMIEST",
+        "bestScore": 36,
+        "best6": "HOMIEST",
+        "best7": "HOMIEST",
+        "valid": true
+      },
+      {
+        "match": 45310,
+        "round": 19,
+        "left": 48,
+        "word": "OUTSTARED",
+        "reward": 30,
+        "balance": 52,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "OUTSTARED",
+        "bestScore": 30,
+        "best6": "OUTSTARED",
+        "best7": "OUTSTARED",
+        "valid": true
+      },
+      {
+        "match": 45302,
+        "round": 20,
+        "left": 47,
+        "word": "LOUNGED",
+        "reward": 27,
+        "balance": 71,
+        "rack": [
+          0,
+          0,
+          0,
+          1,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "LOUNGED",
+        "bestScore": 27,
+        "best6": "LOUNGED",
+        "best7": "LOUNGED",
+        "valid": true
+      },
+      {
+        "match": 45286,
+        "round": 36,
+        "left": 31,
+        "word": "MERINOS",
+        "reward": 27,
+        "balance": 33,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "MERINOS",
+        "bestScore": 27,
+        "best6": "MERINOS",
+        "best7": "MERINOS",
+        "valid": true
+      },
+      {
+        "match": 45271,
+        "round": 14,
+        "left": 53,
+        "word": "ADAPTORS",
+        "reward": 33,
+        "balance": 76,
+        "rack": [
+          2,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "ADAPTORS",
+        "bestScore": 33,
+        "best6": "ADAPTORS",
+        "best7": "ADAPTORS",
+        "valid": true
+      },
+      {
+        "match": 45271,
+        "round": 61,
+        "left": 6,
+        "word": "HAULIER",
+        "reward": 30,
+        "balance": 17,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "HAULIER",
+        "bestScore": 30,
+        "best6": "HAULIER",
+        "best7": "HAULIER",
+        "valid": true
+      },
+      {
+        "match": 45264,
+        "round": 53,
+        "left": 14,
+        "word": "IMAGINE",
+        "reward": 30,
+        "balance": 42,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "IMAGINE",
+        "bestScore": 30,
+        "best6": "IMAGINE",
+        "best7": "IMAGINE",
+        "valid": true
+      },
+      {
+        "match": 45255,
+        "round": 17,
+        "left": 50,
+        "word": "FOLDERS",
+        "reward": 33,
+        "balance": 70,
+        "rack": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "FOLDERS",
+        "bestScore": 33,
+        "best6": "FOLDERS",
+        "best7": "FOLDERS",
+        "valid": true
+      },
+      {
+        "match": 45590,
+        "round": 48,
+        "left": 19,
+        "word": "NIGHTIE",
+        "reward": 33,
+        "balance": 34,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          1,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "NIGHTIE",
+        "bestScore": 33,
+        "best6": "NIGHTIE",
+        "best7": "NIGHTIE",
+        "valid": true
+      },
+      {
+        "match": 45233,
+        "round": 16,
+        "left": 51,
+        "word": "DOUBTER",
+        "reward": 30,
+        "balance": 65,
+        "rack": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "DOUBTER",
+        "bestScore": 30,
+        "best6": "DOUBTER",
+        "best7": "DOUBTER",
+        "valid": true
+      },
+      {
+        "match": 45233,
+        "round": 58,
+        "left": 9,
+        "word": "ADVERTS",
+        "reward": 33,
+        "balance": 15,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "ADVERTS",
+        "bestScore": 33,
+        "best6": "ADVERTS",
+        "best7": "ADVERTS",
+        "valid": true
+      },
+      {
+        "match": 45217,
+        "round": 16,
+        "left": 51,
+        "word": "FONTINA",
+        "reward": 30,
+        "balance": 41,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          3,
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "FONTINA",
+        "bestScore": 30,
+        "best6": "FONTINA",
+        "best7": "FONTINA",
+        "valid": true
+      },
+      {
+        "match": 45209,
+        "round": 16,
+        "left": 51,
+        "word": "GUNFIRE",
+        "reward": 33,
+        "balance": 70,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "GUNFIRE",
+        "bestScore": 33,
+        "best6": "GUNFIRE",
+        "best7": "GUNFIRE",
+        "valid": true
+      },
+      {
+        "match": 45209,
+        "round": 59,
+        "left": 8,
+        "word": "NODDIES",
+        "reward": 27,
+        "balance": 16,
+        "rack": [
+          0,
+          0,
+          0,
+          2,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "NODDIES",
+        "bestScore": 27,
+        "best6": "NODDIES",
+        "best7": "NODDIES",
+        "valid": true
+      },
+      {
+        "match": 45195,
+        "round": 7,
+        "left": 60,
+        "word": "GREENIE",
+        "reward": 24,
+        "balance": 82,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          3,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "GREENIE",
+        "bestScore": 24,
+        "best6": "GREENIE",
+        "best7": "GREENIE",
+        "valid": true
+      },
+      {
+        "match": 45195,
+        "round": 42,
+        "left": 25,
+        "word": "FOLIATE",
+        "reward": 30,
+        "balance": 43,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "FOLIATE",
+        "bestScore": 30,
+        "best6": "FOLIATE",
+        "best7": "FOLIATE",
+        "valid": true
+      },
+      {
+        "match": 45188,
+        "round": 13,
+        "left": 54,
+        "word": "SANCTUM",
+        "reward": 33,
+        "balance": 79,
+        "rack": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "SANCTUM",
+        "bestScore": 33,
+        "best6": "SANCTUM",
+        "best7": "SANCTUM",
+        "valid": true
+      },
+      {
+        "match": 45188,
+        "round": 60,
+        "left": 7,
+        "word": "SWEATER",
+        "reward": 30,
+        "balance": 30,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "SWEATER",
+        "bestScore": 30,
+        "best6": "SWEATER",
+        "best7": "SWEATER",
+        "valid": true
+      },
+      {
+        "match": 45174,
+        "round": 22,
+        "left": 45,
+        "word": "APOGEAL",
+        "reward": 30,
+        "balance": 49,
+        "rack": [
+          2,
+          0,
+          0,
+          0,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "APOGEAL",
+        "bestScore": 30,
+        "best6": "APOGEAL",
+        "best7": "APOGEAL",
+        "valid": true
+      },
+      {
+        "match": 45167,
+        "round": 36,
+        "left": 31,
+        "word": "GRINGOS",
+        "reward": 27,
+        "balance": 55,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "GRINGOS",
+        "bestScore": 27,
+        "best6": "GRINGOS",
+        "best7": "GRINGOS",
+        "valid": true
+      },
+      {
+        "match": 45160,
+        "round": 51,
+        "left": 16,
+        "word": "OVERSAD",
+        "reward": 33,
+        "balance": 25,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "OVERSAD",
+        "bestScore": 33,
+        "best6": "OVERSAD",
+        "best7": "OVERSAD",
+        "valid": true
+      },
+      {
+        "match": 45146,
+        "round": 27,
+        "left": 40,
+        "word": "RATTRAPS",
+        "reward": 30,
+        "balance": 57,
+        "rack": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          2,
+          1,
+          2,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "RATTRAPS",
+        "bestScore": 30,
+        "best6": "RATTRAPS",
+        "best7": "RATTRAPS",
+        "valid": true
+      },
+      {
+        "match": 45121,
+        "round": 60,
+        "left": 7,
+        "word": "BEGONIA",
+        "reward": 30,
+        "balance": 22,
+        "rack": [
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "BEGONIA",
+        "bestScore": 30,
+        "best6": "BEGONIA",
+        "best7": "BEGONIA",
+        "valid": true
+      },
+      {
+        "match": 45094,
+        "round": 16,
+        "left": 51,
+        "word": "OUTDRAG",
+        "reward": 27,
+        "balance": 71,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "OUTDRAG",
+        "bestScore": 27,
+        "best6": "OUTDRAG",
+        "best7": "OUTDRAG",
+        "valid": true
+      },
+      {
+        "match": 45101,
+        "round": 51,
+        "left": 16,
+        "word": "ARTIEST",
+        "reward": 21,
+        "balance": 42,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "ARTIEST",
+        "bestScore": 21,
+        "best6": "ARTIEST",
+        "best7": "ARTIEST",
+        "valid": true
+      },
+      {
+        "match": 45088,
+        "round": 23,
+        "left": 44,
+        "word": "VARIOLAS",
+        "reward": 33,
+        "balance": 60,
+        "rack": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "VARIOLAS",
+        "bestScore": 33,
+        "best6": "VARIOLAS",
+        "best7": "VARIOLAS",
+        "valid": true
+      },
+      {
+        "match": 45070,
+        "round": 43,
+        "left": 24,
+        "word": "ROUGHEN",
+        "reward": 33,
+        "balance": 24,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "ROUGHEN",
+        "bestScore": 33,
+        "best6": "ROUGHEN",
+        "best7": "ROUGHEN",
+        "valid": true
+      },
+      {
+        "match": 43341,
+        "round": 28,
+        "left": 39,
+        "word": "VOLTAGE",
+        "reward": 33,
+        "balance": 56,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "VOLTAGE",
+        "bestScore": 33,
+        "best6": "VOLTAGE",
+        "best7": "VOLTAGE",
+        "valid": true
+      },
+      {
+        "match": 43327,
+        "round": 18,
+        "left": 49,
+        "word": "FORELEG",
+        "reward": 33,
+        "balance": 64,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "FORELEG",
+        "bestScore": 33,
+        "best6": "FORELEG",
+        "best7": "FORELEG",
+        "valid": true
+      },
+      {
+        "match": 43285,
+        "round": 9,
+        "left": 58,
+        "word": "VAUNTER",
+        "reward": 30,
+        "balance": 73,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "VAUNTER",
+        "bestScore": 30,
+        "best6": "VAUNTER",
+        "best7": "VAUNTER",
+        "valid": true
+      },
+      {
+        "match": 43277,
+        "round": 54,
+        "left": 13,
+        "word": "SKINNER",
+        "reward": 33,
+        "balance": 20,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "SKINNER",
+        "bestScore": 33,
+        "best6": "SKINNER",
+        "best7": "SKINNER",
+        "valid": true
+      },
+      {
+        "match": 43270,
+        "round": 55,
+        "left": 12,
+        "word": "RABBIES",
+        "reward": 33,
+        "balance": 29,
+        "rack": [
+          1,
+          2,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 9,
+        "best": "RABBIES",
+        "bestScore": 33,
+        "best6": "RABBIES",
+        "best7": "RABBIES",
+        "valid": true
+      },
+      {
+        "match": 43263,
+        "round": 49,
+        "left": 18,
+        "word": "PELORIA",
+        "reward": 27,
+        "balance": 33,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "PELORIA",
+        "bestScore": 27,
+        "best6": "PELORIA",
+        "best7": "PELORIA",
+        "valid": true
+      },
+      {
+        "match": 43249,
+        "round": 52,
+        "left": 15,
+        "word": "EPITOME",
+        "reward": 33,
+        "balance": 25,
+        "rack": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "EPITOME",
+        "bestScore": 33,
+        "best6": "EPITOME",
+        "best7": "EPITOME",
+        "valid": true
+      },
+      {
+        "match": 43243,
+        "round": 52,
+        "left": 15,
+        "word": "AROINTS",
+        "reward": 21,
+        "balance": 48,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 7,
+        "best": "AROINTS",
+        "bestScore": 21,
+        "best6": "AROINTS",
+        "best7": "AROINTS",
+        "valid": true
+      },
+      {
+        "match": 43236,
+        "round": 15,
+        "left": 52,
+        "word": "FEDERAL",
+        "reward": 33,
+        "balance": 65,
+        "rack": [
+          1,
+          0,
+          0,
+          1,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "FEDERAL",
+        "bestScore": 33,
+        "best6": "FEDERAL",
+        "best7": "FEDERAL",
+        "valid": true
+      },
+      {
+        "match": 43187,
+        "round": 7,
+        "left": 60,
+        "word": "OVEREATS",
+        "reward": 33,
+        "balance": 70,
+        "rack": [
+          1,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "OVEREATS",
+        "bestScore": 33,
+        "best6": "OVEREATS",
+        "best7": "OVEREATS",
+        "valid": true
+      },
+      {
+        "match": 43174,
+        "round": 13,
+        "left": 54,
+        "word": "DILUTES",
+        "reward": 24,
+        "balance": 63,
+        "rack": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": 8,
+        "best": "DILUTES",
+        "bestScore": 24,
+        "best6": "DILUTES",
+        "best7": "DILUTES",
+        "valid": true
+      }
+    ],
+    "smallDumpRemaining": {
+      "0": 74
+    },
+    "reactionFromPreviousOwnWinMs": {
+      "median": 195.593,
+      "p90": 5125.996
+    }
+  },
+  "initialKnowledge": [
+    {
+      "matchId": 45581,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45573,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45564,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45556,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45547,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45538,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45529,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45520,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45511,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45502,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45493,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45484,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45476,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45467,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45459,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45451,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45444,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45436,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45428,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45419,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45410,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45402,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45393,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45384,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45375,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45366,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45358,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45350,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45342,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45334,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45326,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45318,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45310,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45302,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45294,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45286,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45278,
+      "forcedStartingTiles": 4
+    },
+    {
+      "matchId": 45271,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45264,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45255,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45247,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45590,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45233,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45225,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45240,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45217,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45209,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45195,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45188,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45202,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45181,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45174,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45167,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45153,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45160,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45146,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45139,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45133,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45127,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45121,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45107,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45114,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45094,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45101,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45088,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45082,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45070,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45076,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45064,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 45057,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43341,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43334,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43327,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43320,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43313,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43306,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43299,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43292,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43285,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43277,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43270,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43263,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43256,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43249,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43243,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43236,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43229,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43222,
+      "forcedStartingTiles": 4
+    },
+    {
+      "matchId": 43215,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43208,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43194,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43201,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43187,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43180,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43174,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43168,
+      "forcedStartingTiles": 4
+    },
+    {
+      "matchId": 43162,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43155,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43142,
+      "forcedStartingTiles": 5
+    },
+    {
+      "matchId": 43148,
+      "forcedStartingTiles": 5
+    }
+  ],
+  "byLetter": [
+    {
+      "letter": "A",
+      "wins": 126,
+      "meanWinningBid": 13.103174603174603,
+      "bidP25": 10,
+      "bidP50": 12,
+      "bidP75": 15,
+      "meanPaid": 10.333333333333334
+    },
+    {
+      "letter": "B",
+      "wins": 32,
+      "meanWinningBid": 18.15625,
+      "bidP25": 16,
+      "bidP50": 17,
+      "bidP75": 21,
+      "meanPaid": 15.375
+    },
+    {
+      "letter": "C",
+      "wins": 28,
+      "meanWinningBid": 18.571428571428573,
+      "bidP25": 17,
+      "bidP50": 18,
+      "bidP75": 20,
+      "meanPaid": 15.357142857142858
+    },
+    {
+      "letter": "D",
+      "wins": 53,
+      "meanWinningBid": 15.320754716981131,
+      "bidP25": 13,
+      "bidP50": 14,
+      "bidP75": 18,
+      "meanPaid": 12.641509433962264
+    },
+    {
+      "letter": "E",
+      "wins": 169,
+      "meanWinningBid": 13.059171597633137,
+      "bidP25": 11,
+      "bidP50": 12,
+      "bidP75": 15,
+      "meanPaid": 10.455621301775148
+    },
+    {
+      "letter": "F",
+      "wins": 34,
+      "meanWinningBid": 20.5,
+      "bidP25": 18,
+      "bidP50": 20,
+      "bidP75": 24,
+      "meanPaid": 16.029411764705884
+    },
+    {
+      "letter": "G",
+      "wins": 45,
+      "meanWinningBid": 15,
+      "bidP25": 12,
+      "bidP50": 15,
+      "bidP75": 16,
+      "meanPaid": 12.11111111111111
+    },
+    {
+      "letter": "H",
+      "wins": 22,
+      "meanWinningBid": 20,
+      "bidP25": 18,
+      "bidP50": 20,
+      "bidP75": 22,
+      "meanPaid": 17.636363636363637
+    },
+    {
+      "letter": "I",
+      "wins": 136,
+      "meanWinningBid": 12.764705882352942,
+      "bidP25": 10,
+      "bidP50": 12,
+      "bidP75": 15,
+      "meanPaid": 9.669117647058824
+    },
+    {
+      "letter": "J",
+      "wins": 12,
+      "meanWinningBid": 27.75,
+      "bidP25": 23,
+      "bidP50": 28,
+      "bidP75": 30,
+      "meanPaid": 25
+    },
+    {
+      "letter": "K",
+      "wins": 16,
+      "meanWinningBid": 24.5,
+      "bidP25": 19,
+      "bidP50": 26,
+      "bidP75": 28,
+      "meanPaid": 19.1875
+    },
+    {
+      "letter": "L",
+      "wins": 57,
+      "meanWinningBid": 14.43859649122807,
+      "bidP25": 10,
+      "bidP50": 12,
+      "bidP75": 15,
+      "meanPaid": 10.385964912280702
+    },
+    {
+      "letter": "M",
+      "wins": 33,
+      "meanWinningBid": 20.363636363636363,
+      "bidP25": 17,
+      "bidP50": 19,
+      "bidP75": 22,
+      "meanPaid": 15.606060606060606
+    },
+    {
+      "letter": "N",
+      "wins": 80,
+      "meanWinningBid": 13.6,
+      "bidP25": 10,
+      "bidP50": 12,
+      "bidP75": 15,
+      "meanPaid": 10.05
+    },
+    {
+      "letter": "O",
+      "wins": 113,
+      "meanWinningBid": 12.035398230088495,
+      "bidP25": 10,
+      "bidP50": 11,
+      "bidP75": 13,
+      "meanPaid": 9.752212389380531
+    },
+    {
+      "letter": "P",
+      "wins": 31,
+      "meanWinningBid": 18.838709677419356,
+      "bidP25": 15,
+      "bidP50": 18,
+      "bidP75": 20,
+      "meanPaid": 15.548387096774194
+    },
+    {
+      "letter": "Q",
+      "wins": 18,
+      "meanWinningBid": 26.11111111111111,
+      "bidP25": 15,
+      "bidP50": 24,
+      "bidP75": 35,
+      "meanPaid": 19.944444444444443
+    },
+    {
+      "letter": "R",
+      "wins": 80,
+      "meanWinningBid": 12.35,
+      "bidP25": 10,
+      "bidP50": 12,
+      "bidP75": 13,
+      "meanPaid": 9.7625
+    },
+    {
+      "letter": "S",
+      "wins": 51,
+      "meanWinningBid": 14.686274509803921,
+      "bidP25": 12,
+      "bidP50": 14,
+      "bidP75": 16,
+      "meanPaid": 11.941176470588236
+    },
+    {
+      "letter": "T",
+      "wins": 75,
+      "meanWinningBid": 11.72,
+      "bidP25": 10,
+      "bidP50": 11,
+      "bidP75": 13,
+      "meanPaid": 9.533333333333333
+    },
+    {
+      "letter": "U",
+      "wins": 48,
+      "meanWinningBid": 13.479166666666666,
+      "bidP25": 10,
+      "bidP50": 12,
+      "bidP75": 14,
+      "meanPaid": 9.229166666666666
+    },
+    {
+      "letter": "V",
+      "wins": 24,
+      "meanWinningBid": 18.125,
+      "bidP25": 14,
+      "bidP50": 19,
+      "bidP75": 22,
+      "meanPaid": 14.5
+    },
+    {
+      "letter": "W",
+      "wins": 27,
+      "meanWinningBid": 19.666666666666668,
+      "bidP25": 17,
+      "bidP50": 20,
+      "bidP75": 22,
+      "meanPaid": 16.11111111111111
+    },
+    {
+      "letter": "X",
+      "wins": 12,
+      "meanWinningBid": 31.833333333333332,
+      "bidP25": 30,
+      "bidP50": 32,
+      "bidP75": 33,
+      "meanPaid": 25.666666666666668
+    },
+    {
+      "letter": "Y",
+      "wins": 26,
+      "meanWinningBid": 21.153846153846153,
+      "bidP25": 18,
+      "bidP50": 21,
+      "bidP75": 23,
+      "meanPaid": 17.423076923076923
+    },
+    {
+      "letter": "Z",
+      "wins": 14,
+      "meanWinningBid": 30.642857142857142,
+      "bidP25": 25,
+      "bidP50": 31,
+      "bidP75": 33,
+      "meanPaid": 24.285714285714285
+    }
+  ],
+  "byPhase": [
+    {
+      "phase": "early",
+      "wins": 398,
+      "tilesPerMatch": 3.98,
+      "meanWinningBid": 14.467336683417086,
+      "meanPaid": 12.535175879396984
+    },
+    {
+      "phase": "middle",
+      "wins": 430,
+      "tilesPerMatch": 4.3,
+      "meanWinningBid": 13.869767441860466,
+      "meanPaid": 11.572093023255814
+    },
+    {
+      "phase": "late",
+      "wins": 534,
+      "tilesPerMatch": 5.34,
+      "meanWinningBid": 16.683520599250937,
+      "meanPaid": 11.95131086142322
+    },
+    {
+      "phase": "final",
+      "wins": 0,
+      "tilesPerMatch": 0,
+      "meanWinningBid": null,
+      "meanPaid": null
+    }
+  ],
+  "groups": [
+    {
+      "name": "vowels",
+      "wins": 592,
+      "tilesPerMatch": 5.92,
+      "meanWinningBid": 12.839527027027026,
+      "meanPaid": 10.015202702702704
+    },
+    {
+      "name": "1-point consonants",
+      "wins": 343,
+      "tilesPerMatch": 3.43,
+      "meanWinningBid": 13.198250728862973,
+      "meanPaid": 10.206997084548105
+    },
+    {
+      "name": "2–5 point letters",
+      "wins": 371,
+      "tilesPerMatch": 3.71,
+      "meanWinningBid": 18.568733153638814,
+      "meanPaid": 15.121293800539084
+    },
+    {
+      "name": "8–10 point letters",
+      "wins": 56,
+      "tilesPerMatch": 0.56,
+      "meanWinningBid": 28.821428571428573,
+      "meanPaid": 23.339285714285715
+    }
+  ],
+  "matchups": [
+    {
+      "botId": 180,
+      "name": "StickBot",
+      "met": 23,
+      "meanBronScore": 92.17391304347827,
+      "meanOpponentScore": 82.65217391304348,
+      "above": 16,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45393,
+          "ours": 99,
+          "theirs": 63
+        },
+        {
+          "matchId": 45384,
+          "ours": 63,
+          "theirs": 119
+        },
+        {
+          "matchId": 45334,
+          "ours": 87,
+          "theirs": 93
+        },
+        {
+          "matchId": 45326,
+          "ours": 109,
+          "theirs": 50
+        },
+        {
+          "matchId": 45318,
+          "ours": 79,
+          "theirs": 108
+        },
+        {
+          "matchId": 43277,
+          "ours": 83,
+          "theirs": 116
+        },
+        {
+          "matchId": 43270,
+          "ours": 94,
+          "theirs": 80
+        },
+        {
+          "matchId": 43263,
+          "ours": 65,
+          "theirs": 54
+        },
+        {
+          "matchId": 43256,
+          "ours": 105,
+          "theirs": 85
+        },
+        {
+          "matchId": 43249,
+          "ours": 103,
+          "theirs": 91
+        },
+        {
+          "matchId": 43243,
+          "ours": 88,
+          "theirs": 68
+        },
+        {
+          "matchId": 43236,
+          "ours": 69,
+          "theirs": 107
+        },
+        {
+          "matchId": 43229,
+          "ours": 118,
+          "theirs": 64
+        },
+        {
+          "matchId": 43222,
+          "ours": 123,
+          "theirs": 73
+        },
+        {
+          "matchId": 43215,
+          "ours": 87,
+          "theirs": 82
+        },
+        {
+          "matchId": 43208,
+          "ours": 86,
+          "theirs": 99
+        },
+        {
+          "matchId": 43194,
+          "ours": 108,
+          "theirs": 87
+        },
+        {
+          "matchId": 43201,
+          "ours": 63,
+          "theirs": 84
+        },
+        {
+          "matchId": 43187,
+          "ours": 78,
+          "theirs": 66
+        },
+        {
+          "matchId": 43180,
+          "ours": 122,
+          "theirs": 75
+        },
+        {
+          "matchId": 43155,
+          "ours": 121,
+          "theirs": 99
+        },
+        {
+          "matchId": 43142,
+          "ours": 87,
+          "theirs": 85
+        },
+        {
+          "matchId": 43148,
+          "ours": 83,
+          "theirs": 53
+        }
+      ]
+    },
+    {
+      "botId": 167,
+      "name": "Jaeger",
+      "met": 22,
+      "meanBronScore": 85,
+      "meanOpponentScore": 77.54545454545455,
+      "above": 14,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45410,
+          "ours": 93,
+          "theirs": 67
+        },
+        {
+          "matchId": 45402,
+          "ours": 123,
+          "theirs": 63
+        },
+        {
+          "matchId": 45393,
+          "ours": 99,
+          "theirs": 81
+        },
+        {
+          "matchId": 45384,
+          "ours": 63,
+          "theirs": 109
+        },
+        {
+          "matchId": 45375,
+          "ours": 78,
+          "theirs": 115
+        },
+        {
+          "matchId": 45366,
+          "ours": 81,
+          "theirs": 69
+        },
+        {
+          "matchId": 45358,
+          "ours": 99,
+          "theirs": 87
+        },
+        {
+          "matchId": 45350,
+          "ours": 80,
+          "theirs": 65
+        },
+        {
+          "matchId": 45342,
+          "ours": 82,
+          "theirs": 76
+        },
+        {
+          "matchId": 45334,
+          "ours": 87,
+          "theirs": 26
+        },
+        {
+          "matchId": 45326,
+          "ours": 109,
+          "theirs": 121
+        },
+        {
+          "matchId": 45318,
+          "ours": 79,
+          "theirs": 51
+        },
+        {
+          "matchId": 45310,
+          "ours": 56,
+          "theirs": 39
+        },
+        {
+          "matchId": 45302,
+          "ours": 62,
+          "theirs": 59
+        },
+        {
+          "matchId": 45294,
+          "ours": 115,
+          "theirs": 93
+        },
+        {
+          "matchId": 45286,
+          "ours": 80,
+          "theirs": 111
+        },
+        {
+          "matchId": 45278,
+          "ours": 75,
+          "theirs": 51
+        },
+        {
+          "matchId": 45133,
+          "ours": 87,
+          "theirs": 89
+        },
+        {
+          "matchId": 45070,
+          "ours": 84,
+          "theirs": 96
+        },
+        {
+          "matchId": 45076,
+          "ours": 81,
+          "theirs": 64
+        },
+        {
+          "matchId": 43243,
+          "ours": 88,
+          "theirs": 92
+        },
+        {
+          "matchId": 43236,
+          "ours": 69,
+          "theirs": 82
+        }
+      ]
+    },
+    {
+      "botId": 18,
+      "name": "LUCENT",
+      "met": 20,
+      "meanBronScore": 90.2,
+      "meanOpponentScore": 91.75,
+      "above": 11,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45573,
+          "ours": 85,
+          "theirs": 73
+        },
+        {
+          "matchId": 45082,
+          "ours": 118,
+          "theirs": 96
+        },
+        {
+          "matchId": 45070,
+          "ours": 84,
+          "theirs": 119
+        },
+        {
+          "matchId": 45076,
+          "ours": 81,
+          "theirs": 79
+        },
+        {
+          "matchId": 45064,
+          "ours": 115,
+          "theirs": 81
+        },
+        {
+          "matchId": 45057,
+          "ours": 66,
+          "theirs": 93
+        },
+        {
+          "matchId": 43341,
+          "ours": 55,
+          "theirs": 81
+        },
+        {
+          "matchId": 43334,
+          "ours": 90,
+          "theirs": 98
+        },
+        {
+          "matchId": 43327,
+          "ours": 68,
+          "theirs": 62
+        },
+        {
+          "matchId": 43320,
+          "ours": 92,
+          "theirs": 78
+        },
+        {
+          "matchId": 43313,
+          "ours": 142,
+          "theirs": 121
+        },
+        {
+          "matchId": 43306,
+          "ours": 102,
+          "theirs": 102
+        },
+        {
+          "matchId": 43299,
+          "ours": 85,
+          "theirs": 64
+        },
+        {
+          "matchId": 43292,
+          "ours": 96,
+          "theirs": 116
+        },
+        {
+          "matchId": 43285,
+          "ours": 75,
+          "theirs": 104
+        },
+        {
+          "matchId": 43277,
+          "ours": 83,
+          "theirs": 100
+        },
+        {
+          "matchId": 43270,
+          "ours": 94,
+          "theirs": 81
+        },
+        {
+          "matchId": 43263,
+          "ours": 65,
+          "theirs": 114
+        },
+        {
+          "matchId": 43256,
+          "ours": 105,
+          "theirs": 86
+        },
+        {
+          "matchId": 43249,
+          "ours": 103,
+          "theirs": 87
+        }
+      ]
+    },
+    {
+      "botId": 193,
+      "name": "RackMaw",
+      "met": 18,
+      "meanBronScore": 77.33333333333333,
+      "meanOpponentScore": 88.66666666666667,
+      "above": 4,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45334,
+          "ours": 87,
+          "theirs": 99
+        },
+        {
+          "matchId": 45326,
+          "ours": 109,
+          "theirs": 91
+        },
+        {
+          "matchId": 45318,
+          "ours": 79,
+          "theirs": 79
+        },
+        {
+          "matchId": 45310,
+          "ours": 56,
+          "theirs": 76
+        },
+        {
+          "matchId": 45302,
+          "ours": 62,
+          "theirs": 71
+        },
+        {
+          "matchId": 45271,
+          "ours": 67,
+          "theirs": 93
+        },
+        {
+          "matchId": 45264,
+          "ours": 84,
+          "theirs": 93
+        },
+        {
+          "matchId": 45233,
+          "ours": 68,
+          "theirs": 90
+        },
+        {
+          "matchId": 45225,
+          "ours": 71,
+          "theirs": 65
+        },
+        {
+          "matchId": 45217,
+          "ours": 50,
+          "theirs": 106
+        },
+        {
+          "matchId": 45209,
+          "ours": 60,
+          "theirs": 92
+        },
+        {
+          "matchId": 45195,
+          "ours": 74,
+          "theirs": 65
+        },
+        {
+          "matchId": 45202,
+          "ours": 108,
+          "theirs": 110
+        },
+        {
+          "matchId": 45094,
+          "ours": 59,
+          "theirs": 90
+        },
+        {
+          "matchId": 45101,
+          "ours": 75,
+          "theirs": 78
+        },
+        {
+          "matchId": 43306,
+          "ours": 102,
+          "theirs": 73
+        },
+        {
+          "matchId": 43299,
+          "ours": 85,
+          "theirs": 94
+        },
+        {
+          "matchId": 43292,
+          "ours": 96,
+          "theirs": 131
+        }
+      ]
+    },
+    {
+      "botId": 205,
+      "name": "Nigel \"Bidderson\" Richards",
+      "met": 16,
+      "meanBronScore": 93,
+      "meanOpponentScore": 69.125,
+      "above": 12,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45581,
+          "ours": 90,
+          "theirs": 57
+        },
+        {
+          "matchId": 45547,
+          "ours": 159,
+          "theirs": 66
+        },
+        {
+          "matchId": 45310,
+          "ours": 56,
+          "theirs": 76
+        },
+        {
+          "matchId": 45302,
+          "ours": 62,
+          "theirs": 65
+        },
+        {
+          "matchId": 45294,
+          "ours": 115,
+          "theirs": 85
+        },
+        {
+          "matchId": 45286,
+          "ours": 80,
+          "theirs": 64
+        },
+        {
+          "matchId": 45278,
+          "ours": 75,
+          "theirs": 31
+        },
+        {
+          "matchId": 45255,
+          "ours": 99,
+          "theirs": 78
+        },
+        {
+          "matchId": 45247,
+          "ours": 83,
+          "theirs": 68
+        },
+        {
+          "matchId": 45590,
+          "ours": 142,
+          "theirs": 105
+        },
+        {
+          "matchId": 45240,
+          "ours": 63,
+          "theirs": 63
+        },
+        {
+          "matchId": 45146,
+          "ours": 94,
+          "theirs": 108
+        },
+        {
+          "matchId": 45139,
+          "ours": 115,
+          "theirs": 83
+        },
+        {
+          "matchId": 45107,
+          "ours": 121,
+          "theirs": 79
+        },
+        {
+          "matchId": 45094,
+          "ours": 59,
+          "theirs": 40
+        },
+        {
+          "matchId": 45101,
+          "ours": 75,
+          "theirs": 38
+        }
+      ]
+    },
+    {
+      "botId": 185,
+      "name": "monkey",
+      "met": 16,
+      "meanBronScore": 89.625,
+      "meanOpponentScore": 40.6875,
+      "above": 15,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45573,
+          "ours": 85,
+          "theirs": 49
+        },
+        {
+          "matchId": 45564,
+          "ours": 81,
+          "theirs": 91
+        },
+        {
+          "matchId": 45476,
+          "ours": 78,
+          "theirs": 51
+        },
+        {
+          "matchId": 45467,
+          "ours": 57,
+          "theirs": 44
+        },
+        {
+          "matchId": 45459,
+          "ours": 63,
+          "theirs": 19
+        },
+        {
+          "matchId": 45402,
+          "ours": 123,
+          "theirs": 56
+        },
+        {
+          "matchId": 45393,
+          "ours": 99,
+          "theirs": 36
+        },
+        {
+          "matchId": 45384,
+          "ours": 63,
+          "theirs": 18
+        },
+        {
+          "matchId": 45375,
+          "ours": 78,
+          "theirs": 34
+        },
+        {
+          "matchId": 45366,
+          "ours": 81,
+          "theirs": 20
+        },
+        {
+          "matchId": 45181,
+          "ours": 105,
+          "theirs": 30
+        },
+        {
+          "matchId": 45082,
+          "ours": 118,
+          "theirs": 58
+        },
+        {
+          "matchId": 43285,
+          "ours": 75,
+          "theirs": 31
+        },
+        {
+          "matchId": 43229,
+          "ours": 118,
+          "theirs": 52
+        },
+        {
+          "matchId": 43222,
+          "ours": 123,
+          "theirs": 32
+        },
+        {
+          "matchId": 43215,
+          "ours": 87,
+          "theirs": 30
+        }
+      ]
+    },
+    {
+      "botId": 183,
+      "name": "QuertyBot",
+      "met": 16,
+      "meanBronScore": 86.1875,
+      "meanOpponentScore": 64.1875,
+      "above": 14,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45547,
+          "ours": 159,
+          "theirs": 91
+        },
+        {
+          "matchId": 45538,
+          "ours": 96,
+          "theirs": 52
+        },
+        {
+          "matchId": 45529,
+          "ours": 88,
+          "theirs": 55
+        },
+        {
+          "matchId": 45520,
+          "ours": 114,
+          "theirs": 75
+        },
+        {
+          "matchId": 45511,
+          "ours": 54,
+          "theirs": 40
+        },
+        {
+          "matchId": 45502,
+          "ours": 90,
+          "theirs": 59
+        },
+        {
+          "matchId": 45247,
+          "ours": 83,
+          "theirs": 70
+        },
+        {
+          "matchId": 45233,
+          "ours": 68,
+          "theirs": 60
+        },
+        {
+          "matchId": 45225,
+          "ours": 71,
+          "theirs": 65
+        },
+        {
+          "matchId": 45240,
+          "ours": 63,
+          "theirs": 51
+        },
+        {
+          "matchId": 45217,
+          "ours": 50,
+          "theirs": 57
+        },
+        {
+          "matchId": 45209,
+          "ours": 60,
+          "theirs": 62
+        },
+        {
+          "matchId": 45202,
+          "ours": 108,
+          "theirs": 93
+        },
+        {
+          "matchId": 43243,
+          "ours": 88,
+          "theirs": 68
+        },
+        {
+          "matchId": 43236,
+          "ours": 69,
+          "theirs": 58
+        },
+        {
+          "matchId": 43229,
+          "ours": 118,
+          "theirs": 71
+        }
+      ]
+    },
+    {
+      "botId": 204,
+      "name": "bot1717",
+      "met": 16,
+      "meanBronScore": 90.8125,
+      "meanOpponentScore": 47.1875,
+      "above": 15,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45451,
+          "ours": 84,
+          "theirs": 63
+        },
+        {
+          "matchId": 45444,
+          "ours": 91,
+          "theirs": 66
+        },
+        {
+          "matchId": 45436,
+          "ours": 66,
+          "theirs": 73
+        },
+        {
+          "matchId": 45428,
+          "ours": 124,
+          "theirs": 66
+        },
+        {
+          "matchId": 45318,
+          "ours": 79,
+          "theirs": 63
+        },
+        {
+          "matchId": 43327,
+          "ours": 68,
+          "theirs": 61
+        },
+        {
+          "matchId": 43320,
+          "ours": 92,
+          "theirs": 12
+        },
+        {
+          "matchId": 43313,
+          "ours": 142,
+          "theirs": 42
+        },
+        {
+          "matchId": 43306,
+          "ours": 102,
+          "theirs": 21
+        },
+        {
+          "matchId": 43299,
+          "ours": 85,
+          "theirs": 68
+        },
+        {
+          "matchId": 43292,
+          "ours": 96,
+          "theirs": 33
+        },
+        {
+          "matchId": 43285,
+          "ours": 75,
+          "theirs": 30
+        },
+        {
+          "matchId": 43180,
+          "ours": 122,
+          "theirs": 12
+        },
+        {
+          "matchId": 43174,
+          "ours": 75,
+          "theirs": 35
+        },
+        {
+          "matchId": 43168,
+          "ours": 94,
+          "theirs": 74
+        },
+        {
+          "matchId": 43162,
+          "ours": 58,
+          "theirs": 36
+        }
+      ]
+    },
+    {
+      "botId": 202,
+      "name": "Rowin'Boats",
+      "met": 15,
+      "meanBronScore": 85,
+      "meanOpponentScore": 85.8,
+      "above": 6,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45520,
+          "ours": 114,
+          "theirs": 0
+        },
+        {
+          "matchId": 45375,
+          "ours": 78,
+          "theirs": 111
+        },
+        {
+          "matchId": 45286,
+          "ours": 80,
+          "theirs": 111
+        },
+        {
+          "matchId": 45094,
+          "ours": 59,
+          "theirs": 66
+        },
+        {
+          "matchId": 45088,
+          "ours": 88,
+          "theirs": 94
+        },
+        {
+          "matchId": 45082,
+          "ours": 118,
+          "theirs": 113
+        },
+        {
+          "matchId": 45070,
+          "ours": 84,
+          "theirs": 80
+        },
+        {
+          "matchId": 45076,
+          "ours": 81,
+          "theirs": 95
+        },
+        {
+          "matchId": 45064,
+          "ours": 115,
+          "theirs": 85
+        },
+        {
+          "matchId": 45057,
+          "ours": 66,
+          "theirs": 89
+        },
+        {
+          "matchId": 43341,
+          "ours": 55,
+          "theirs": 75
+        },
+        {
+          "matchId": 43334,
+          "ours": 90,
+          "theirs": 72
+        },
+        {
+          "matchId": 43327,
+          "ours": 68,
+          "theirs": 88
+        },
+        {
+          "matchId": 43320,
+          "ours": 92,
+          "theirs": 144
+        },
+        {
+          "matchId": 43215,
+          "ours": 87,
+          "theirs": 64
+        }
+      ]
+    },
+    {
+      "botId": 179,
+      "name": "exzell",
+      "met": 14,
+      "meanBronScore": 96,
+      "meanOpponentScore": 87.5,
+      "above": 7,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45581,
+          "ours": 90,
+          "theirs": 105
+        },
+        {
+          "matchId": 45590,
+          "ours": 142,
+          "theirs": 117
+        },
+        {
+          "matchId": 45127,
+          "ours": 115,
+          "theirs": 70
+        },
+        {
+          "matchId": 45064,
+          "ours": 115,
+          "theirs": 76
+        },
+        {
+          "matchId": 45057,
+          "ours": 66,
+          "theirs": 51
+        },
+        {
+          "matchId": 43341,
+          "ours": 55,
+          "theirs": 66
+        },
+        {
+          "matchId": 43334,
+          "ours": 90,
+          "theirs": 176
+        },
+        {
+          "matchId": 43327,
+          "ours": 68,
+          "theirs": 69
+        },
+        {
+          "matchId": 43320,
+          "ours": 92,
+          "theirs": 92
+        },
+        {
+          "matchId": 43313,
+          "ours": 142,
+          "theirs": 90
+        },
+        {
+          "matchId": 43187,
+          "ours": 78,
+          "theirs": 80
+        },
+        {
+          "matchId": 43180,
+          "ours": 122,
+          "theirs": 85
+        },
+        {
+          "matchId": 43174,
+          "ours": 75,
+          "theirs": 76
+        },
+        {
+          "matchId": 43168,
+          "ours": 94,
+          "theirs": 72
+        }
+      ]
+    },
+    {
+      "botId": 181,
+      "name": "LexiconWarrior",
+      "met": 14,
+      "meanBronScore": 92.78571428571429,
+      "meanOpponentScore": 96.42857142857143,
+      "above": 7,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45529,
+          "ours": 88,
+          "theirs": 62
+        },
+        {
+          "matchId": 45520,
+          "ours": 114,
+          "theirs": 107
+        },
+        {
+          "matchId": 45366,
+          "ours": 81,
+          "theirs": 88
+        },
+        {
+          "matchId": 45358,
+          "ours": 99,
+          "theirs": 88
+        },
+        {
+          "matchId": 45350,
+          "ours": 80,
+          "theirs": 67
+        },
+        {
+          "matchId": 45195,
+          "ours": 74,
+          "theirs": 129
+        },
+        {
+          "matchId": 45188,
+          "ours": 125,
+          "theirs": 102
+        },
+        {
+          "matchId": 45181,
+          "ours": 105,
+          "theirs": 138
+        },
+        {
+          "matchId": 45174,
+          "ours": 66,
+          "theirs": 79
+        },
+        {
+          "matchId": 45167,
+          "ours": 76,
+          "theirs": 79
+        },
+        {
+          "matchId": 45160,
+          "ours": 95,
+          "theirs": 129
+        },
+        {
+          "matchId": 43222,
+          "ours": 123,
+          "theirs": 71
+        },
+        {
+          "matchId": 43215,
+          "ours": 87,
+          "theirs": 137
+        },
+        {
+          "matchId": 43208,
+          "ours": 86,
+          "theirs": 74
+        }
+      ]
+    },
+    {
+      "botId": 219,
+      "name": "Sigma",
+      "met": 13,
+      "meanBronScore": 99,
+      "meanOpponentScore": 19.76923076923077,
+      "above": 13,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45581,
+          "ours": 90,
+          "theirs": 19
+        },
+        {
+          "matchId": 45573,
+          "ours": 85,
+          "theirs": 12
+        },
+        {
+          "matchId": 45564,
+          "ours": 81,
+          "theirs": 16
+        },
+        {
+          "matchId": 45556,
+          "ours": 99,
+          "theirs": 16
+        },
+        {
+          "matchId": 45590,
+          "ours": 142,
+          "theirs": 25
+        },
+        {
+          "matchId": 45188,
+          "ours": 125,
+          "theirs": 17
+        },
+        {
+          "matchId": 45181,
+          "ours": 105,
+          "theirs": 22
+        },
+        {
+          "matchId": 45174,
+          "ours": 66,
+          "theirs": 20
+        },
+        {
+          "matchId": 45167,
+          "ours": 76,
+          "theirs": 16
+        },
+        {
+          "matchId": 45153,
+          "ours": 114,
+          "theirs": 26
+        },
+        {
+          "matchId": 45160,
+          "ours": 95,
+          "theirs": 37
+        },
+        {
+          "matchId": 45146,
+          "ours": 94,
+          "theirs": 16
+        },
+        {
+          "matchId": 45139,
+          "ours": 115,
+          "theirs": 15
+        }
+      ]
+    },
+    {
+      "botId": 169,
+      "name": "Abhi-AuctionLab",
+      "met": 13,
+      "meanBronScore": 87.46153846153847,
+      "meanOpponentScore": 81,
+      "above": 8,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45484,
+          "ours": 91,
+          "theirs": 62
+        },
+        {
+          "matchId": 45476,
+          "ours": 78,
+          "theirs": 95
+        },
+        {
+          "matchId": 45278,
+          "ours": 75,
+          "theirs": 144
+        },
+        {
+          "matchId": 45271,
+          "ours": 67,
+          "theirs": 62
+        },
+        {
+          "matchId": 45264,
+          "ours": 84,
+          "theirs": 72
+        },
+        {
+          "matchId": 45114,
+          "ours": 86,
+          "theirs": 73
+        },
+        {
+          "matchId": 43194,
+          "ours": 108,
+          "theirs": 72
+        },
+        {
+          "matchId": 43187,
+          "ours": 78,
+          "theirs": 81
+        },
+        {
+          "matchId": 43180,
+          "ours": 122,
+          "theirs": 82
+        },
+        {
+          "matchId": 43174,
+          "ours": 75,
+          "theirs": 38
+        },
+        {
+          "matchId": 43168,
+          "ours": 94,
+          "theirs": 111
+        },
+        {
+          "matchId": 43162,
+          "ours": 58,
+          "theirs": 105
+        },
+        {
+          "matchId": 43155,
+          "ours": 121,
+          "theirs": 56
+        }
+      ]
+    },
+    {
+      "botId": 194,
+      "name": "NigelBot",
+      "met": 13,
+      "meanBronScore": 88.3076923076923,
+      "meanOpponentScore": 67.07692307692308,
+      "above": 10,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45451,
+          "ours": 84,
+          "theirs": 68
+        },
+        {
+          "matchId": 45444,
+          "ours": 91,
+          "theirs": 103
+        },
+        {
+          "matchId": 45436,
+          "ours": 66,
+          "theirs": 47
+        },
+        {
+          "matchId": 45428,
+          "ours": 124,
+          "theirs": 67
+        },
+        {
+          "matchId": 45419,
+          "ours": 97,
+          "theirs": 77
+        },
+        {
+          "matchId": 45402,
+          "ours": 123,
+          "theirs": 112
+        },
+        {
+          "matchId": 45310,
+          "ours": 56,
+          "theirs": 30
+        },
+        {
+          "matchId": 45302,
+          "ours": 62,
+          "theirs": 80
+        },
+        {
+          "matchId": 43243,
+          "ours": 88,
+          "theirs": 88
+        },
+        {
+          "matchId": 43236,
+          "ours": 69,
+          "theirs": 56
+        },
+        {
+          "matchId": 43229,
+          "ours": 118,
+          "theirs": 49
+        },
+        {
+          "matchId": 43142,
+          "ours": 87,
+          "theirs": 54
+        },
+        {
+          "matchId": 43148,
+          "ours": 83,
+          "theirs": 41
+        }
+      ]
+    },
+    {
+      "botId": 191,
+      "name": "Primey",
+      "met": 12,
+      "meanBronScore": 88.33333333333333,
+      "meanOpponentScore": 88.58333333333333,
+      "above": 4,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45451,
+          "ours": 84,
+          "theirs": 87
+        },
+        {
+          "matchId": 45444,
+          "ours": 91,
+          "theirs": 93
+        },
+        {
+          "matchId": 45436,
+          "ours": 66,
+          "theirs": 120
+        },
+        {
+          "matchId": 45167,
+          "ours": 76,
+          "theirs": 106
+        },
+        {
+          "matchId": 45153,
+          "ours": 114,
+          "theirs": 88
+        },
+        {
+          "matchId": 45160,
+          "ours": 95,
+          "theirs": 50
+        },
+        {
+          "matchId": 45146,
+          "ours": 94,
+          "theirs": 99
+        },
+        {
+          "matchId": 45139,
+          "ours": 115,
+          "theirs": 90
+        },
+        {
+          "matchId": 45094,
+          "ours": 59,
+          "theirs": 107
+        },
+        {
+          "matchId": 43162,
+          "ours": 58,
+          "theirs": 68
+        },
+        {
+          "matchId": 43155,
+          "ours": 121,
+          "theirs": 61
+        },
+        {
+          "matchId": 43142,
+          "ours": 87,
+          "theirs": 94
+        }
+      ]
+    },
+    {
+      "botId": 168,
+      "name": "Malicious",
+      "met": 11,
+      "meanBronScore": 92.81818181818181,
+      "meanOpponentScore": 85.45454545454545,
+      "above": 7,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45520,
+          "ours": 114,
+          "theirs": 42
+        },
+        {
+          "matchId": 45511,
+          "ours": 54,
+          "theirs": 120
+        },
+        {
+          "matchId": 45502,
+          "ours": 90,
+          "theirs": 56
+        },
+        {
+          "matchId": 45195,
+          "ours": 74,
+          "theirs": 97
+        },
+        {
+          "matchId": 45188,
+          "ours": 125,
+          "theirs": 69
+        },
+        {
+          "matchId": 45202,
+          "ours": 108,
+          "theirs": 83
+        },
+        {
+          "matchId": 45181,
+          "ours": 105,
+          "theirs": 104
+        },
+        {
+          "matchId": 45174,
+          "ours": 66,
+          "theirs": 79
+        },
+        {
+          "matchId": 45167,
+          "ours": 76,
+          "theirs": 102
+        },
+        {
+          "matchId": 45153,
+          "ours": 114,
+          "theirs": 112
+        },
+        {
+          "matchId": 45160,
+          "ours": 95,
+          "theirs": 76
+        }
+      ]
+    },
+    {
+      "botId": 187,
+      "name": "TileHoarder",
+      "met": 11,
+      "meanBronScore": 78.72727272727273,
+      "meanOpponentScore": 69.18181818181819,
+      "above": 7,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45467,
+          "ours": 57,
+          "theirs": 105
+        },
+        {
+          "matchId": 45459,
+          "ours": 63,
+          "theirs": 80
+        },
+        {
+          "matchId": 45451,
+          "ours": 84,
+          "theirs": 80
+        },
+        {
+          "matchId": 45271,
+          "ours": 67,
+          "theirs": 75
+        },
+        {
+          "matchId": 45209,
+          "ours": 60,
+          "theirs": 56
+        },
+        {
+          "matchId": 45195,
+          "ours": 74,
+          "theirs": 66
+        },
+        {
+          "matchId": 45202,
+          "ours": 108,
+          "theirs": 53
+        },
+        {
+          "matchId": 43292,
+          "ours": 96,
+          "theirs": 42
+        },
+        {
+          "matchId": 43208,
+          "ours": 86,
+          "theirs": 61
+        },
+        {
+          "matchId": 43194,
+          "ours": 108,
+          "theirs": 51
+        },
+        {
+          "matchId": 43201,
+          "ours": 63,
+          "theirs": 92
+        }
+      ]
+    },
+    {
+      "botId": 199,
+      "name": "Lexicoin",
+      "met": 11,
+      "meanBronScore": 100.18181818181819,
+      "meanOpponentScore": 76.27272727272727,
+      "above": 9,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45428,
+          "ours": 124,
+          "theirs": 45
+        },
+        {
+          "matchId": 45419,
+          "ours": 97,
+          "theirs": 78
+        },
+        {
+          "matchId": 45410,
+          "ours": 93,
+          "theirs": 70
+        },
+        {
+          "matchId": 45121,
+          "ours": 129,
+          "theirs": 84
+        },
+        {
+          "matchId": 45107,
+          "ours": 121,
+          "theirs": 84
+        },
+        {
+          "matchId": 45114,
+          "ours": 86,
+          "theirs": 74
+        },
+        {
+          "matchId": 43306,
+          "ours": 102,
+          "theirs": 90
+        },
+        {
+          "matchId": 43299,
+          "ours": 85,
+          "theirs": 93
+        },
+        {
+          "matchId": 43292,
+          "ours": 96,
+          "theirs": 48
+        },
+        {
+          "matchId": 43174,
+          "ours": 75,
+          "theirs": 90
+        },
+        {
+          "matchId": 43168,
+          "ours": 94,
+          "theirs": 83
+        }
+      ]
+    },
+    {
+      "botId": 164,
+      "name": "Tow57-Auctioneer",
+      "met": 10,
+      "meanBronScore": 84.5,
+      "meanOpponentScore": 76.8,
+      "above": 5,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45529,
+          "ours": 88,
+          "theirs": 62
+        },
+        {
+          "matchId": 45294,
+          "ours": 115,
+          "theirs": 58
+        },
+        {
+          "matchId": 45217,
+          "ours": 50,
+          "theirs": 72
+        },
+        {
+          "matchId": 45209,
+          "ours": 60,
+          "theirs": 97
+        },
+        {
+          "matchId": 45114,
+          "ours": 86,
+          "theirs": 67
+        },
+        {
+          "matchId": 43194,
+          "ours": 108,
+          "theirs": 73
+        },
+        {
+          "matchId": 43201,
+          "ours": 63,
+          "theirs": 79
+        },
+        {
+          "matchId": 43187,
+          "ours": 78,
+          "theirs": 82
+        },
+        {
+          "matchId": 43180,
+          "ours": 122,
+          "theirs": 92
+        },
+        {
+          "matchId": 43174,
+          "ours": 75,
+          "theirs": 86
+        }
+      ]
+    },
+    {
+      "botId": 201,
+      "name": "Lbender",
+      "met": 10,
+      "meanBronScore": 81.3,
+      "meanOpponentScore": 120.5,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45350,
+          "ours": 80,
+          "theirs": 132
+        },
+        {
+          "matchId": 45174,
+          "ours": 66,
+          "theirs": 150
+        },
+        {
+          "matchId": 45088,
+          "ours": 88,
+          "theirs": 120
+        },
+        {
+          "matchId": 43285,
+          "ours": 75,
+          "theirs": 129
+        },
+        {
+          "matchId": 43277,
+          "ours": 83,
+          "theirs": 99
+        },
+        {
+          "matchId": 43270,
+          "ours": 94,
+          "theirs": 91
+        },
+        {
+          "matchId": 43263,
+          "ours": 65,
+          "theirs": 129
+        },
+        {
+          "matchId": 43162,
+          "ours": 58,
+          "theirs": 121
+        },
+        {
+          "matchId": 43155,
+          "ours": 121,
+          "theirs": 87
+        },
+        {
+          "matchId": 43148,
+          "ours": 83,
+          "theirs": 147
+        }
+      ]
+    },
+    {
+      "botId": 215,
+      "name": "SevenUp",
+      "met": 10,
+      "meanBronScore": 82,
+      "meanOpponentScore": 87.9,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45264,
+          "ours": 84,
+          "theirs": 75
+        },
+        {
+          "matchId": 45233,
+          "ours": 68,
+          "theirs": 75
+        },
+        {
+          "matchId": 45225,
+          "ours": 71,
+          "theirs": 81
+        },
+        {
+          "matchId": 45217,
+          "ours": 50,
+          "theirs": 75
+        },
+        {
+          "matchId": 45188,
+          "ours": 125,
+          "theirs": 112
+        },
+        {
+          "matchId": 45070,
+          "ours": 84,
+          "theirs": 93
+        },
+        {
+          "matchId": 45076,
+          "ours": 81,
+          "theirs": 126
+        },
+        {
+          "matchId": 43208,
+          "ours": 86,
+          "theirs": 94
+        },
+        {
+          "matchId": 43194,
+          "ours": 108,
+          "theirs": 72
+        },
+        {
+          "matchId": 43201,
+          "ours": 63,
+          "theirs": 76
+        }
+      ]
+    },
+    {
+      "botId": 206,
+      "name": "Nhat",
+      "met": 10,
+      "meanBronScore": 90.9,
+      "meanOpponentScore": 41.3,
+      "above": 9,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45064,
+          "ours": 115,
+          "theirs": 0
+        },
+        {
+          "matchId": 45057,
+          "ours": 66,
+          "theirs": 82
+        },
+        {
+          "matchId": 43341,
+          "ours": 55,
+          "theirs": 51
+        },
+        {
+          "matchId": 43334,
+          "ours": 90,
+          "theirs": 36
+        },
+        {
+          "matchId": 43327,
+          "ours": 68,
+          "theirs": 53
+        },
+        {
+          "matchId": 43320,
+          "ours": 92,
+          "theirs": 42
+        },
+        {
+          "matchId": 43313,
+          "ours": 142,
+          "theirs": 41
+        },
+        {
+          "matchId": 43306,
+          "ours": 102,
+          "theirs": 55
+        },
+        {
+          "matchId": 43299,
+          "ours": 85,
+          "theirs": 53
+        },
+        {
+          "matchId": 43168,
+          "ours": 94,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 172,
+      "name": "Odysseus's Voyage",
+      "met": 9,
+      "meanBronScore": 97.77777777777777,
+      "meanOpponentScore": 76.33333333333333,
+      "above": 7,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45581,
+          "ours": 90,
+          "theirs": 0
+        },
+        {
+          "matchId": 45564,
+          "ours": 81,
+          "theirs": 77
+        },
+        {
+          "matchId": 45556,
+          "ours": 99,
+          "theirs": 117
+        },
+        {
+          "matchId": 45294,
+          "ours": 115,
+          "theirs": 115
+        },
+        {
+          "matchId": 45286,
+          "ours": 80,
+          "theirs": 63
+        },
+        {
+          "matchId": 45278,
+          "ours": 75,
+          "theirs": 67
+        },
+        {
+          "matchId": 45255,
+          "ours": 99,
+          "theirs": 56
+        },
+        {
+          "matchId": 43229,
+          "ours": 118,
+          "theirs": 92
+        },
+        {
+          "matchId": 43222,
+          "ours": 123,
+          "theirs": 100
+        }
+      ]
+    },
+    {
+      "botId": 171,
+      "name": "GodOfThudner",
+      "met": 9,
+      "meanBronScore": 94.11111111111111,
+      "meanOpponentScore": 100.44444444444444,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45581,
+          "ours": 90,
+          "theirs": 101
+        },
+        {
+          "matchId": 45573,
+          "ours": 85,
+          "theirs": 111
+        },
+        {
+          "matchId": 45133,
+          "ours": 87,
+          "theirs": 96
+        },
+        {
+          "matchId": 45127,
+          "ours": 115,
+          "theirs": 88
+        },
+        {
+          "matchId": 45121,
+          "ours": 129,
+          "theirs": 133
+        },
+        {
+          "matchId": 45107,
+          "ours": 121,
+          "theirs": 74
+        },
+        {
+          "matchId": 45114,
+          "ours": 86,
+          "theirs": 101
+        },
+        {
+          "matchId": 45094,
+          "ours": 59,
+          "theirs": 89
+        },
+        {
+          "matchId": 45101,
+          "ours": 75,
+          "theirs": 111
+        }
+      ]
+    },
+    {
+      "botId": 192,
+      "name": "aipom",
+      "met": 9,
+      "meanBronScore": 84.33333333333333,
+      "meanOpponentScore": 101.55555555555556,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45529,
+          "ours": 88,
+          "theirs": 100
+        },
+        {
+          "matchId": 45520,
+          "ours": 114,
+          "theirs": 90
+        },
+        {
+          "matchId": 45511,
+          "ours": 54,
+          "theirs": 103
+        },
+        {
+          "matchId": 45502,
+          "ours": 90,
+          "theirs": 98
+        },
+        {
+          "matchId": 45493,
+          "ours": 126,
+          "theirs": 133
+        },
+        {
+          "matchId": 45484,
+          "ours": 91,
+          "theirs": 72
+        },
+        {
+          "matchId": 45476,
+          "ours": 78,
+          "theirs": 107
+        },
+        {
+          "matchId": 45310,
+          "ours": 56,
+          "theirs": 105
+        },
+        {
+          "matchId": 45302,
+          "ours": 62,
+          "theirs": 106
+        }
+      ]
+    },
+    {
+      "botId": 217,
+      "name": "Cruds",
+      "met": 9,
+      "meanBronScore": 80.66666666666667,
+      "meanOpponentScore": 37.111111111111114,
+      "above": 8,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45511,
+          "ours": 54,
+          "theirs": 0
+        },
+        {
+          "matchId": 45174,
+          "ours": 66,
+          "theirs": 82
+        },
+        {
+          "matchId": 45076,
+          "ours": 81,
+          "theirs": 0
+        },
+        {
+          "matchId": 43285,
+          "ours": 75,
+          "theirs": 54
+        },
+        {
+          "matchId": 43277,
+          "ours": 83,
+          "theirs": 25
+        },
+        {
+          "matchId": 43270,
+          "ours": 94,
+          "theirs": 30
+        },
+        {
+          "matchId": 43263,
+          "ours": 65,
+          "theirs": 51
+        },
+        {
+          "matchId": 43256,
+          "ours": 105,
+          "theirs": 55
+        },
+        {
+          "matchId": 43249,
+          "ours": 103,
+          "theirs": 37
+        }
+      ]
+    },
+    {
+      "botId": 175,
+      "name": "wordgoat",
+      "met": 9,
+      "meanBronScore": 82.77777777777777,
+      "meanOpponentScore": 92.88888888888889,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45502,
+          "ours": 90,
+          "theirs": 78
+        },
+        {
+          "matchId": 45366,
+          "ours": 81,
+          "theirs": 91
+        },
+        {
+          "matchId": 45358,
+          "ours": 99,
+          "theirs": 72
+        },
+        {
+          "matchId": 45350,
+          "ours": 80,
+          "theirs": 81
+        },
+        {
+          "matchId": 45342,
+          "ours": 82,
+          "theirs": 141
+        },
+        {
+          "matchId": 45334,
+          "ours": 87,
+          "theirs": 78
+        },
+        {
+          "matchId": 45278,
+          "ours": 75,
+          "theirs": 94
+        },
+        {
+          "matchId": 45271,
+          "ours": 67,
+          "theirs": 94
+        },
+        {
+          "matchId": 45264,
+          "ours": 84,
+          "theirs": 107
+        }
+      ]
+    },
+    {
+      "botId": 225,
+      "name": "Lexiconda",
+      "met": 9,
+      "meanBronScore": 86.66666666666667,
+      "meanOpponentScore": 72.33333333333333,
+      "above": 5,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45493,
+          "ours": 126,
+          "theirs": 0
+        },
+        {
+          "matchId": 45484,
+          "ours": 91,
+          "theirs": 84
+        },
+        {
+          "matchId": 45476,
+          "ours": 78,
+          "theirs": 57
+        },
+        {
+          "matchId": 45467,
+          "ours": 57,
+          "theirs": 89
+        },
+        {
+          "matchId": 45459,
+          "ours": 63,
+          "theirs": 87
+        },
+        {
+          "matchId": 45451,
+          "ours": 84,
+          "theirs": 111
+        },
+        {
+          "matchId": 45444,
+          "ours": 91,
+          "theirs": 44
+        },
+        {
+          "matchId": 45436,
+          "ours": 66,
+          "theirs": 81
+        },
+        {
+          "matchId": 45428,
+          "ours": 124,
+          "theirs": 98
+        }
+      ]
+    },
+    {
+      "botId": 166,
+      "name": "SoapConsumers",
+      "met": 8,
+      "meanBronScore": 88.375,
+      "meanOpponentScore": 60.75,
+      "above": 7,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45573,
+          "ours": 85,
+          "theirs": 63
+        },
+        {
+          "matchId": 45564,
+          "ours": 81,
+          "theirs": 59
+        },
+        {
+          "matchId": 45556,
+          "ours": 99,
+          "theirs": 63
+        },
+        {
+          "matchId": 45410,
+          "ours": 93,
+          "theirs": 59
+        },
+        {
+          "matchId": 45393,
+          "ours": 99,
+          "theirs": 88
+        },
+        {
+          "matchId": 45384,
+          "ours": 63,
+          "theirs": 83
+        },
+        {
+          "matchId": 45375,
+          "ours": 78,
+          "theirs": 71
+        },
+        {
+          "matchId": 45326,
+          "ours": 109,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 186,
+      "name": "Lucy",
+      "met": 8,
+      "meanBronScore": 69.75,
+      "meanOpponentScore": 85.75,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45511,
+          "ours": 54,
+          "theirs": 96
+        },
+        {
+          "matchId": 45502,
+          "ours": 90,
+          "theirs": 74
+        },
+        {
+          "matchId": 45318,
+          "ours": 79,
+          "theirs": 94
+        },
+        {
+          "matchId": 45247,
+          "ours": 83,
+          "theirs": 102
+        },
+        {
+          "matchId": 45233,
+          "ours": 68,
+          "theirs": 73
+        },
+        {
+          "matchId": 45225,
+          "ours": 71,
+          "theirs": 65
+        },
+        {
+          "matchId": 45240,
+          "ours": 63,
+          "theirs": 105
+        },
+        {
+          "matchId": 45217,
+          "ours": 50,
+          "theirs": 77
+        }
+      ]
+    },
+    {
+      "botId": 145,
+      "name": "Afterword",
+      "met": 8,
+      "meanBronScore": 105.875,
+      "meanOpponentScore": 0,
+      "above": 8,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45493,
+          "ours": 126,
+          "theirs": 0
+        },
+        {
+          "matchId": 45402,
+          "ours": 123,
+          "theirs": 0
+        },
+        {
+          "matchId": 45342,
+          "ours": 82,
+          "theirs": 0
+        },
+        {
+          "matchId": 45294,
+          "ours": 115,
+          "theirs": 0
+        },
+        {
+          "matchId": 45286,
+          "ours": 80,
+          "theirs": 0
+        },
+        {
+          "matchId": 45153,
+          "ours": 114,
+          "theirs": 0
+        },
+        {
+          "matchId": 45121,
+          "ours": 129,
+          "theirs": 0
+        },
+        {
+          "matchId": 43187,
+          "ours": 78,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 213,
+      "name": "GoatBot",
+      "met": 8,
+      "meanBronScore": 95,
+      "meanOpponentScore": 80.125,
+      "above": 7,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45167,
+          "ours": 76,
+          "theirs": 62
+        },
+        {
+          "matchId": 45153,
+          "ours": 114,
+          "theirs": 80
+        },
+        {
+          "matchId": 45160,
+          "ours": 95,
+          "theirs": 92
+        },
+        {
+          "matchId": 45146,
+          "ours": 94,
+          "theirs": 79
+        },
+        {
+          "matchId": 45139,
+          "ours": 115,
+          "theirs": 106
+        },
+        {
+          "matchId": 45133,
+          "ours": 87,
+          "theirs": 80
+        },
+        {
+          "matchId": 43162,
+          "ours": 58,
+          "theirs": 94
+        },
+        {
+          "matchId": 43155,
+          "ours": 121,
+          "theirs": 48
+        }
+      ]
+    },
+    {
+      "botId": 220,
+      "name": "rackpilot-live",
+      "met": 7,
+      "meanBronScore": 109.57142857142857,
+      "meanOpponentScore": 28.571428571428573,
+      "above": 7,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45556,
+          "ours": 99,
+          "theirs": 28
+        },
+        {
+          "matchId": 45547,
+          "ours": 159,
+          "theirs": 56
+        },
+        {
+          "matchId": 45538,
+          "ours": 96,
+          "theirs": 17
+        },
+        {
+          "matchId": 45133,
+          "ours": 87,
+          "theirs": 31
+        },
+        {
+          "matchId": 45127,
+          "ours": 115,
+          "theirs": 36
+        },
+        {
+          "matchId": 45107,
+          "ours": 121,
+          "theirs": 20
+        },
+        {
+          "matchId": 43334,
+          "ours": 90,
+          "theirs": 12
+        }
+      ]
+    },
+    {
+      "botId": 188,
+      "name": "peanuts",
+      "met": 7,
+      "meanBronScore": 91,
+      "meanOpponentScore": 58.285714285714285,
+      "above": 6,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45493,
+          "ours": 126,
+          "theirs": 49
+        },
+        {
+          "matchId": 45484,
+          "ours": 91,
+          "theirs": 40
+        },
+        {
+          "matchId": 45127,
+          "ours": 115,
+          "theirs": 66
+        },
+        {
+          "matchId": 45064,
+          "ours": 115,
+          "theirs": 48
+        },
+        {
+          "matchId": 45057,
+          "ours": 66,
+          "theirs": 65
+        },
+        {
+          "matchId": 43341,
+          "ours": 55,
+          "theirs": 87
+        },
+        {
+          "matchId": 43236,
+          "ours": 69,
+          "theirs": 53
+        }
+      ]
+    },
+    {
+      "botId": 221,
+      "name": "CoolBotYay",
+      "met": 7,
+      "meanBronScore": 90.14285714285714,
+      "meanOpponentScore": 84.57142857142857,
+      "above": 4,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45410,
+          "ours": 93,
+          "theirs": 120
+        },
+        {
+          "matchId": 45366,
+          "ours": 81,
+          "theirs": 55
+        },
+        {
+          "matchId": 45358,
+          "ours": 99,
+          "theirs": 108
+        },
+        {
+          "matchId": 45350,
+          "ours": 80,
+          "theirs": 70
+        },
+        {
+          "matchId": 45342,
+          "ours": 82,
+          "theirs": 68
+        },
+        {
+          "matchId": 45334,
+          "ours": 87,
+          "theirs": 97
+        },
+        {
+          "matchId": 45326,
+          "ours": 109,
+          "theirs": 74
+        }
+      ]
+    },
+    {
+      "botId": 165,
+      "name": "cosine",
+      "met": 6,
+      "meanBronScore": 90.5,
+      "meanOpponentScore": 68.33333333333333,
+      "above": 4,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45547,
+          "ours": 159,
+          "theirs": 83
+        },
+        {
+          "matchId": 45255,
+          "ours": 99,
+          "theirs": 45
+        },
+        {
+          "matchId": 45247,
+          "ours": 83,
+          "theirs": 85
+        },
+        {
+          "matchId": 45233,
+          "ours": 68,
+          "theirs": 85
+        },
+        {
+          "matchId": 45225,
+          "ours": 71,
+          "theirs": 60
+        },
+        {
+          "matchId": 45240,
+          "ours": 63,
+          "theirs": 52
+        }
+      ]
+    },
+    {
+      "botId": 212,
+      "name": "Astronaut",
+      "met": 6,
+      "meanBronScore": 85.66666666666667,
+      "meanOpponentScore": 72.5,
+      "above": 4,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45529,
+          "ours": 88,
+          "theirs": 54
+        },
+        {
+          "matchId": 45209,
+          "ours": 60,
+          "theirs": 69
+        },
+        {
+          "matchId": 45107,
+          "ours": 121,
+          "theirs": 99
+        },
+        {
+          "matchId": 45101,
+          "ours": 75,
+          "theirs": 85
+        },
+        {
+          "matchId": 43142,
+          "ours": 87,
+          "theirs": 47
+        },
+        {
+          "matchId": 43148,
+          "ours": 83,
+          "theirs": 81
+        }
+      ]
+    },
+    {
+      "botId": 203,
+      "name": "CasualThinker",
+      "met": 6,
+      "meanBronScore": 104,
+      "meanOpponentScore": 41,
+      "above": 6,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45146,
+          "ours": 94,
+          "theirs": 43
+        },
+        {
+          "matchId": 45139,
+          "ours": 115,
+          "theirs": 45
+        },
+        {
+          "matchId": 45133,
+          "ours": 87,
+          "theirs": 64
+        },
+        {
+          "matchId": 45127,
+          "ours": 115,
+          "theirs": 35
+        },
+        {
+          "matchId": 45121,
+          "ours": 129,
+          "theirs": 44
+        },
+        {
+          "matchId": 45070,
+          "ours": 84,
+          "theirs": 15
+        }
+      ]
+    },
+    {
+      "botId": 161,
+      "name": "Bot",
+      "met": 6,
+      "meanBronScore": 95.5,
+      "meanOpponentScore": 61.5,
+      "above": 5,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 43277,
+          "ours": 83,
+          "theirs": 48
+        },
+        {
+          "matchId": 43270,
+          "ours": 94,
+          "theirs": 69
+        },
+        {
+          "matchId": 43263,
+          "ours": 65,
+          "theirs": 71
+        },
+        {
+          "matchId": 43256,
+          "ours": 105,
+          "theirs": 70
+        },
+        {
+          "matchId": 43249,
+          "ours": 103,
+          "theirs": 67
+        },
+        {
+          "matchId": 43222,
+          "ours": 123,
+          "theirs": 44
+        }
+      ]
+    },
+    {
+      "botId": 178,
+      "name": "gas",
+      "met": 5,
+      "meanBronScore": 86.4,
+      "meanOpponentScore": 81,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45467,
+          "ours": 57,
+          "theirs": 75
+        },
+        {
+          "matchId": 45459,
+          "ours": 63,
+          "theirs": 93
+        },
+        {
+          "matchId": 45590,
+          "ours": 142,
+          "theirs": 76
+        },
+        {
+          "matchId": 43142,
+          "ours": 87,
+          "theirs": 80
+        },
+        {
+          "matchId": 43148,
+          "ours": 83,
+          "theirs": 81
+        }
+      ]
+    },
+    {
+      "botId": 177,
+      "name": "Babbler",
+      "met": 5,
+      "meanBronScore": 94,
+      "meanOpponentScore": 0,
+      "above": 5,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45402,
+          "ours": 123,
+          "theirs": 0
+        },
+        {
+          "matchId": 45342,
+          "ours": 82,
+          "theirs": 0
+        },
+        {
+          "matchId": 45247,
+          "ours": 83,
+          "theirs": 0
+        },
+        {
+          "matchId": 45195,
+          "ours": 74,
+          "theirs": 0
+        },
+        {
+          "matchId": 45202,
+          "ours": 108,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 226,
+      "name": "Mavvy",
+      "met": 4,
+      "meanBronScore": 94,
+      "meanOpponentScore": 72.75,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45564,
+          "ours": 81,
+          "theirs": 78
+        },
+        {
+          "matchId": 45556,
+          "ours": 99,
+          "theirs": 109
+        },
+        {
+          "matchId": 45419,
+          "ours": 97,
+          "theirs": 39
+        },
+        {
+          "matchId": 45255,
+          "ours": 99,
+          "theirs": 65
+        }
+      ]
+    },
+    {
+      "botId": 182,
+      "name": "scrabblemaxxing",
+      "met": 4,
+      "meanBronScore": 98.5,
+      "meanOpponentScore": 89.25,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45493,
+          "ours": 126,
+          "theirs": 113
+        },
+        {
+          "matchId": 45484,
+          "ours": 91,
+          "theirs": 92
+        },
+        {
+          "matchId": 45476,
+          "ours": 78,
+          "theirs": 80
+        },
+        {
+          "matchId": 45255,
+          "ours": 99,
+          "theirs": 72
+        }
+      ]
+    },
+    {
+      "botId": 230,
+      "name": "Jake",
+      "met": 4,
+      "meanBronScore": 95,
+      "meanOpponentScore": 69.5,
+      "above": 3,
+      "tied": 1,
+      "rows": [
+        {
+          "matchId": 45436,
+          "ours": 66,
+          "theirs": 66
+        },
+        {
+          "matchId": 45428,
+          "ours": 124,
+          "theirs": 98
+        },
+        {
+          "matchId": 45419,
+          "ours": 97,
+          "theirs": 30
+        },
+        {
+          "matchId": 45410,
+          "ours": 93,
+          "theirs": 84
+        }
+      ]
+    },
+    {
+      "botId": 198,
+      "name": "Mr. Turkey",
+      "met": 4,
+      "meanBronScore": 84.75,
+      "meanOpponentScore": 41.75,
+      "above": 4,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45393,
+          "ours": 99,
+          "theirs": 57
+        },
+        {
+          "matchId": 45384,
+          "ours": 63,
+          "theirs": 59
+        },
+        {
+          "matchId": 45375,
+          "ours": 78,
+          "theirs": 51
+        },
+        {
+          "matchId": 45358,
+          "ours": 99,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 163,
+      "name": "Binter",
+      "met": 3,
+      "meanBronScore": 117,
+      "meanOpponentScore": 25,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45547,
+          "ours": 159,
+          "theirs": 16
+        },
+        {
+          "matchId": 45271,
+          "ours": 67,
+          "theirs": 59
+        },
+        {
+          "matchId": 45188,
+          "ours": 125,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 211,
+      "name": "evol",
+      "met": 3,
+      "meanBronScore": 108.66666666666667,
+      "meanOpponentScore": 38.666666666666664,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45538,
+          "ours": 96,
+          "theirs": 62
+        },
+        {
+          "matchId": 43313,
+          "ours": 142,
+          "theirs": 0
+        },
+        {
+          "matchId": 43243,
+          "ours": 88,
+          "theirs": 54
+        }
+      ]
+    },
+    {
+      "botId": 173,
+      "name": "megatron pro max plus ultra 3000",
+      "met": 3,
+      "meanBronScore": 103.33333333333333,
+      "meanOpponentScore": 19.333333333333332,
+      "above": 3,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45181,
+          "ours": 105,
+          "theirs": 0
+        },
+        {
+          "matchId": 45082,
+          "ours": 118,
+          "theirs": 58
+        },
+        {
+          "matchId": 43215,
+          "ours": 87,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 190,
+      "name": "Karppa",
+      "met": 3,
+      "meanBronScore": 79,
+      "meanOpponentScore": 75.33333333333333,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45088,
+          "ours": 88,
+          "theirs": 66
+        },
+        {
+          "matchId": 43208,
+          "ours": 86,
+          "theirs": 72
+        },
+        {
+          "matchId": 43201,
+          "ours": 63,
+          "theirs": 88
+        }
+      ]
+    },
+    {
+      "botId": 195,
+      "name": "Como Se Dice I Want to Scrabble",
+      "met": 2,
+      "meanBronScore": 96.5,
+      "meanOpponentScore": 77,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45538,
+          "ours": 96,
+          "theirs": 58
+        },
+        {
+          "matchId": 45419,
+          "ours": 97,
+          "theirs": 96
+        }
+      ]
+    },
+    {
+      "botId": 209,
+      "name": "N1gel",
+      "met": 2,
+      "meanBronScore": 60,
+      "meanOpponentScore": 110.5,
+      "above": 0,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45467,
+          "ours": 57,
+          "theirs": 118
+        },
+        {
+          "matchId": 45459,
+          "ours": 63,
+          "theirs": 103
+        }
+      ]
+    },
+    {
+      "botId": 224,
+      "name": "LexForge-Base-v1",
+      "met": 2,
+      "meanBronScore": 73.5,
+      "meanOpponentScore": 99,
+      "above": 0,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45264,
+          "ours": 84,
+          "theirs": 98
+        },
+        {
+          "matchId": 45240,
+          "ours": 63,
+          "theirs": 100
+        }
+      ]
+    },
+    {
+      "botId": 170,
+      "name": "Sepcis",
+      "met": 2,
+      "meanBronScore": 107.5,
+      "meanOpponentScore": 13,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45121,
+          "ours": 129,
+          "theirs": 0
+        },
+        {
+          "matchId": 45114,
+          "ours": 86,
+          "theirs": 26
+        }
+      ]
+    },
+    {
+      "botId": 208,
+      "name": "Pegasus",
+      "met": 2,
+      "meanBronScore": 81.5,
+      "meanOpponentScore": 26,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45101,
+          "ours": 75,
+          "theirs": 30
+        },
+        {
+          "matchId": 45088,
+          "ours": 88,
+          "theirs": 22
+        }
+      ]
+    },
+    {
+      "botId": 174,
+      "name": "benoit",
+      "met": 2,
+      "meanBronScore": 104,
+      "meanOpponentScore": 0,
+      "above": 2,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 43256,
+          "ours": 105,
+          "theirs": 0
+        },
+        {
+          "matchId": 43249,
+          "ours": 103,
+          "theirs": 0
+        }
+      ]
+    },
+    {
+      "botId": 232,
+      "name": "RackForge",
+      "met": 1,
+      "meanBronScore": 96,
+      "meanOpponentScore": 85,
+      "above": 1,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45538,
+          "ours": 96,
+          "theirs": 85
+        }
+      ]
+    },
+    {
+      "botId": 222,
+      "name": "scrabblefish",
+      "met": 1,
+      "meanBronScore": 91,
+      "meanOpponentScore": 99,
+      "above": 0,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45444,
+          "ours": 91,
+          "theirs": 99
+        }
+      ]
+    },
+    {
+      "botId": 235,
+      "name": "pazabol",
+      "met": 1,
+      "meanBronScore": 142,
+      "meanOpponentScore": 6,
+      "above": 1,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45590,
+          "ours": 142,
+          "theirs": 6
+        }
+      ]
+    },
+    {
+      "botId": 207,
+      "name": "LexForge-1107",
+      "met": 1,
+      "meanBronScore": 88,
+      "meanOpponentScore": 94,
+      "above": 0,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45088,
+          "ours": 88,
+          "theirs": 94
+        }
+      ]
+    },
+    {
+      "botId": 176,
+      "name": "Titan",
+      "met": 1,
+      "meanBronScore": 118,
+      "meanOpponentScore": 0,
+      "above": 1,
+      "tied": 0,
+      "rows": [
+        {
+          "matchId": 45082,
+          "ours": 118,
+          "theirs": 0
+        }
+      ]
+    }
+  ],
+  "matches": [
+    {
+      "id": 45590,
+      "score": 142,
+      "balance": 24,
+      "place": 1,
+      "won": 22,
+      "paid": 218,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 179,
+          "score": 117
+        },
+        {
+          "bot": 114,
+          "score": 142
+        },
+        {
+          "bot": 205,
+          "score": 105
+        },
+        {
+          "bot": 235,
+          "score": 6
+        },
+        {
+          "bot": 178,
+          "score": 76
+        },
+        {
+          "bot": 219,
+          "score": 25
+        }
+      ]
+    },
+    {
+      "id": 45581,
+      "score": 90,
+      "balance": 36,
+      "place": 3,
+      "won": 15,
+      "paid": 154,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 90
+        },
+        {
+          "bot": 205,
+          "score": 57
+        },
+        {
+          "bot": 172,
+          "score": 0
+        },
+        {
+          "bot": 179,
+          "score": 105
+        },
+        {
+          "bot": 171,
+          "score": 101
+        },
+        {
+          "bot": 219,
+          "score": 19
+        }
+      ]
+    },
+    {
+      "id": 45573,
+      "score": 85,
+      "balance": 47,
+      "place": 2,
+      "won": 11,
+      "paid": 138,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 18,
+          "score": 73
+        },
+        {
+          "bot": 166,
+          "score": 63
+        },
+        {
+          "bot": 114,
+          "score": 85
+        },
+        {
+          "bot": 219,
+          "score": 12
+        },
+        {
+          "bot": 185,
+          "score": 49
+        },
+        {
+          "bot": 171,
+          "score": 111
+        }
+      ]
+    },
+    {
+      "id": 45564,
+      "score": 81,
+      "balance": 19,
+      "place": 2,
+      "won": 15,
+      "paid": 162,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 219,
+          "score": 16
+        },
+        {
+          "bot": 185,
+          "score": 91
+        },
+        {
+          "bot": 226,
+          "score": 78
+        },
+        {
+          "bot": 172,
+          "score": 77
+        },
+        {
+          "bot": 166,
+          "score": 59
+        },
+        {
+          "bot": 114,
+          "score": 81
+        }
+      ]
+    },
+    {
+      "id": 45556,
+      "score": 99,
+      "balance": 30,
+      "place": 3,
+      "won": 16,
+      "paid": 169,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 219,
+          "score": 16
+        },
+        {
+          "bot": 114,
+          "score": 99
+        },
+        {
+          "bot": 220,
+          "score": 28
+        },
+        {
+          "bot": 172,
+          "score": 117
+        },
+        {
+          "bot": 166,
+          "score": 63
+        },
+        {
+          "bot": 226,
+          "score": 109
+        }
+      ]
+    },
+    {
+      "id": 45547,
+      "score": 159,
+      "balance": 28,
+      "place": 1,
+      "won": 20,
+      "paid": 231,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 163,
+          "score": 16
+        },
+        {
+          "bot": 114,
+          "score": 159
+        },
+        {
+          "bot": 183,
+          "score": 91
+        },
+        {
+          "bot": 220,
+          "score": 56
+        },
+        {
+          "bot": 165,
+          "score": 83
+        },
+        {
+          "bot": 205,
+          "score": 66
+        }
+      ]
+    },
+    {
+      "id": 45538,
+      "score": 96,
+      "balance": 25,
+      "place": 1,
+      "won": 18,
+      "paid": 171,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 211,
+          "score": 62
+        },
+        {
+          "bot": 114,
+          "score": 96
+        },
+        {
+          "bot": 183,
+          "score": 52
+        },
+        {
+          "bot": 232,
+          "score": 85
+        },
+        {
+          "bot": 195,
+          "score": 58
+        },
+        {
+          "bot": 220,
+          "score": 17
+        }
+      ]
+    },
+    {
+      "id": 45529,
+      "score": 88,
+      "balance": 28,
+      "place": 2,
+      "won": 12,
+      "paid": 160,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 164,
+          "score": 62
+        },
+        {
+          "bot": 181,
+          "score": 62
+        },
+        {
+          "bot": 192,
+          "score": 100
+        },
+        {
+          "bot": 114,
+          "score": 88
+        },
+        {
+          "bot": 183,
+          "score": 55
+        },
+        {
+          "bot": 212,
+          "score": 54
+        }
+      ]
+    },
+    {
+      "id": 45520,
+      "score": 114,
+      "balance": 56,
+      "place": 1,
+      "won": 12,
+      "paid": 158,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 181,
+          "score": 107
+        },
+        {
+          "bot": 168,
+          "score": 42
+        },
+        {
+          "bot": 192,
+          "score": 90
+        },
+        {
+          "bot": 114,
+          "score": 114
+        },
+        {
+          "bot": 183,
+          "score": 75
+        },
+        {
+          "bot": 202,
+          "score": 0
+        }
+      ]
+    },
+    {
+      "id": 45511,
+      "score": 54,
+      "balance": 32,
+      "place": 4,
+      "won": 10,
+      "paid": 122,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 217,
+          "score": 0
+        },
+        {
+          "bot": 186,
+          "score": 96
+        },
+        {
+          "bot": 168,
+          "score": 120
+        },
+        {
+          "bot": 192,
+          "score": 103
+        },
+        {
+          "bot": 114,
+          "score": 54
+        },
+        {
+          "bot": 183,
+          "score": 40
+        }
+      ]
+    },
+    {
+      "id": 45502,
+      "score": 90,
+      "balance": 10,
+      "place": 2,
+      "won": 14,
+      "paid": 180,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 183,
+          "score": 59
+        },
+        {
+          "bot": 192,
+          "score": 98
+        },
+        {
+          "bot": 114,
+          "score": 90
+        },
+        {
+          "bot": 186,
+          "score": 74
+        },
+        {
+          "bot": 175,
+          "score": 78
+        },
+        {
+          "bot": 168,
+          "score": 56
+        }
+      ]
+    },
+    {
+      "id": 45493,
+      "score": 126,
+      "balance": 47,
+      "place": 2,
+      "won": 21,
+      "paid": 179,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 188,
+          "score": 49
+        },
+        {
+          "bot": 182,
+          "score": 113
+        },
+        {
+          "bot": 192,
+          "score": 133
+        },
+        {
+          "bot": 114,
+          "score": 126
+        },
+        {
+          "bot": 225,
+          "score": 0
+        },
+        {
+          "bot": 145,
+          "score": 0
+        }
+      ]
+    },
+    {
+      "id": 45484,
+      "score": 91,
+      "balance": 35,
+      "place": 2,
+      "won": 14,
+      "paid": 156,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 225,
+          "score": 84
+        },
+        {
+          "bot": 188,
+          "score": 40
+        },
+        {
+          "bot": 169,
+          "score": 62
+        },
+        {
+          "bot": 182,
+          "score": 92
+        },
+        {
+          "bot": 192,
+          "score": 72
+        },
+        {
+          "bot": 114,
+          "score": 91
+        }
+      ]
+    },
+    {
+      "id": 45476,
+      "score": 78,
+      "balance": 15,
+      "place": 4,
+      "won": 15,
+      "paid": 163,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 192,
+          "score": 107
+        },
+        {
+          "bot": 114,
+          "score": 78
+        },
+        {
+          "bot": 225,
+          "score": 57
+        },
+        {
+          "bot": 185,
+          "score": 51
+        },
+        {
+          "bot": 182,
+          "score": 80
+        },
+        {
+          "bot": 169,
+          "score": 95
+        }
+      ]
+    },
+    {
+      "id": 45467,
+      "score": 57,
+      "balance": 49,
+      "place": 5,
+      "won": 9,
+      "paid": 108,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 187,
+          "score": 105
+        },
+        {
+          "bot": 209,
+          "score": 118
+        },
+        {
+          "bot": 114,
+          "score": 57
+        },
+        {
+          "bot": 225,
+          "score": 89
+        },
+        {
+          "bot": 178,
+          "score": 75
+        },
+        {
+          "bot": 185,
+          "score": 44
+        }
+      ]
+    },
+    {
+      "id": 45459,
+      "score": 63,
+      "balance": 3,
+      "place": 5,
+      "won": 13,
+      "paid": 160,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 185,
+          "score": 19
+        },
+        {
+          "bot": 114,
+          "score": 63
+        },
+        {
+          "bot": 225,
+          "score": 87
+        },
+        {
+          "bot": 187,
+          "score": 80
+        },
+        {
+          "bot": 178,
+          "score": 93
+        },
+        {
+          "bot": 209,
+          "score": 103
+        }
+      ]
+    },
+    {
+      "id": 45451,
+      "score": 84,
+      "balance": 16,
+      "place": 3,
+      "won": 14,
+      "paid": 168,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 225,
+          "score": 111
+        },
+        {
+          "bot": 187,
+          "score": 80
+        },
+        {
+          "bot": 204,
+          "score": 63
+        },
+        {
+          "bot": 194,
+          "score": 68
+        },
+        {
+          "bot": 191,
+          "score": 87
+        },
+        {
+          "bot": 114,
+          "score": 84
+        }
+      ]
+    },
+    {
+      "id": 45444,
+      "score": 91,
+      "balance": 14,
+      "place": 4,
+      "won": 13,
+      "paid": 177,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 225,
+          "score": 44
+        },
+        {
+          "bot": 222,
+          "score": 99
+        },
+        {
+          "bot": 191,
+          "score": 93
+        },
+        {
+          "bot": 194,
+          "score": 103
+        },
+        {
+          "bot": 204,
+          "score": 66
+        },
+        {
+          "bot": 114,
+          "score": 91
+        }
+      ]
+    },
+    {
+      "id": 45436,
+      "score": 66,
+      "balance": 17,
+      "place": 4,
+      "won": 13,
+      "paid": 149,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 191,
+          "score": 120
+        },
+        {
+          "bot": 204,
+          "score": 73
+        },
+        {
+          "bot": 114,
+          "score": 66
+        },
+        {
+          "bot": 225,
+          "score": 81
+        },
+        {
+          "bot": 194,
+          "score": 47
+        },
+        {
+          "bot": 230,
+          "score": 66
+        }
+      ]
+    },
+    {
+      "id": 45428,
+      "score": 124,
+      "balance": 30,
+      "place": 1,
+      "won": 16,
+      "paid": 194,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 204,
+          "score": 66
+        },
+        {
+          "bot": 194,
+          "score": 67
+        },
+        {
+          "bot": 114,
+          "score": 124
+        },
+        {
+          "bot": 230,
+          "score": 98
+        },
+        {
+          "bot": 199,
+          "score": 45
+        },
+        {
+          "bot": 225,
+          "score": 98
+        }
+      ]
+    },
+    {
+      "id": 45419,
+      "score": 97,
+      "balance": 41,
+      "place": 1,
+      "won": 11,
+      "paid": 156,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 194,
+          "score": 77
+        },
+        {
+          "bot": 114,
+          "score": 97
+        },
+        {
+          "bot": 230,
+          "score": 30
+        },
+        {
+          "bot": 199,
+          "score": 78
+        },
+        {
+          "bot": 226,
+          "score": 39
+        },
+        {
+          "bot": 195,
+          "score": 96
+        }
+      ]
+    },
+    {
+      "id": 45410,
+      "score": 93,
+      "balance": 37,
+      "place": 2,
+      "won": 10,
+      "paid": 156,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 167,
+          "score": 67
+        },
+        {
+          "bot": 166,
+          "score": 59
+        },
+        {
+          "bot": 221,
+          "score": 120
+        },
+        {
+          "bot": 230,
+          "score": 84
+        },
+        {
+          "bot": 199,
+          "score": 70
+        },
+        {
+          "bot": 114,
+          "score": 93
+        }
+      ]
+    },
+    {
+      "id": 45402,
+      "score": 123,
+      "balance": 30,
+      "place": 1,
+      "won": 18,
+      "paid": 193,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 177,
+          "score": 0
+        },
+        {
+          "bot": 167,
+          "score": 63
+        },
+        {
+          "bot": 114,
+          "score": 123
+        },
+        {
+          "bot": 185,
+          "score": 56
+        },
+        {
+          "bot": 194,
+          "score": 112
+        },
+        {
+          "bot": 145,
+          "score": 0
+        }
+      ]
+    },
+    {
+      "id": 45393,
+      "score": 99,
+      "balance": 20,
+      "place": 1,
+      "won": 12,
+      "paid": 179,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 185,
+          "score": 36
+        },
+        {
+          "bot": 180,
+          "score": 63
+        },
+        {
+          "bot": 198,
+          "score": 57
+        },
+        {
+          "bot": 166,
+          "score": 88
+        },
+        {
+          "bot": 114,
+          "score": 99
+        },
+        {
+          "bot": 167,
+          "score": 81
+        }
+      ]
+    },
+    {
+      "id": 45384,
+      "score": 63,
+      "balance": 22,
+      "place": 4,
+      "won": 10,
+      "paid": 141,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 180,
+          "score": 119
+        },
+        {
+          "bot": 166,
+          "score": 83
+        },
+        {
+          "bot": 198,
+          "score": 59
+        },
+        {
+          "bot": 167,
+          "score": 109
+        },
+        {
+          "bot": 114,
+          "score": 63
+        },
+        {
+          "bot": 185,
+          "score": 18
+        }
+      ]
+    },
+    {
+      "id": 45375,
+      "score": 78,
+      "balance": 46,
+      "place": 3,
+      "won": 11,
+      "paid": 132,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 198,
+          "score": 51
+        },
+        {
+          "bot": 167,
+          "score": 115
+        },
+        {
+          "bot": 114,
+          "score": 78
+        },
+        {
+          "bot": 185,
+          "score": 34
+        },
+        {
+          "bot": 202,
+          "score": 111
+        },
+        {
+          "bot": 166,
+          "score": 71
+        }
+      ]
+    },
+    {
+      "id": 45366,
+      "score": 81,
+      "balance": 7,
+      "place": 3,
+      "won": 12,
+      "paid": 174,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 221,
+          "score": 55
+        },
+        {
+          "bot": 185,
+          "score": 20
+        },
+        {
+          "bot": 175,
+          "score": 91
+        },
+        {
+          "bot": 114,
+          "score": 81
+        },
+        {
+          "bot": 181,
+          "score": 88
+        },
+        {
+          "bot": 167,
+          "score": 69
+        }
+      ]
+    },
+    {
+      "id": 45358,
+      "score": 99,
+      "balance": 10,
+      "place": 2,
+      "won": 16,
+      "paid": 189,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 99
+        },
+        {
+          "bot": 198,
+          "score": 0
+        },
+        {
+          "bot": 175,
+          "score": 72
+        },
+        {
+          "bot": 181,
+          "score": 88
+        },
+        {
+          "bot": 221,
+          "score": 108
+        },
+        {
+          "bot": 167,
+          "score": 87
+        }
+      ]
+    },
+    {
+      "id": 45350,
+      "score": 80,
+      "balance": 11,
+      "place": 3,
+      "won": 13,
+      "paid": 169,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 181,
+          "score": 67
+        },
+        {
+          "bot": 201,
+          "score": 132
+        },
+        {
+          "bot": 175,
+          "score": 81
+        },
+        {
+          "bot": 221,
+          "score": 70
+        },
+        {
+          "bot": 114,
+          "score": 80
+        },
+        {
+          "bot": 167,
+          "score": 65
+        }
+      ]
+    },
+    {
+      "id": 45342,
+      "score": 82,
+      "balance": 34,
+      "place": 2,
+      "won": 17,
+      "paid": 148,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 167,
+          "score": 76
+        },
+        {
+          "bot": 177,
+          "score": 0
+        },
+        {
+          "bot": 145,
+          "score": 0
+        },
+        {
+          "bot": 175,
+          "score": 141
+        },
+        {
+          "bot": 114,
+          "score": 82
+        },
+        {
+          "bot": 221,
+          "score": 68
+        }
+      ]
+    },
+    {
+      "id": 45334,
+      "score": 87,
+      "balance": 19,
+      "place": 4,
+      "won": 14,
+      "paid": 168,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 175,
+          "score": 78
+        },
+        {
+          "bot": 221,
+          "score": 97
+        },
+        {
+          "bot": 114,
+          "score": 87
+        },
+        {
+          "bot": 167,
+          "score": 26
+        },
+        {
+          "bot": 180,
+          "score": 93
+        },
+        {
+          "bot": 193,
+          "score": 99
+        }
+      ]
+    },
+    {
+      "id": 45326,
+      "score": 109,
+      "balance": 23,
+      "place": 2,
+      "won": 15,
+      "paid": 186,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 166,
+          "score": 0
+        },
+        {
+          "bot": 167,
+          "score": 121
+        },
+        {
+          "bot": 180,
+          "score": 50
+        },
+        {
+          "bot": 114,
+          "score": 109
+        },
+        {
+          "bot": 193,
+          "score": 91
+        },
+        {
+          "bot": 221,
+          "score": 74
+        }
+      ]
+    },
+    {
+      "id": 45318,
+      "score": 79,
+      "balance": 16,
+      "place": 3,
+      "won": 14,
+      "paid": 163,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 180,
+          "score": 108
+        },
+        {
+          "bot": 114,
+          "score": 79
+        },
+        {
+          "bot": 193,
+          "score": 79
+        },
+        {
+          "bot": 167,
+          "score": 51
+        },
+        {
+          "bot": 204,
+          "score": 63
+        },
+        {
+          "bot": 186,
+          "score": 94
+        }
+      ]
+    },
+    {
+      "id": 45310,
+      "score": 56,
+      "balance": 10,
+      "place": 4,
+      "won": 13,
+      "paid": 146,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 167,
+          "score": 39
+        },
+        {
+          "bot": 194,
+          "score": 30
+        },
+        {
+          "bot": 192,
+          "score": 105
+        },
+        {
+          "bot": 205,
+          "score": 76
+        },
+        {
+          "bot": 114,
+          "score": 56
+        },
+        {
+          "bot": 193,
+          "score": 76
+        }
+      ]
+    },
+    {
+      "id": 45302,
+      "score": 62,
+      "balance": 48,
+      "place": 5,
+      "won": 11,
+      "paid": 114,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 193,
+          "score": 71
+        },
+        {
+          "bot": 205,
+          "score": 65
+        },
+        {
+          "bot": 114,
+          "score": 62
+        },
+        {
+          "bot": 167,
+          "score": 59
+        },
+        {
+          "bot": 194,
+          "score": 80
+        },
+        {
+          "bot": 192,
+          "score": 106
+        }
+      ]
+    },
+    {
+      "id": 45294,
+      "score": 115,
+      "balance": 13,
+      "place": 1,
+      "won": 15,
+      "paid": 202,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 164,
+          "score": 58
+        },
+        {
+          "bot": 172,
+          "score": 115
+        },
+        {
+          "bot": 205,
+          "score": 85
+        },
+        {
+          "bot": 114,
+          "score": 115
+        },
+        {
+          "bot": 167,
+          "score": 93
+        },
+        {
+          "bot": 145,
+          "score": 0
+        }
+      ]
+    },
+    {
+      "id": 45286,
+      "score": 80,
+      "balance": 5,
+      "place": 3,
+      "won": 17,
+      "paid": 175,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 202,
+          "score": 111
+        },
+        {
+          "bot": 172,
+          "score": 63
+        },
+        {
+          "bot": 205,
+          "score": 64
+        },
+        {
+          "bot": 114,
+          "score": 80
+        },
+        {
+          "bot": 167,
+          "score": 111
+        },
+        {
+          "bot": 145,
+          "score": 0
+        }
+      ]
+    },
+    {
+      "id": 45278,
+      "score": 75,
+      "balance": 14,
+      "place": 3,
+      "won": 13,
+      "paid": 161,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 75
+        },
+        {
+          "bot": 172,
+          "score": 67
+        },
+        {
+          "bot": 205,
+          "score": 31
+        },
+        {
+          "bot": 167,
+          "score": 51
+        },
+        {
+          "bot": 175,
+          "score": 94
+        },
+        {
+          "bot": 169,
+          "score": 144
+        }
+      ]
+    },
+    {
+      "id": 45271,
+      "score": 67,
+      "balance": 28,
+      "place": 4,
+      "won": 14,
+      "paid": 139,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 193,
+          "score": 93
+        },
+        {
+          "bot": 163,
+          "score": 59
+        },
+        {
+          "bot": 187,
+          "score": 75
+        },
+        {
+          "bot": 175,
+          "score": 94
+        },
+        {
+          "bot": 169,
+          "score": 62
+        },
+        {
+          "bot": 114,
+          "score": 67
+        }
+      ]
+    },
+    {
+      "id": 45264,
+      "score": 84,
+      "balance": 22,
+      "place": 4,
+      "won": 12,
+      "paid": 162,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 215,
+          "score": 75
+        },
+        {
+          "bot": 114,
+          "score": 84
+        },
+        {
+          "bot": 175,
+          "score": 107
+        },
+        {
+          "bot": 169,
+          "score": 72
+        },
+        {
+          "bot": 193,
+          "score": 93
+        },
+        {
+          "bot": 224,
+          "score": 98
+        }
+      ]
+    },
+    {
+      "id": 45255,
+      "score": 99,
+      "balance": 25,
+      "place": 1,
+      "won": 13,
+      "paid": 174,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 226,
+          "score": 65
+        },
+        {
+          "bot": 205,
+          "score": 78
+        },
+        {
+          "bot": 114,
+          "score": 99
+        },
+        {
+          "bot": 165,
+          "score": 45
+        },
+        {
+          "bot": 182,
+          "score": 72
+        },
+        {
+          "bot": 172,
+          "score": 56
+        }
+      ]
+    },
+    {
+      "id": 45247,
+      "score": 83,
+      "balance": 27,
+      "place": 3,
+      "won": 14,
+      "paid": 156,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 205,
+          "score": 68
+        },
+        {
+          "bot": 177,
+          "score": 0
+        },
+        {
+          "bot": 186,
+          "score": 102
+        },
+        {
+          "bot": 165,
+          "score": 85
+        },
+        {
+          "bot": 183,
+          "score": 70
+        },
+        {
+          "bot": 114,
+          "score": 83
+        }
+      ]
+    },
+    {
+      "id": 45240,
+      "score": 63,
+      "balance": 28,
+      "place": 3,
+      "won": 11,
+      "paid": 135,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 186,
+          "score": 105
+        },
+        {
+          "bot": 205,
+          "score": 63
+        },
+        {
+          "bot": 183,
+          "score": 51
+        },
+        {
+          "bot": 165,
+          "score": 52
+        },
+        {
+          "bot": 224,
+          "score": 100
+        },
+        {
+          "bot": 114,
+          "score": 63
+        }
+      ]
+    },
+    {
+      "id": 45233,
+      "score": 68,
+      "balance": 27,
+      "place": 5,
+      "won": 12,
+      "paid": 141,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 165,
+          "score": 85
+        },
+        {
+          "bot": 183,
+          "score": 60
+        },
+        {
+          "bot": 193,
+          "score": 90
+        },
+        {
+          "bot": 215,
+          "score": 75
+        },
+        {
+          "bot": 186,
+          "score": 73
+        },
+        {
+          "bot": 114,
+          "score": 68
+        }
+      ]
+    },
+    {
+      "id": 45225,
+      "score": 71,
+      "balance": 16,
+      "place": 2,
+      "won": 11,
+      "paid": 155,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 183,
+          "score": 65
+        },
+        {
+          "bot": 215,
+          "score": 81
+        },
+        {
+          "bot": 193,
+          "score": 65
+        },
+        {
+          "bot": 165,
+          "score": 60
+        },
+        {
+          "bot": 186,
+          "score": 65
+        },
+        {
+          "bot": 114,
+          "score": 71
+        }
+      ]
+    },
+    {
+      "id": 45217,
+      "score": 50,
+      "balance": 20,
+      "place": 6,
+      "won": 10,
+      "paid": 130,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 186,
+          "score": 77
+        },
+        {
+          "bot": 164,
+          "score": 72
+        },
+        {
+          "bot": 215,
+          "score": 75
+        },
+        {
+          "bot": 193,
+          "score": 106
+        },
+        {
+          "bot": 183,
+          "score": 57
+        },
+        {
+          "bot": 114,
+          "score": 50
+        }
+      ]
+    },
+    {
+      "id": 45209,
+      "score": 60,
+      "balance": 17,
+      "place": 5,
+      "won": 11,
+      "paid": 143,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 183,
+          "score": 62
+        },
+        {
+          "bot": 114,
+          "score": 60
+        },
+        {
+          "bot": 212,
+          "score": 69
+        },
+        {
+          "bot": 164,
+          "score": 97
+        },
+        {
+          "bot": 193,
+          "score": 92
+        },
+        {
+          "bot": 187,
+          "score": 56
+        }
+      ]
+    },
+    {
+      "id": 45202,
+      "score": 108,
+      "balance": 30,
+      "place": 2,
+      "won": 16,
+      "paid": 178,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 168,
+          "score": 83
+        },
+        {
+          "bot": 177,
+          "score": 0
+        },
+        {
+          "bot": 114,
+          "score": 108
+        },
+        {
+          "bot": 193,
+          "score": 110
+        },
+        {
+          "bot": 183,
+          "score": 93
+        },
+        {
+          "bot": 187,
+          "score": 53
+        }
+      ]
+    },
+    {
+      "id": 45195,
+      "score": 74,
+      "balance": 29,
+      "place": 3,
+      "won": 15,
+      "paid": 145,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 187,
+          "score": 66
+        },
+        {
+          "bot": 168,
+          "score": 97
+        },
+        {
+          "bot": 181,
+          "score": 129
+        },
+        {
+          "bot": 177,
+          "score": 0
+        },
+        {
+          "bot": 193,
+          "score": 65
+        },
+        {
+          "bot": 114,
+          "score": 74
+        }
+      ]
+    },
+    {
+      "id": 45188,
+      "score": 125,
+      "balance": 6,
+      "place": 1,
+      "won": 20,
+      "paid": 219,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 215,
+          "score": 112
+        },
+        {
+          "bot": 163,
+          "score": 0
+        },
+        {
+          "bot": 181,
+          "score": 102
+        },
+        {
+          "bot": 168,
+          "score": 69
+        },
+        {
+          "bot": 114,
+          "score": 125
+        },
+        {
+          "bot": 219,
+          "score": 17
+        }
+      ]
+    },
+    {
+      "id": 45181,
+      "score": 105,
+      "balance": 23,
+      "place": 2,
+      "won": 16,
+      "paid": 182,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 105
+        },
+        {
+          "bot": 168,
+          "score": 104
+        },
+        {
+          "bot": 173,
+          "score": 0
+        },
+        {
+          "bot": 181,
+          "score": 138
+        },
+        {
+          "bot": 219,
+          "score": 22
+        },
+        {
+          "bot": 185,
+          "score": 30
+        }
+      ]
+    },
+    {
+      "id": 45174,
+      "score": 66,
+      "balance": 43,
+      "place": 5,
+      "won": 12,
+      "paid": 123,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 181,
+          "score": 79
+        },
+        {
+          "bot": 201,
+          "score": 150
+        },
+        {
+          "bot": 114,
+          "score": 66
+        },
+        {
+          "bot": 168,
+          "score": 79
+        },
+        {
+          "bot": 217,
+          "score": 82
+        },
+        {
+          "bot": 219,
+          "score": 20
+        }
+      ]
+    },
+    {
+      "id": 45167,
+      "score": 76,
+      "balance": 15,
+      "place": 4,
+      "won": 14,
+      "paid": 161,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 219,
+          "score": 16
+        },
+        {
+          "bot": 191,
+          "score": 106
+        },
+        {
+          "bot": 114,
+          "score": 76
+        },
+        {
+          "bot": 168,
+          "score": 102
+        },
+        {
+          "bot": 181,
+          "score": 79
+        },
+        {
+          "bot": 213,
+          "score": 62
+        }
+      ]
+    },
+    {
+      "id": 45160,
+      "score": 95,
+      "balance": 25,
+      "place": 2,
+      "won": 14,
+      "paid": 170,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 168,
+          "score": 76
+        },
+        {
+          "bot": 191,
+          "score": 50
+        },
+        {
+          "bot": 114,
+          "score": 95
+        },
+        {
+          "bot": 181,
+          "score": 129
+        },
+        {
+          "bot": 219,
+          "score": 37
+        },
+        {
+          "bot": 213,
+          "score": 92
+        }
+      ]
+    },
+    {
+      "id": 45153,
+      "score": 114,
+      "balance": 61,
+      "place": 1,
+      "won": 13,
+      "paid": 153,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 168,
+          "score": 112
+        },
+        {
+          "bot": 191,
+          "score": 88
+        },
+        {
+          "bot": 145,
+          "score": 0
+        },
+        {
+          "bot": 114,
+          "score": 114
+        },
+        {
+          "bot": 219,
+          "score": 26
+        },
+        {
+          "bot": 213,
+          "score": 80
+        }
+      ]
+    },
+    {
+      "id": 45146,
+      "score": 94,
+      "balance": 23,
+      "place": 3,
+      "won": 17,
+      "paid": 171,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 94
+        },
+        {
+          "bot": 203,
+          "score": 43
+        },
+        {
+          "bot": 205,
+          "score": 108
+        },
+        {
+          "bot": 219,
+          "score": 16
+        },
+        {
+          "bot": 191,
+          "score": 99
+        },
+        {
+          "bot": 213,
+          "score": 79
+        }
+      ]
+    },
+    {
+      "id": 45139,
+      "score": 115,
+      "balance": 17,
+      "place": 1,
+      "won": 13,
+      "paid": 198,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 205,
+          "score": 83
+        },
+        {
+          "bot": 203,
+          "score": 45
+        },
+        {
+          "bot": 114,
+          "score": 115
+        },
+        {
+          "bot": 191,
+          "score": 90
+        },
+        {
+          "bot": 219,
+          "score": 15
+        },
+        {
+          "bot": 213,
+          "score": 106
+        }
+      ]
+    },
+    {
+      "id": 45133,
+      "score": 87,
+      "balance": 15,
+      "place": 3,
+      "won": 13,
+      "paid": 172,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 220,
+          "score": 31
+        },
+        {
+          "bot": 114,
+          "score": 87
+        },
+        {
+          "bot": 167,
+          "score": 89
+        },
+        {
+          "bot": 203,
+          "score": 64
+        },
+        {
+          "bot": 171,
+          "score": 96
+        },
+        {
+          "bot": 213,
+          "score": 80
+        }
+      ]
+    },
+    {
+      "id": 45127,
+      "score": 115,
+      "balance": 24,
+      "place": 1,
+      "won": 17,
+      "paid": 191,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 179,
+          "score": 70
+        },
+        {
+          "bot": 220,
+          "score": 36
+        },
+        {
+          "bot": 171,
+          "score": 88
+        },
+        {
+          "bot": 188,
+          "score": 66
+        },
+        {
+          "bot": 203,
+          "score": 35
+        },
+        {
+          "bot": 114,
+          "score": 115
+        }
+      ]
+    },
+    {
+      "id": 45121,
+      "score": 129,
+      "balance": 12,
+      "place": 2,
+      "won": 22,
+      "paid": 217,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 170,
+          "score": 0
+        },
+        {
+          "bot": 203,
+          "score": 44
+        },
+        {
+          "bot": 199,
+          "score": 84
+        },
+        {
+          "bot": 171,
+          "score": 133
+        },
+        {
+          "bot": 145,
+          "score": 0
+        },
+        {
+          "bot": 114,
+          "score": 129
+        }
+      ]
+    },
+    {
+      "id": 45114,
+      "score": 86,
+      "balance": 48,
+      "place": 2,
+      "won": 10,
+      "paid": 138,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 86
+        },
+        {
+          "bot": 164,
+          "score": 67
+        },
+        {
+          "bot": 170,
+          "score": 26
+        },
+        {
+          "bot": 169,
+          "score": 73
+        },
+        {
+          "bot": 199,
+          "score": 74
+        },
+        {
+          "bot": 171,
+          "score": 101
+        }
+      ]
+    },
+    {
+      "id": 45107,
+      "score": 121,
+      "balance": 31,
+      "place": 1,
+      "won": 18,
+      "paid": 190,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 199,
+          "score": 84
+        },
+        {
+          "bot": 220,
+          "score": 20
+        },
+        {
+          "bot": 171,
+          "score": 74
+        },
+        {
+          "bot": 212,
+          "score": 99
+        },
+        {
+          "bot": 114,
+          "score": 121
+        },
+        {
+          "bot": 205,
+          "score": 79
+        }
+      ]
+    },
+    {
+      "id": 45101,
+      "score": 75,
+      "balance": 18,
+      "place": 4,
+      "won": 15,
+      "paid": 157,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 205,
+          "score": 38
+        },
+        {
+          "bot": 193,
+          "score": 78
+        },
+        {
+          "bot": 114,
+          "score": 75
+        },
+        {
+          "bot": 212,
+          "score": 85
+        },
+        {
+          "bot": 171,
+          "score": 111
+        },
+        {
+          "bot": 208,
+          "score": 30
+        }
+      ]
+    },
+    {
+      "id": 45094,
+      "score": 59,
+      "balance": 33,
+      "place": 5,
+      "won": 10,
+      "paid": 126,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 193,
+          "score": 90
+        },
+        {
+          "bot": 191,
+          "score": 107
+        },
+        {
+          "bot": 202,
+          "score": 66
+        },
+        {
+          "bot": 205,
+          "score": 40
+        },
+        {
+          "bot": 171,
+          "score": 89
+        },
+        {
+          "bot": 114,
+          "score": 59
+        }
+      ]
+    },
+    {
+      "id": 45088,
+      "score": 88,
+      "balance": 23,
+      "place": 4,
+      "won": 13,
+      "paid": 165,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 207,
+          "score": 94
+        },
+        {
+          "bot": 202,
+          "score": 94
+        },
+        {
+          "bot": 190,
+          "score": 66
+        },
+        {
+          "bot": 201,
+          "score": 120
+        },
+        {
+          "bot": 114,
+          "score": 88
+        },
+        {
+          "bot": 208,
+          "score": 22
+        }
+      ]
+    },
+    {
+      "id": 45082,
+      "score": 118,
+      "balance": 30,
+      "place": 1,
+      "won": 16,
+      "paid": 188,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 185,
+          "score": 58
+        },
+        {
+          "bot": 18,
+          "score": 96
+        },
+        {
+          "bot": 173,
+          "score": 58
+        },
+        {
+          "bot": 114,
+          "score": 118
+        },
+        {
+          "bot": 202,
+          "score": 113
+        },
+        {
+          "bot": 176,
+          "score": 0
+        }
+      ]
+    },
+    {
+      "id": 45076,
+      "score": 81,
+      "balance": 40,
+      "place": 3,
+      "won": 11,
+      "paid": 141,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 217,
+          "score": 0
+        },
+        {
+          "bot": 18,
+          "score": 79
+        },
+        {
+          "bot": 202,
+          "score": 95
+        },
+        {
+          "bot": 114,
+          "score": 81
+        },
+        {
+          "bot": 215,
+          "score": 126
+        },
+        {
+          "bot": 167,
+          "score": 64
+        }
+      ]
+    },
+    {
+      "id": 45070,
+      "score": 84,
+      "balance": 12,
+      "place": 4,
+      "won": 14,
+      "paid": 172,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 203,
+          "score": 15
+        },
+        {
+          "bot": 167,
+          "score": 96
+        },
+        {
+          "bot": 215,
+          "score": 93
+        },
+        {
+          "bot": 18,
+          "score": 119
+        },
+        {
+          "bot": 202,
+          "score": 80
+        },
+        {
+          "bot": 114,
+          "score": 84
+        }
+      ]
+    },
+    {
+      "id": 45064,
+      "score": 115,
+      "balance": 71,
+      "place": 1,
+      "won": 13,
+      "paid": 144,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 202,
+          "score": 85
+        },
+        {
+          "bot": 179,
+          "score": 76
+        },
+        {
+          "bot": 18,
+          "score": 81
+        },
+        {
+          "bot": 206,
+          "score": 0
+        },
+        {
+          "bot": 188,
+          "score": 48
+        },
+        {
+          "bot": 114,
+          "score": 115
+        }
+      ]
+    },
+    {
+      "id": 45057,
+      "score": 66,
+      "balance": 32,
+      "place": 4,
+      "won": 9,
+      "paid": 134,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 202,
+          "score": 89
+        },
+        {
+          "bot": 114,
+          "score": 66
+        },
+        {
+          "bot": 188,
+          "score": 65
+        },
+        {
+          "bot": 206,
+          "score": 82
+        },
+        {
+          "bot": 179,
+          "score": 51
+        },
+        {
+          "bot": 18,
+          "score": 93
+        }
+      ]
+    },
+    {
+      "id": 43341,
+      "score": 55,
+      "balance": 24,
+      "place": 5,
+      "won": 10,
+      "paid": 131,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 179,
+          "score": 66
+        },
+        {
+          "bot": 18,
+          "score": 81
+        },
+        {
+          "bot": 202,
+          "score": 75
+        },
+        {
+          "bot": 206,
+          "score": 51
+        },
+        {
+          "bot": 188,
+          "score": 87
+        },
+        {
+          "bot": 114,
+          "score": 55
+        }
+      ]
+    },
+    {
+      "id": 43334,
+      "score": 90,
+      "balance": 11,
+      "place": 3,
+      "won": 14,
+      "paid": 179,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 202,
+          "score": 72
+        },
+        {
+          "bot": 220,
+          "score": 12
+        },
+        {
+          "bot": 179,
+          "score": 176
+        },
+        {
+          "bot": 18,
+          "score": 98
+        },
+        {
+          "bot": 206,
+          "score": 36
+        },
+        {
+          "bot": 114,
+          "score": 90
+        }
+      ]
+    },
+    {
+      "id": 43327,
+      "score": 68,
+      "balance": 39,
+      "place": 3,
+      "won": 11,
+      "paid": 129,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 179,
+          "score": 69
+        },
+        {
+          "bot": 18,
+          "score": 62
+        },
+        {
+          "bot": 206,
+          "score": 53
+        },
+        {
+          "bot": 204,
+          "score": 61
+        },
+        {
+          "bot": 202,
+          "score": 88
+        },
+        {
+          "bot": 114,
+          "score": 68
+        }
+      ]
+    },
+    {
+      "id": 43320,
+      "score": 92,
+      "balance": 20,
+      "place": 2,
+      "won": 12,
+      "paid": 172,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 206,
+          "score": 42
+        },
+        {
+          "bot": 179,
+          "score": 92
+        },
+        {
+          "bot": 18,
+          "score": 78
+        },
+        {
+          "bot": 202,
+          "score": 144
+        },
+        {
+          "bot": 204,
+          "score": 12
+        },
+        {
+          "bot": 114,
+          "score": 92
+        }
+      ]
+    },
+    {
+      "id": 43313,
+      "score": 142,
+      "balance": 36,
+      "place": 1,
+      "won": 20,
+      "paid": 206,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 18,
+          "score": 121
+        },
+        {
+          "bot": 206,
+          "score": 41
+        },
+        {
+          "bot": 211,
+          "score": 0
+        },
+        {
+          "bot": 204,
+          "score": 42
+        },
+        {
+          "bot": 179,
+          "score": 90
+        },
+        {
+          "bot": 114,
+          "score": 142
+        }
+      ]
+    },
+    {
+      "id": 43306,
+      "score": 102,
+      "balance": 26,
+      "place": 1,
+      "won": 15,
+      "paid": 176,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 102
+        },
+        {
+          "bot": 204,
+          "score": 21
+        },
+        {
+          "bot": 206,
+          "score": 55
+        },
+        {
+          "bot": 18,
+          "score": 102
+        },
+        {
+          "bot": 199,
+          "score": 90
+        },
+        {
+          "bot": 193,
+          "score": 73
+        }
+      ]
+    },
+    {
+      "id": 43299,
+      "score": 85,
+      "balance": 42,
+      "place": 3,
+      "won": 11,
+      "paid": 143,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 204,
+          "score": 68
+        },
+        {
+          "bot": 114,
+          "score": 85
+        },
+        {
+          "bot": 18,
+          "score": 64
+        },
+        {
+          "bot": 193,
+          "score": 94
+        },
+        {
+          "bot": 199,
+          "score": 93
+        },
+        {
+          "bot": 206,
+          "score": 53
+        }
+      ]
+    },
+    {
+      "id": 43292,
+      "score": 96,
+      "balance": 20,
+      "place": 3,
+      "won": 14,
+      "paid": 176,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 199,
+          "score": 48
+        },
+        {
+          "bot": 18,
+          "score": 116
+        },
+        {
+          "bot": 204,
+          "score": 33
+        },
+        {
+          "bot": 193,
+          "score": 131
+        },
+        {
+          "bot": 187,
+          "score": 42
+        },
+        {
+          "bot": 114,
+          "score": 96
+        }
+      ]
+    },
+    {
+      "id": 43285,
+      "score": 75,
+      "balance": 40,
+      "place": 3,
+      "won": 12,
+      "paid": 135,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 75
+        },
+        {
+          "bot": 204,
+          "score": 30
+        },
+        {
+          "bot": 217,
+          "score": 54
+        },
+        {
+          "bot": 18,
+          "score": 104
+        },
+        {
+          "bot": 201,
+          "score": 129
+        },
+        {
+          "bot": 185,
+          "score": 31
+        }
+      ]
+    },
+    {
+      "id": 43277,
+      "score": 83,
+      "balance": 15,
+      "place": 4,
+      "won": 14,
+      "paid": 168,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 201,
+          "score": 99
+        },
+        {
+          "bot": 217,
+          "score": 25
+        },
+        {
+          "bot": 180,
+          "score": 116
+        },
+        {
+          "bot": 114,
+          "score": 83
+        },
+        {
+          "bot": 18,
+          "score": 100
+        },
+        {
+          "bot": 161,
+          "score": 48
+        }
+      ]
+    },
+    {
+      "id": 43270,
+      "score": 94,
+      "balance": 21,
+      "place": 1,
+      "won": 15,
+      "paid": 173,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 18,
+          "score": 81
+        },
+        {
+          "bot": 201,
+          "score": 91
+        },
+        {
+          "bot": 180,
+          "score": 80
+        },
+        {
+          "bot": 114,
+          "score": 94
+        },
+        {
+          "bot": 217,
+          "score": 30
+        },
+        {
+          "bot": 161,
+          "score": 69
+        }
+      ]
+    },
+    {
+      "id": 43263,
+      "score": 65,
+      "balance": 35,
+      "place": 4,
+      "won": 11,
+      "paid": 130,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 65
+        },
+        {
+          "bot": 217,
+          "score": 51
+        },
+        {
+          "bot": 18,
+          "score": 114
+        },
+        {
+          "bot": 201,
+          "score": 129
+        },
+        {
+          "bot": 180,
+          "score": 54
+        },
+        {
+          "bot": 161,
+          "score": 71
+        }
+      ]
+    },
+    {
+      "id": 43256,
+      "score": 105,
+      "balance": 37,
+      "place": 1,
+      "won": 14,
+      "paid": 168,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 18,
+          "score": 86
+        },
+        {
+          "bot": 180,
+          "score": 85
+        },
+        {
+          "bot": 217,
+          "score": 55
+        },
+        {
+          "bot": 114,
+          "score": 105
+        },
+        {
+          "bot": 174,
+          "score": 0
+        },
+        {
+          "bot": 161,
+          "score": 70
+        }
+      ]
+    },
+    {
+      "id": 43249,
+      "score": 103,
+      "balance": 11,
+      "place": 1,
+      "won": 14,
+      "paid": 192,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 174,
+          "score": 0
+        },
+        {
+          "bot": 18,
+          "score": 87
+        },
+        {
+          "bot": 114,
+          "score": 103
+        },
+        {
+          "bot": 180,
+          "score": 91
+        },
+        {
+          "bot": 217,
+          "score": 37
+        },
+        {
+          "bot": 161,
+          "score": 67
+        }
+      ]
+    },
+    {
+      "id": 43243,
+      "score": 88,
+      "balance": 13,
+      "place": 2,
+      "won": 13,
+      "paid": 175,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 194,
+          "score": 88
+        },
+        {
+          "bot": 180,
+          "score": 68
+        },
+        {
+          "bot": 211,
+          "score": 54
+        },
+        {
+          "bot": 183,
+          "score": 68
+        },
+        {
+          "bot": 167,
+          "score": 92
+        },
+        {
+          "bot": 114,
+          "score": 88
+        }
+      ]
+    },
+    {
+      "id": 43236,
+      "score": 69,
+      "balance": 36,
+      "place": 3,
+      "won": 11,
+      "paid": 133,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 167,
+          "score": 82
+        },
+        {
+          "bot": 183,
+          "score": 58
+        },
+        {
+          "bot": 180,
+          "score": 107
+        },
+        {
+          "bot": 188,
+          "score": 53
+        },
+        {
+          "bot": 194,
+          "score": 56
+        },
+        {
+          "bot": 114,
+          "score": 69
+        }
+      ]
+    },
+    {
+      "id": 43229,
+      "score": 118,
+      "balance": 26,
+      "place": 1,
+      "won": 14,
+      "paid": 192,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 114,
+          "score": 118
+        },
+        {
+          "bot": 180,
+          "score": 64
+        },
+        {
+          "bot": 172,
+          "score": 92
+        },
+        {
+          "bot": 185,
+          "score": 52
+        },
+        {
+          "bot": 194,
+          "score": 49
+        },
+        {
+          "bot": 183,
+          "score": 71
+        }
+      ]
+    },
+    {
+      "id": 43222,
+      "score": 123,
+      "balance": 22,
+      "place": 1,
+      "won": 16,
+      "paid": 201,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 181,
+          "score": 71
+        },
+        {
+          "bot": 180,
+          "score": 73
+        },
+        {
+          "bot": 172,
+          "score": 100
+        },
+        {
+          "bot": 185,
+          "score": 32
+        },
+        {
+          "bot": 114,
+          "score": 123
+        },
+        {
+          "bot": 161,
+          "score": 44
+        }
+      ]
+    },
+    {
+      "id": 43215,
+      "score": 87,
+      "balance": 39,
+      "place": 2,
+      "won": 10,
+      "paid": 148,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 180,
+          "score": 82
+        },
+        {
+          "bot": 173,
+          "score": 0
+        },
+        {
+          "bot": 181,
+          "score": 137
+        },
+        {
+          "bot": 114,
+          "score": 87
+        },
+        {
+          "bot": 202,
+          "score": 64
+        },
+        {
+          "bot": 185,
+          "score": 30
+        }
+      ]
+    },
+    {
+      "id": 43208,
+      "score": 86,
+      "balance": 45,
+      "place": 3,
+      "won": 10,
+      "paid": 141,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 180,
+          "score": 99
+        },
+        {
+          "bot": 187,
+          "score": 61
+        },
+        {
+          "bot": 181,
+          "score": 74
+        },
+        {
+          "bot": 190,
+          "score": 72
+        },
+        {
+          "bot": 215,
+          "score": 94
+        },
+        {
+          "bot": 114,
+          "score": 86
+        }
+      ]
+    },
+    {
+      "id": 43201,
+      "score": 63,
+      "balance": 18,
+      "place": 6,
+      "won": 8,
+      "paid": 145,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 164,
+          "score": 79
+        },
+        {
+          "bot": 190,
+          "score": 88
+        },
+        {
+          "bot": 187,
+          "score": 92
+        },
+        {
+          "bot": 215,
+          "score": 76
+        },
+        {
+          "bot": 180,
+          "score": 84
+        },
+        {
+          "bot": 114,
+          "score": 63
+        }
+      ]
+    },
+    {
+      "id": 43194,
+      "score": 108,
+      "balance": 18,
+      "place": 1,
+      "won": 13,
+      "paid": 190,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 164,
+          "score": 73
+        },
+        {
+          "bot": 187,
+          "score": 51
+        },
+        {
+          "bot": 180,
+          "score": 87
+        },
+        {
+          "bot": 215,
+          "score": 72
+        },
+        {
+          "bot": 169,
+          "score": 72
+        },
+        {
+          "bot": 114,
+          "score": 108
+        }
+      ]
+    },
+    {
+      "id": 43187,
+      "score": 78,
+      "balance": 16,
+      "place": 4,
+      "won": 16,
+      "paid": 162,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 145,
+          "score": 0
+        },
+        {
+          "bot": 169,
+          "score": 81
+        },
+        {
+          "bot": 164,
+          "score": 82
+        },
+        {
+          "bot": 180,
+          "score": 66
+        },
+        {
+          "bot": 179,
+          "score": 80
+        },
+        {
+          "bot": 114,
+          "score": 78
+        }
+      ]
+    },
+    {
+      "id": 43180,
+      "score": 122,
+      "balance": 20,
+      "place": 1,
+      "won": 16,
+      "paid": 202,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 169,
+          "score": 82
+        },
+        {
+          "bot": 179,
+          "score": 85
+        },
+        {
+          "bot": 180,
+          "score": 75
+        },
+        {
+          "bot": 204,
+          "score": 12
+        },
+        {
+          "bot": 164,
+          "score": 92
+        },
+        {
+          "bot": 114,
+          "score": 122
+        }
+      ]
+    },
+    {
+      "id": 43174,
+      "score": 75,
+      "balance": 21,
+      "place": 4,
+      "won": 13,
+      "paid": 154,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 199,
+          "score": 90
+        },
+        {
+          "bot": 169,
+          "score": 38
+        },
+        {
+          "bot": 179,
+          "score": 76
+        },
+        {
+          "bot": 164,
+          "score": 86
+        },
+        {
+          "bot": 204,
+          "score": 35
+        },
+        {
+          "bot": 114,
+          "score": 75
+        }
+      ]
+    },
+    {
+      "id": 43168,
+      "score": 94,
+      "balance": 34,
+      "place": 2,
+      "won": 15,
+      "paid": 160,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 179,
+          "score": 72
+        },
+        {
+          "bot": 206,
+          "score": 0
+        },
+        {
+          "bot": 204,
+          "score": 74
+        },
+        {
+          "bot": 169,
+          "score": 111
+        },
+        {
+          "bot": 199,
+          "score": 83
+        },
+        {
+          "bot": 114,
+          "score": 94
+        }
+      ]
+    },
+    {
+      "id": 43162,
+      "score": 58,
+      "balance": 34,
+      "place": 5,
+      "won": 10,
+      "paid": 124,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 191,
+          "score": 68
+        },
+        {
+          "bot": 204,
+          "score": 36
+        },
+        {
+          "bot": 114,
+          "score": 58
+        },
+        {
+          "bot": 169,
+          "score": 105
+        },
+        {
+          "bot": 201,
+          "score": 121
+        },
+        {
+          "bot": 213,
+          "score": 94
+        }
+      ]
+    },
+    {
+      "id": 43155,
+      "score": 121,
+      "balance": 29,
+      "place": 1,
+      "won": 13,
+      "paid": 192,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 191,
+          "score": 61
+        },
+        {
+          "bot": 169,
+          "score": 56
+        },
+        {
+          "bot": 180,
+          "score": 99
+        },
+        {
+          "bot": 201,
+          "score": 87
+        },
+        {
+          "bot": 114,
+          "score": 121
+        },
+        {
+          "bot": 213,
+          "score": 48
+        }
+      ]
+    },
+    {
+      "id": 43148,
+      "score": 83,
+      "balance": 13,
+      "place": 2,
+      "won": 12,
+      "paid": 170,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 201,
+          "score": 147
+        },
+        {
+          "bot": 178,
+          "score": 81
+        },
+        {
+          "bot": 212,
+          "score": 81
+        },
+        {
+          "bot": 180,
+          "score": 53
+        },
+        {
+          "bot": 194,
+          "score": 41
+        },
+        {
+          "bot": 114,
+          "score": 83
+        }
+      ]
+    },
+    {
+      "id": 43142,
+      "score": 87,
+      "balance": 46,
+      "place": 2,
+      "won": 11,
+      "paid": 141,
+      "reconciles": true,
+      "table": [
+        {
+          "bot": 191,
+          "score": 94
+        },
+        {
+          "bot": 194,
+          "score": 54
+        },
+        {
+          "bot": 114,
+          "score": 87
+        },
+        {
+          "bot": 180,
+          "score": 85
+        },
+        {
+          "bot": 178,
+          "score": 80
+        },
+        {
+          "bot": 212,
+          "score": 47
+        }
+      ]
+    }
+  ],
+  "caveats": [
+    "Descriptive observational profile, not original strategy source.",
+    "Winning bids are selection-biased. Losing bids remain unknown; Vickrey paid prices are not bids.",
+    "Initial racks are reconstructed only when forced by public consumption; otherwise feasible allocations are sampled.",
+    "No version reset is recorded for Bron, but unannounced code changes remain possible. Opponent fields and time confound comparisons.",
+    "The latest 10 are a subset of the 100, not an independent A/B test. Timing reflects network/server/word opportunity, not a pure reaction benchmark."
+  ]
+}

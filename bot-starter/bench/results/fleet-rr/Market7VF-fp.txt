@@ -1,0 +1,22 @@
+suite: 80 games/field, seed 1, first-price
+
+| Field | Strategy | Win share (95% CI) | Mean place | Mean score | Best opp. | Δplace vs Market7VF | won/words/left |
+|---|---|---|---:|---:|---:|---:|---|
+| fleet | Market7VF | 5.0% (2.0%–12.2%) | 3.98 | 69.0 | 98.5 | — | 11.5/2.9/1.1 |
+
+market: 5440 tiles sold, 0 unsold; mean winning bid 13.7, mean price paid 13.7 (live: 15.0 / 10.6)
+price paid by letter, sim/live: A 11/11  B 17/15  C 17/16  D 14/13  E 12/11  F 18/17  G 13/12  H 20/19  I 11/10  J 30/24  K 23/21  L 12/11  M 17/16  N 11/10  O 11/10  P 17/15  Q 29/19  R 12/11  S 12/12  T 11/10  U 11/10  V 17/15  W 19/17  X 29/26  Y 21/19  Z 36/31
+
+| Strategy | decision calls | mean ms | max ms |
+|---|---:|---:|---:|
+| F-vj | 6651 | 0.949 | 41.5 |
+| F-vi | 4160 | 1.026 | 30.9 |
+| F-vf | 5553 | 0.470 | 78.0 |
+| F-vc | 6105 | 1.052 | 109.0 |
+| F-vd | 5274 | 0.676 | 175.7 |
+| Market7VF | 11113 | 0.685 | 97.6 |
+| F-va | 5680 | 0.972 | 33.8 |
+| F-vg | 5678 | 0.828 | 33.2 |
+| F-vb | 5959 | 0.883 | 48.5 |
+| F-ve | 4854 | 0.466 | 34.1 |
+| F-vh | 5526 | 1.180 | 38.1 |

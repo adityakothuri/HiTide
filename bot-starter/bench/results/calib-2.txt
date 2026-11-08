@@ -1,0 +1,3 @@
+k=2 | PK | 15.0% (7.1%–29.1%) | 3.40 ± 0.49 | 71.8 | 10.8 | 2.6 | 1.1 |
+k=2 market: 2720 tiles sold, 0 unsold; mean winning bid 22.8, mean price paid 12.4 (live: 15.0 / 10.6)
+k=2 | PK | 33247 | 8.920 | 173.0 |

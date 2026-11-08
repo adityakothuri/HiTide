@@ -1,7 +1,10 @@
 // Offline use of the read-only archive fetched by fetch-replay.mts.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { Lexicon } from '../../src/lexicon.js';
-import { CHOICES } from '../../src/strategy.js';
+import { CHOICES as LIVE_CHOICES } from '../../src/strategy.js';
+import { REGISTRY } from '../registry.js';
+// Live strategy names plus any bench registry entry (fleet clones, variants).
+const CHOICES: Record<string, () => any> = { ...Object.fromEntries(Object.entries(REGISTRY).map(([k,f])=>[k,()=>f({})])), ...LIVE_CHOICES };
 import { sampleStartingRacks, replayMatch, type ArchivedMatch } from '../../src/replay.js';
 import { mulberry32 } from '../../src/sim.js';
 const started = performance.now();

@@ -1,0 +1,23 @@
+suite: 100 games/field, seed 1, first-price
+
+| Field | Strategy | Win share (95% CI) | Mean place | Mean score | Best opp. | Δplace vs LexD10 | won/words/left |
+|---|---|---|---:|---:|---:|---:|---|
+| fleet | LexD10 | 12.0% (7.0%–19.8%) | 3.71 | 73.6 | 102.6 | — | 11.0/2.5/1.1 |
+| mixed | LexD10 | 99.0% (94.6%–99.8%) | 1.01 | 169.9 | 54.7 | — | 26.9/5.3/2.1 |
+
+market: 13600 tiles sold, 0 unsold; mean winning bid 10.4, mean price paid 10.4 (live: 15.0 / 10.6)
+price paid by letter, sim/live: A 9/11  B 12/15  C 13/16  D 10/13  E 9/11  F 13/17  G 10/12  H 15/19  I 9/10  J 22/24  K 17/21  L 8/11  M 12/16  N 8/10  O 9/10  P 13/15  Q 22/19  R 8/11  S 8/12  T 8/10  U 9/10  V 12/15  W 14/17  X 23/26  Y 16/19  Z 30/31
+
+| Strategy | decision calls | mean ms | max ms |
+|---|---:|---:|---:|
+| F-vj | 8452 | 1.316 | 61.5 |
+| F-vi | 5127 | 1.440 | 62.4 |
+| F-vf | 7078 | 0.570 | 31.8 |
+| F-vc | 7624 | 1.539 | 321.6 |
+| F-vd | 6377 | 0.967 | 102.0 |
+| LexD10 | 27981 | 1.137 | 82.4 |
+| F-va | 6938 | 1.213 | 125.6 |
+| F-vg | 6930 | 0.987 | 58.0 |
+| F-vb | 7211 | 1.004 | 91.3 |
+| F-ve | 6654 | 0.572 | 54.0 |
+| F-vh | 6912 | 1.604 | 194.5 |

@@ -1,5 +1,5 @@
 // Public, read-only, finished-match archive fetch. No credential or live bids.
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { sql } from './sql.mjs';
 const count = Number(process.argv[2] ?? 20), hero = Number(process.argv[3] ?? 208);
 if (!Number.isInteger(count) || count < 1 || count > 100 || !Number.isSafeInteger(hero)) throw new Error('Invalid count/bot id');
@@ -9,11 +9,19 @@ const minimum = Math.min(...mine.map(r => Number(r.match_id)));
 const states = await sql(`SELECT * FROM match_state WHERE id >= ${minimum}`);
 const selected = states.filter(m => mine.some(p => Number(p.match_id) === Number(m.id)) && Array.isArray(m.status) && m.status[0] === 2)
   .sort((a,b) => Number(b.id)-Number(a.id)).slice(0,count);
+const cache = process.env.REPLAY_CACHE ? JSON.parse(readFileSync(process.env.REPLAY_CACHE, 'utf8')) : null;
+if (cache && cache.source !== `${process.env.STDB_HOST ?? "https://maincloud.spacetimedb.com"}/${process.env.STDB_DB ?? "scrabblebot"}`) throw new Error('Replay cache belongs to another database');
 const matches: unknown[] = [];
 let next = 0;
 async function worker() {
   while (next < selected.length) {
     const state = selected[next++]!, id = Number(state.id);
+    const cached = cache?.matches?.[id];
+    if (cached?.auctions?.length && cached.tops?.length === cached.auctions.length) {
+      matches.push(cached);
+      console.log(`cached ${matches.length}/${selected.length}: match ${id}`);
+      continue;
+    }
     const [auctions, tops, plays, participants] = await Promise.all([
       sql(`SELECT * FROM auction_result WHERE match_id = ${id}`),
       sql(`SELECT * FROM auction_top_bid_archive WHERE match_id = ${id}`),

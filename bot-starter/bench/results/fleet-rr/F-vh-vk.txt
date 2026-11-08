@@ -1,0 +1,21 @@
+suite: 80 games/field, seed 1, Vickrey
+
+| Field | Strategy | Win share (95% CI) | Mean place | Mean score | Best opp. | Δplace vs F-vh | won/words/left |
+|---|---|---|---:|---:|---:|---:|---|
+| fleet | F-vh | 10.0% (5.2%–18.5%) | 3.95 | 67.9 | 97.5 | — | 9.8/2.3/1.3 |
+
+market: 5438 tiles sold, 2 unsold; mean winning bid 18.3, mean price paid 13.8 (live: 15.0 / 10.6)
+price paid by letter, sim/live: A 10/11  B 18/15  C 20/16  D 15/13  E 11/11  F 20/17  G 14/12  H 22/19  I 11/10  J 32/24  K 26/21  L 12/11  M 18/16  N 11/10  O 10/10  P 17/15  Q 32/19  R 11/11  S 12/12  T 10/10  U 11/10  V 18/15  W 19/17  X 33/26  Y 23/19  Z 41/31
+
+| Strategy | decision calls | mean ms | max ms |
+|---|---:|---:|---:|
+| F-vj | 6650 | 1.413 | 52.7 |
+| F-vi | 4167 | 1.146 | 119.4 |
+| F-vf | 5555 | 0.546 | 112.0 |
+| F-vc | 6101 | 1.198 | 55.2 |
+| F-vd | 5276 | 0.926 | 31.0 |
+| F-vh | 16603 | 1.388 | 86.1 |
+| F-va | 5679 | 1.278 | 39.2 |
+| F-vg | 5685 | 0.802 | 46.9 |
+| F-vb | 5964 | 0.889 | 44.9 |
+| F-ve | 4860 | 0.590 | 112.3 |

@@ -1,0 +1,3335 @@
+{
+  "hero": 208,
+  "archiveMatches": 20,
+  "skipped": [],
+  "dealsPerMatch": 6,
+  "strategies": [
+    "lexforge",
+    "F-va",
+    "F-ve",
+    "F-vg",
+    "F-vi",
+    "LexD10",
+    "LexD10L3",
+    "LexD10L4",
+    "LexD5"
+  ],
+  "elapsedSeconds": 85.161095625,
+  "caveats": [
+    "Frozen rival bids and public income: rivals cannot react to changed tile allocation.",
+    "Private starting racks are sampled subject to public prefix constraints, not observed or an exact posterior.",
+    "Tie/reserve cases are sensitivity scenarios, not rigorous score bounds.",
+    "Intervals resample matches after averaging rack samples; they quantify archive variability, not causal live superiority.",
+    "No network latency or end-to-end event processing is modeled. No live win rate is inferred."
+  ],
+  "scenarios": [
+    {
+      "scenario": "ties-lose/reserve-1",
+      "summaries": [
+        {
+          "strategy": "lexforge",
+          "score": 73.575,
+          "tilesWon": 11.633333333333333,
+          "spent": 163.79166666666669,
+          "starvedRounds": 8.1,
+          "tilesLeft": 2.341666666666667,
+          "pointsPerPlayedTile": 5.201097564322216
+        },
+        {
+          "strategy": "F-va",
+          "score": 76.34166666666667,
+          "tilesWon": 11.858333333333334,
+          "spent": 166.5,
+          "starvedRounds": 7.7,
+          "tilesLeft": 2.2666666666666666,
+          "pointsPerPlayedTile": 5.220143990963457
+        },
+        {
+          "strategy": "F-ve",
+          "score": 68.64166666666667,
+          "tilesWon": 11.691666666666666,
+          "spent": 151.95833333333334,
+          "starvedRounds": 11.191666666666666,
+          "tilesLeft": 2.375,
+          "pointsPerPlayedTile": 4.793434393514696
+        },
+        {
+          "strategy": "F-vg",
+          "score": 72.86666666666665,
+          "tilesWon": 10.975,
+          "spent": 150.8,
+          "starvedRounds": 10,
+          "tilesLeft": 2.2750000000000004,
+          "pointsPerPlayedTile": 5.347141728455582
+        },
+        {
+          "strategy": "F-vi",
+          "score": 72.85,
+          "tilesWon": 11.524999999999999,
+          "spent": 157.61666666666667,
+          "starvedRounds": 6.841666666666666,
+          "tilesLeft": 2.541666666666667,
+          "pointsPerPlayedTile": 5.2311203135100195
+        },
+        {
+          "strategy": "LexD10",
+          "score": 73.075,
+          "tilesWon": 11.783333333333333,
+          "spent": 165.68333333333334,
+          "starvedRounds": 7.658333333333333,
+          "tilesLeft": 2.366666666666667,
+          "pointsPerPlayedTile": 5.121389020551172
+        },
+        {
+          "strategy": "LexD10L3",
+          "score": 73.075,
+          "tilesWon": 11.783333333333333,
+          "spent": 165.68333333333334,
+          "starvedRounds": 7.658333333333333,
+          "tilesLeft": 2.366666666666667,
+          "pointsPerPlayedTile": 5.121389020551172
+        },
+        {
+          "strategy": "LexD10L4",
+          "score": 73.00833333333333,
+          "tilesWon": 11.683333333333334,
+          "spent": 164.5,
+          "starvedRounds": 7.958333333333333,
+          "tilesLeft": 2.3333333333333335,
+          "pointsPerPlayedTile": 5.136435316847469
+        },
+        {
+          "strategy": "LexD5",
+          "score": 73.59166666666667,
+          "tilesWon": 11.633333333333333,
+          "spent": 163.775,
+          "starvedRounds": 8.1,
+          "tilesLeft": 2.325,
+          "pointsPerPlayedTile": 5.197717934692586
+        }
+      ],
+      "comparisons": [
+        {
+          "strategy": "F-va",
+          "scoreDifference": 2.7666666666666666,
+          "matchClusterBootstrap95": [
+            -6.633333333333335,
+            12.1
+          ]
+        },
+        {
+          "strategy": "F-ve",
+          "scoreDifference": -4.933333333333334,
+          "matchClusterBootstrap95": [
+            -13.383333333333335,
+            2.891666666666666
+          ]
+        },
+        {
+          "strategy": "F-vg",
+          "scoreDifference": -0.7083333333333343,
+          "matchClusterBootstrap95": [
+            -11.150000000000002,
+            10.166666666666666
+          ]
+        },
+        {
+          "strategy": "F-vi",
+          "scoreDifference": -0.7250000000000011,
+          "matchClusterBootstrap95": [
+            -11.25,
+            10.716666666666665
+          ]
+        },
+        {
+          "strategy": "LexD10",
+          "scoreDifference": -0.5000000000000007,
+          "matchClusterBootstrap95": [
+            -1.9500000000000015,
+            0.35
+          ]
+        },
+        {
+          "strategy": "LexD10L3",
+          "scoreDifference": -0.5000000000000007,
+          "matchClusterBootstrap95": [
+            -1.9500000000000015,
+            0.35
+          ]
+        },
+        {
+          "strategy": "LexD10L4",
+          "scoreDifference": -0.5666666666666671,
+          "matchClusterBootstrap95": [
+            -2.0000000000000013,
+            0.3
+          ]
+        },
+        {
+          "strategy": "LexD5",
+          "scoreDifference": 0.01666666666666643,
+          "matchClusterBootstrap95": [
+            0,
+            0.04999999999999929
+          ]
+        }
+      ],
+      "byMatch": [
+        {
+          "matchId": 45901,
+          "lexforge": {
+            "score": 92,
+            "tilesWon": 15,
+            "spent": 190,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.842105263157895
+          },
+          "F-va": {
+            "score": 53,
+            "tilesWon": 10,
+            "spent": 134,
+            "starvedRounds": 2,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.076923076923077
+          },
+          "F-ve": {
+            "score": 78,
+            "tilesWon": 12,
+            "spent": 150,
+            "starvedRounds": 2,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.2
+          },
+          "F-vg": {
+            "score": 60,
+            "tilesWon": 9,
+            "spent": 134,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "F-vi": {
+            "score": 66,
+            "tilesWon": 12,
+            "spent": 151,
+            "starvedRounds": 0,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.3999999999999995
+          },
+          "LexD10": {
+            "score": 92,
+            "tilesWon": 15,
+            "spent": 190,
+            "starvedRounds": 2,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.842105263157895
+          },
+          "LexD10L3": {
+            "score": 92,
+            "tilesWon": 15,
+            "spent": 190,
+            "starvedRounds": 2,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.842105263157895
+          },
+          "LexD10L4": {
+            "score": 92,
+            "tilesWon": 15,
+            "spent": 190,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.842105263157895
+          },
+          "LexD5": {
+            "score": 92,
+            "tilesWon": 15,
+            "spent": 190,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.842105263157895
+          }
+        },
+        {
+          "matchId": 45914,
+          "lexforge": {
+            "score": 92,
+            "tilesWon": 13,
+            "spent": 169,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          },
+          "F-va": {
+            "score": 70,
+            "tilesWon": 12,
+            "spent": 161,
+            "starvedRounds": 6,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5
+          },
+          "F-ve": {
+            "score": 50,
+            "tilesWon": 7,
+            "spent": 105,
+            "starvedRounds": 0,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.545454545454546
+          },
+          "F-vg": {
+            "score": 69,
+            "tilesWon": 9,
+            "spent": 122,
+            "starvedRounds": 1,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          },
+          "F-vi": {
+            "score": 46,
+            "tilesWon": 7,
+            "spent": 105,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.111111111111111
+          },
+          "LexD10": {
+            "score": 92,
+            "tilesWon": 13,
+            "spent": 169,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          },
+          "LexD10L3": {
+            "score": 92,
+            "tilesWon": 13,
+            "spent": 169,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          },
+          "LexD10L4": {
+            "score": 92,
+            "tilesWon": 13,
+            "spent": 169,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          },
+          "LexD5": {
+            "score": 92,
+            "tilesWon": 13,
+            "spent": 169,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.75
+          }
+        },
+        {
+          "matchId": 45875,
+          "lexforge": {
+            "score": 78,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "F-va": {
+            "score": 90,
+            "tilesWon": 12,
+            "spent": 180,
+            "starvedRounds": 10,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6
+          },
+          "F-ve": {
+            "score": 81,
+            "tilesWon": 11,
+            "spent": 139,
+            "starvedRounds": 0,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.785714285714286
+          },
+          "F-vg": {
+            "score": 70,
+            "tilesWon": 12,
+            "spent": 149,
+            "starvedRounds": 1,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.375
+          },
+          "F-vi": {
+            "score": 68,
+            "tilesWon": 12,
+            "spent": 162,
+            "starvedRounds": 1,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.533333333333332
+          },
+          "LexD10": {
+            "score": 78,
+            "tilesWon": 14,
+            "spent": 175,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "LexD10L3": {
+            "score": 78,
+            "tilesWon": 14,
+            "spent": 175,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "LexD10L4": {
+            "score": 78,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "LexD5": {
+            "score": 78,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.588235294117646
+          }
+        },
+        {
+          "matchId": 45888,
+          "lexforge": {
+            "score": 60,
+            "tilesWon": 11,
+            "spent": 154,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.285714285714286
+          },
+          "F-va": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.583333333333333
+          },
+          "F-ve": {
+            "score": 47,
+            "tilesWon": 10,
+            "spent": 139,
+            "starvedRounds": 3,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.2727272727272725
+          },
+          "F-vg": {
+            "score": 53,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.818181818181819
+          },
+          "F-vi": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 151,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.833333333333333
+          },
+          "LexD10": {
+            "score": 60,
+            "tilesWon": 11,
+            "spent": 154,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.285714285714286
+          },
+          "LexD10L3": {
+            "score": 60,
+            "tilesWon": 11,
+            "spent": 154,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.285714285714286
+          },
+          "LexD10L4": {
+            "score": 60,
+            "tilesWon": 11,
+            "spent": 154,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.285714285714286
+          },
+          "LexD5": {
+            "score": 60,
+            "tilesWon": 11,
+            "spent": 154,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.285714285714286
+          }
+        },
+        {
+          "matchId": 45863,
+          "lexforge": {
+            "score": 94,
+            "tilesWon": 12,
+            "spent": 182,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.875
+          },
+          "F-va": {
+            "score": 58,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.833333333333333
+          },
+          "F-ve": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 145,
+            "starvedRounds": 16,
+            "tilesLeft": 0,
+            "pointsPerPlayedTile": 3.6666666666666665
+          },
+          "F-vg": {
+            "score": 77,
+            "tilesWon": 11,
+            "spent": 161,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.133333333333334
+          },
+          "F-vi": {
+            "score": 66,
+            "tilesWon": 10,
+            "spent": 163,
+            "starvedRounds": 2,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.5
+          },
+          "LexD10": {
+            "score": 94,
+            "tilesWon": 12,
+            "spent": 182,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.875
+          },
+          "LexD10L3": {
+            "score": 94,
+            "tilesWon": 12,
+            "spent": 182,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.875
+          },
+          "LexD10L4": {
+            "score": 94,
+            "tilesWon": 12,
+            "spent": 182,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.875
+          },
+          "LexD5": {
+            "score": 94,
+            "tilesWon": 12,
+            "spent": 182,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.875
+          }
+        },
+        {
+          "matchId": 45840,
+          "lexforge": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "F-va": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "F-ve": {
+            "score": 72,
+            "tilesWon": 12,
+            "spent": 131,
+            "starvedRounds": 0,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.538461538461539
+          },
+          "F-vg": {
+            "score": 76,
+            "tilesWon": 11,
+            "spent": 141,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.42857142857143
+          },
+          "F-vi": {
+            "score": 67,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 2,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 5.583333333333333
+          },
+          "LexD10": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 155,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "LexD10L3": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 155,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "LexD10L4": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "LexD5": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          }
+        },
+        {
+          "matchId": 45851,
+          "lexforge": {
+            "score": 71,
+            "tilesWon": 13,
+            "spent": 164,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.733333333333333
+          },
+          "F-va": {
+            "score": 84,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 6,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "F-ve": {
+            "score": 47,
+            "tilesWon": 11,
+            "spent": 135,
+            "starvedRounds": 12,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 3.6153846153846154
+          },
+          "F-vg": {
+            "score": 98,
+            "tilesWon": 11,
+            "spent": 151,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 7.538461538461539
+          },
+          "F-vi": {
+            "score": 82,
+            "tilesWon": 11,
+            "spent": 143,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.3076923076923075
+          },
+          "LexD10": {
+            "score": 71,
+            "tilesWon": 13,
+            "spent": 164,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.733333333333333
+          },
+          "LexD10L3": {
+            "score": 71,
+            "tilesWon": 13,
+            "spent": 164,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.733333333333333
+          },
+          "LexD10L4": {
+            "score": 71,
+            "tilesWon": 13,
+            "spent": 164,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.733333333333333
+          },
+          "LexD5": {
+            "score": 71,
+            "tilesWon": 13,
+            "spent": 164,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.733333333333333
+          }
+        },
+        {
+          "matchId": 45828,
+          "lexforge": {
+            "score": 100,
+            "tilesWon": 14,
+            "spent": 196,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.555555555555556
+          },
+          "F-va": {
+            "score": 98,
+            "tilesWon": 15,
+            "spent": 190,
+            "starvedRounds": 2,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.444444444444444
+          },
+          "F-ve": {
+            "score": 100,
+            "tilesWon": 15,
+            "spent": 185,
+            "starvedRounds": 1,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.555555555555556
+          },
+          "F-vg": {
+            "score": 79,
+            "tilesWon": 13,
+            "spent": 160,
+            "starvedRounds": 2,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.9375
+          },
+          "F-vi": {
+            "score": 87,
+            "tilesWon": 12,
+            "spent": 163,
+            "starvedRounds": 0,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6.6923076923076925
+          },
+          "LexD10": {
+            "score": 100,
+            "tilesWon": 14,
+            "spent": 196,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.555555555555556
+          },
+          "LexD10L3": {
+            "score": 100,
+            "tilesWon": 14,
+            "spent": 196,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.555555555555556
+          },
+          "LexD10L4": {
+            "score": 100,
+            "tilesWon": 14,
+            "spent": 196,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.555555555555556
+          },
+          "LexD5": {
+            "score": 100,
+            "tilesWon": 14,
+            "spent": 196,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.555555555555556
+          }
+        },
+        {
+          "matchId": 45815,
+          "lexforge": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.6153846153846154
+          },
+          "F-va": {
+            "score": 35,
+            "tilesWon": 7,
+            "spent": 129,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 3.5
+          },
+          "F-ve": {
+            "score": 61,
+            "tilesWon": 9,
+            "spent": 143,
+            "starvedRounds": 35,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.6923076923076925
+          },
+          "F-vg": {
+            "score": 54,
+            "tilesWon": 8,
+            "spent": 130,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.909090909090909
+          },
+          "F-vi": {
+            "score": 41,
+            "tilesWon": 7,
+            "spent": 104,
+            "starvedRounds": 1,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.1000000000000005
+          },
+          "LexD10": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.6153846153846154
+          },
+          "LexD10L3": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.6153846153846154
+          },
+          "LexD10L4": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.6153846153846154
+          },
+          "LexD5": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.6153846153846154
+          }
+        },
+        {
+          "matchId": 45802,
+          "lexforge": {
+            "score": 54,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.857142857142857
+          },
+          "F-va": {
+            "score": 66,
+            "tilesWon": 12,
+            "spent": 157,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.125
+          },
+          "F-ve": {
+            "score": 63,
+            "tilesWon": 15,
+            "spent": 153,
+            "starvedRounds": 14,
+            "tilesLeft": 6,
+            "pointsPerPlayedTile": 4.5
+          },
+          "F-vg": {
+            "score": 75,
+            "tilesWon": 14,
+            "spent": 162,
+            "starvedRounds": 19,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.166666666666667
+          },
+          "F-vi": {
+            "score": 58,
+            "tilesWon": 13,
+            "spent": 150,
+            "starvedRounds": 7,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 3.625
+          },
+          "LexD10": {
+            "score": 54,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.857142857142857
+          },
+          "LexD10L3": {
+            "score": 54,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.857142857142857
+          },
+          "LexD10L4": {
+            "score": 54,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.857142857142857
+          },
+          "LexD5": {
+            "score": 54,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.857142857142857
+          }
+        },
+        {
+          "matchId": 45776,
+          "lexforge": {
+            "score": 97,
+            "tilesWon": 13,
+            "spent": 196,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.0625
+          },
+          "F-va": {
+            "score": 100,
+            "tilesWon": 14,
+            "spent": 195,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.882352941176471
+          },
+          "F-ve": {
+            "score": 84,
+            "tilesWon": 13,
+            "spent": 155,
+            "starvedRounds": 1,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "F-vg": {
+            "score": 80,
+            "tilesWon": 11,
+            "spent": 134,
+            "starvedRounds": 6,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.714285714285714
+          },
+          "F-vi": {
+            "score": 85,
+            "tilesWon": 14,
+            "spent": 180,
+            "starvedRounds": 24,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.3125
+          },
+          "LexD10": {
+            "score": 97,
+            "tilesWon": 13,
+            "spent": 196,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.0625
+          },
+          "LexD10L3": {
+            "score": 97,
+            "tilesWon": 13,
+            "spent": 196,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.0625
+          },
+          "LexD10L4": {
+            "score": 97,
+            "tilesWon": 13,
+            "spent": 196,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.0625
+          },
+          "LexD5": {
+            "score": 97,
+            "tilesWon": 13,
+            "spent": 196,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.0625
+          }
+        },
+        {
+          "matchId": 45789,
+          "lexforge": {
+            "score": 51,
+            "tilesWon": 11,
+            "spent": 149,
+            "starvedRounds": 17,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "F-va": {
+            "score": 64,
+            "tilesWon": 11,
+            "spent": 155,
+            "starvedRounds": 25,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.333333333333333
+          },
+          "F-ve": {
+            "score": 63,
+            "tilesWon": 13,
+            "spent": 155,
+            "starvedRounds": 22,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.5
+          },
+          "F-vg": {
+            "score": 49,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 34,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.454545454545454
+          },
+          "F-vi": {
+            "score": 102,
+            "tilesWon": 16,
+            "spent": 193,
+            "starvedRounds": 6,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.666666666666667
+          },
+          "LexD10": {
+            "score": 51,
+            "tilesWon": 11,
+            "spent": 149,
+            "starvedRounds": 17,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "LexD10L3": {
+            "score": 51,
+            "tilesWon": 11,
+            "spent": 149,
+            "starvedRounds": 17,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "LexD10L4": {
+            "score": 51,
+            "tilesWon": 11,
+            "spent": 149,
+            "starvedRounds": 17,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 4.636363636363637
+          },
+          "LexD5": {
+            "score": 51,
+            "tilesWon": 11,
+            "spent": 149,
+            "starvedRounds": 17,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 4.636363636363637
+          }
+        },
+        {
+          "matchId": 45762,
+          "lexforge": {
+            "score": 70.16666666666667,
+            "tilesWon": 10.833333333333334,
+            "spent": 165,
+            "starvedRounds": 14,
+            "tilesLeft": 2.8333333333333335,
+            "pointsPerPlayedTile": 5.4259259259259265
+          },
+          "F-va": {
+            "score": 92.5,
+            "tilesWon": 14.833333333333334,
+            "spent": 190,
+            "starvedRounds": 5.666666666666667,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.912280701754386
+          },
+          "F-ve": {
+            "score": 78.5,
+            "tilesWon": 13.166666666666666,
+            "spent": 173.66666666666666,
+            "starvedRounds": 16.166666666666668,
+            "tilesLeft": 1.8333333333333333,
+            "pointsPerPlayedTile": 4.818287037037037
+          },
+          "F-vg": {
+            "score": 92.5,
+            "tilesWon": 15.166666666666666,
+            "spent": 178.83333333333334,
+            "starvedRounds": 8.5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.087719298245614
+          },
+          "F-vi": {
+            "score": 93.33333333333333,
+            "tilesWon": 14,
+            "spent": 184.66666666666666,
+            "starvedRounds": 1.6666666666666667,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.4901960784313735
+          },
+          "LexD10": {
+            "score": 70.5,
+            "tilesWon": 10.833333333333334,
+            "spent": 164.66666666666666,
+            "starvedRounds": 14,
+            "tilesLeft": 2.5,
+            "pointsPerPlayedTile": 5.358333333333333
+          },
+          "LexD10L3": {
+            "score": 70.5,
+            "tilesWon": 10.833333333333334,
+            "spent": 164.66666666666666,
+            "starvedRounds": 14,
+            "tilesLeft": 2.5,
+            "pointsPerPlayedTile": 5.358333333333333
+          },
+          "LexD10L4": {
+            "score": 70.16666666666667,
+            "tilesWon": 10.833333333333334,
+            "spent": 165,
+            "starvedRounds": 14,
+            "tilesLeft": 2.8333333333333335,
+            "pointsPerPlayedTile": 5.4259259259259265
+          },
+          "LexD5": {
+            "score": 70.5,
+            "tilesWon": 10.833333333333334,
+            "spent": 164.66666666666666,
+            "starvedRounds": 14,
+            "tilesLeft": 2.5,
+            "pointsPerPlayedTile": 5.358333333333333
+          }
+        },
+        {
+          "matchId": 45749,
+          "lexforge": {
+            "score": 78.5,
+            "tilesWon": 10,
+            "spent": 164.33333333333334,
+            "starvedRounds": 10.5,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 6.03409090909091
+          },
+          "F-va": {
+            "score": 75.16666666666667,
+            "tilesWon": 9.333333333333334,
+            "spent": 162,
+            "starvedRounds": 6.666666666666667,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 5.954861111111111
+          },
+          "F-ve": {
+            "score": 53.666666666666664,
+            "tilesWon": 10,
+            "spent": 144.66666666666666,
+            "starvedRounds": 5.666666666666667,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 3.9876984126984127
+          },
+          "F-vg": {
+            "score": 57.666666666666664,
+            "tilesWon": 9,
+            "spent": 144.5,
+            "starvedRounds": 6.166666666666667,
+            "tilesLeft": 2.6666666666666665,
+            "pointsPerPlayedTile": 5.094017094017094
+          },
+          "F-vi": {
+            "score": 61.833333333333336,
+            "tilesWon": 9.166666666666666,
+            "spent": 153,
+            "starvedRounds": 15.666666666666666,
+            "tilesLeft": 2.1666666666666665,
+            "pointsPerPlayedTile": 5.116666666666667
+          },
+          "LexD10": {
+            "score": 78.5,
+            "tilesWon": 10,
+            "spent": 164.33333333333334,
+            "starvedRounds": 10.5,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 6.03409090909091
+          },
+          "LexD10L3": {
+            "score": 78.5,
+            "tilesWon": 10,
+            "spent": 164.33333333333334,
+            "starvedRounds": 10.5,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 6.03409090909091
+          },
+          "LexD10L4": {
+            "score": 78.5,
+            "tilesWon": 10,
+            "spent": 164.33333333333334,
+            "starvedRounds": 10.5,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 6.03409090909091
+          },
+          "LexD5": {
+            "score": 78.5,
+            "tilesWon": 10,
+            "spent": 164.33333333333334,
+            "starvedRounds": 10.5,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 6.03409090909091
+          }
+        },
+        {
+          "matchId": 45724,
+          "lexforge": {
+            "score": 40,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 6,
+            "tilesLeft": 8,
+            "pointsPerPlayedTile": 6.666666666666667
+          },
+          "F-va": {
+            "score": 86,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.733333333333333
+          },
+          "F-ve": {
+            "score": 61,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 0,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.545454545454546
+          },
+          "F-vg": {
+            "score": 85,
+            "tilesWon": 11,
+            "spent": 160,
+            "starvedRounds": 17,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.07142857142857
+          },
+          "F-vi": {
+            "score": 81,
+            "tilesWon": 10,
+            "spent": 180,
+            "starvedRounds": 2,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.230769230769231
+          },
+          "LexD10": {
+            "score": 40,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 6,
+            "tilesLeft": 8,
+            "pointsPerPlayedTile": 6.666666666666667
+          },
+          "LexD10L3": {
+            "score": 40,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 6,
+            "tilesLeft": 8,
+            "pointsPerPlayedTile": 6.666666666666667
+          },
+          "LexD10L4": {
+            "score": 40,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 6,
+            "tilesLeft": 8,
+            "pointsPerPlayedTile": 6.666666666666667
+          },
+          "LexD5": {
+            "score": 40,
+            "tilesWon": 9,
+            "spent": 135,
+            "starvedRounds": 6,
+            "tilesLeft": 8,
+            "pointsPerPlayedTile": 6.666666666666667
+          }
+        },
+        {
+          "matchId": 45736,
+          "lexforge": {
+            "score": 63,
+            "tilesWon": 9,
+            "spent": 139,
+            "starvedRounds": 24,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.7272727272727275
+          },
+          "F-va": {
+            "score": 93,
+            "tilesWon": 11,
+            "spent": 169,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 6.2
+          },
+          "F-ve": {
+            "score": 68,
+            "tilesWon": 9,
+            "spent": 141,
+            "starvedRounds": 28,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.230769230769231
+          },
+          "F-vg": {
+            "score": 82,
+            "tilesWon": 10,
+            "spent": 158,
+            "starvedRounds": 5,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.833333333333333
+          },
+          "F-vi": {
+            "score": 104,
+            "tilesWon": 12,
+            "spent": 194,
+            "starvedRounds": 25,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 7.42857142857143
+          },
+          "LexD10": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 21,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD10L3": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 21,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD10L4": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 21,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD5": {
+            "score": 63,
+            "tilesWon": 9,
+            "spent": 139,
+            "starvedRounds": 24,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.7272727272727275
+          }
+        },
+        {
+          "matchId": 45712,
+          "lexforge": {
+            "score": 92.16666666666667,
+            "tilesWon": 12.166666666666666,
+            "spent": 173.5,
+            "starvedRounds": 10.833333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.706495098039215
+          },
+          "F-va": {
+            "score": 102.16666666666667,
+            "tilesWon": 16,
+            "spent": 199.33333333333334,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.108333333333333
+          },
+          "F-ve": {
+            "score": 62.666666666666664,
+            "tilesWon": 11,
+            "spent": 159.5,
+            "starvedRounds": 27.666666666666668,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.476190476190475
+          },
+          "F-vg": {
+            "score": 52.833333333333336,
+            "tilesWon": 10,
+            "spent": 150.33333333333334,
+            "starvedRounds": 22.666666666666668,
+            "tilesLeft": 3.5,
+            "pointsPerPlayedTile": 4.478070175438597
+          },
+          "F-vi": {
+            "score": 65.5,
+            "tilesWon": 11.666666666666666,
+            "spent": 160.66666666666666,
+            "starvedRounds": 15.833333333333334,
+            "tilesLeft": 0.3333333333333333,
+            "pointsPerPlayedTile": 4.012820512820513
+          },
+          "LexD10": {
+            "score": 78.83333333333333,
+            "tilesWon": 12.166666666666666,
+            "spent": 173.66666666666666,
+            "starvedRounds": 11,
+            "tilesLeft": 1.8333333333333333,
+            "pointsPerPlayedTile": 5.140522875816994
+          },
+          "LexD10L3": {
+            "score": 78.83333333333333,
+            "tilesWon": 12.166666666666666,
+            "spent": 173.66666666666666,
+            "starvedRounds": 11,
+            "tilesLeft": 1.8333333333333333,
+            "pointsPerPlayedTile": 5.140522875816994
+          },
+          "LexD10L4": {
+            "score": 78.83333333333333,
+            "tilesWon": 12.166666666666666,
+            "spent": 173.66666666666666,
+            "starvedRounds": 11,
+            "tilesLeft": 1.8333333333333333,
+            "pointsPerPlayedTile": 5.140522875816994
+          },
+          "LexD5": {
+            "score": 92.16666666666667,
+            "tilesWon": 12.166666666666666,
+            "spent": 173.5,
+            "starvedRounds": 10.833333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.706495098039215
+          }
+        },
+        {
+          "matchId": 45701,
+          "lexforge": {
+            "score": 93,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.2
+          },
+          "F-va": {
+            "score": 75,
+            "tilesWon": 11,
+            "spent": 160,
+            "starvedRounds": 3,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6.25
+          },
+          "F-ve": {
+            "score": 95,
+            "tilesWon": 13,
+            "spent": 189,
+            "starvedRounds": 24,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.9375
+          },
+          "F-vg": {
+            "score": 69,
+            "tilesWon": 10,
+            "spent": 150,
+            "starvedRounds": 12,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6.2727272727272725
+          },
+          "F-vi": {
+            "score": 84,
+            "tilesWon": 13,
+            "spent": 172,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.25
+          },
+          "LexD10": {
+            "score": 93,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.2
+          },
+          "LexD10L3": {
+            "score": 93,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.2
+          },
+          "LexD10L4": {
+            "score": 93,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.2
+          },
+          "LexD5": {
+            "score": 93,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.2
+          }
+        },
+        {
+          "matchId": 45690,
+          "lexforge": {
+            "score": 63,
+            "tilesWon": 11,
+            "spent": 150,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.5
+          },
+          "F-va": {
+            "score": 98,
+            "tilesWon": 14,
+            "spent": 197,
+            "starvedRounds": 10,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.125
+          },
+          "F-ve": {
+            "score": 78,
+            "tilesWon": 14,
+            "spent": 171,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "F-vg": {
+            "score": 106,
+            "tilesWon": 13,
+            "spent": 195,
+            "starvedRounds": 17,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.625
+          },
+          "F-vi": {
+            "score": 77,
+            "tilesWon": 12,
+            "spent": 127,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.5
+          },
+          "LexD10": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 156,
+            "starvedRounds": 0,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.266666666666667
+          },
+          "LexD10L3": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 156,
+            "starvedRounds": 0,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.266666666666667
+          },
+          "LexD10L4": {
+            "score": 63,
+            "tilesWon": 11,
+            "spent": 150,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.5
+          },
+          "LexD5": {
+            "score": 63,
+            "tilesWon": 11,
+            "spent": 150,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.5
+          }
+        },
+        {
+          "matchId": 45679,
+          "lexforge": {
+            "score": 79.66666666666667,
+            "tilesWon": 14.666666666666666,
+            "spent": 173,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.360165118679051
+          },
+          "F-va": {
+            "score": 76,
+            "tilesWon": 15,
+            "spent": 173.66666666666666,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 4.140350877192983
+          },
+          "F-ve": {
+            "score": 75,
+            "tilesWon": 15.666666666666666,
+            "spent": 172.33333333333334,
+            "starvedRounds": 12.333333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.812280701754386
+          },
+          "F-vg": {
+            "score": 72.33333333333333,
+            "tilesWon": 13.333333333333334,
+            "spent": 160.33333333333334,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.254901960784314
+          },
+          "F-vi": {
+            "score": 64.33333333333333,
+            "tilesWon": 12.666666666666666,
+            "spent": 162,
+            "starvedRounds": 21.666666666666668,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 3.9281045751633985
+          },
+          "LexD10": {
+            "score": 79.66666666666667,
+            "tilesWon": 14.666666666666666,
+            "spent": 173,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.360165118679051
+          },
+          "LexD10L3": {
+            "score": 79.66666666666667,
+            "tilesWon": 14.666666666666666,
+            "spent": 173,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.360165118679051
+          },
+          "LexD10L4": {
+            "score": 79.66666666666667,
+            "tilesWon": 14.666666666666666,
+            "spent": 173,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.360165118679051
+          },
+          "LexD5": {
+            "score": 79.66666666666667,
+            "tilesWon": 14.666666666666666,
+            "spent": 173,
+            "starvedRounds": 4.666666666666667,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.360165118679051
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "ties-win/reserve-0",
+      "summaries": [
+        {
+          "strategy": "lexforge",
+          "score": 76.24166666666667,
+          "tilesWon": 12.333333333333332,
+          "spent": 165.70833333333331,
+          "starvedRounds": 10.65,
+          "tilesLeft": 2.0500000000000003,
+          "pointsPerPlayedTile": 4.962286165703349
+        },
+        {
+          "strategy": "F-va",
+          "score": 78.44999999999999,
+          "tilesWon": 12.283333333333335,
+          "spent": 166.95,
+          "starvedRounds": 9.866666666666665,
+          "tilesLeft": 2.3500000000000005,
+          "pointsPerPlayedTile": 5.265016113845448
+        },
+        {
+          "strategy": "F-ve",
+          "score": 69.825,
+          "tilesWon": 12.416666666666668,
+          "spent": 159.54166666666666,
+          "starvedRounds": 14.366666666666665,
+          "tilesLeft": 2.4916666666666663,
+          "pointsPerPlayedTile": 4.66711438855692
+        },
+        {
+          "strategy": "F-vg",
+          "score": 73.12499999999999,
+          "tilesWon": 11.816666666666666,
+          "spent": 155.47500000000002,
+          "starvedRounds": 12.125000000000002,
+          "tilesLeft": 2.6166666666666663,
+          "pointsPerPlayedTile": 5.189131819404651
+        },
+        {
+          "strategy": "F-vi",
+          "score": 68.01666666666667,
+          "tilesWon": 11.65,
+          "spent": 160.04166666666669,
+          "starvedRounds": 12.758333333333333,
+          "tilesLeft": 2.041666666666667,
+          "pointsPerPlayedTile": 4.63811039547398
+        },
+        {
+          "strategy": "LexD10",
+          "score": 76.725,
+          "tilesWon": 12.533333333333333,
+          "spent": 168.75833333333333,
+          "starvedRounds": 9.716666666666667,
+          "tilesLeft": 1.9166666666666667,
+          "pointsPerPlayedTile": 4.875232937713588
+        },
+        {
+          "strategy": "LexD10L3",
+          "score": 76.725,
+          "tilesWon": 12.533333333333333,
+          "spent": 168.50833333333333,
+          "starvedRounds": 9.716666666666667,
+          "tilesLeft": 1.9166666666666667,
+          "pointsPerPlayedTile": 4.875232937713588
+        },
+        {
+          "strategy": "LexD10L4",
+          "score": 76.725,
+          "tilesWon": 12.533333333333333,
+          "spent": 168.50833333333333,
+          "starvedRounds": 9.716666666666667,
+          "tilesLeft": 1.9166666666666667,
+          "pointsPerPlayedTile": 4.875232937713588
+        },
+        {
+          "strategy": "LexD5",
+          "score": 76.24166666666667,
+          "tilesWon": 12.433333333333334,
+          "spent": 166.95833333333331,
+          "starvedRounds": 10.266666666666667,
+          "tilesLeft": 2.1500000000000004,
+          "pointsPerPlayedTile": 4.962286165703349
+        }
+      ],
+      "comparisons": [
+        {
+          "strategy": "F-va",
+          "scoreDifference": 2.2083333333333335,
+          "matchClusterBootstrap95": [
+            -6.633333333333333,
+            10.7
+          ]
+        },
+        {
+          "strategy": "F-ve",
+          "scoreDifference": -6.416666666666666,
+          "matchClusterBootstrap95": [
+            -13.958333333333334,
+            1.1000000000000003
+          ]
+        },
+        {
+          "strategy": "F-vg",
+          "scoreDifference": -3.116666666666666,
+          "matchClusterBootstrap95": [
+            -10.275,
+            3.6750000000000007
+          ]
+        },
+        {
+          "strategy": "F-vi",
+          "scoreDifference": -8.225,
+          "matchClusterBootstrap95": [
+            -15.766666666666662,
+            -0.7249999999999996
+          ]
+        },
+        {
+          "strategy": "LexD10",
+          "scoreDifference": 0.48333333333333356,
+          "matchClusterBootstrap95": [
+            -0.01666666666666643,
+            1.1833333333333336
+          ]
+        },
+        {
+          "strategy": "LexD10L3",
+          "scoreDifference": 0.48333333333333356,
+          "matchClusterBootstrap95": [
+            -0.01666666666666643,
+            1.1833333333333336
+          ]
+        },
+        {
+          "strategy": "LexD10L4",
+          "scoreDifference": 0.48333333333333356,
+          "matchClusterBootstrap95": [
+            -0.01666666666666643,
+            1.1833333333333336
+          ]
+        },
+        {
+          "strategy": "LexD5",
+          "scoreDifference": 0,
+          "matchClusterBootstrap95": [
+            0,
+            0
+          ]
+        }
+      ],
+      "byMatch": [
+        {
+          "matchId": 45901,
+          "lexforge": {
+            "score": 87,
+            "tilesWon": 13,
+            "spent": 179,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.117647058823529
+          },
+          "F-va": {
+            "score": 59,
+            "tilesWon": 13,
+            "spent": 148,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.214285714285714
+          },
+          "F-ve": {
+            "score": 74,
+            "tilesWon": 11,
+            "spent": 134,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.6923076923076925
+          },
+          "F-vg": {
+            "score": 63,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.846153846153846
+          },
+          "F-vi": {
+            "score": 62,
+            "tilesWon": 12,
+            "spent": 140,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.42857142857143
+          },
+          "LexD10": {
+            "score": 87,
+            "tilesWon": 13,
+            "spent": 179,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.117647058823529
+          },
+          "LexD10L3": {
+            "score": 87,
+            "tilesWon": 13,
+            "spent": 179,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.117647058823529
+          },
+          "LexD10L4": {
+            "score": 87,
+            "tilesWon": 13,
+            "spent": 179,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.117647058823529
+          },
+          "LexD5": {
+            "score": 87,
+            "tilesWon": 13,
+            "spent": 179,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.117647058823529
+          }
+        },
+        {
+          "matchId": 45914,
+          "lexforge": {
+            "score": 67,
+            "tilesWon": 12,
+            "spent": 153,
+            "starvedRounds": 17,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.466666666666668
+          },
+          "F-va": {
+            "score": 78,
+            "tilesWon": 13,
+            "spent": 164,
+            "starvedRounds": 20,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "F-ve": {
+            "score": 66,
+            "tilesWon": 11,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.3999999999999995
+          },
+          "F-vg": {
+            "score": 69,
+            "tilesWon": 11,
+            "spent": 131,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.6000000000000005
+          },
+          "F-vi": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 0,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD10": {
+            "score": 67,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.466666666666668
+          },
+          "LexD10L3": {
+            "score": 67,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.466666666666668
+          },
+          "LexD10L4": {
+            "score": 67,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.466666666666668
+          },
+          "LexD5": {
+            "score": 67,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.466666666666668
+          }
+        },
+        {
+          "matchId": 45875,
+          "lexforge": {
+            "score": 73,
+            "tilesWon": 12,
+            "spent": 166,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5625
+          },
+          "F-va": {
+            "score": 90,
+            "tilesWon": 12,
+            "spent": 181,
+            "starvedRounds": 11,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.625
+          },
+          "F-ve": {
+            "score": 79,
+            "tilesWon": 13,
+            "spent": 161,
+            "starvedRounds": 1,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.647058823529412
+          },
+          "F-vg": {
+            "score": 75,
+            "tilesWon": 12,
+            "spent": 162,
+            "starvedRounds": 2,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.6875
+          },
+          "F-vi": {
+            "score": 75,
+            "tilesWon": 11,
+            "spent": 136,
+            "starvedRounds": 0,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.357142857142857
+          },
+          "LexD10": {
+            "score": 73,
+            "tilesWon": 12,
+            "spent": 166,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5625
+          },
+          "LexD10L3": {
+            "score": 73,
+            "tilesWon": 12,
+            "spent": 166,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5625
+          },
+          "LexD10L4": {
+            "score": 73,
+            "tilesWon": 12,
+            "spent": 166,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5625
+          },
+          "LexD5": {
+            "score": 73,
+            "tilesWon": 12,
+            "spent": 166,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.5625
+          }
+        },
+        {
+          "matchId": 45888,
+          "lexforge": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.583333333333333
+          },
+          "F-va": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.583333333333333
+          },
+          "F-ve": {
+            "score": 47,
+            "tilesWon": 10,
+            "spent": 142,
+            "starvedRounds": 12,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 3.9166666666666665
+          },
+          "F-vg": {
+            "score": 53,
+            "tilesWon": 9,
+            "spent": 132,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.818181818181819
+          },
+          "F-vi": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 151,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.833333333333333
+          },
+          "LexD10": {
+            "score": 61,
+            "tilesWon": 11,
+            "spent": 156,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.066666666666666
+          },
+          "LexD10L3": {
+            "score": 61,
+            "tilesWon": 11,
+            "spent": 156,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.066666666666666
+          },
+          "LexD10L4": {
+            "score": 61,
+            "tilesWon": 11,
+            "spent": 156,
+            "starvedRounds": 4,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.066666666666666
+          },
+          "LexD5": {
+            "score": 55,
+            "tilesWon": 10,
+            "spent": 141,
+            "starvedRounds": 5,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.583333333333333
+          }
+        },
+        {
+          "matchId": 45863,
+          "lexforge": {
+            "score": 58,
+            "tilesWon": 9,
+            "spent": 147,
+            "starvedRounds": 15,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.461538461538461
+          },
+          "F-va": {
+            "score": 58,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.833333333333333
+          },
+          "F-ve": {
+            "score": 45,
+            "tilesWon": 10,
+            "spent": 131,
+            "starvedRounds": 8,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 4.5
+          },
+          "F-vg": {
+            "score": 66,
+            "tilesWon": 12,
+            "spent": 163,
+            "starvedRounds": 20,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.3999999999999995
+          },
+          "F-vi": {
+            "score": 62,
+            "tilesWon": 11,
+            "spent": 159,
+            "starvedRounds": 6,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.42857142857143
+          },
+          "LexD10": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 158,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.461538461538461
+          },
+          "LexD10L3": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 158,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.461538461538461
+          },
+          "LexD10L4": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 158,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.461538461538461
+          },
+          "LexD5": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 158,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.461538461538461
+          }
+        },
+        {
+          "matchId": 45840,
+          "lexforge": {
+            "score": 87,
+            "tilesWon": 14,
+            "spent": 183,
+            "starvedRounds": 10,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "F-va": {
+            "score": 56,
+            "tilesWon": 9,
+            "spent": 145,
+            "starvedRounds": 11,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "F-ve": {
+            "score": 66,
+            "tilesWon": 13,
+            "spent": 166,
+            "starvedRounds": 7,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 5.076923076923077
+          },
+          "F-vg": {
+            "score": 78,
+            "tilesWon": 12,
+            "spent": 147,
+            "starvedRounds": 6,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6
+          },
+          "F-vi": {
+            "score": 72,
+            "tilesWon": 12,
+            "spent": 172,
+            "starvedRounds": 4,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.142857142857143
+          },
+          "LexD10": {
+            "score": 87,
+            "tilesWon": 14,
+            "spent": 183,
+            "starvedRounds": 10,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "LexD10L3": {
+            "score": 87,
+            "tilesWon": 14,
+            "spent": 183,
+            "starvedRounds": 10,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "LexD10L4": {
+            "score": 87,
+            "tilesWon": 14,
+            "spent": 183,
+            "starvedRounds": 10,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "LexD5": {
+            "score": 87,
+            "tilesWon": 14,
+            "spent": 183,
+            "starvedRounds": 10,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.4375
+          }
+        },
+        {
+          "matchId": 45851,
+          "lexforge": {
+            "score": 69,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.6000000000000005
+          },
+          "F-va": {
+            "score": 84,
+            "tilesWon": 13,
+            "spent": 183,
+            "starvedRounds": 6,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.6000000000000005
+          },
+          "F-ve": {
+            "score": 51,
+            "tilesWon": 11,
+            "spent": 150,
+            "starvedRounds": 13,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 4.25
+          },
+          "F-vg": {
+            "score": 98,
+            "tilesWon": 11,
+            "spent": 151,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 7.538461538461539
+          },
+          "F-vi": {
+            "score": 53,
+            "tilesWon": 11,
+            "spent": 145,
+            "starvedRounds": 1,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.5333333333333328
+          },
+          "LexD10": {
+            "score": 69,
+            "tilesWon": 12,
+            "spent": 169,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.6000000000000005
+          },
+          "LexD10L3": {
+            "score": 69,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.6000000000000005
+          },
+          "LexD10L4": {
+            "score": 69,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.6000000000000005
+          },
+          "LexD5": {
+            "score": 69,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.6000000000000005
+          }
+        },
+        {
+          "matchId": 45828,
+          "lexforge": {
+            "score": 72,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.142857142857143
+          },
+          "F-va": {
+            "score": 108,
+            "tilesWon": 17,
+            "spent": 205,
+            "starvedRounds": 1,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.142857142857143
+          },
+          "F-ve": {
+            "score": 103,
+            "tilesWon": 16,
+            "spent": 191,
+            "starvedRounds": 0,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.722222222222222
+          },
+          "F-vg": {
+            "score": 63,
+            "tilesWon": 11,
+            "spent": 141,
+            "starvedRounds": 4,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.25
+          },
+          "F-vi": {
+            "score": 94,
+            "tilesWon": 14,
+            "spent": 189,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.529411764705883
+          },
+          "LexD10": {
+            "score": 72,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.142857142857143
+          },
+          "LexD10L3": {
+            "score": 72,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.142857142857143
+          },
+          "LexD10L4": {
+            "score": 72,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.142857142857143
+          },
+          "LexD5": {
+            "score": 72,
+            "tilesWon": 13,
+            "spent": 167,
+            "starvedRounds": 9,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.142857142857143
+          }
+        },
+        {
+          "matchId": 45815,
+          "lexforge": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 144,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.2727272727272725
+          },
+          "F-va": {
+            "score": 41,
+            "tilesWon": 7,
+            "spent": 99,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.555555555555556
+          },
+          "F-ve": {
+            "score": 58,
+            "tilesWon": 10,
+            "spent": 145,
+            "starvedRounds": 3,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.142857142857143
+          },
+          "F-vg": {
+            "score": 60,
+            "tilesWon": 10,
+            "spent": 140,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.615384615384614
+          },
+          "F-vi": {
+            "score": 43,
+            "tilesWon": 8,
+            "spent": 115,
+            "starvedRounds": 1,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.5833333333333335
+          },
+          "LexD10": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 144,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.2727272727272725
+          },
+          "LexD10L3": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 144,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.2727272727272725
+          },
+          "LexD10L4": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 144,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.2727272727272725
+          },
+          "LexD5": {
+            "score": 47,
+            "tilesWon": 9,
+            "spent": 144,
+            "starvedRounds": 9,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.2727272727272725
+          }
+        },
+        {
+          "matchId": 45802,
+          "lexforge": {
+            "score": 85,
+            "tilesWon": 14,
+            "spent": 172,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.722222222222222
+          },
+          "F-va": {
+            "score": 70,
+            "tilesWon": 14,
+            "spent": 161,
+            "starvedRounds": 14,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.117647058823529
+          },
+          "F-ve": {
+            "score": 70,
+            "tilesWon": 14,
+            "spent": 148,
+            "starvedRounds": 11,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.888888888888889
+          },
+          "F-vg": {
+            "score": 78,
+            "tilesWon": 14,
+            "spent": 169,
+            "starvedRounds": 13,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.588235294117646
+          },
+          "F-vi": {
+            "score": 59,
+            "tilesWon": 13,
+            "spent": 159,
+            "starvedRounds": 15,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.4705882352941173
+          },
+          "LexD10": {
+            "score": 85,
+            "tilesWon": 14,
+            "spent": 172,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.722222222222222
+          },
+          "LexD10L3": {
+            "score": 85,
+            "tilesWon": 14,
+            "spent": 172,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.722222222222222
+          },
+          "LexD10L4": {
+            "score": 85,
+            "tilesWon": 14,
+            "spent": 172,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.722222222222222
+          },
+          "LexD5": {
+            "score": 85,
+            "tilesWon": 14,
+            "spent": 172,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.722222222222222
+          }
+        },
+        {
+          "matchId": 45776,
+          "lexforge": {
+            "score": 82,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.466666666666668
+          },
+          "F-va": {
+            "score": 82,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.466666666666668
+          },
+          "F-ve": {
+            "score": 101,
+            "tilesWon": 16,
+            "spent": 199,
+            "starvedRounds": 16,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.3157894736842115
+          },
+          "F-vg": {
+            "score": 90,
+            "tilesWon": 14,
+            "spent": 190,
+            "starvedRounds": 6,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6
+          },
+          "F-vi": {
+            "score": 95,
+            "tilesWon": 13,
+            "spent": 189,
+            "starvedRounds": 25,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.9375
+          },
+          "LexD10": {
+            "score": 82,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.466666666666668
+          },
+          "LexD10L3": {
+            "score": 82,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.466666666666668
+          },
+          "LexD10L4": {
+            "score": 82,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.466666666666668
+          },
+          "LexD5": {
+            "score": 82,
+            "tilesWon": 12,
+            "spent": 154,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.466666666666668
+          }
+        },
+        {
+          "matchId": 45789,
+          "lexforge": {
+            "score": 107,
+            "tilesWon": 15,
+            "spent": 198,
+            "starvedRounds": 16,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.294117647058823
+          },
+          "F-va": {
+            "score": 64,
+            "tilesWon": 11,
+            "spent": 155,
+            "starvedRounds": 25,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 5.333333333333333
+          },
+          "F-ve": {
+            "score": 74,
+            "tilesWon": 15,
+            "spent": 170,
+            "starvedRounds": 30,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.352941176470588
+          },
+          "F-vg": {
+            "score": 60,
+            "tilesWon": 11,
+            "spent": 129,
+            "starvedRounds": 24,
+            "tilesLeft": 5,
+            "pointsPerPlayedTile": 5.454545454545454
+          },
+          "F-vi": {
+            "score": 67,
+            "tilesWon": 13,
+            "spent": 165,
+            "starvedRounds": 24,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.466666666666668
+          },
+          "LexD10": {
+            "score": 109,
+            "tilesWon": 15,
+            "spent": 200,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.7368421052631575
+          },
+          "LexD10L3": {
+            "score": 109,
+            "tilesWon": 15,
+            "spent": 200,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.7368421052631575
+          },
+          "LexD10L4": {
+            "score": 109,
+            "tilesWon": 15,
+            "spent": 200,
+            "starvedRounds": 10,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.7368421052631575
+          },
+          "LexD5": {
+            "score": 107,
+            "tilesWon": 15,
+            "spent": 198,
+            "starvedRounds": 16,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 6.294117647058823
+          }
+        },
+        {
+          "matchId": 45762,
+          "lexforge": {
+            "score": 83.83333333333333,
+            "tilesWon": 16,
+            "spent": 180.16666666666666,
+            "starvedRounds": 8.166666666666666,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 4.3345864661654145
+          },
+          "F-va": {
+            "score": 95.16666666666667,
+            "tilesWon": 15.833333333333334,
+            "spent": 189.16666666666666,
+            "starvedRounds": 9,
+            "tilesLeft": 1.1666666666666667,
+            "pointsPerPlayedTile": 4.842592592592593
+          },
+          "F-ve": {
+            "score": 62.666666666666664,
+            "tilesWon": 13.333333333333334,
+            "spent": 160.83333333333334,
+            "starvedRounds": 26,
+            "tilesLeft": 2.1666666666666665,
+            "pointsPerPlayedTile": 3.870098039215686
+          },
+          "F-vg": {
+            "score": 64,
+            "tilesWon": 10.666666666666666,
+            "spent": 157.66666666666666,
+            "starvedRounds": 29.333333333333332,
+            "tilesLeft": 3.5,
+            "pointsPerPlayedTile": 5.293771043771043
+          },
+          "F-vi": {
+            "score": 67.83333333333333,
+            "tilesWon": 12.5,
+            "spent": 163.66666666666666,
+            "starvedRounds": 29.833333333333332,
+            "tilesLeft": 0.16666666666666666,
+            "pointsPerPlayedTile": 3.905572755417957
+          },
+          "LexD10": {
+            "score": 83.5,
+            "tilesWon": 16,
+            "spent": 180.16666666666666,
+            "starvedRounds": 7.166666666666667,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.394736842105264
+          },
+          "LexD10L3": {
+            "score": 83.5,
+            "tilesWon": 16,
+            "spent": 180.16666666666666,
+            "starvedRounds": 7.166666666666667,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.394736842105264
+          },
+          "LexD10L4": {
+            "score": 83.5,
+            "tilesWon": 16,
+            "spent": 180.16666666666666,
+            "starvedRounds": 7.166666666666667,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.394736842105264
+          },
+          "LexD5": {
+            "score": 83.83333333333333,
+            "tilesWon": 16,
+            "spent": 180.16666666666666,
+            "starvedRounds": 8.166666666666666,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 4.3345864661654145
+          }
+        },
+        {
+          "matchId": 45749,
+          "lexforge": {
+            "score": 68.5,
+            "tilesWon": 10,
+            "spent": 162.5,
+            "starvedRounds": 13.333333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.906593406593406
+          },
+          "F-va": {
+            "score": 77.5,
+            "tilesWon": 9.5,
+            "spent": 172.16666666666666,
+            "starvedRounds": 12.666666666666666,
+            "tilesLeft": 2.5,
+            "pointsPerPlayedTile": 6.458333333333333
+          },
+          "F-ve": {
+            "score": 64.33333333333333,
+            "tilesWon": 11.333333333333334,
+            "spent": 157.66666666666666,
+            "starvedRounds": 19,
+            "tilesLeft": 1.1666666666666667,
+            "pointsPerPlayedTile": 4.298115079365079
+          },
+          "F-vg": {
+            "score": 72.66666666666667,
+            "tilesWon": 11,
+            "spent": 165.5,
+            "starvedRounds": 14.333333333333334,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 5.031517094017094
+          },
+          "F-vi": {
+            "score": 66.66666666666667,
+            "tilesWon": 10.833333333333334,
+            "spent": 163.83333333333334,
+            "starvedRounds": 14.166666666666666,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.496428571428571
+          },
+          "LexD10": {
+            "score": 68.5,
+            "tilesWon": 10,
+            "spent": 162.5,
+            "starvedRounds": 13.333333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.906593406593406
+          },
+          "LexD10L3": {
+            "score": 68.5,
+            "tilesWon": 10,
+            "spent": 162.5,
+            "starvedRounds": 13.333333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.906593406593406
+          },
+          "LexD10L4": {
+            "score": 68.5,
+            "tilesWon": 10,
+            "spent": 162.5,
+            "starvedRounds": 13.333333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.906593406593406
+          },
+          "LexD5": {
+            "score": 68.5,
+            "tilesWon": 10,
+            "spent": 162.5,
+            "starvedRounds": 13.333333333333334,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 4.906593406593406
+          }
+        },
+        {
+          "matchId": 45724,
+          "lexforge": {
+            "score": 86,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.733333333333333
+          },
+          "F-va": {
+            "score": 87,
+            "tilesWon": 13,
+            "spent": 174,
+            "starvedRounds": 11,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "F-ve": {
+            "score": 101,
+            "tilesWon": 14,
+            "spent": 193,
+            "starvedRounds": 17,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.611111111111111
+          },
+          "F-vg": {
+            "score": 87,
+            "tilesWon": 12,
+            "spent": 162,
+            "starvedRounds": 12,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "F-vi": {
+            "score": 85,
+            "tilesWon": 13,
+            "spent": 181,
+            "starvedRounds": 14,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.666666666666667
+          },
+          "LexD10": {
+            "score": 86,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.733333333333333
+          },
+          "LexD10L3": {
+            "score": 86,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.733333333333333
+          },
+          "LexD10L4": {
+            "score": 86,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.733333333333333
+          },
+          "LexD5": {
+            "score": 86,
+            "tilesWon": 12,
+            "spent": 164,
+            "starvedRounds": 12,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.733333333333333
+          }
+        },
+        {
+          "matchId": 45736,
+          "lexforge": {
+            "score": 63,
+            "tilesWon": 9,
+            "spent": 139,
+            "starvedRounds": 24,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.7272727272727275
+          },
+          "F-va": {
+            "score": 90,
+            "tilesWon": 12,
+            "spent": 187,
+            "starvedRounds": 9,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6
+          },
+          "F-ve": {
+            "score": 57,
+            "tilesWon": 9,
+            "spent": 134,
+            "starvedRounds": 29,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.181818181818181
+          },
+          "F-vg": {
+            "score": 69,
+            "tilesWon": 10,
+            "spent": 147,
+            "starvedRounds": 24,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6.2727272727272725
+          },
+          "F-vi": {
+            "score": 87,
+            "tilesWon": 12,
+            "spent": 180,
+            "starvedRounds": 32,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.4375
+          },
+          "LexD10": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 21,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD10L3": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 21,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD10L4": {
+            "score": 65,
+            "tilesWon": 10,
+            "spent": 153,
+            "starvedRounds": 21,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5
+          },
+          "LexD5": {
+            "score": 63,
+            "tilesWon": 9,
+            "spent": 139,
+            "starvedRounds": 24,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.7272727272727275
+          }
+        },
+        {
+          "matchId": 45712,
+          "lexforge": {
+            "score": 57.5,
+            "tilesWon": 10.666666666666666,
+            "spent": 155.16666666666666,
+            "starvedRounds": 21.5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.855820105820106
+          },
+          "F-va": {
+            "score": 91.33333333333333,
+            "tilesWon": 15,
+            "spent": 189.66666666666666,
+            "starvedRounds": 8.666666666666666,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.082321187584346
+          },
+          "F-ve": {
+            "score": 53.833333333333336,
+            "tilesWon": 9.666666666666666,
+            "spent": 149.66666666666666,
+            "starvedRounds": 31,
+            "tilesLeft": 3.5,
+            "pointsPerPlayedTile": 4.745098039215686
+          },
+          "F-vg": {
+            "score": 52.833333333333336,
+            "tilesWon": 10,
+            "spent": 150.33333333333334,
+            "starvedRounds": 22.833333333333332,
+            "tilesLeft": 3.5,
+            "pointsPerPlayedTile": 4.478070175438597
+          },
+          "F-vi": {
+            "score": 36.833333333333336,
+            "tilesWon": 7.666666666666667,
+            "spent": 136.33333333333334,
+            "starvedRounds": 44.166666666666664,
+            "tilesLeft": 3.3333333333333335,
+            "pointsPerPlayedTile": 3.8645833333333335
+          },
+          "LexD10": {
+            "score": 57.5,
+            "tilesWon": 10.666666666666666,
+            "spent": 155.16666666666666,
+            "starvedRounds": 19.833333333333332,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.855820105820106
+          },
+          "LexD10L3": {
+            "score": 57.5,
+            "tilesWon": 10.666666666666666,
+            "spent": 155.16666666666666,
+            "starvedRounds": 19.833333333333332,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.855820105820106
+          },
+          "LexD10L4": {
+            "score": 57.5,
+            "tilesWon": 10.666666666666666,
+            "spent": 155.16666666666666,
+            "starvedRounds": 19.833333333333332,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.855820105820106
+          },
+          "LexD5": {
+            "score": 57.5,
+            "tilesWon": 10.666666666666666,
+            "spent": 155.16666666666666,
+            "starvedRounds": 19.833333333333332,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 3.855820105820106
+          }
+        },
+        {
+          "matchId": 45701,
+          "lexforge": {
+            "score": 98,
+            "tilesWon": 14,
+            "spent": 186,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.764705882352941
+          },
+          "F-va": {
+            "score": 93,
+            "tilesWon": 11,
+            "spent": 159,
+            "starvedRounds": 1,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 6.642857142857143
+          },
+          "F-ve": {
+            "score": 85,
+            "tilesWon": 13,
+            "spent": 177,
+            "starvedRounds": 13,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.3125
+          },
+          "F-vg": {
+            "score": 96,
+            "tilesWon": 15,
+            "spent": 183,
+            "starvedRounds": 5,
+            "tilesLeft": 1,
+            "pointsPerPlayedTile": 5.052631578947369
+          },
+          "F-vi": {
+            "score": 82,
+            "tilesWon": 13,
+            "spent": 178,
+            "starvedRounds": 8,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.466666666666668
+          },
+          "LexD10": {
+            "score": 98,
+            "tilesWon": 14,
+            "spent": 186,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.764705882352941
+          },
+          "LexD10L3": {
+            "score": 98,
+            "tilesWon": 14,
+            "spent": 186,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.764705882352941
+          },
+          "LexD10L4": {
+            "score": 98,
+            "tilesWon": 14,
+            "spent": 186,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.764705882352941
+          },
+          "LexD5": {
+            "score": 98,
+            "tilesWon": 14,
+            "spent": 186,
+            "starvedRounds": 4,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.764705882352941
+          }
+        },
+        {
+          "matchId": 45690,
+          "lexforge": {
+            "score": 115,
+            "tilesWon": 18,
+            "spent": 214,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.476190476190475
+          },
+          "F-va": {
+            "score": 115,
+            "tilesWon": 16,
+            "spent": 215,
+            "starvedRounds": 11,
+            "tilesLeft": 4,
+            "pointsPerPlayedTile": 6.764705882352941
+          },
+          "F-ve": {
+            "score": 71,
+            "tilesWon": 14,
+            "spent": 164,
+            "starvedRounds": 20,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 4.4375
+          },
+          "F-vg": {
+            "score": 93,
+            "tilesWon": 15,
+            "spent": 183,
+            "starvedRounds": 17,
+            "tilesLeft": 3,
+            "pointsPerPlayedTile": 5.470588235294117
+          },
+          "F-vi": {
+            "score": 73,
+            "tilesWon": 13,
+            "spent": 169,
+            "starvedRounds": 5,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 4.5625
+          },
+          "LexD10": {
+            "score": 115,
+            "tilesWon": 18,
+            "spent": 214,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.476190476190475
+          },
+          "LexD10L3": {
+            "score": 115,
+            "tilesWon": 18,
+            "spent": 214,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.476190476190475
+          },
+          "LexD10L4": {
+            "score": 115,
+            "tilesWon": 18,
+            "spent": 214,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.476190476190475
+          },
+          "LexD5": {
+            "score": 115,
+            "tilesWon": 18,
+            "spent": 214,
+            "starvedRounds": 3,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 5.476190476190475
+          }
+        },
+        {
+          "matchId": 45679,
+          "lexforge": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 145.33333333333334,
+            "starvedRounds": 12,
+            "tilesLeft": 2.3333333333333335,
+            "pointsPerPlayedTile": 4.319444444444445
+          },
+          "F-va": {
+            "score": 75,
+            "tilesWon": 13.333333333333334,
+            "spent": 172,
+            "starvedRounds": 10,
+            "tilesLeft": 1.3333333333333333,
+            "pointsPerPlayedTile": 4.411764705882352
+          },
+          "F-ve": {
+            "score": 67.66666666666667,
+            "tilesWon": 14,
+            "spent": 163.66666666666666,
+            "starvedRounds": 27.333333333333332,
+            "tilesLeft": 2,
+            "pointsPerPlayedTile": 3.980392156862745
+          },
+          "F-vg": {
+            "score": 75,
+            "tilesWon": 15.666666666666666,
+            "spent": 166,
+            "starvedRounds": 7,
+            "tilesLeft": 1.6666666666666667,
+            "pointsPerPlayedTile": 3.9473684210526314
+          },
+          "F-vi": {
+            "score": 57,
+            "tilesWon": 13,
+            "spent": 156,
+            "starvedRounds": 19,
+            "tilesLeft": 2.3333333333333335,
+            "pointsPerPlayedTile": 3.6509803921568627
+          },
+          "LexD10": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 145.33333333333334,
+            "starvedRounds": 12,
+            "tilesLeft": 2.3333333333333335,
+            "pointsPerPlayedTile": 4.319444444444445
+          },
+          "LexD10L3": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 145.33333333333334,
+            "starvedRounds": 12,
+            "tilesLeft": 2.3333333333333335,
+            "pointsPerPlayedTile": 4.319444444444445
+          },
+          "LexD10L4": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 145.33333333333334,
+            "starvedRounds": 12,
+            "tilesLeft": 2.3333333333333335,
+            "pointsPerPlayedTile": 4.319444444444445
+          },
+          "LexD5": {
+            "score": 64,
+            "tilesWon": 12,
+            "spent": 145.33333333333334,
+            "starvedRounds": 12,
+            "tilesLeft": 2.3333333333333335,
+            "pointsPerPlayedTile": 4.319444444444445
+          }
+        }
+      ]
+    }
+  ]
+}

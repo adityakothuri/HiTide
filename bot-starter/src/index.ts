@@ -31,16 +31,59 @@ import { Lexicon, slotOf, wordReward } from "./lexicon.js";
 import { type LiveSnapshot, buildView } from "./live.js";
 import { STRATEGY } from "./strategy.js";
 import { subscribeForBot } from "./subscribe.js";
+import { writeScoutHeartbeat, applyScoutingBid, scoutingWord } from "./scouting.js";
+import { clonePolicy, type CloneModel } from "./clonePolicy.js";
+import type { Policy } from "./policy.js";
 
 const HOST = process.env.STDB_HOST ?? "https://maincloud.spacetimedb.com";
 const DB_NAME = process.env.STDB_DB ?? "scrabblebot";
-const BOT_NAME = process.env.BOT_NAME ?? "bot";
+const BOT_NAME = process.env.BOT_NAME ?? "larper";
 const BOT_TOKEN = process.env.BOT_TOKEN; // from the website, first run only
 const BOT_NONCE = process.env.BOT_NONCE; // from the CLI, first run only
 const TOURNAMENT_ID = process.env.TOURNAMENT_ID;
 const TOKEN_PATH = path.join(process.cwd(), `.token-${BOT_NAME}`);
 const QUIET = process.env.QUIET === "1";
 const MAX_WORDS_PER_TURN = 1; // Wait for each reducer before choosing another word.
+// Scoutroom fleet: a clone runs a fitted model instead of STRATEGY, logs each
+// finished match, and can be drained (finish the current match, then exit).
+const CLONE_MODEL_PATH = process.env.CLONE_MODEL_PATH;
+const RESULTS_PATH = process.env.RESULTS_PATH;
+const CONTROL_PATH = process.env.CONTROL_PATH;
+// Clone models hot-reload between matches, so a bot can be retrained without
+// a restart and without starting a new rated version.
+let modelMtime = 0, modelFittedAt: string | null = null;
+function loadClone(): Policy {
+  const model = JSON.parse(fs.readFileSync(CLONE_MODEL_PATH!, "utf8")) as CloneModel;
+  const policy = clonePolicy(model);
+  modelMtime = fs.statSync(CLONE_MODEL_PATH!).mtimeMs; modelFittedAt = model.fittedAt;
+  return policy;
+}
+let POLICY: Policy = CLONE_MODEL_PATH ? loadClone() : STRATEGY;
+function reloadCloneIfChanged() {
+  if (!CLONE_MODEL_PATH) return;
+  try {
+    if (fs.statSync(CLONE_MODEL_PATH).mtimeMs === modelMtime) return;
+    POLICY = loadClone();
+    console.log(`[${BOT_NAME}] reloaded clone model fitted ${modelFittedAt}`);
+  } catch (e) { console.warn(`[${BOT_NAME}] model reload failed, keeping current model: ${e}`); }
+}
+const bidFor = (view: Parameters<Policy["bid"]>[0]) => CLONE_MODEL_PATH ? POLICY.bid(view) : applyScoutingBid(view, POLICY.bid(view));
+const wordFor = (view: Parameters<Policy["play"]>[0]) => CLONE_MODEL_PATH ? POLICY.play(view) : scoutingWord(view, () => POLICY.play(view));
+let matchesFinished = 0;
+let draining = false;
+// Optional deliberate bid delay (ms), set from Scoutroom. Bids are private on the
+// server, so a later bid gains nothing; a bid after the window closes is lost.
+let bidDelayMs = 0;
+const MAX_BID_DELAY_MS = 900;
+function readControl() {
+  if (!CONTROL_PATH) return;
+  try {
+    const control = JSON.parse(fs.readFileSync(CONTROL_PATH, "utf8"));
+    draining = control.drain === true;
+    const delay = Number(control.bidDelayMs ?? 0);
+    bidDelayMs = Number.isFinite(delay) ? Math.max(0, Math.min(MAX_BID_DELAY_MS, Math.round(delay))) : 0;
+  } catch { draining = false; bidDelayMs = 0; }
+}
 
 function loadToken(): string | undefined {
   try {
@@ -78,6 +121,25 @@ const isMine = (matchId: bigint) => myMatches.has(String(matchId));
 const checkedMatches = new Set<string>(); // matches whose roster was scanned once
 const lastWordState = new Map<string, string>(); // match id -> rack+round acted on
 const wordsInFlight = new Map<string, number>(); // match id -> unsettled words
+let liveConnection: DbConnection | null = null;
+function liveMatch(conn: DbConnection | null) {
+  if (!conn || myBotId === null) return null;
+  const id = runningMatches(conn)[0];
+  if (id === undefined) return null;
+  const m = conn.db.matchState.id.find(id);
+  const table = participantsOf(conn, id);
+  const me = table.find(p => p.botId === myBotId);
+  if (!m || !me) return null;
+  return { matchId: String(id), score: Number(me.score), balance: Number(me.balance), auctionsLeft: m.bagTotal, players: table.length, place: 1 + table.filter(p => p.score > me.score).length };
+}
+const runtimeTimer = setInterval(() => {
+  readControl();
+  const running = liveConnection ? runningMatches(liveConnection) : [];
+  if (running.length === 0) reloadCloneIfChanged();
+  writeScoutHeartbeat({ botName: BOT_NAME, botId: myBotId?.toString() ?? null, strategy: POLICY.name, connected: liveConnection?.isActive ?? false, runningMatches: running.map(String), match: liveMatch(liveConnection), matchesFinished, draining, supportsDrain: true, modelFittedAt, lobbyWait, onePerLobby: ONE_PER_LOBBY, lateRate: lateRate(), bidsSampled: bidLate.length, bidDelayMs });
+  if (draining && running.length === 0 && myBotId !== null) { console.log(`[${BOT_NAME}] drained; exiting`); process.exit(0); }
+}, 2000);
+runtimeTimer.unref();
 
 const say = (msg: string) => {
   if (!QUIET) console.log(`[${BOT_NAME}] ${msg}`);
@@ -100,18 +162,19 @@ function logFailure(what: string) {
     );
 }
 
+// Per-match indexes: the cache holds ~200 recent matches, so full scans on every
+// event made runners fall seconds behind under load and bids missed the 1s window.
+const participantsOf = (conn: DbConnection, matchId: bigint) => [...conn.db.matchParticipant.mpByMatch.filter(matchId)];
+
 function refreshMyMatches(conn: DbConnection) {
   if (myBotId === null) return;
-  for (const p of conn.db.matchParticipant.iter()) {
-    if (p.botId === myBotId) myMatches.add(String(p.matchId));
-  }
+  for (const p of conn.db.matchParticipant.mpByBot.filter(myBotId)) myMatches.add(String(p.matchId));
 }
 
 function runningMatches(conn: DbConnection): bigint[] {
   if (myBotId === null) return [];
   const out: bigint[] = [];
-  for (const p of conn.db.matchParticipant.iter()) {
-    if (p.botId !== myBotId) continue;
+  for (const p of conn.db.matchParticipant.mpByBot.filter(myBotId)) {
     const m = conn.db.matchState.id.find(p.matchId);
     if (m?.status.tag === "Running") out.push(p.matchId);
   }
@@ -127,17 +190,13 @@ function snapshot(conn: DbConnection, matchId: bigint, letter: string): LiveSnap
     if (h.matchId !== matchId) continue;
     rack.set(h.letter, (rack.get(h.letter) ?? 0) + h.count);
   }
-  const participants = [];
-  for (const p of conn.db.matchParticipant.iter()) {
-    if (p.matchId !== matchId) continue;
-    participants.push({ botId: p.botId, balance: Number(p.balance), score: Number(p.score) });
-  }
+  const participants = participantsOf(conn, matchId).map(p => ({ botId: p.botId, balance: Number(p.balance), score: Number(p.score) }));
   const openLetters: string[] = [];
-  for (const a of conn.db.auction.iter()) {
-    if (a.matchId === matchId && a.status.tag === "Open") openLetters.push(a.letter);
+  for (const a of conn.db.auction.auctionByMatch.filter(matchId)) {
+    if (a.status.tag === "Open") openLetters.push(a.letter);
   }
-  const results = [...conn.db.auctionResult.iter()].filter((r) => r.matchId === matchId);
-  const plays = [...conn.db.wordPlay.iter()].filter((w) => w.matchId === matchId);
+  const results = [...conn.db.auctionResult.resultByMatch.filter(matchId)];
+  const plays = [...conn.db.wordPlay.playByMatch.filter(matchId)];
   return {
     myBotId,
     startingRackSize: m.startingRackSize,
@@ -176,7 +235,7 @@ function tryPlayWords(conn: DbConnection, matchId: bigint) {
 
   const words: string[] = [];
   for (let k = 0; k < MAX_WORDS_PER_TURN; k++) {
-    const word = STRATEGY.play(view);
+    const word = wordFor(view);
     if (!word) break;
     const rack = new Uint8Array(view.rack);
     let ok = LEXICON.has(word);
@@ -219,35 +278,49 @@ function tryPlayWords(conn: DbConnection, matchId: bigint) {
 }
 
 /** Bid (or re-bid, if the decision changed) on one open auction. */
+// Rolling record of recent bids: true = arrived after the auction closed.
+const bidLate: boolean[] = [];
+const BID_WINDOW = 100;
+function noteBid(late: boolean) { bidLate.push(late); if (bidLate.length > BID_WINDOW) bidLate.shift(); }
+const lateRate = () => bidLate.length ? bidLate.filter(Boolean).length / bidLate.length : null;
+
 function tryBid(conn: DbConnection, auctionId: bigint, matchId: bigint, letter: string) {
   if (!isMine(matchId)) return;
+  const auction = conn.db.auction.id.find(auctionId);
+  if (auction && Number(auction.closesAt.microsSinceUnixEpoch / 1000n) <= Date.now()) { noteBid(true); return; } // already closed
   const snap = snapshot(conn, matchId, letter);
   if (!snap) return;
   const view = buildView(snap, LEXICON);
   if (!view) return;
-  const raw = STRATEGY.bid(view);
+  const raw = bidFor(view);
   const amount = Math.max(0, Math.min(Math.floor(view.balance), Math.floor(raw)));
   const key = String(auctionId);
   const previous = lastBid.get(key);
   if (previous === amount || (previous === undefined && amount === 0)) return;
   lastBid.set(key, amount);
-  conn.reducers
-    .submitBid({ auctionId, amount: BigInt(amount) })
-    .catch(logFailure(`bid on auction ${auctionId}`));
+  const send = () => {
+    if (lastBid.get(key) !== amount) return; // superseded by a newer decision
+    conn.reducers
+      .submitBid({ auctionId, amount: BigInt(amount) })
+      .then(() => noteBid(false))
+      .catch(err => { noteBid(/closed|expired/i.test(String(err instanceof Error ? err.message : err))); logFailure(`bid on auction ${auctionId}`)(err); });
+  };
+  if (bidDelayMs > 0) setTimeout(send, bidDelayMs); else send();
   say(`bid ${amount} on '${letter}' (match ${matchId}, auction ${auctionId}, ${snap.auctionsLeft} left)`);
 }
 
 function rebidOpenAuctions(conn: DbConnection, matchId: bigint) {
   if (!isMine(matchId)) return;
-  for (const a of conn.db.auction.iter()) {
-    if (a.matchId === matchId && a.status.tag === "Open") tryBid(conn, a.id, a.matchId, a.letter);
+  for (const a of conn.db.auction.auctionByMatch.filter(matchId)) {
+    if (a.status.tag === "Open") tryBid(conn, a.id, a.matchId, a.letter);
   }
 }
 
 function onConnect(conn: DbConnection, identity: Identity, token: string) {
+  liveConnection = conn;
   myIdentity = identity;
   saveToken(token);
-  console.log(`[${BOT_NAME}] connected as ${identity.toHexString()} (strategy ${STRATEGY.name})`);
+  console.log(`[${BOT_NAME}] connected as ${identity.toHexString()} (strategy ${POLICY.name})`);
 
   subscribeForBot(
     conn,
@@ -305,13 +378,14 @@ function onConnect(conn: DbConnection, identity: Identity, token: string) {
     if (!isMine(a.matchId) && !checkedMatches.has(String(a.matchId))) {
       // A match's first auction can arrive before its roster callback.
       checkedMatches.add(String(a.matchId));
-      for (const p of conn.db.matchParticipant.iter()) {
-        if (p.matchId === a.matchId && p.botId === myBotId) myMatches.add(String(a.matchId));
+      for (const p of conn.db.matchParticipant.mpByMatch.filter(a.matchId)) {
+        if (p.botId === myBotId) myMatches.add(String(a.matchId));
       }
     }
     if (!isMine(a.matchId)) return;
-    tryPlayWords(conn, a.matchId);
+    // Bid first: the auction closes in ~1s. A word that changes cash triggers a rebid.
     tryBid(conn, a.id, a.matchId, a.letter);
+    tryPlayWords(conn, a.matchId);
   });
   const onRackChange = (matchId: bigint) => {
     tryPlayWords(conn, matchId);
@@ -345,34 +419,96 @@ function onConnect(conn: DbConnection, identity: Identity, token: string) {
     say(`match ${r.matchId} auction ${r.auctionId} '${r.letter}' → bot ${winner} paid ${r.paid}`);
   });
 
+  // Waiting for a teammate-free lobby: retry whenever the lobby changes.
+  for (const l of conn.db.lobby.iter()) if (l.id > newestLobbyId) newestLobbyId = l.id; // once, at connect
+  conn.db.lobby.onInsert((_ctx, l) => { if (l.id > newestLobbyId) newestLobbyId = l.id; });
+  const retryLobby = () => { if (lobbyWait && myBotId !== null) joinLobby(conn); };
+  conn.db.lobby.onInsert(retryLobby);
+  conn.db.lobby.onUpdate(retryLobby);
+  conn.db.lobbyMember.onInsert(retryLobby);
+  conn.db.lobbyMember.onDelete(retryLobby);
+  setInterval(() => { if (liveConnection && myBotId !== null && runningMatches(liveConnection).length === 0) joinLobby(liveConnection); }, 5000).unref();
+
   // When a match this bot was in ends, hop back into the lobby.
   conn.db.matchState.onUpdate((_ctx, old, neu) => {
     if (myBotId === null) return;
     if (old.status.tag !== "Ended" && neu.status.tag === "Ended") {
-      const me = Array.from(conn.db.matchParticipant.iter()).find(
+      const me = participantsOf(conn, neu.id).find(
         (p) => p.matchId === neu.id && p.botId === myBotId,
       );
       if (me) {
-        console.log(`[${BOT_NAME}] match ${neu.id} ended with score ${me.score}; rejoining lobby`);
+        const table = participantsOf(conn, neu.id);
+        recordResult(neu.id, me, table);
         lastWordState.delete(String(neu.id));
+        readControl();
+        if (draining) { console.log(`[${BOT_NAME}] match ${neu.id} ended with score ${me.score}; drained, exiting`); process.exit(0); }
+        console.log(`[${BOT_NAME}] match ${neu.id} ended with score ${me.score}; rejoining lobby`);
         joinLobby(conn);
       }
     }
   });
 }
 
+function recordResult(matchId: bigint, me: { score: bigint | number; balance: bigint | number }, table: { botId: bigint; score: bigint | number }[]) {
+  matchesFinished++;
+  if (!RESULTS_PATH) return;
+  const score = Number(me.score), top = Math.max(...table.map(p => Number(p.score)));
+  const result = { matchId: String(matchId), endedAt: new Date().toISOString(), score, balance: Number(me.balance), players: table.length,
+    place: 1 + table.filter(p => Number(p.score) > score).length, won: score === top, tiedFirst: score === top && table.filter(p => Number(p.score) === top).length > 1 };
+  try { fs.appendFileSync(RESULTS_PATH, JSON.stringify(result) + "\n"); } catch (e) { console.warn(`[${BOT_NAME}] result log failed: ${e}`); }
+}
+
+// One team bot per lobby: every match is against outside opponents, so results
+// (and ratings) measure the strategy instead of our bots trading points. The
+// server has a single open lobby; a bot waits while a teammate is in it.
+const TEAM_PREFIX = process.env.TEAM_PREFIX ?? "Pegasus";
+const ONE_PER_LOBBY = process.env.ONE_PER_LOBBY !== "0";
+const LOBBY_LOCKS = path.join(process.cwd(), "bench", "results", "lobby-locks");
+let lobbyWait: { lobbyId: string; teammate: string } | null = null;
+let newestLobbyId = 0n; // kept current by lobby inserts instead of scanning ~27k rows
+
+function teammateInLobby(conn: DbConnection, lobbyId: bigint): string | null {
+  for (const m of conn.db.lobbyMember.lmByLobby.filter(lobbyId)) {
+    if (m.botId === myBotId) continue;
+    const name = conn.db.bot.id.find(m.botId)?.name ?? "";
+    if (name.startsWith(TEAM_PREFIX)) return name;
+  }
+  return null;
+}
+
+/** Same-machine tie-break: only one local bot may claim a given lobby. */
+function claimLobby(key: string): boolean {
+  try {
+    fs.mkdirSync(LOBBY_LOCKS, { recursive: true });
+    fs.writeFileSync(path.join(LOBBY_LOCKS, key), BOT_NAME, { flag: "wx" });
+    return true;
+  } catch {
+    try { return fs.readFileSync(path.join(LOBBY_LOCKS, key), "utf8") === BOT_NAME; } catch { return false; }
+  }
+}
+
 function joinLobby(conn: DbConnection) {
+  readControl();
+  if (draining) return;
   if (myBotId === null) return;
   if (runningMatches(conn).length > 0) return;
-  const openLobby = Array.from(conn.db.lobby.iter()).find(
-    (l) => l.status.tag === "Open",
-  );
+  const openLobby = [...conn.db.lobby.lobbyByStatus.filter({ tag: "Open" })][0];
   const alreadyIn =
     openLobby !== undefined &&
-    Array.from(conn.db.lobbyMember.iter()).some(
-      (lm) => lm.lobbyId === openLobby.id && lm.botId === myBotId,
-    );
-  if (alreadyIn) return;
+    [...conn.db.lobbyMember.lmByLobby.filter(openLobby.id)].some((lm) => lm.botId === myBotId);
+  if (alreadyIn) { lobbyWait = null; return; }
+  if (ONE_PER_LOBBY) {
+    const teammate = openLobby ? teammateInLobby(conn, openLobby.id) : null;
+    // With no open lobby, joining creates the next one: key the claim by the newest lobby id.
+    const key = openLobby ? `lobby-${openLobby.id}` : `after-${newestLobbyId}`;
+    if (teammate || !claimLobby(key)) {
+      const id = String(openLobby?.id ?? `next`), who = teammate ?? "a local teammate";
+      if (lobbyWait?.lobbyId !== id) console.log(`[${BOT_NAME}] ${who} is in lobby ${id}; waiting for the next lobby`);
+      lobbyWait = { lobbyId: id, teammate: who };
+      return;
+    }
+  }
+  lobbyWait = null;
   console.log(`[${BOT_NAME}] joining lobby`);
   conn.reducers.joinLobby({}).catch(logFailure("joining the lobby"));
 }

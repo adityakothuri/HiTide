@@ -1,0 +1,4 @@
+suite: 150 games/field, seed 1, Vickrey
+
+| Field | Strategy | Win share (95% CI) | Mean place | Mean score | Best opp. | Δplace vs F-va | won/words/left |
+|---|---|---|---:|---:|---:|---:|---|

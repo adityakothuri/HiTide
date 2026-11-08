@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-08T02:13:47.983Z",
+  "sourceSnapshotAt": "2026-11-08T02:13:14.223Z",
+  "sourceSnapshotHash": "75f4782258d3b074dfd0461c70b060a1015fb6a832b08769180b2dfde600d552",
+  "entries": [
+    {
+      "name": "Pegasus-va",
+      "sourceBotId": 224,
+      "sourceName": "LexForge-Base-v1",
+      "modelPath": "fleet/models/Pegasus-va.json",
+      "modelHash": "d14e3a10054587e53ee8707c94ee24a30db7d03f2654a3dcaae99e44e0e707a7",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vb",
+      "sourceBotId": 18,
+      "sourceName": "LUCENT",
+      "modelPath": "fleet/models/Pegasus-vb.json",
+      "modelHash": "371e8d87ba692ac149911703402623cfc9349f6f12fa7858ecef2f2f0155cb05",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vc",
+      "sourceBotId": 201,
+      "sourceName": "Lbender",
+      "modelPath": "fleet/models/Pegasus-vc.json",
+      "modelHash": "f5869ad83bfd5664d92e6c0ea54643a50a21f5783897c3ef3a30fbf274b710e8",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vd",
+      "sourceBotId": 114,
+      "sourceName": "Bron",
+      "modelPath": "fleet/models/Pegasus-vd.json",
+      "modelHash": "e296f34adf17086c3132f1ddaec78a610d9825a2ef09c2bbd3d289898911a1c9",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-ve",
+      "sourceBotId": 192,
+      "sourceName": "aipom",
+      "modelPath": "fleet/models/Pegasus-ve.json",
+      "modelHash": "5abd17998c0b0fdef91f459781215dbd86b0739fd933ccaf493e1ce7c025e5ed",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vf",
+      "sourceBotId": 171,
+      "sourceName": "GodOfThudner",
+      "modelPath": "fleet/models/Pegasus-vf.json",
+      "modelHash": "e51423ded5c61a8eefeaa0c7134a93afeb2cb40706f9b2220bd5b861517c8806",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vg",
+      "sourceBotId": 138,
+      "sourceName": "Waupus",
+      "modelPath": "fleet/models/Pegasus-vg.json",
+      "modelHash": "c2743c2b541def418336e21d986784a4fda3b11104866f8fa16e96af5dadf65b",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vh",
+      "sourceBotId": 222,
+      "sourceName": "scrabblefish",
+      "modelPath": "fleet/models/Pegasus-vh.json",
+      "modelHash": "14842d21697c9134257ca6e6236cc73bc31e355a4bd800a6bf5c9b38848d59a5",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vi",
+      "sourceBotId": 175,
+      "sourceName": "wordgoat",
+      "modelPath": "fleet/models/Pegasus-vi.json",
+      "modelHash": "0b274e0d1c80362cc6f379c80244a150d3c18858a769b0dc67116a93fe05e42e",
+      "status": "prepared"
+    },
+    {
+      "name": "Pegasus-vj",
+      "sourceBotId": 207,
+      "sourceName": "LexForge-1107",
+      "modelPath": "fleet/models/Pegasus-vj.json",
+      "modelHash": "3379ee2a8eb31dcd1900f1884de599691d191b679afe8f13091fd3511e5b4f63",
+      "status": "prepared"
+    }
+  ]
+}

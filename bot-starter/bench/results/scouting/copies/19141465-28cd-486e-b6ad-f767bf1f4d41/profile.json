@@ -1,0 +1,5611 @@
+{
+  "enabled": true,
+  "mode": "imitate",
+  "revision": "c53332d9-663d-426b-8bd7-f235ca1a71b2",
+  "generatedAt": "2026-11-08T02:16:22.852Z",
+  "appliedAt": "2026-11-08T02:16:35.562Z",
+  "profiles": [
+    {
+      "rank": 2,
+      "botId": 18,
+      "name": "LUCENT",
+      "rating": 2475,
+      "uncertainty": 22,
+      "elo": 1296,
+      "matches": 40,
+      "matchIds": [
+        45731,
+        45719,
+        45708,
+        45697,
+        45686,
+        45675,
+        45664,
+        45653,
+        45642,
+        45631,
+        45620,
+        45609,
+        45600,
+        45591,
+        45582,
+        45573,
+        45565,
+        45557,
+        45549,
+        45541,
+        45533,
+        45524,
+        45515,
+        45506,
+        45497,
+        45488,
+        45480,
+        45472,
+        45464,
+        45456,
+        45448,
+        45441,
+        45433,
+        45425,
+        45416,
+        45408,
+        45399,
+        45390,
+        45381,
+        45373
+      ],
+      "latestMatchEndedAt": "2026-11-08T02:15:28.526Z",
+      "playStyle": {
+        "primaryLength": 7,
+        "primaryMinReward": 27,
+        "recoveryBalance": 12,
+        "recoveryMinLength": 5,
+        "liquidateAt": 2,
+        "recoverySamples": 2
+      },
+      "meanScore": 86.5,
+      "recent10MeanScore": 87.3,
+      "meanPlace": 2.6,
+      "outrightWins": 11,
+      "tiedFirsts": 0,
+      "meanEndingBalance": 18.55,
+      "tilesWonPerMatch": 13.275,
+      "wordsPerMatch": 3.15,
+      "meanWordLength": 5.642857142857143,
+      "sevenPlusShare": 0.5476190476190477,
+      "bids": {
+        "wins": 531,
+        "archivedBids": 531,
+        "meanPaid": 12.651600753295668,
+        "meanWinningBid": 17.129943502824858,
+        "p50": 15,
+        "p80": 21,
+        "p90": 26
+      },
+      "perLetter": {
+        "A": {
+          "wins": 58,
+          "archivedBids": 58,
+          "meanPaid": 11.086206896551724,
+          "meanWinningBid": 14.827586206896552,
+          "p50": 13,
+          "p80": 18,
+          "p90": 21
+        },
+        "B": {
+          "wins": 9,
+          "archivedBids": 9,
+          "meanPaid": 14.333333333333334,
+          "meanWinningBid": 19,
+          "p50": 16,
+          "p80": 17,
+          "p90": 25
+        },
+        "C": {
+          "wins": 9,
+          "archivedBids": 9,
+          "meanPaid": 15.555555555555555,
+          "meanWinningBid": 18.333333333333332,
+          "p50": 18,
+          "p80": 20,
+          "p90": 24
+        },
+        "D": {
+          "wins": 26,
+          "archivedBids": 26,
+          "meanPaid": 13.23076923076923,
+          "meanWinningBid": 16.5,
+          "p50": 16,
+          "p80": 18,
+          "p90": 20
+        },
+        "E": {
+          "wins": 64,
+          "archivedBids": 64,
+          "meanPaid": 10.5,
+          "meanWinningBid": 15.140625,
+          "p50": 13,
+          "p80": 18,
+          "p90": 20
+        },
+        "F": {
+          "wins": 6,
+          "archivedBids": 6,
+          "meanPaid": 17.333333333333332,
+          "meanWinningBid": 20.166666666666668,
+          "p50": 20,
+          "p80": 23,
+          "p90": 23
+        },
+        "G": {
+          "wins": 33,
+          "archivedBids": 33,
+          "meanPaid": 12.121212121212121,
+          "meanWinningBid": 15.848484848484848,
+          "p50": 16,
+          "p80": 17,
+          "p90": 18
+        },
+        "H": {
+          "wins": 8,
+          "archivedBids": 8,
+          "meanPaid": 19.5,
+          "meanWinningBid": 22.875,
+          "p50": 22,
+          "p80": 22,
+          "p90": 33
+        },
+        "I": {
+          "wins": 54,
+          "archivedBids": 54,
+          "meanPaid": 10.148148148148149,
+          "meanWinningBid": 13.796296296296296,
+          "p50": 12,
+          "p80": 17,
+          "p90": 21
+        },
+        "J": {
+          "wins": 10,
+          "archivedBids": 10,
+          "meanPaid": 27.5,
+          "meanWinningBid": 34.4,
+          "p50": 32,
+          "p80": 40,
+          "p90": 45
+        },
+        "L": {
+          "wins": 23,
+          "archivedBids": 23,
+          "meanPaid": 10.565217391304348,
+          "meanWinningBid": 16.304347826086957,
+          "p50": 15,
+          "p80": 20,
+          "p90": 23
+        },
+        "M": {
+          "wins": 12,
+          "archivedBids": 12,
+          "meanPaid": 15.166666666666666,
+          "meanWinningBid": 18.083333333333332,
+          "p50": 17,
+          "p80": 18,
+          "p90": 19
+        },
+        "N": {
+          "wins": 35,
+          "archivedBids": 35,
+          "meanPaid": 10.914285714285715,
+          "meanWinningBid": 17.6,
+          "p50": 15,
+          "p80": 22,
+          "p90": 22
+        },
+        "O": {
+          "wins": 43,
+          "archivedBids": 43,
+          "meanPaid": 10.255813953488373,
+          "meanWinningBid": 13.720930232558139,
+          "p50": 12,
+          "p80": 18,
+          "p90": 19
+        },
+        "P": {
+          "wins": 8,
+          "archivedBids": 8,
+          "meanPaid": 16.75,
+          "meanWinningBid": 22.75,
+          "p50": 20,
+          "p80": 26,
+          "p90": 28
+        },
+        "Q": {
+          "wins": 6,
+          "archivedBids": 6,
+          "meanPaid": 23,
+          "meanWinningBid": 36,
+          "p50": 32,
+          "p80": 44,
+          "p90": 44
+        },
+        "R": {
+          "wins": 23,
+          "archivedBids": 23,
+          "meanPaid": 12.043478260869565,
+          "meanWinningBid": 15.73913043478261,
+          "p50": 15,
+          "p80": 20,
+          "p90": 21
+        },
+        "S": {
+          "wins": 16,
+          "archivedBids": 16,
+          "meanPaid": 10.75,
+          "meanWinningBid": 15.375,
+          "p50": 11,
+          "p80": 17,
+          "p90": 20
+        },
+        "T": {
+          "wins": 32,
+          "archivedBids": 32,
+          "meanPaid": 10.75,
+          "meanWinningBid": 14.9375,
+          "p50": 14,
+          "p80": 17,
+          "p90": 23
+        },
+        "U": {
+          "wins": 22,
+          "archivedBids": 22,
+          "meanPaid": 9.136363636363637,
+          "meanWinningBid": 14.409090909090908,
+          "p50": 11,
+          "p80": 15,
+          "p90": 27
+        },
+        "V": {
+          "wins": 9,
+          "archivedBids": 9,
+          "meanPaid": 17.333333333333332,
+          "meanWinningBid": 22.333333333333332,
+          "p50": 22,
+          "p80": 22,
+          "p90": 23
+        },
+        "W": {
+          "wins": 8,
+          "archivedBids": 8,
+          "meanPaid": 16.5,
+          "meanWinningBid": 19.375,
+          "p50": 20,
+          "p80": 22,
+          "p90": 22
+        },
+        "X": {
+          "wins": 2,
+          "archivedBids": 2,
+          "meanPaid": 36,
+          "meanWinningBid": 50,
+          "p50": 49,
+          "p80": 49,
+          "p90": 49
+        },
+        "Y": {
+          "wins": 9,
+          "archivedBids": 9,
+          "meanPaid": 22.22222222222222,
+          "meanWinningBid": 25.444444444444443,
+          "p50": 23,
+          "p80": 31,
+          "p90": 31
+        },
+        "Z": {
+          "wins": 6,
+          "archivedBids": 6,
+          "meanPaid": 38.833333333333336,
+          "meanWinningBid": 50.333333333333336,
+          "p50": 46,
+          "p80": 60,
+          "p90": 60
+        }
+      },
+      "perPhase": {
+        "early": {
+          "wins": 182,
+          "archivedBids": 182,
+          "meanPaid": 13.89010989010989,
+          "meanWinningBid": 17.818681318681318,
+          "p50": 16,
+          "p80": 21,
+          "p90": 26
+        },
+        "middle": {
+          "wins": 177,
+          "archivedBids": 177,
+          "meanPaid": 11.790960451977401,
+          "meanWinningBid": 15.062146892655367,
+          "p50": 13,
+          "p80": 18,
+          "p90": 22
+        },
+        "late": {
+          "wins": 172,
+          "archivedBids": 172,
+          "meanPaid": 12.226744186046512,
+          "meanWinningBid": 18.52906976744186,
+          "p50": 16,
+          "p80": 23,
+          "p90": 30
+        }
+      },
+      "perMechanism": {
+        "firstPrice": {
+          "wins": 0,
+          "archivedBids": 0,
+          "meanPaid": null,
+          "meanWinningBid": null,
+          "p50": null,
+          "p80": null,
+          "p90": null,
+          "perLetter": {
+            "A": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "B": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "C": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "D": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "E": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "F": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "G": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "H": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "I": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "J": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "L": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "M": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "N": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "O": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "P": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "Q": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "R": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "S": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "T": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "U": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "V": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "W": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "X": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "Y": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            },
+            "Z": {
+              "wins": 0,
+              "archivedBids": 0,
+              "meanPaid": null,
+              "meanWinningBid": null,
+              "p50": null,
+              "p80": null,
+              "p90": null
+            }
+          }
+        },
+        "vickrey": {
+          "wins": 531,
+          "archivedBids": 531,
+          "meanPaid": 12.651600753295668,
+          "meanWinningBid": 17.129943502824858,
+          "p50": 15,
+          "p80": 21,
+          "p90": 26,
+          "perLetter": {
+            "A": {
+              "wins": 58,
+              "archivedBids": 58,
+              "meanPaid": 11.086206896551724,
+              "meanWinningBid": 14.827586206896552,
+              "p50": 13,
+              "p80": 18,
+              "p90": 21
+            },
+            "B": {
+              "wins": 9,
+              "archivedBids": 9,
+              "meanPaid": 14.333333333333334,
+              "meanWinningBid": 19,
+              "p50": 16,
+              "p80": 17,
+              "p90": 25
+            },
+            "C": {
+              "wins": 9,
+              "archivedBids": 9,
+              "meanPaid": 15.555555555555555,
+              "meanWinningBid": 18.333333333333332,
+              "p50": 18,
+              "p80": 20,
+              "p90": 24
+            },
+            "D": {
+              "wins": 26,
+              "archivedBids": 26,
+              "meanPaid": 13.23076923076923,
+              "meanWinningBid": 16.5,
+              "p50": 16,
+              "p80": 18,
+              "p90": 20
+            },
+            "E": {
+              "wins": 64,
+              "archivedBids": 64,
+              "meanPaid": 10.5,
+              "meanWinningBid": 15.140625,
+              "p50": 13,
+              "p80": 18,
+              "p90": 20
+            },
+            "F": {
+              "wins": 6,
+              "archivedBids": 6,
+              "meanPaid": 17.333333333333332,
+              "meanWinningBid": 20.166666666666668,
+              "p50": 20,
+              "p80": 23,
+              "p90": 23
+            },
+            "G": {
+              "wins": 33,
+              "archivedBids": 33,
+              "meanPaid": 12.121212121212121,
+              "meanWinningBid": 15.848484848484848,
+              "p50": 16,
+              "p80": 17,
+              "p90": 18
+            },
+            "H": {
+              "wins": 8,
+              "archivedBids": 8,
+              "meanPaid": 19.5,
+              "meanWinningBid": 22.875,
+              "p50": 22,
+              "p80": 22,
+              "p90": 33
+            },
+            "I": {
+              "wins": 54,
+              "archivedBids": 54,
+              "meanPaid": 10.148148148148149,
+              "meanWinningBid": 13.796296296296296,
+              "p50": 12,
+              "p80": 17,
+              "p90": 21
+            },
+            "J": {
+              "wins": 10,
+              "archivedBids": 10,
+              "meanPaid": 27.5,
+              "meanWinningBid": 34.4,
+              "p50": 32,
+              "p80": 40,
+              "p90": 45
+            },
+            "L": {
+              "wins": 23,
+              "archivedBids": 23,
+              "meanPaid": 10.565217391304348,
+              "meanWinningBid": 16.304347826086957,
+              "p50": 15,
+              "p80": 20,
+              "p90": 23
+            },
+            "M": {
+              "wins": 12,
+              "archivedBids": 12,
+              "meanPaid": 15.166666666666666,
+              "meanWinningBid": 18.083333333333332,
+              "p50": 17,
+              "p80": 18,
+              "p90": 19
+            },
+            "N": {
+              "wins": 35,
+              "archivedBids": 35,
+              "meanPaid": 10.914285714285715,
+              "meanWinningBid": 17.6,
+              "p50": 15,
+              "p80": 22,
+              "p90": 22
+            },
+            "O": {
+              "wins": 43,
+              "archivedBids": 43,
+              "meanPaid": 10.255813953488373,
+              "meanWinningBid": 13.720930232558139,
+              "p50": 12,
+              "p80": 18,
+              "p90": 19
+            },
+            "P": {
+              "wins": 8,
+              "archivedBids": 8,
+              "meanPaid": 16.75,
+              "meanWinningBid": 22.75,
+              "p50": 20,
+              "p80": 26,
+              "p90": 28
+            },
+            "Q": {
+              "wins": 6,
+              "archivedBids": 6,
+              "meanPaid": 23,
+              "meanWinningBid": 36,
+              "p50": 32,
+              "p80": 44,
+              "p90": 44
+            },
+            "R": {
+              "wins": 23,
+              "archivedBids": 23,
+              "meanPaid": 12.043478260869565,
+              "meanWinningBid": 15.73913043478261,
+              "p50": 15,
+              "p80": 20,
+              "p90": 21
+            },
+            "S": {
+              "wins": 16,
+              "archivedBids": 16,
+              "meanPaid": 10.75,
+              "meanWinningBid": 15.375,
+              "p50": 11,
+              "p80": 17,
+              "p90": 20
+            },
+            "T": {
+              "wins": 32,
+              "archivedBids": 32,
+              "meanPaid": 10.75,
+              "meanWinningBid": 14.9375,
+              "p50": 14,
+              "p80": 17,
+              "p90": 23
+            },
+            "U": {
+              "wins": 22,
+              "archivedBids": 22,
+              "meanPaid": 9.136363636363637,
+              "meanWinningBid": 14.409090909090908,
+              "p50": 11,
+              "p80": 15,
+              "p90": 27
+            },
+            "V": {
+              "wins": 9,
+              "archivedBids": 9,
+              "meanPaid": 17.333333333333332,
+              "meanWinningBid": 22.333333333333332,
+              "p50": 22,
+              "p80": 22,
+              "p90": 23
+            },
+            "W": {
+              "wins": 8,
+              "archivedBids": 8,
+              "meanPaid": 16.5,
+              "meanWinningBid": 19.375,
+              "p50": 20,
+              "p80": 22,
+              "p90": 22
+            },
+            "X": {
+              "wins": 2,
+              "archivedBids": 2,
+              "meanPaid": 36,
+              "meanWinningBid": 50,
+              "p50": 49,
+              "p80": 49,
+              "p90": 49
+            },
+            "Y": {
+              "wins": 9,
+              "archivedBids": 9,
+              "meanPaid": 22.22222222222222,
+              "meanWinningBid": 25.444444444444443,
+              "p50": 23,
+              "p80": 31,
+              "p90": 31
+            },
+            "Z": {
+              "wins": 6,
+              "archivedBids": 6,
+              "meanPaid": 38.833333333333336,
+              "meanWinningBid": 50.333333333333336,
+              "p50": 46,
+              "p80": 60,
+              "p90": 60
+            }
+          }
+        }
+      },
+      "wordLengths": {
+        "2": 19,
+        "3": 10,
+        "4": 8,
+        "5": 12,
+        "6": 8,
+        "7": 57,
+        "8": 5,
+        "9": 6,
+        "10": 1
+      },
+      "winningObservations": [
+        {
+          "matchId": 45731,
+          "auctionId": 2923491,
+          "letter": "A",
+          "paid": 12,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923537,
+          "letter": "I",
+          "paid": 9,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923596,
+          "letter": "D",
+          "paid": 16,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923738,
+          "letter": "D",
+          "paid": 15,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923773,
+          "letter": "W",
+          "paid": 17,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923833,
+          "letter": "E",
+          "paid": 10,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923881,
+          "letter": "M",
+          "paid": 16,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2923941,
+          "letter": "U",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2924072,
+          "letter": "E",
+          "paid": 9,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2924084,
+          "letter": "E",
+          "paid": 9,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2924165,
+          "letter": "N",
+          "paid": 15,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45731,
+          "auctionId": 2924189,
+          "letter": "Y",
+          "paid": 27,
+          "top": 38,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922680,
+          "letter": "U",
+          "paid": 6,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922702,
+          "letter": "A",
+          "paid": 8,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922713,
+          "letter": "L",
+          "paid": 7,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922724,
+          "letter": "M",
+          "paid": 16,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922735,
+          "letter": "N",
+          "paid": 8,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922746,
+          "letter": "N",
+          "paid": 7,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922768,
+          "letter": "X",
+          "paid": 39,
+          "top": 49,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922823,
+          "letter": "A",
+          "paid": 6,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2922845,
+          "letter": "T",
+          "paid": 8,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923065,
+          "letter": "O",
+          "paid": 7,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923196,
+          "letter": "E",
+          "paid": 7,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923207,
+          "letter": "A",
+          "paid": 7,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923218,
+          "letter": "L",
+          "paid": 9,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923229,
+          "letter": "G",
+          "paid": 14,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923240,
+          "letter": "G",
+          "paid": 14,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923251,
+          "letter": "N",
+          "paid": 10,
+          "top": 26,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923262,
+          "letter": "I",
+          "paid": 7,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923305,
+          "letter": "A",
+          "paid": 10,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923382,
+          "letter": "R",
+          "paid": 13,
+          "top": 22,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45719,
+          "auctionId": 2923393,
+          "letter": "O",
+          "paid": 8,
+          "top": 25,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2921999,
+          "letter": "A",
+          "paid": 9,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922064,
+          "letter": "G",
+          "paid": 15,
+          "top": 19,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922075,
+          "letter": "Y",
+          "paid": 21,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922107,
+          "letter": "I",
+          "paid": 9,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922287,
+          "letter": "C",
+          "paid": 22,
+          "top": 24,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922342,
+          "letter": "N",
+          "paid": 11,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922441,
+          "letter": "L",
+          "paid": 13,
+          "top": 25,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922452,
+          "letter": "A",
+          "paid": 15,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922507,
+          "letter": "N",
+          "paid": 13,
+          "top": 19,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45708,
+          "auctionId": 2922551,
+          "letter": "O",
+          "paid": 35,
+          "top": 44,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921206,
+          "letter": "A",
+          "paid": 9,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921228,
+          "letter": "U",
+          "paid": 9,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921281,
+          "letter": "D",
+          "paid": 11,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921325,
+          "letter": "S",
+          "paid": 9,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921368,
+          "letter": "I",
+          "paid": 7,
+          "top": 7,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921608,
+          "letter": "T",
+          "paid": 10,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921662,
+          "letter": "J",
+          "paid": 42,
+          "top": 45,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921738,
+          "letter": "E",
+          "paid": 12,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921760,
+          "letter": "Y",
+          "paid": 29,
+          "top": 31,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921814,
+          "letter": "A",
+          "paid": 18,
+          "top": 40,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921825,
+          "letter": "I",
+          "paid": 12,
+          "top": 22,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45697,
+          "auctionId": 2921891,
+          "letter": "A",
+          "paid": 5,
+          "top": 8,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920456,
+          "letter": "E",
+          "paid": 9,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920466,
+          "letter": "I",
+          "paid": 8,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920476,
+          "letter": "R",
+          "paid": 9,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920486,
+          "letter": "G",
+          "paid": 10,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920530,
+          "letter": "S",
+          "paid": 6,
+          "top": 6,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920617,
+          "letter": "O",
+          "paid": 8,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920758,
+          "letter": "I",
+          "paid": 11,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920769,
+          "letter": "T",
+          "paid": 14,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920791,
+          "letter": "E",
+          "paid": 7,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920813,
+          "letter": "N",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920934,
+          "letter": "Z",
+          "paid": 47,
+          "top": 48,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2920978,
+          "letter": "A",
+          "paid": 7,
+          "top": 7,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2921022,
+          "letter": "O",
+          "paid": 9,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45686,
+          "auctionId": 2921088,
+          "letter": "A",
+          "paid": 21,
+          "top": 39,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918595,
+          "letter": "V",
+          "paid": 18,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918606,
+          "letter": "W",
+          "paid": 17,
+          "top": 21,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918628,
+          "letter": "Y",
+          "paid": 19,
+          "top": 19,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918661,
+          "letter": "G",
+          "paid": 12,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918826,
+          "letter": "G",
+          "paid": 13,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918859,
+          "letter": "W",
+          "paid": 19,
+          "top": 20,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918870,
+          "letter": "A",
+          "paid": 10,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918881,
+          "letter": "U",
+          "paid": 8,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918892,
+          "letter": "D",
+          "paid": 13,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45675,
+          "auctionId": 2918903,
+          "letter": "E",
+          "paid": 11,
+          "top": 19,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917816,
+          "letter": "L",
+          "paid": 7,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917827,
+          "letter": "O",
+          "paid": 9,
+          "top": 19,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917837,
+          "letter": "E",
+          "paid": 13,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917848,
+          "letter": "T",
+          "paid": 7,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917859,
+          "letter": "M",
+          "paid": 15,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917870,
+          "letter": "P",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917881,
+          "letter": "A",
+          "paid": 11,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917892,
+          "letter": "U",
+          "paid": 11,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917925,
+          "letter": "L",
+          "paid": 9,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917947,
+          "letter": "A",
+          "paid": 11,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2917991,
+          "letter": "E",
+          "paid": 12,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2918211,
+          "letter": "I",
+          "paid": 9,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2918244,
+          "letter": "A",
+          "paid": 9,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2918365,
+          "letter": "I",
+          "paid": 12,
+          "top": 13,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2918376,
+          "letter": "S",
+          "paid": 16,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45664,
+          "auctionId": 2918409,
+          "letter": "T",
+          "paid": 18,
+          "top": 25,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917079,
+          "letter": "R",
+          "paid": 11,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917090,
+          "letter": "U",
+          "paid": 10,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917101,
+          "letter": "R",
+          "paid": 11,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917143,
+          "letter": "T",
+          "paid": 9,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917342,
+          "letter": "G",
+          "paid": 10,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917353,
+          "letter": "N",
+          "paid": 9,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917424,
+          "letter": "G",
+          "paid": 10,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917474,
+          "letter": "I",
+          "paid": 10,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917504,
+          "letter": "Y",
+          "paid": 27,
+          "top": 30,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45653,
+          "auctionId": 2917534,
+          "letter": "A",
+          "paid": 15,
+          "top": 21,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916398,
+          "letter": "H",
+          "paid": 18,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916448,
+          "letter": "L",
+          "paid": 12,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916458,
+          "letter": "T",
+          "paid": 8,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916478,
+          "letter": "G",
+          "paid": 10,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916683,
+          "letter": "B",
+          "paid": 14,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916694,
+          "letter": "D",
+          "paid": 12,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916760,
+          "letter": "E",
+          "paid": 10,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916771,
+          "letter": "U",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916804,
+          "letter": "O",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916848,
+          "letter": "L",
+          "paid": 22,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916924,
+          "letter": "S",
+          "paid": 26,
+          "top": 47,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45642,
+          "auctionId": 2916968,
+          "letter": "O",
+          "paid": 15,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914532,
+          "letter": "A",
+          "paid": 15,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914554,
+          "letter": "A",
+          "paid": 14,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914565,
+          "letter": "A",
+          "paid": 14,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914598,
+          "letter": "M",
+          "paid": 18,
+          "top": 19,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914751,
+          "letter": "L",
+          "paid": 9,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914784,
+          "letter": "E",
+          "paid": 8,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914849,
+          "letter": "J",
+          "paid": 20,
+          "top": 30,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914860,
+          "letter": "U",
+          "paid": 18,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2914943,
+          "letter": "N",
+          "paid": 13,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2915018,
+          "letter": "N",
+          "paid": 11,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2915029,
+          "letter": "E",
+          "paid": 11,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2915060,
+          "letter": "C",
+          "paid": 6,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2915070,
+          "letter": "A",
+          "paid": 17,
+          "top": 33,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45631,
+          "auctionId": 2915110,
+          "letter": "R",
+          "paid": 6,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2913733,
+          "letter": "L",
+          "paid": 13,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2913753,
+          "letter": "G",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2913803,
+          "letter": "R",
+          "paid": 11,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2913992,
+          "letter": "Z",
+          "paid": 29,
+          "top": 60,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914031,
+          "letter": "E",
+          "paid": 14,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914071,
+          "letter": "E",
+          "paid": 12,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914101,
+          "letter": "S",
+          "paid": 11,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914160,
+          "letter": "Q",
+          "paid": 17,
+          "top": 22,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914170,
+          "letter": "U",
+          "paid": 11,
+          "top": 28,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914180,
+          "letter": "A",
+          "paid": 12,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914210,
+          "letter": "U",
+          "paid": 9,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914275,
+          "letter": "D",
+          "paid": 16,
+          "top": 21,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914286,
+          "letter": "G",
+          "paid": 9,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45620,
+          "auctionId": 2914307,
+          "letter": "I",
+          "paid": 16,
+          "top": 19,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913007,
+          "letter": "T",
+          "paid": 11,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913015,
+          "letter": "L",
+          "paid": 12,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913065,
+          "letter": "N",
+          "paid": 11,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913101,
+          "letter": "P",
+          "paid": 17,
+          "top": 25,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913351,
+          "letter": "E",
+          "paid": 11,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913381,
+          "letter": "I",
+          "paid": 10,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913401,
+          "letter": "N",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913451,
+          "letter": "T",
+          "paid": 7,
+          "top": 7,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913471,
+          "letter": "F",
+          "paid": 22,
+          "top": 28,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913481,
+          "letter": "I",
+          "paid": 9,
+          "top": 21,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45609,
+          "auctionId": 2913491,
+          "letter": "D",
+          "paid": 13,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912450,
+          "letter": "L",
+          "paid": 22,
+          "top": 25,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912477,
+          "letter": "H",
+          "paid": 26,
+          "top": 35,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912585,
+          "letter": "A",
+          "paid": 13,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912675,
+          "letter": "U",
+          "paid": 12,
+          "top": 27,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912771,
+          "letter": "E",
+          "paid": 11,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912779,
+          "letter": "I",
+          "paid": 10,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912787,
+          "letter": "Y",
+          "paid": 16,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912795,
+          "letter": "M",
+          "paid": 15,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912803,
+          "letter": "P",
+          "paid": 14,
+          "top": 28,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912843,
+          "letter": "R",
+          "paid": 17,
+          "top": 24,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912867,
+          "letter": "E",
+          "paid": 10,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912883,
+          "letter": "S",
+          "paid": 10,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912891,
+          "letter": "F",
+          "paid": 7,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912899,
+          "letter": "A",
+          "paid": 10,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45600,
+          "auctionId": 2912931,
+          "letter": "D",
+          "paid": 11,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2911807,
+          "letter": "O",
+          "paid": 15,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2911815,
+          "letter": "Y",
+          "paid": 21,
+          "top": 23,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2911887,
+          "letter": "A",
+          "paid": 12,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2911911,
+          "letter": "M",
+          "paid": 13,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912039,
+          "letter": "O",
+          "paid": 12,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912091,
+          "letter": "I",
+          "paid": 15,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912109,
+          "letter": "G",
+          "paid": 10,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912208,
+          "letter": "Z",
+          "paid": 14,
+          "top": 38,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912217,
+          "letter": "E",
+          "paid": 9,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912274,
+          "letter": "M",
+          "paid": 12,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45591,
+          "auctionId": 2912390,
+          "letter": "O",
+          "paid": 13,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911190,
+          "letter": "M",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911214,
+          "letter": "S",
+          "paid": 10,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911230,
+          "letter": "L",
+          "paid": 6,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911254,
+          "letter": "D",
+          "paid": 9,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911262,
+          "letter": "A",
+          "paid": 5,
+          "top": 8,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911294,
+          "letter": "I",
+          "paid": 4,
+          "top": 6,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911343,
+          "letter": "Z",
+          "paid": 39,
+          "top": 41,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911386,
+          "letter": "P",
+          "paid": 14,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911395,
+          "letter": "C",
+          "paid": 15,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911449,
+          "letter": "H",
+          "paid": 14,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911465,
+          "letter": "I",
+          "paid": 14,
+          "top": 20,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911490,
+          "letter": "R",
+          "paid": 4,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911499,
+          "letter": "R",
+          "paid": 4,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911517,
+          "letter": "G",
+          "paid": 6,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911526,
+          "letter": "E",
+          "paid": 6,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911535,
+          "letter": "T",
+          "paid": 6,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911543,
+          "letter": "E",
+          "paid": 7,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911551,
+          "letter": "E",
+          "paid": 7,
+          "top": 8,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911578,
+          "letter": "W",
+          "paid": 8,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911626,
+          "letter": "E",
+          "paid": 5,
+          "top": 13,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911634,
+          "letter": "U",
+          "paid": 5,
+          "top": 7,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911642,
+          "letter": "S",
+          "paid": 5,
+          "top": 8,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45582,
+          "auctionId": 2911666,
+          "letter": "E",
+          "paid": 5,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910553,
+          "letter": "O",
+          "paid": 13,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910585,
+          "letter": "N",
+          "paid": 13,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910593,
+          "letter": "G",
+          "paid": 14,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910617,
+          "letter": "I",
+          "paid": 17,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910785,
+          "letter": "O",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910801,
+          "letter": "I",
+          "paid": 8,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910817,
+          "letter": "J",
+          "paid": 22,
+          "top": 24,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910833,
+          "letter": "N",
+          "paid": 11,
+          "top": 22,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910865,
+          "letter": "T",
+          "paid": 9,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910897,
+          "letter": "O",
+          "paid": 8,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910905,
+          "letter": "I",
+          "paid": 8,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910953,
+          "letter": "M",
+          "paid": 10,
+          "top": 13,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2910961,
+          "letter": "V",
+          "paid": 8,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45573,
+          "auctionId": 2911033,
+          "letter": "L",
+          "paid": 6,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2909974,
+          "letter": "A",
+          "paid": 7,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2909982,
+          "letter": "I",
+          "paid": 13,
+          "top": 21,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910006,
+          "letter": "J",
+          "paid": 40,
+          "top": 40,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910014,
+          "letter": "E",
+          "paid": 10,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910070,
+          "letter": "S",
+          "paid": 7,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910086,
+          "letter": "H",
+          "paid": 20,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910102,
+          "letter": "I",
+          "paid": 7,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910149,
+          "letter": "N",
+          "paid": 5,
+          "top": 7,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910181,
+          "letter": "O",
+          "paid": 6,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910269,
+          "letter": "E",
+          "paid": 10,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910348,
+          "letter": "I",
+          "paid": 5,
+          "top": 8,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910372,
+          "letter": "A",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910388,
+          "letter": "M",
+          "paid": 15,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910396,
+          "letter": "A",
+          "paid": 11,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910420,
+          "letter": "B",
+          "paid": 11,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45565,
+          "auctionId": 2910483,
+          "letter": "G",
+          "paid": 2,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909437,
+          "letter": "N",
+          "paid": 16,
+          "top": 21,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909485,
+          "letter": "R",
+          "paid": 12,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909493,
+          "letter": "D",
+          "paid": 16,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909565,
+          "letter": "H",
+          "paid": 27,
+          "top": 33,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909588,
+          "letter": "Q",
+          "paid": 18,
+          "top": 23,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909763,
+          "letter": "E",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909779,
+          "letter": "G",
+          "paid": 14,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909827,
+          "letter": "E",
+          "paid": 9,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909843,
+          "letter": "E",
+          "paid": 10,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45557,
+          "auctionId": 2909859,
+          "letter": "A",
+          "paid": 13,
+          "top": 17,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2908965,
+          "letter": "E",
+          "paid": 15,
+          "top": 26,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2908973,
+          "letter": "Z",
+          "paid": 64,
+          "top": 69,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2909099,
+          "letter": "D",
+          "paid": 17,
+          "top": 19,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2909139,
+          "letter": "A",
+          "paid": 10,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2909235,
+          "letter": "T",
+          "paid": 11,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2909243,
+          "letter": "U",
+          "paid": 10,
+          "top": 13,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2909259,
+          "letter": "V",
+          "paid": 15,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45549,
+          "auctionId": 2909395,
+          "letter": "D",
+          "paid": 8,
+          "top": 22,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908384,
+          "letter": "E",
+          "paid": 12,
+          "top": 27,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908408,
+          "letter": "P",
+          "paid": 18,
+          "top": 32,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908573,
+          "letter": "D",
+          "paid": 14,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908581,
+          "letter": "O",
+          "paid": 14,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908589,
+          "letter": "U",
+          "paid": 11,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908605,
+          "letter": "D",
+          "paid": 15,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908677,
+          "letter": "E",
+          "paid": 12,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908741,
+          "letter": "O",
+          "paid": 12,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908749,
+          "letter": "R",
+          "paid": 15,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908797,
+          "letter": "T",
+          "paid": 8,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45541,
+          "auctionId": 2908828,
+          "letter": "E",
+          "paid": 22,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906623,
+          "letter": "N",
+          "paid": 14,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906663,
+          "letter": "E",
+          "paid": 15,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906702,
+          "letter": "I",
+          "paid": 11,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906710,
+          "letter": "B",
+          "paid": 17,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906782,
+          "letter": "G",
+          "paid": 17,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906846,
+          "letter": "G",
+          "paid": 16,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2906862,
+          "letter": "T",
+          "paid": 12,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2908199,
+          "letter": "N",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45533,
+          "auctionId": 2908231,
+          "letter": "C",
+          "paid": 19,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906065,
+          "letter": "E",
+          "paid": 14,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906074,
+          "letter": "J",
+          "paid": 34,
+          "top": 54,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906240,
+          "letter": "I",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906264,
+          "letter": "R",
+          "paid": 14,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906272,
+          "letter": "G",
+          "paid": 14,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906280,
+          "letter": "A",
+          "paid": 14,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906296,
+          "letter": "E",
+          "paid": 11,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906328,
+          "letter": "O",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906368,
+          "letter": "N",
+          "paid": 11,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906480,
+          "letter": "C",
+          "paid": 8,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906496,
+          "letter": "L",
+          "paid": 7,
+          "top": 37,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906504,
+          "letter": "T",
+          "paid": 7,
+          "top": 30,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45524,
+          "auctionId": 2906512,
+          "letter": "A",
+          "paid": 13,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905380,
+          "letter": "D",
+          "paid": 15,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905398,
+          "letter": "T",
+          "paid": 9,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905407,
+          "letter": "W",
+          "paid": 19,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905503,
+          "letter": "I",
+          "paid": 14,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905519,
+          "letter": "A",
+          "paid": 9,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905639,
+          "letter": "E",
+          "paid": 9,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905663,
+          "letter": "S",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905711,
+          "letter": "N",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905719,
+          "letter": "G",
+          "paid": 13,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905735,
+          "letter": "A",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905839,
+          "letter": "A",
+          "paid": 12,
+          "top": 21,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905855,
+          "letter": "E",
+          "paid": 19,
+          "top": 39,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905863,
+          "letter": "D",
+          "paid": 10,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905911,
+          "letter": "E",
+          "paid": 7,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45515,
+          "auctionId": 2905919,
+          "letter": "T",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2904786,
+          "letter": "P",
+          "paid": 25,
+          "top": 26,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2904874,
+          "letter": "F",
+          "paid": 20,
+          "top": 21,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2904882,
+          "letter": "L",
+          "paid": 17,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2904915,
+          "letter": "F",
+          "paid": 19,
+          "top": 23,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905004,
+          "letter": "E",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905012,
+          "letter": "A",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905036,
+          "letter": "G",
+          "paid": 8,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905044,
+          "letter": "A",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905060,
+          "letter": "O",
+          "paid": 6,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905068,
+          "letter": "P",
+          "paid": 15,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905175,
+          "letter": "T",
+          "paid": 12,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905216,
+          "letter": "J",
+          "paid": 11,
+          "top": 22,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905288,
+          "letter": "I",
+          "paid": 7,
+          "top": 8,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45506,
+          "auctionId": 2905296,
+          "letter": "D",
+          "paid": 8,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904098,
+          "letter": "A",
+          "paid": 9,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904130,
+          "letter": "P",
+          "paid": 15,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904170,
+          "letter": "E",
+          "paid": 8,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904225,
+          "letter": "I",
+          "paid": 11,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904273,
+          "letter": "X",
+          "paid": 33,
+          "top": 51,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904305,
+          "letter": "A",
+          "paid": 6,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904321,
+          "letter": "O",
+          "paid": 6,
+          "top": 7,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904392,
+          "letter": "R",
+          "paid": 9,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904408,
+          "letter": "T",
+          "paid": 12,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904432,
+          "letter": "G",
+          "paid": 12,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904448,
+          "letter": "S",
+          "paid": 14,
+          "top": 24,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904496,
+          "letter": "R",
+          "paid": 14,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904512,
+          "letter": "A",
+          "paid": 13,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904528,
+          "letter": "T",
+          "paid": 12,
+          "top": 28,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904575,
+          "letter": "N",
+          "paid": 11,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45497,
+          "auctionId": 2904615,
+          "letter": "E",
+          "paid": 6,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902520,
+          "letter": "R",
+          "paid": 10,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902528,
+          "letter": "G",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902552,
+          "letter": "G",
+          "paid": 16,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902648,
+          "letter": "B",
+          "paid": 12,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902712,
+          "letter": "L",
+          "paid": 9,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902728,
+          "letter": "O",
+          "paid": 7,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902736,
+          "letter": "F",
+          "paid": 18,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902744,
+          "letter": "E",
+          "paid": 8,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902768,
+          "letter": "N",
+          "paid": 8,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902793,
+          "letter": "T",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902817,
+          "letter": "A",
+          "paid": 6,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902857,
+          "letter": "O",
+          "paid": 6,
+          "top": 6,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902865,
+          "letter": "I",
+          "paid": 6,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902897,
+          "letter": "B",
+          "paid": 11,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902939,
+          "letter": "H",
+          "paid": 11,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45488,
+          "auctionId": 2902955,
+          "letter": "A",
+          "paid": 18,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2901985,
+          "letter": "G",
+          "paid": 13,
+          "top": 19,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902032,
+          "letter": "I",
+          "paid": 9,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902056,
+          "letter": "B",
+          "paid": 25,
+          "top": 38,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902215,
+          "letter": "N",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902223,
+          "letter": "O",
+          "paid": 10,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902239,
+          "letter": "E",
+          "paid": 12,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902263,
+          "letter": "D",
+          "paid": 15,
+          "top": 22,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902287,
+          "letter": "G",
+          "paid": 12,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902327,
+          "letter": "L",
+          "paid": 9,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902367,
+          "letter": "I",
+          "paid": 6,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902375,
+          "letter": "N",
+          "paid": 14,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902391,
+          "letter": "I",
+          "paid": 6,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902398,
+          "letter": "U",
+          "paid": 6,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902406,
+          "letter": "O",
+          "paid": 6,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902414,
+          "letter": "A",
+          "paid": 15,
+          "top": 19,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45480,
+          "auctionId": 2902462,
+          "letter": "S",
+          "paid": 11,
+          "top": 17,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901425,
+          "letter": "A",
+          "paid": 8,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901441,
+          "letter": "U",
+          "paid": 8,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901457,
+          "letter": "R",
+          "paid": 9,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901545,
+          "letter": "E",
+          "paid": 6,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901569,
+          "letter": "O",
+          "paid": 7,
+          "top": 7,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901577,
+          "letter": "C",
+          "paid": 16,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901601,
+          "letter": "G",
+          "paid": 11,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901641,
+          "letter": "I",
+          "paid": 7,
+          "top": 7,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901649,
+          "letter": "L",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901689,
+          "letter": "I",
+          "paid": 7,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901705,
+          "letter": "O",
+          "paid": 7,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901713,
+          "letter": "O",
+          "paid": 7,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901721,
+          "letter": "I",
+          "paid": 7,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901737,
+          "letter": "U",
+          "paid": 6,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901761,
+          "letter": "H",
+          "paid": 19,
+          "top": 22,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901809,
+          "letter": "T",
+          "paid": 7,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901824,
+          "letter": "N",
+          "paid": 8,
+          "top": 17,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901832,
+          "letter": "L",
+          "paid": 10,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45472,
+          "auctionId": 2901848,
+          "letter": "E",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2900886,
+          "letter": "D",
+          "paid": 18,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2900925,
+          "letter": "D",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2900989,
+          "letter": "E",
+          "paid": 10,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901013,
+          "letter": "E",
+          "paid": 10,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901114,
+          "letter": "N",
+          "paid": 11,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901130,
+          "letter": "O",
+          "paid": 7,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901144,
+          "letter": "I",
+          "paid": 6,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901151,
+          "letter": "E",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901158,
+          "letter": "G",
+          "paid": 13,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901165,
+          "letter": "O",
+          "paid": 7,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901221,
+          "letter": "T",
+          "paid": 11,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901245,
+          "letter": "A",
+          "paid": 7,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901298,
+          "letter": "N",
+          "paid": 7,
+          "top": 13,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901305,
+          "letter": "A",
+          "paid": 7,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901312,
+          "letter": "B",
+          "paid": 9,
+          "top": 25,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901320,
+          "letter": "N",
+          "paid": 11,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901328,
+          "letter": "E",
+          "paid": 7,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901384,
+          "letter": "I",
+          "paid": 13,
+          "top": 13,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45464,
+          "auctionId": 2901400,
+          "letter": "L",
+          "paid": 6,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900410,
+          "letter": "E",
+          "paid": 10,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900473,
+          "letter": "Q",
+          "paid": 33,
+          "top": 44,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900487,
+          "letter": "I",
+          "paid": 8,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900592,
+          "letter": "O",
+          "paid": 7,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900648,
+          "letter": "A",
+          "paid": 8,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900669,
+          "letter": "U",
+          "paid": 6,
+          "top": 27,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900676,
+          "letter": "R",
+          "paid": 11,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900683,
+          "letter": "O",
+          "paid": 10,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900732,
+          "letter": "T",
+          "paid": 12,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45456,
+          "auctionId": 2900774,
+          "letter": "Z",
+          "paid": 40,
+          "top": 46,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2897141,
+          "letter": "N",
+          "paid": 9,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2897148,
+          "letter": "A",
+          "paid": 12,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2897162,
+          "letter": "V",
+          "paid": 16,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2897183,
+          "letter": "G",
+          "paid": 12,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2897204,
+          "letter": "D",
+          "paid": 14,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2900010,
+          "letter": "O",
+          "paid": 10,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2900065,
+          "letter": "W",
+          "paid": 16,
+          "top": 19,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2900072,
+          "letter": "C",
+          "paid": 13,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2900079,
+          "letter": "I",
+          "paid": 13,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2900107,
+          "letter": "O",
+          "paid": 12,
+          "top": 18,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45448,
+          "auctionId": 2900191,
+          "letter": "E",
+          "paid": 11,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896628,
+          "letter": "A",
+          "paid": 14,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896652,
+          "letter": "B",
+          "paid": 14,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896697,
+          "letter": "J",
+          "paid": 27,
+          "top": 36,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896736,
+          "letter": "N",
+          "paid": 16,
+          "top": 21,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896800,
+          "letter": "V",
+          "paid": 18,
+          "top": 23,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896855,
+          "letter": "E",
+          "paid": 12,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896919,
+          "letter": "Y",
+          "paid": 16,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896935,
+          "letter": "G",
+          "paid": 11,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896965,
+          "letter": "U",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45441,
+          "auctionId": 2896979,
+          "letter": "A",
+          "paid": 13,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896081,
+          "letter": "O",
+          "paid": 13,
+          "top": 19,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896089,
+          "letter": "B",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896105,
+          "letter": "I",
+          "paid": 14,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896163,
+          "letter": "E",
+          "paid": 12,
+          "top": 13,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896314,
+          "letter": "O",
+          "paid": 9,
+          "top": 15,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896370,
+          "letter": "T",
+          "paid": 12,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896384,
+          "letter": "E",
+          "paid": 13,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896428,
+          "letter": "R",
+          "paid": 13,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896452,
+          "letter": "A",
+          "paid": 10,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896468,
+          "letter": "S",
+          "paid": 9,
+          "top": 9,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896500,
+          "letter": "O",
+          "paid": 12,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45433,
+          "auctionId": 2896508,
+          "letter": "M",
+          "paid": 19,
+          "top": 30,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892522,
+          "letter": "C",
+          "paid": 22,
+          "top": 27,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892571,
+          "letter": "I",
+          "paid": 12,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892616,
+          "letter": "Q",
+          "paid": 20,
+          "top": 55,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892634,
+          "letter": "D",
+          "paid": 16,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892801,
+          "letter": "A",
+          "paid": 13,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892825,
+          "letter": "T",
+          "paid": 8,
+          "top": 8,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892849,
+          "letter": "I",
+          "paid": 12,
+          "top": 13,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2892865,
+          "letter": "J",
+          "paid": 27,
+          "top": 28,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2895885,
+          "letter": "N",
+          "paid": 15,
+          "top": 21,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2895965,
+          "letter": "O",
+          "paid": 9,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2895973,
+          "letter": "R",
+          "paid": 17,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2895981,
+          "letter": "L",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45425,
+          "auctionId": 2896029,
+          "letter": "A",
+          "paid": 15,
+          "top": 17,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2891981,
+          "letter": "I",
+          "paid": 18,
+          "top": 31,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2891997,
+          "letter": "O",
+          "paid": 12,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892013,
+          "letter": "O",
+          "paid": 12,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892053,
+          "letter": "N",
+          "paid": 14,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892101,
+          "letter": "V",
+          "paid": 17,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892236,
+          "letter": "V",
+          "paid": 16,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892276,
+          "letter": "A",
+          "paid": 11,
+          "top": 19,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892356,
+          "letter": "E",
+          "paid": 27,
+          "top": 34,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892380,
+          "letter": "L",
+          "paid": 12,
+          "top": 21,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892396,
+          "letter": "J",
+          "paid": 23,
+          "top": 33,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45416,
+          "auctionId": 2892404,
+          "letter": "O",
+          "paid": 17,
+          "top": 25,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891414,
+          "letter": "T",
+          "paid": 13,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891422,
+          "letter": "R",
+          "paid": 13,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891470,
+          "letter": "L",
+          "paid": 9,
+          "top": 18,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891542,
+          "letter": "J",
+          "paid": 29,
+          "top": 32,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891621,
+          "letter": "S",
+          "paid": 10,
+          "top": 17,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891637,
+          "letter": "E",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891661,
+          "letter": "Q",
+          "paid": 18,
+          "top": 32,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891700,
+          "letter": "D",
+          "paid": 12,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891732,
+          "letter": "U",
+          "paid": 9,
+          "top": 35,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891843,
+          "letter": "N",
+          "paid": 16,
+          "top": 77,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891851,
+          "letter": "I",
+          "paid": 16,
+          "top": 61,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45408,
+          "auctionId": 2891907,
+          "letter": "A",
+          "paid": 18,
+          "top": 26,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2890830,
+          "letter": "V",
+          "paid": 17,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2890862,
+          "letter": "F",
+          "paid": 18,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2890878,
+          "letter": "E",
+          "paid": 10,
+          "top": 11,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2890902,
+          "letter": "G",
+          "paid": 12,
+          "top": 16,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891063,
+          "letter": "O",
+          "paid": 10,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891186,
+          "letter": "E",
+          "paid": 9,
+          "top": 9,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891202,
+          "letter": "D",
+          "paid": 11,
+          "top": 16,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891218,
+          "letter": "W",
+          "paid": 16,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891258,
+          "letter": "M",
+          "paid": 17,
+          "top": 22,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891274,
+          "letter": "I",
+          "paid": 9,
+          "top": 12,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891282,
+          "letter": "A",
+          "paid": 9,
+          "top": 10,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891298,
+          "letter": "R",
+          "paid": 11,
+          "top": 20,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45399,
+          "auctionId": 2891354,
+          "letter": "T",
+          "paid": 22,
+          "top": 23,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890174,
+          "letter": "C",
+          "paid": 19,
+          "top": 20,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890191,
+          "letter": "Q",
+          "paid": 32,
+          "top": 40,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890231,
+          "letter": "U",
+          "paid": 11,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890255,
+          "letter": "U",
+          "paid": 9,
+          "top": 9,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890263,
+          "letter": "I",
+          "paid": 13,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890336,
+          "letter": "G",
+          "paid": 12,
+          "top": 15,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890496,
+          "letter": "O",
+          "paid": 9,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890551,
+          "letter": "E",
+          "paid": 10,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890583,
+          "letter": "E",
+          "paid": 11,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890599,
+          "letter": "I",
+          "paid": 13,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890639,
+          "letter": "T",
+          "paid": 13,
+          "top": 15,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45390,
+          "auctionId": 2890679,
+          "letter": "R",
+          "paid": 19,
+          "top": 21,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889493,
+          "letter": "A",
+          "paid": 11,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889501,
+          "letter": "S",
+          "paid": 10,
+          "top": 17,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889533,
+          "letter": "D",
+          "paid": 10,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889549,
+          "letter": "N",
+          "paid": 8,
+          "top": 22,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889597,
+          "letter": "S",
+          "paid": 9,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889605,
+          "letter": "D",
+          "paid": 13,
+          "top": 14,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889613,
+          "letter": "I",
+          "paid": 6,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889701,
+          "letter": "W",
+          "paid": 20,
+          "top": 22,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889801,
+          "letter": "E",
+          "paid": 11,
+          "top": 25,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889863,
+          "letter": "I",
+          "paid": 10,
+          "top": 12,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889887,
+          "letter": "I",
+          "paid": 14,
+          "top": 16,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889943,
+          "letter": "E",
+          "paid": 11,
+          "top": 19,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889951,
+          "letter": "T",
+          "paid": 20,
+          "top": 36,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889975,
+          "letter": "V",
+          "paid": 31,
+          "top": 46,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45381,
+          "auctionId": 2889983,
+          "letter": "O",
+          "paid": 14,
+          "top": 14,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2888972,
+          "letter": "Y",
+          "paid": 24,
+          "top": 31,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2888980,
+          "letter": "I",
+          "paid": 9,
+          "top": 12,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2888996,
+          "letter": "T",
+          "paid": 10,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889092,
+          "letter": "I",
+          "paid": 10,
+          "top": 10,
+          "phase": "early",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889172,
+          "letter": "G",
+          "paid": 13,
+          "top": 14,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889180,
+          "letter": "H",
+          "paid": 21,
+          "top": 21,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889244,
+          "letter": "N",
+          "paid": 11,
+          "top": 11,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889260,
+          "letter": "T",
+          "paid": 9,
+          "top": 10,
+          "phase": "middle",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889355,
+          "letter": "I",
+          "paid": 10,
+          "top": 11,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889403,
+          "letter": "E",
+          "paid": 14,
+          "top": 44,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889411,
+          "letter": "I",
+          "paid": 12,
+          "top": 18,
+          "phase": "late",
+          "mechanism": "vickrey"
+        },
+        {
+          "matchId": 45373,
+          "auctionId": 2889427,
+          "letter": "R",
+          "paid": 24,
+          "top": 26,
+          "phase": "late",
+          "mechanism": "vickrey"
+        }
+      ]
+    }
+  ],
+  "copyName": "Pegasus-vLKI"
+}

@@ -2,6 +2,9 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Bot credentials saved by bot-starter (`.token-<BOT_NAME>`)
+.token-*
 .DS_Store
 dist/
 build/

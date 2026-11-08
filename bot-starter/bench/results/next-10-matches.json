@@ -1,0 +1,280 @@
+{
+  "createdAt": "2026-11-08T01:58:12.299Z",
+  "updatedAt": "2026-11-08T02:09:57.917Z",
+  "botId": 208,
+  "afterMatchId": 45584,
+  "target": 10,
+  "complete": true,
+  "matches": [
+    {
+      "matchId": 45593,
+      "observedAt": "2026-11-08T01:58:13.070Z",
+      "startedAt": "2026-11-08T01:56:35.289Z",
+      "opponents": [
+        {
+          "botId": 175,
+          "name": "wordgoat"
+        },
+        {
+          "botId": 180,
+          "name": "StickBot"
+        },
+        {
+          "botId": 167,
+          "name": "Jaeger"
+        },
+        {
+          "botId": 227,
+          "name": "TitanUTD"
+        },
+        {
+          "botId": 186,
+          "name": "Lucy"
+        }
+      ]
+    },
+    {
+      "matchId": 45603,
+      "observedAt": "2026-11-08T01:58:33.877Z",
+      "startedAt": "2026-11-08T01:58:32.519Z",
+      "opponents": [
+        {
+          "botId": 207,
+          "name": "LexForge-1107"
+        },
+        {
+          "botId": 227,
+          "name": "TitanUTD"
+        },
+        {
+          "botId": 233,
+          "name": "LexForge-Shade-v1"
+        },
+        {
+          "botId": 209,
+          "name": "N1gel"
+        },
+        {
+          "botId": 181,
+          "name": "LexiconWarrior"
+        }
+      ]
+    },
+    {
+      "matchId": 45612,
+      "observedAt": "2026-11-08T01:59:45.838Z",
+      "startedAt": "2026-11-08T01:59:42.971Z",
+      "opponents": [
+        {
+          "botId": 181,
+          "name": "LexiconWarrior"
+        },
+        {
+          "botId": 242,
+          "name": "Pegasus v4"
+        },
+        {
+          "botId": 227,
+          "name": "TitanUTD"
+        },
+        {
+          "botId": 209,
+          "name": "N1gel"
+        },
+        {
+          "botId": 241,
+          "name": "Pegasus v3"
+        }
+      ]
+    },
+    {
+      "matchId": 45623,
+      "observedAt": "2026-11-08T02:01:19.103Z",
+      "startedAt": "2026-11-08T02:01:11.196Z",
+      "opponents": [
+        {
+          "botId": 209,
+          "name": "N1gel"
+        },
+        {
+          "botId": 242,
+          "name": "Pegasus v4"
+        },
+        {
+          "botId": 241,
+          "name": "Pegasus v3"
+        },
+        {
+          "botId": 161,
+          "name": "Bot"
+        },
+        {
+          "botId": 227,
+          "name": "TitanUTD"
+        }
+      ]
+    },
+    {
+      "matchId": 45635,
+      "observedAt": "2026-11-08T02:02:31.290Z",
+      "startedAt": "2026-11-08T02:02:21.005Z",
+      "opponents": [
+        {
+          "botId": 233,
+          "name": "LexForge-Shade-v1"
+        },
+        {
+          "botId": 164,
+          "name": "Tow57-Auctioneer"
+        },
+        {
+          "botId": 207,
+          "name": "LexForge-1107"
+        },
+        {
+          "botId": 225,
+          "name": "Lexiconda"
+        },
+        {
+          "botId": 182,
+          "name": "scrabblemaxxing"
+        }
+      ]
+    },
+    {
+      "matchId": 45646,
+      "observedAt": "2026-11-08T02:03:43.407Z",
+      "startedAt": "2026-11-08T02:03:36.298Z",
+      "opponents": [
+        {
+          "botId": 177,
+          "name": "Babbler"
+        },
+        {
+          "botId": 207,
+          "name": "LexForge-1107"
+        },
+        {
+          "botId": 233,
+          "name": "LexForge-Shade-v1"
+        },
+        {
+          "botId": 164,
+          "name": "Tow57-Auctioneer"
+        },
+        {
+          "botId": 225,
+          "name": "Lexiconda"
+        }
+      ]
+    },
+    {
+      "matchId": 45657,
+      "observedAt": "2026-11-08T02:06:20.726Z",
+      "startedAt": "2026-11-08T02:06:15.926Z",
+      "opponents": [
+        {
+          "botId": 178,
+          "name": "gas"
+        },
+        {
+          "botId": 207,
+          "name": "LexForge-1107"
+        },
+        {
+          "botId": 164,
+          "name": "Tow57-Auctioneer"
+        },
+        {
+          "botId": 233,
+          "name": "LexForge-Shade-v1"
+        },
+        {
+          "botId": 225,
+          "name": "Lexiconda"
+        }
+      ]
+    },
+    {
+      "matchId": 45668,
+      "observedAt": "2026-11-08T02:07:32.596Z",
+      "startedAt": "2026-11-08T02:07:30.091Z",
+      "opponents": [
+        {
+          "botId": 207,
+          "name": "LexForge-1107"
+        },
+        {
+          "botId": 233,
+          "name": "LexForge-Shade-v1"
+        },
+        {
+          "botId": 178,
+          "name": "gas"
+        },
+        {
+          "botId": 225,
+          "name": "Lexiconda"
+        },
+        {
+          "botId": 164,
+          "name": "Tow57-Auctioneer"
+        }
+      ]
+    },
+    {
+      "matchId": 45679,
+      "observedAt": "2026-11-08T02:08:44.439Z",
+      "startedAt": "2026-11-08T02:08:39.814Z",
+      "opponents": [
+        {
+          "botId": 164,
+          "name": "Tow57-Auctioneer"
+        },
+        {
+          "botId": 230,
+          "name": "Jake"
+        },
+        {
+          "botId": 255,
+          "name": "RackMaw-Champion-Ctl2"
+        },
+        {
+          "botId": 178,
+          "name": "gas"
+        },
+        {
+          "botId": 225,
+          "name": "Lexiconda"
+        }
+      ]
+    },
+    {
+      "matchId": 45690,
+      "observedAt": "2026-11-08T02:09:57.912Z",
+      "startedAt": "2026-11-08T02:09:54.039Z",
+      "opponents": [
+        {
+          "botId": 177,
+          "name": "Babbler"
+        },
+        {
+          "botId": 230,
+          "name": "Jake"
+        },
+        {
+          "botId": 178,
+          "name": "gas"
+        },
+        {
+          "botId": 225,
+          "name": "Lexiconda"
+        },
+        {
+          "botId": 164,
+          "name": "Tow57-Auctioneer"
+        }
+      ]
+    }
+  ]
+}

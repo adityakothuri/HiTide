@@ -1,0 +1,21 @@
+suite: 80 games/field, seed 1, first-price
+
+| Field | Strategy | Win share (95% CI) | Mean place | Mean score | Best opp. | Δplace vs F-vb | won/words/left |
+|---|---|---|---:|---:|---:|---:|---|
+| fleet | F-vb | 12.5% (6.9%–21.5%) | 3.55 | 74.9 | 102.7 | — | 12.0/2.6/1.0 |
+
+market: 5439 tiles sold, 1 unsold; mean winning bid 13.7, mean price paid 13.7 (live: 15.0 / 10.6)
+price paid by letter, sim/live: A 11/11  B 15/15  C 17/16  D 14/13  E 12/11  F 18/17  G 14/12  H 19/19  I 12/10  J 27/24  K 21/21  L 12/11  M 16/16  N 12/10  O 12/10  P 16/15  Q 28/19  R 12/11  S 12/12  T 11/10  U 11/10  V 16/15  W 18/17  X 28/26  Y 20/19  Z 36/31
+
+| Strategy | decision calls | mean ms | max ms |
+|---|---:|---:|---:|
+| F-vj | 6646 | 0.809 | 93.3 |
+| F-vi | 4158 | 0.967 | 147.0 |
+| F-vf | 5554 | 0.374 | 29.1 |
+| F-vc | 6096 | 0.898 | 49.7 |
+| F-vd | 5268 | 0.603 | 81.7 |
+| F-vb | 17045 | 0.595 | 91.7 |
+| F-va | 5690 | 0.759 | 57.3 |
+| F-vg | 5685 | 0.636 | 24.6 |
+| F-ve | 4854 | 0.373 | 100.8 |
+| F-vh | 5525 | 1.174 | 137.9 |

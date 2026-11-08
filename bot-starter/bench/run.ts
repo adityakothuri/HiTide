@@ -10,7 +10,7 @@
 
 import { Lexicon } from "../src/lexicon.js";
 import type { Policy } from "../src/policy.js";
-import { REGISTRY } from "./registry.js";
+import { FLEET_NAMES, REGISTRY } from "./registry.js";
 import {
   type Rng,
   type Seat,
@@ -80,6 +80,7 @@ function opponents(field: string, rng: Rng): Seat[] {
     case "blive": return shuffle(rng, ["B-LUCENT", "B-Bron", "B-GodOfThudner", "B-Maverick", "B-StickBot", "B-Odysseus", "B-Tow57", "B-SoapConsumers"]).slice(0, 5).map(pol);
     case "slive": return shuffle(rng, ["S-LUCENT", "S-Bron", "S-GodOfThudner", "S-Maverick", "S-StickBot", "S-Odysseus", "S-Tow57", "S-SoapConsumers"]).slice(0, 5).map(pol);
     case "live": return shuffle(rng, ["M-LUCENT", "M-Bron", "M-GodOfThudner", "M-Maverick", "M-StickBot", "M-Odysseus"]).slice(0, 5).map(pol);
+    case "fleet": return shuffle(rng, FLEET_NAMES).slice(0, 5).map(pol);
     case "realmix": return [pol("Starter"), pol("Starter"), pol("Report"), sim("Aggressive"), sim("ValueBidder")];
     default: {
       // "Name*k+Other*j+..." for custom fields

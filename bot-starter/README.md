@@ -1,6 +1,6 @@
 ScrabbleBot
 
-`npm start` runs **LexForgeObserved**, a behavior-based reconstruction of LexForge-Base-v1 (bot 224). It targets 7+ letter words worth 45+ points, recovers with 5+ letter words below 15 coins, and starts liquidation one auction early. Its fitted bids use public historical observations. The original source is unavailable, so this is not an exact code copy. See [bench/LEXFORGE.md](bench/LEXFORGE.md) for the complete matchup study and evaluation.
+`npm start` runs **Larper** (`STRATEGY=larper`, default `BOT_NAME=larper`): LexForgeObserved plus coin-starvation fixes. Below 10 coins it cashes its best 5+ letter word, and below 7 coins it cashes any word so it can keep bidding. On a replay of 38 live matches of bot 259 it scored +2.6 to +3.0 points per match over plain LexForge. Bid pacing and cashing in at 30–40 coins both lost 5–22 points there. LexForgeObserved is a behavior-based reconstruction of LexForge-Base-v1 (bot 224). It targets 7+ letter words worth 45+ points, recovers with 5+ letter words below 15 coins, and starts liquidation one auction early. Its fitted bids use public historical observations. The original source is unavailable, so this is not an exact code copy. See [bench/LEXFORGE.md](bench/LEXFORGE.md) for the complete matchup study and evaluation.
 
 Install and run from `bot-starter/`:
 
@@ -32,7 +32,8 @@ For CLI nonce authentication, use `BOT_NONCE='<nonce>'` instead of `BOT_TOKEN` o
 | `market7v` | Seven-letter targets, market prices, value-scaled pacing | Previous default; live baseline |
 | `market7vb` | Market7V plus 4+ letter cash-in below 35 coins | Live cash-flow experiment; unresolved |
 | `market7vc` | Market7Vb plus immediate seven-letter/high-yield six-letter cash-in, endgame liquidation and completion funding | New candidate; requires live validation |
-| `lexforge` | Fitted LexForge-Base-v1 bids, high-score primary words, low-cash recovery | Default; version 2 live deployment |
+| `larper` | LexForge plus a cash-in at 10 coins and an any-word cash-in at 7 | Default |
+| `lexforge` | Fitted LexForge-Base-v1 bids, high-score primary words, low-cash recovery | Previous default |
 | `market7vf` | Market7V word decisions plus completion funding and first-price affordability cap | Previous default; rollback baseline |
 | `portfolioTuned` | Earlier portfolio valuation and cash-in regimes | Implemented; simulator evidence only |
 | `ha2`, `l1`, `final` | Earlier heuristic/planner strategies | Retained for comparisons; `final` is historical P1, not the default |

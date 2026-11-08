@@ -1,0 +1,11 @@
+.fleet-secrets/
+fleet/work/
+fleet/*.log
+fleet/*.pid
+fleet/runtime.json
+fleet/control.json
+
+# Run logs and re-downloadable caches (not source)
+bench/results/**/*.log
+bench/results/scouting/matches.json
+bench/results/lobby-locks/
