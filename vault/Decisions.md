@@ -39,3 +39,16 @@ Dated log. Add a new entry at the top when a decision changes the plan. Keep the
 - Photon Spectrum (Stable) is the Photon version we use.
 - Reason: it is the only version that documents polls, read receipts, and outbound SIP voice on an iMessage line.
 - Related: [[Photon Outreach]], [[Data Sources]]
+
+## 2026-11-07: Photon sends go through a Node sidecar
+Spectrum's REST OpenAPI has no send or poll endpoint. Only `spectrum-ts` can send. We added `photon-sidecar/` (about 80 lines) exposing `/send` and `/poll`, and it forwards inbound replies to `/api/photon/inbound`. The Python adapter talks to the sidecar.
+
+## 2026-11-07: Demo clock, fast-forward then 1x
+At 60x, the 12 s escalation timers would last 0.2 s on screen and cars would teleport. The scenario ramps the flood at 300x to minute 35 (about 7 s), then runs at 1x so the timers and driving are real-time. Suggested by the planner agent.
+
+## 2026-11-07: Two meanings of "moving"
+Pre-trip texts skip any driver **on a trip** (`DriverMotion.moving`). The outreach guard blocks text, poll and voice only when the car is **physically moving** (speed ≥ 0.5 m/s). A car stalled in water must still get the "Are you okay?" call.
+
+## 2026-11-07: Est. claims avoided is an estimate
+(warned + rerouted) × avg vehicle flood claim × 10% (the assumed share who would have driven into water). The placeholder average is $15k. It needs a source before the pitch.
+

@@ -37,3 +37,12 @@ A warning is active (NWS alert or simulated river rise). For each **non-moving**
 
 - [[Stage 2 En route]] for drivers already moving
 - [[Architecture]] for the full pipeline
+
+## Implementation (2026-11-07)
+
+- Pure check: `backend/stages/route_check.py` (`route_hits`, `plan_pretrip`), tested in `backend/tests/test_route_check.py` (TDD).
+- Wiring: `backend/stages/runner.py` `pretrip_hook`. It runs every tick while an alert is active. Dedupe key is `(driver, alert)`. Drivers on a trip are skipped.
+- Safer route: `backend/sim/routing.py` `dry_route` (networkx `restricted_view` with closed edges removed in both directions).
+- If there is no dry route, the text says "delay your trip".
+- Teen: a parent copy is sent with `recipient=parent`.
+- Demo result: demo-a and demo-t (whose parent is A) were warned 3.6 s into the run, with a 4.5 km safer route. 34 drivers were warned overall.

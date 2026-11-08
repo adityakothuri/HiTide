@@ -71,3 +71,12 @@ Timers come from `escalation_s` in `backend/config/weights.yaml`. The `demo` pro
 - [[Photon Outreach]] for calls and texts
 - [[Risk Scoring]] for the `responder_flag` threshold
 - [[Demo Script]]
+
+## Implementation (2026-11-07)
+
+- Stop detection: `backend/stages/stop_detect.py`, tested in `backend/tests/test_stop_detect.py` (TDD).
+- State machine: `backend/stages/escalation.py` (pure `transition(case, event, now)`, `due_timers`), tested in `backend/tests/test_escalation.py` (TDD, 69 tests with stop detection).
+- Wiring: `backend/stages/runner.py` `stopped_hook`, `_advance_case`, `_timer_action`, `drone_hook`.
+- Clock rule (from the [[Tooling|planner]]): the demo fast-forwards the flood at 300x to minute 35, then runs at 1x, so the demo timers (0 / 12 / 18 s) are real seconds on stage.
+- Replies: `POST /api/cases/{id}/reply` (driver view buttons) and `POST /api/photon/inbound` (Photon sidecar; key-guarded, matched only against allowlisted demo numbers).
+- Demo result: Margaret's case opened at urgency 0.962 with an immediate responder flag. It went calling → family at +12 s → drone at +18 s → handed to responders at +33 s.
