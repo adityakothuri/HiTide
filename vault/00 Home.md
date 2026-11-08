@@ -21,9 +21,9 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 - Why: [[Problem]] · [[Pitch]] · [[Privacy and Consent]]
 - How it works: [[Architecture]] · [[Stage 1 Pre-trip]] · [[Stage 2 En route]] · [[Stage 3 Stopped in water]]
 - Frontend: [[Design System]] · [[Driver App]] · [[Dashboard]] · screenshots in `Experiments/screenshots/`
-- Modules: [[Live Observations]] · [[Critical Point Drones]] · [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Dashboard]]
+- Modules: [[Per-User Danger]] · [[Live Observations]] · [[Critical Point Drones]] · [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Tabletop Model]] · [[Dashboard]]
 - Reference: [[Data Sources]] · [[Tooling]] · [[Decisions]] · [[Demo Script]]
-- Experiments: [[2026-11-07 Town cache build]] · [[2026-11-07 Demo run check]] · [[2026-11-08 July 2025 replay calibration]] · [[2026-11-08 Drone vision accuracy]]
+- Experiments: [[2026-11-07 Town cache build]] · [[2026-11-07 Demo run check]] · [[2026-11-08 July 2025 replay calibration]] · [[2026-11-08 Drone vision accuracy]] · [[2026-11-08 Tabletop synthetic accuracy]]
 
 ## Phase status
 
@@ -37,9 +37,11 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | backend done: 7-step run verified over WS ([[2026-11-07 Demo run check]]), talk track, claims sourced, pre-submission security review (1 HIGH fixed, TDD). Left: live `photon2` rehearsal, backup video, CHECKPOINT 5 with the frontend |
+| Per-user danger | `feat/safety-core`: live feeds + profile risk + Photon/ElevenLabs stitched into one pipeline. A user's position goes to the hazard there, combined with their vulnerability and motion, giving a level (none/watch/warning/danger/critical) that drives the outreach ladder. Runs in replay and live. See [[Per-User Danger]] | done 2026-11-08: TDD core, API, live smoke test against real feeds, 2000-user July 2025 stress + fault injection ([[2026-11-08 Safety pipeline stress]]) |
 | Live detection | Teammate's Texas collectors (`data_handoff.md`) feed Hill Country detection through `backend/observe/`: USGS gauges, NWS alerts (CAP lifecycle, polygons), MRMS radar rain at each crossing, NWS storm reports, NWPS forecasts. `REGION_MODE=live` or `POST /api/region/mode`. See [[Live Observations]] | done 2026-11-08. Replay is bit-for-bit unchanged (golden digest, 391 steps x 2 policies). The live path reproduces July 2025 belief exactly (0.00 in). Live smoke test passed against real feeds. |
 | Hill Country | Real July 4, 2025 replay over Hunt → Ingram → Kerrville: HAND flood, chokepoints, priority, multi-drone tours, area risk (move low → high ground), Tello hookup. See [[Critical Point Drones]] | backend done 2026-11-08: 7-beat demo verified live over WS; python, fastapi and code reviewers done, all findings fixed |
 | Drone vision | Water edge + elevation → water surface, depth at road with range, rise rate; YOLO + tracking for vehicles/people; alerts; spread; `POST /api/snapshots`. See [[Drone Vision]], [[2026-11-08 Drone vision accuracy]] | done 2026-11-08: 137 vision tests; Kerrville replay 16/16 inside range; 3 reviewers' HIGH findings fixed |
+| Tabletop model | 3D-printed downtown Kerrville tray (1:5455, 3× vertical) with real dyed water. The drone camera measures the rise; the CAD heightmap is the ground truth. ArUco pose, bathtub truth, pour table. Fusion 360 MCP registered in `.mcp.json`. See [[Tabletop Model]] | built + synthetic-validated 2026-11-08: Park St within 0.2 m, bridge ranges honest; 23 TDD tests. Left: Fusion pass (add-in not running), print, real pour run |
 | Driver profiles | Simulated State Farm profile (DSS, policy, claims, household, needs; `docs/driver-profile.md`) weights urgency in all 3 stages. See [[Risk Scoring]] | done 2026-11-08: colleague commit cherry-picked + baseline vulnerability score, TDD |
 | Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
 

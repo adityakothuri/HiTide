@@ -59,6 +59,7 @@ class LocationHazard:
     emergency_polygon: bool = False       # storm-based polygon (precise) vs. zone/area-wide
     in_watch: bool = False
     far_from_water: bool = False          # no modeled waterway in reach and no unnamed-stream crossing nearby
+    region_rising: bool = False           # any online gauge in the region rising fast
     alert_headlines: tuple[str, ...] = ()
     rain_in_hr: float | None = None
     gauge_rising: bool = False
@@ -114,7 +115,7 @@ def _densify(coords: list[list[float]], step_m: float) -> list[tuple[float, floa
     return out
 
 
-HOOD_CACHE_MAX = 100_000
+HOOD_CACHE_MAX = 30_000   # ~6 KB each; enough for every parked user, bounded for moving ones
 
 
 @dataclass(frozen=True)
@@ -336,6 +337,7 @@ def assess(loc: Locator, ctx: SafetyContext, lat: float, lon: float, heading_deg
         gauge_category=ctx.gauge_category.get(ww) if ww else None,
         forecast_category=ctx.forecast_category.get(ww) if ww else None,
         closure_nearby=closure, ahead=ahead, route=route, far_from_water=far,
+        region_rising=bool(ctx.rising_waterways),
         **alert_part,
     )
 
@@ -360,6 +362,13 @@ def _findings(h: LocationHazard, stall_depth_in: float, cfg: Mapping[str, Any]) 
         out.append((Level.WATCH, "Flood watch for your area", ALERT))
     if h.coverage != "region":
         return out
+    # NWS alerts unavailable: we can't see warnings, so rising creeks or heavy rain stand in for one (never "all clear").
+    nws_blind = "nws_alerts" in h.degraded_sources and not h.in_warning
+    proxy = nws_blind and (h.region_rising or h.gauge_rising or rain_heavy)
+    if proxy:
+        out.append((Level.WARNING, "Flood alerts are unavailable and creeks are rising or rain is heavy: "
+                                   "treating this as a flash flood warning", ALERT))
+    warned = h.in_warning or proxy
     road = h.road_name or "your road"
     d = h.depth_in
     if d is not None and d >= stall_depth_in:
@@ -377,14 +386,14 @@ def _findings(h: LocationHazard, stall_depth_in: float, cfg: Mapping[str, Any]) 
     elif wp and wp.status == "unknown" and h.in_emergency:
         out.append((Level.DANGER, f"{wp.name} over {wp.waterway} ({wp.distance_m:.0f} m away) can't be checked "
                                   "and a Flash Flood Emergency is in effect", NEARBY))
-    elif wp and wp.status == "unknown" and h.in_warning:
+    elif wp and wp.status == "unknown" and warned:
         out.append((Level.WARNING, f"{wp.name} over {wp.waterway} ({wp.distance_m:.0f} m away) can't be checked yet",
                     NEARBY))
     m = h.max_depth_nearby_in
     if m is not None and m >= danger:
         out.append((Level.DANGER if m >= stall_depth_in else Level.WARNING, f"Water up to {m:.0f} in on roads near you", NEARBY))
     ww = h.waterway or "the nearest creek"
-    if h.in_warning and h.gauge_rising:
+    if warned and h.gauge_rising:
         out.append((Level.DANGER, f"{ww} is rising fast inside the warning", NEARBY))
     if rain_heavy and h.gauge_rising:
         out.append((Level.WARNING, f"Heavy rain and {ww} rising", NEARBY))

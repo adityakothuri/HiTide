@@ -98,3 +98,12 @@ def test_monotone_in_evidence():
     for extra in [dict(gauge_rising=True), dict(worst_point=point()), dict(depth_in=7.0), dict(closure_nearby="LSR"),
                   dict(in_emergency=True), dict(rain_in_hr=2.0)]:
         assert lv(**base, **extra) >= lv(**base)
+
+
+def test_nws_outage_does_not_read_as_all_clear():
+    blind = dict(degraded_sources=("nws_alerts",))
+    assert lv(**blind) == Level.NONE                                   # nothing else going on: nothing to say
+    assert lv(region_rising=True, **blind) == Level.WARNING            # creeks rising somewhere: act as warned
+    assert lv(region_rising=True, worst_point=point("unknown", 200), **blind) == Level.WARNING
+    assert lv(gauge_rising=True, waterway="Guadalupe River", **blind) == Level.DANGER
+    assert lv(rain_in_hr=2.0, **blind) == Level.WARNING
