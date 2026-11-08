@@ -7,6 +7,7 @@ Close the window (or press Ctrl+C) to stop. Uses command/response only, no state
 import time
 
 from djitellopy import Tello
+from tello_dashboard import flush_replies
 
 INTERVAL_SECONDS = 5
 LOW_BATTERY_PCT = 20
@@ -29,6 +30,7 @@ def bar(pct: int, width: int = 20) -> str:
 def main() -> None:
     tello = Tello()
     tello.connect(wait_for_state=False)
+    flush_replies(tello)
     print("Connected. Updating every", INTERVAL_SECONDS, "seconds. Close the window to stop.\n")
     try:
         while True:

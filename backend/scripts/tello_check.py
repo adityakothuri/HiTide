@@ -5,6 +5,7 @@ Uses only command/response queries, so it works even if the firewall blocks the 
 """
 
 from djitellopy import Tello
+from tello_dashboard import flush_replies
 
 HOT_TEMP_C = 80
 LOW_BATTERY_PCT = 15
@@ -30,6 +31,7 @@ def main() -> None:
     print("Talking to the drone...")
     try:
         tello.connect(wait_for_state=False)
+        flush_replies(tello)
     except Exception as exc:
         print("\nFAILED: the drone did not answer.")
         print("  - Is the laptop on the TELLO-XXXXXX Wi-Fi?")

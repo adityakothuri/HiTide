@@ -130,7 +130,7 @@ def main() -> None:
     log("Tello self-test (no flight)")
     step("Wi-Fi", wifi_name)
     tello = Tello()
-    if step("Drone answers commands", lambda: tello.connect(wait_for_state=False) or "ok") is None:
+    if step("Drone answers commands", lambda: tello.connect(wait_for_state=False) or dash.flush_replies(tello) or "ok") is None:
         log("DONE: drone did not answer. Check Wi-Fi and power, then run again.")
         return
     for label, command in [("Battery %", "battery?"), ("Temperature", "temp?"),

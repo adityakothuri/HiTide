@@ -13,9 +13,8 @@ app or the React ops dashboard.
   `Tello fly`, `Tello battery`, `Tello dashboard`, `Tello self-test`. These are not in the repo;
   each one just runs `tello-env\Scripts\python.exe backend\scripts\<script>.py`.
 - **Drone:** `TELLO-9AD44A`, original (non-EDU) firmware, battery 88% at last test.
-- **Next immediate step:** run `Tello self-test` on the drone Wi-Fi, wait for `DONE`, then read
-  `~/tello-test/report.txt` to confirm the video (fps + `snapshot_as_dashboard.jpg` colors).
-  Then do one short take off / hover / land through the dashboard.
+- **Next immediate step:** one short take off / hover / land through the dashboard on the real
+  drone, and check the video colors in normal light. The self-test passed (0 failures); see Status.
 - **Gotcha:** switching to the Tello Wi-Fi cuts the laptop's internet, which also cuts the Claude
   session. Use USB tethering from a phone to stay online, or rely on the self-test's saved report.
 
@@ -55,17 +54,21 @@ The server binds to 127.0.0.1 only and logs to `~/tello-test/dashboard.log`.
 
 - Tested on the real drone (TELLO-9AD44A, original Tello firmware): commands, battery, Wi-Fi SNR,
   attitude, and state packets all pass.
-- **Video on the real drone is not yet confirmed.** The first self-test run stopped after `streamon`.
-  Video startup now has a timeout in the self-test and runs in the background in the dashboard,
-  so a stuck decoder can't block telemetry or controls.
-- Dashboard verified end to end against a fake drone (video, status, take off/land).
-- Flight through the dashboard has not been tested on the real drone yet.
+- **Self-test run 2 on the real drone: 0 failures.** Video at 34 fps (first frame after 0.1 s),
+  960x720; dashboard served 29 fps over HTTP with live status (battery 89%, 66 C).
+- Video colors are not yet judged: the test snapshot was taken in a near-dark room.
+- Dashboard take off/land verified against a fake drone. **Flight on the real drone has not been
+  tested yet.**
 
 ## Known quirks
 
 - The original Tello firmware answers `temp?` as `61~63C`, which crashes djitellopy's
   `query_temperature()`. The scripts send the raw `temp?` command instead.
 - `sdk?` and `sn?` return "unknown command" on this firmware. That's expected.
+- The firmware sometimes answers `command` twice. djitellopy then pairs every later reply with the
+  wrong command (run 2 showed battery as `ok` and attitude as `63~65C`). `flush_replies()` in
+  `tello_dashboard.py` clears stray replies after connecting and before take off/land. Land is also
+  always enabled in the dashboard, so a wrong "flying" flag can never block landing.
 - A solid red LED means the self-check failed: restart on a flat surface, let it cool, or run IMU
   calibration in the official Tello app. A blinking red LED means low battery.
 

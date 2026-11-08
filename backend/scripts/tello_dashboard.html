@@ -277,7 +277,7 @@ function render(s) {
   st.className = "pill " + (s.flying ? "fly" : "ok");
   st.textContent = s.busy ? s.busy.replace(/^./, (c) => c.toUpperCase()) + "…" : s.flying ? "Flying" : "Landed";
   $("btn-takeoff").disabled = s.flying || !!s.busy;
-  $("btn-land").disabled = !s.flying || !!s.busy;
+  $("btn-land").disabled = !!s.busy;
   $("log").innerHTML = "";
   s.log.forEach(addLocalLogAppend);
 }

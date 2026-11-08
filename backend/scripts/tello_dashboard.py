@@ -25,6 +25,17 @@ FRAME_SECONDS = 1 / 30
 JPEG_QUALITY = 70
 RC_LIMIT = 100
 ACTIONS = ("takeoff", "land", "emergency")
+FLUSH_WAIT_SECONDS = 0.3
+
+
+def flush_replies(tello: Tello) -> None:
+    """Drop stray replies so the next command reads its own answer.
+
+    The original Tello firmware sometimes answers "command" twice; without this every later
+    reply is shifted by one (e.g. takeoff "fails" with a temperature reading while airborne).
+    """
+    time.sleep(FLUSH_WAIT_SECONDS)
+    tello.get_own_udp_object()["responses"].clear()
 
 
 class Drone:
@@ -38,6 +49,7 @@ class Drone:
 
     def start(self) -> None:
         self.tello.connect()
+        flush_replies(self.tello)
         self.note(f"Connected, battery {self.tello.get_battery()}%")
         # Video can take a while (or fail) to start; never let it block telemetry and controls.
         for loop in (self._video_loop, self._rc_loop):
@@ -104,8 +116,9 @@ class Drone:
             return "ok"
         if self.busy:
             return f"busy ({self.busy})"
-        if (name == "takeoff") == self.tello.is_flying:
-            return "already flying" if self.tello.is_flying else "already landed"
+        # Land is always allowed: if our flying flag is ever wrong, landing must still work.
+        if name == "takeoff" and self.tello.is_flying:
+            return "already flying"
         threading.Thread(target=self._run_action, args=(name,), daemon=True).start()
         return "ok"
 
@@ -113,6 +126,7 @@ class Drone:
         self.busy = name
         self.note(f"{name.capitalize()}...")
         try:
+            flush_replies(self.tello)
             getattr(self.tello, name)()
             self.note(f"{name.capitalize()} done")
         except Exception as exc:
