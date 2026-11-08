@@ -12,7 +12,7 @@ Everything a presenter needs is in this folder. The files are **copies**: the or
 | Demo script: what happens on screen, step by step | [`../vault/Demo Script.md`](../vault/Demo%20Script.md) |
 | Test numbers: tests by layer, 16 safety guarantees | [`../docs/TEST_EVIDENCE.md`](../docs/TEST_EVIDENCE.md) |
 | Drone vision accuracy write-up | [`../vault/Experiments/2026-11-08 Drone vision accuracy.md`](../vault/Experiments/2026-11-08%20Drone%20vision%20accuracy.md) |
-| Whole project in one doc (what's real, what's mocked) | [`../docs/STATE_OF_THE_UNION.md`](../docs/STATE_OF_THE_UNION.md) |
+| Project status: what's done, what's simulated | [`../vault/00 Home.md`](../vault/00%20Home.md) |
 | How to run the app for a live demo | [`../README.md`](../README.md) (`./dev.sh`) |
 
 ## Folders

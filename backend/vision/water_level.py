@@ -1,6 +1,6 @@
 """Water surface, depth at the road and confidence (drone vision plan section 6; overview 6.3, 9.4, 9.7).
 
-Honesty rules (overview section 3, STATE_OF_THE_UNION "no fake depth"):
+Honesty rules (overview section 3, evidence milestone "no fake depth"):
 - a number is reported only with a range; too little evidence -> None, never a guess;
 - water_on_road is tri-state: False only when most of the road is visible and dry, else None;
 - there is no "open"/"safe" band.

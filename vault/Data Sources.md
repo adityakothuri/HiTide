@@ -35,7 +35,7 @@ Each source, its auth, and what we use it for. Checked 2026-11-07 unless noted.
 
 ## Live detection inputs (REGION_MODE=live, checked 2026-11-08)
 
-These drive the Hill Country fusion; see [[Live Observations]]. Statewide collectors from the teammate handoff (`data_handoff.md`, `docs/MAP_DATA_ACCESS.md`) feed the `/texas` map.
+These drive the Hill Country fusion; see [[Live Observations]]. Statewide collectors from the teammate handoff (`docs/data-handoff.md`, `docs/MAP_DATA_ACCESS.md`) feed the `/texas` map.
 
 | Source | Endpoint | Cadence | Becomes |
 |---|---|---|---|

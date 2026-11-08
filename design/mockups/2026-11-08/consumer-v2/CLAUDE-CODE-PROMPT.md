@@ -6,20 +6,16 @@ You are implementing the actual mobile app in this repository. Act as a senior R
 
 Repository root:
 
-`/Users/sidharthkumar/Documents/GitHub/hackUTD`
+the repo root (paths below are relative to it)
 
 Open and visually inspect these two local images with your image-reading tool before implementing. The paths are provided so the user does not need to upload them again:
 
 1. Everyday experience — overview, route planning, updates:
-   `/Users/sidharthkumar/Documents/GitHub/hackUTD/design/mockups/2026-11-08/consumer-v2/01-consumer-overview-routes-updates.png`
+   `design/mockups/2026-11-08/consumer-v2/01-consumer-overview-routes-updates.png`
 2. Safety experience — turn-around alert, check-in, support status:
-   `/Users/sidharthkumar/Documents/GitHub/hackUTD/design/mockups/2026-11-08/consumer-v2/02-consumer-safety-flow.png`
+   `design/mockups/2026-11-08/consumer-v2/02-consumer-safety-flow.png`
 
-These two boards are the visual authority for the consumer app. The original inspiration screenshot is secondary and optional:
-
-`/Users/sidharthkumar/Downloads/Screenshot 2026-11-08 at 1.38.39 AM.png`
-
-If the optional screenshot is unavailable, proceed using the two committed boards. Do not use the older mockups in the parent directory as the design target. Read the adjacent `README.md` and the parent `README.md` for design intent and repository analysis. Inspect the source when older documentation disagrees with it.
+These two boards are the visual authority for the consumer app. Use the two committed boards. Do not use the older mockups in the parent directory as the design target. Read the adjacent `README.md` and the parent `README.md` for design intent and repository analysis. Inspect the source when older documentation disagrees with it.
 
 Important: each board contains three different app screens in presentation phone frames. Implement the actual screens, not the board, phone bezels, board captions, studio background, or a giant image of the mockup. The app itself must be native, interactive React Native UI.
 

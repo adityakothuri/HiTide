@@ -69,7 +69,7 @@ B gets no texts during the demo (B is the moving driver), so B's phone ringing a
 - Public Sans, self-hosted, so the demo works offline. It's legible on a projector and has an institutional tone.
 - The console map has no basemap tiles. It's drawn from our own OSM segments and river on a neutral surface, so it works offline and the water scale is the only saturated color.
 - Anti-template review changed: KPI cards → inline counters, shadow cards → bordered sections, dot-only timeline → icon shape + text state, middle-dot meta → written-out phrases. Full table in [[Design System]] §6.
-- Frontend work runs in a separate worktree on branch `feat/frontend`, so it doesn't touch the backend agent's tree.
+- Frontend work runs in a separate worktree on branch `feat/frontend`, so it doesn't touch the backend agent's tree. (All branches merged to `main` on 2026-11-08.)
 
 ## 2026-11-07: Voice "safe" needs the agent's collected status
 A transcript regex alone matched "okay... hello?" and voicemail greetings as safe, which closed the case and cancelled the drone. Now the transcript can only escalate. Only ElevenLabs' `driver_status` data collection (prompted as "safe only if they clearly say they are safe and out of the water") can de-escalate. Texts and the app buttons still use the reply parser.

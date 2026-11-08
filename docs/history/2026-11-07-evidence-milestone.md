@@ -1,11 +1,13 @@
-# HiTide / Lifeguard — State of the Union
+# HiTide evidence milestone (historical, Nov 7, 2026)
+
+> **Historical record, superseded.** Since this was written: SpacetimeDB is the primary database (SQLite fallback, MongoDB optional), all branches are merged to `main`, and the live Tello drone is implemented. For current status see [`vault/00 Home.md`](../../vault/00%20Home.md) and the [README](../../README.md).
 
 **As of November 7, 2026, America/Chicago.**
 **Integration branch: `feat/frontend`.**
 
 This is the current technical and product handoff for the team. It distinguishes
 implemented code, local verification, teammate-reported live behavior, and proposed
-work. Read this before the older [handoff](HANDOFF.md), which describes the
+work. Read this alongside the older driver-rescue handoff, which described the
 driver-rescue track and contains historical branch instructions.
 
 ## 1. Executive summary
@@ -33,7 +35,7 @@ emergency-response service or a declaration that a route is safe.
 
 ### Starting point and scope
 
-- Cloned the supplied `feat/frontend` branch at `c32b802` into the Lifeguard workspace.
+- Cloned the supplied `feat/frontend` branch at `c32b802` into the HiTide workspace.
 - Read the README, API contract, vault, implementation, and frontend checkpoint notes.
 - Found no SQL/Mongo database, connection configuration, or migrations in that initial
   checkout. Runtime state was in memory, with JSON town/feed caches and JSONL outreach logs.

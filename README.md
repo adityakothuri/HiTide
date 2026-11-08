@@ -6,15 +6,8 @@ Open `/texas` (or the home page) for the **Texas flood monitor**. It shows recen
 
 The monitor also includes decoded NOAA rainfall/runoff previews, NWPS river summaries, LCRA and Harris County measurements, and construction restrictions. Expand Source availability for access failures and timestamp exclusions. Camera locations and timestamp-unverified crossing status require the source-context checkbox. Detailed source mappings and remaining integration limits are in [the data handoff](docs/MAP_DATA_ACCESS.md).
 
-> **Test evidence for the presentation:** [docs/TEST_EVIDENCE.md](docs/TEST_EVIDENCE.md) (811 tests pass; July 2025 replay; 2,000-user stress test).
->
-> **Current team status:** read [State of the Union](docs/STATE_OF_THE_UNION.md)
-> for the integrated evidence database, inspection workflow, setup, verification,
-> limitations, and next milestones. The operations console is at `/console`.
-> MongoDB is now the default evidence store; start a replica set before the backend
-> (Windows: `powershell -NoProfile -File scripts/start-mongodb.ps1` after backend
-> dependency setup), or explicitly select `HITIDE_DB_BACKEND=sqlite`.
-> The driver-rescue simulation described below remains a separate workflow.
+> **Test evidence:** [docs/TEST_EVIDENCE.md](docs/TEST_EVIDENCE.md). **Team status:** [`vault/00 Home.md`](vault/00%20Home.md).
+> **Database:** SpacetimeDB is primary (`scripts/spacetime_up.sh`); if it isn't running the backend logs it and falls back to SQLite. MongoDB is optional (`HITIDE_DB_BACKEND=mongodb`).
 
 HackUTD 2026: State Farm track ("The Worst Day, at Scale") + Photon track.
 
@@ -28,7 +21,7 @@ Outreach order uses data State Farm already has (age, time of day, rising water,
 
 Demo town: Kerrville, Texas, on the Guadalupe River. The roads come from OpenStreetMap and the elevation from USGS 3DEP (10 m), both cached offline.
 
-Replay a historical NWS warning from `backend/` with `uv run python -m scripts.demo_flood_monitor`. The [map data access handoff](docs/MAP_DATA_ACCESS.md) covers raw collection, provider examples and the proposed normalization and MongoDB schema.
+Replay a historical NWS warning from `backend/` with `uv run python -m scripts.demo_flood_monitor`. The [map data access handoff](docs/MAP_DATA_ACCESS.md) covers raw collection, provider examples and the proposed normalization.
 
 ## Run it
 
@@ -52,13 +45,12 @@ Add `--reload` for backend auto-reload while coding (off by default, so a teamma
 | Hill Country region | July 4, 2025 replay | live Texas feeds |
 | Ops weather map | July 4, 2025 replay | live Kerrville gauge, NWS alerts, IEM MRMS rain |
 | Texts and calls | mock | mock, unless `--live-outreach` |
-| Evidence DB | SQLite | SQLite (set `HITIDE_DB_BACKEND=mongodb` for Mongo) |
+| Database | SpacetimeDB (SQLite fallback) | SpacetimeDB (SQLite fallback) |
 
 How it works: `DATA_MODE=test|real` (`backend/app/data_mode.py`) fills in the individual settings before `.env` is
 read, so a stale value in `.env` can't leak into test mode, while a shell variable still overrides a single setting
 (`REGION_MODE=replay ./dev.sh real`). `PHOTON_MODE` from `.env` only takes effect with `--live-outreach`.
 The `/texas` monitor only shows readings from the last 15-30 minutes, so it is live in both modes.
-Not wired to the UI yet: the Hill Country (`region.*`) and per-user safety (`user.*`) events and their REST endpoints.
 
 Individual pieces, by hand:
 
@@ -86,7 +78,6 @@ uv run python -m scripts.replay_report        # drones vs gauges-only vs naive p
 REGION_MODE=live uv run uvicorn app.main:app   # or switch at runtime:
 curl -X POST -H 'Origin: http://localhost:5173' 'localhost:8000/api/region/mode?mode=live'
 curl localhost:8000/api/region/sources | jq   # each source: status, provenance, age of its newest data
-# evidence DB is SQLite by default; HITIDE_DB_BACKEND=mongodb needs scripts/start-mongodb.ps1 (Windows)
 RUN_SLOW=1 uv run pytest tests/test_replay_golden.py   # replay is bit-for-bit unchanged (~15 min)
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes

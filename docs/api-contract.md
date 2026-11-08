@@ -2,7 +2,7 @@
 
 > This contract covers the legacy driver-rescue REST/WebSocket workflow.
 > The new `/api/evidence/*` endpoints, operations polling, request examples, and
-> persistence requirements are documented in [State of the Union, section 10](STATE_OF_THE_UNION.md#10-api-inventory).
+> persistence requirements are documented in [the evidence milestone record, section 10](history/2026-11-07-evidence-milestone.md#10-api-inventory).
 > The evidence and legacy simulation state are separate; the existing WebSocket
 > snapshot is not the evidence state endpoint.
 

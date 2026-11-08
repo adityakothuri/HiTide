@@ -6,7 +6,7 @@ updated: 2026-11-07
 
 # TDD Evidence
 
-Written per the ECC `tdd-workflow` skill (Step 8). Source plan: `/Users/sandhyakothuri/.claude/plans/pasted-content-id-70ba-project-breezy-rivest.md`, with the planner breakdowns noted in [[Tooling]]. Runner: `cd backend && uv run pytest -q`.
+Written per the ECC `tdd-workflow` skill (Step 8). Source plan: the approved project plan (kept outside the repo), with the planner breakdowns noted in [[Tooling]]. Runner: `cd backend && uv run pytest -q`.
 
 ## User journeys
 

@@ -3,7 +3,7 @@
     python backend/scripts/make_drone_demo.py            # writes dist/drone-demo/ and dist/drone-demo.zip
 
 The demo is just the Tello dashboard (live video, flight controls, water gauge with depth by place),
-the `gauge` package and the gauge tray's CAD data. No Flood Watch backend, console or other systems.
+the `gauge` package and the gauge tray's CAD data. No HiTide backend, console or other systems.
 It is generated from the repo's sources, so re-run this after changing them.
 """
 
@@ -42,7 +42,7 @@ README = """# HiTide drone demo (standalone)
 
 Live Tello video, flight controls, and the water gauge that reads flood depth off the printed gauge tray
 (no fiducial tags needed: you click the tray's 4 corners once).
-Nothing else from Flood Watch is needed.
+Nothing else from HiTide is needed.
 
 ## Run
 1. Turn the Tello on. Connect the laptop's Wi-Fi to **TELLO-XXXXXX** (the laptop loses internet; that's fine).

@@ -11,4 +11,4 @@ Claude Code config for this repo. It comes from [ECC](https://github.com/affaan-
 | `hooks/`, `scripts/` | Automatic checks that run while Claude works (format, typecheck, console.log warnings) |
 | `settings.json` | Wires up the hooks and turns off the ones that slow us down |
 
-You shouldn't need to edit anything here. See `how_to_use.md` in the repo root for how to use it.
+You shouldn't need to edit anything here. See `HOW_TO_USE.md` in this folder for how to use it.

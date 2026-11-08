@@ -6,7 +6,7 @@ HiTide: a HackUTD 2026 project built by a small team in about 24 hours. Submissi
 
 Protect opted-in State Farm drivers in flash floods in three stages: a pre-trip warning, an en-route "turn around" alert with reroute, and stopped-in-water escalation (calls, texts, family, responders, drone).
 Town: Kerrville, TX on the Guadalupe River. The demo runs fully offline from the cached town data.
-Full project brief and approved plan: `/Users/sandhyakothuri/.claude/plans/pasted-content-id-70ba-project-breezy-rivest.md` (outside the repo). Vault notes live in `vault/`.
+Status and notes live in `vault/` (start at `vault/00 Home.md`). Presentation material is in `presentation/`.
 
 ## Priorities
 
@@ -17,28 +17,34 @@ Full project brief and approved plan: `/Users/sandhyakothuri/.claude/plans/paste
 ## Working style
 
 - Don't write tests unless asked. Do run the app or build to check changes actually work.
-- Several people push to this repo, so keep changes focused and pull before starting big edits.
+- Everyone works on `main`. Several people push to it, so keep changes focused, `git pull` before starting, and run the tests before pushing.
 - Keep `README.md` up to date with the idea and the run commands as they settle.
 
 ## Stack
 
 - Backend: Python 3.12 managed by `uv`, FastAPI + WebSockets, networkx, osmnx, py3dep, numpy, pydantic, pytest.
 - Frontend: React + Vite + TypeScript (`frontend/`).
-- Outreach: Photon Spectrum (Stable) for text and polls, ElevenLabs for voice. Mock mode until creds exist (`PHOTON_MODE=mock`).
+- Database: SpacetimeDB (primary, `spacetime/`, `scripts/spacetime_up.sh`); the backend falls back to SQLite if it isn't running. MongoDB is optional.
+- Outreach: Photon 2.0 (`PHOTON_MODE=photon2`, Spectrum "stable" sidecar as fallback) for texts and polls, ElevenLabs for voice. Mock mode until creds exist (`PHOTON_MODE=mock`).
+- Mobile: Expo / React Native consumer app (`mobile/`).
+- Drone: DJI Tello bridge (`backend/scripts/tello_dashboard.py`) and vision (`backend/vision/`, `backend/gauge/`).
 - Data: OSM, USGS 3DEP, NWS, USGS Water Data, USGS Flood Impacts (see `vault/Data Sources.md`).
 
 ## Folder layout
 
-- `backend/`: `api/` `sim/` `scoring/` `stages/` `outreach/` `drone/` `vision/` `feeds/` `demo/` `scripts/` `tests/` `config/`
-- `frontend/`: React + Vite + TS driver view and ops dashboard
-- `data/`: offline town cache, `drivers.json`, drone samples, `feeds_cache/`
-- `vault/`: Obsidian notes (status, architecture, modules, decisions)
-- `docs/`: API contract for the frontend team (`docs/api-contract.md`, published in Phase 0)
+- `backend/`: `api/` `app/` `db/` `evidence/` `feeds/` `observe/` `fusion/` `sim/` `critical/` `scoring/` `safety/` `stages/` `routing/` `population/` `outreach/` `drone/` `vision/` `gauge/` `demo/` `scripts/` `tests/` `config/`
+- `frontend/`: React + Vite + TS: Texas monitor, ops console, driver view, `/present`
+- `mobile/`: Expo consumer app
+- `spacetime/`: SpacetimeDB TypeScript module
+- `photon-sidecar/`: Node bridge to Photon Spectrum
+- `data/`: offline town and region cache, `drivers.json`, drone samples, `feeds_cache/`, gauge tray CAD
+- `vault/`: Obsidian notes (status, architecture, modules, decisions, experiments)
+- `docs/`: API contract (`docs/api-contract.md`) and technical docs; `docs/history/` holds superseded records
+- `presentation/`: charts, screenshots, mockups and demo videos for the pitch
 
 ## Ownership
 
-- `backend/` is owned by the Claude session on this machine.
-- `frontend/` is owned by teammates.
+- Backend and frontend are both shared; coordinate in the team chat before large refactors.
 - The contract between them is `docs/api-contract.md`. Change the contract there before changing a payload the frontend reads.
 
 ## Rules

@@ -19,7 +19,7 @@ has its own tag sheet and pour table.
 | Paper towels | For spills. Keep the tray and tags dry before the baseline. |
 | DJI Tello, charged | Motors stay off in stand mode; the battery only powers the camera and Wi-Fi. |
 | A stand: a book stack, box or phone stand | Props the Tello nose-down about 45 degrees. |
-| Laptop with Flood Watch | Backend, console and Tello bridge (step 7). |
+| Laptop with HiTide | Backend, console and Tello bridge (step 7). |
 | Bright, diffuse light | A window with no direct sun, or ceiling light bounced off a wall. |
 
 ## 2. Print and check the tag sheet
@@ -182,7 +182,7 @@ A reading on a mid-step pour should land in the range between the two whole feet
 
 ## 9. Run sequence
 
-1. **Start Flood Watch.** Backend: `cd backend && uv run uvicorn app.main:app --reload`. Frontend:
+1. **Start HiTide.** Backend: `cd backend && uv run uvicorn app.main:app --reload`. Frontend:
    `cd frontend && npm run dev`, then open the ops console (`/console`).
 2. **Start the Tello bridge.** `~/tello-env/Scripts/python.exe backend/scripts/tello_dashboard.py`
    (or the `Tello dashboard` shortcut), then connect the laptop Wi-Fi to `TELLO-XXXXXX`. The bridge

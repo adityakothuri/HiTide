@@ -2,7 +2,7 @@
 
 Updated November 7, 2026. This file summarizes the implemented collectors for another agent taking over the work. Texas is the operational scope. Kerrville is a bounded simulation and offline test case.
 
-Detailed schema proposals, attribution, response examples and unresolved normalization questions are in [MAP_DATA_ACCESS.md](docs/MAP_DATA_ACCESS.md). The frontend contract is in [api-contract.md](docs/api-contract.md).
+Detailed schema proposals, attribution, response examples and unresolved normalization questions are in [MAP_DATA_ACCESS.md](MAP_DATA_ACCESS.md). The frontend contract is in [api-contract.md](api-contract.md).
 
 ## Entry points
 
@@ -68,7 +68,7 @@ Public URLs below contain no credentials. Check the linked code for exact reques
 - `usgs_flood_impacts` supplies Kerrville reference thresholds and impact descriptions. It lacks a measurement instant, so its displayed gage snapshot is excluded from near-live observations. Thresholds become useful after a verified join to timed, datum-compatible stage evidence.
 - The local builder uses OpenStreetMap/Overpass for roads and river geometry and USGS 3DEP for terrain. These are versioned map context. Bare-earth DEM values may differ from bridge-deck elevations.
 - The statewide outline comes from Census TIGERweb and is saved in [texasBoundary.json](frontend/src/evidence/texasBoundary.json). The raster previews use that outline for cell-center selection.
-- Sanitized response examples are in [docs/examples/map-data](docs/examples/map-data). They include historical and empty responses. Preserve their original time and geography during tests.
+- Sanitized response examples are in [docs/examples/map-data](examples/map-data). They include historical and empty responses. Preserve their original time and geography during tests.
 - Attribute NWS/NOAA, USGS, Iowa Environmental Mesonet, TxDOT, LCRA, HCFCD, City of Austin, San Antonio River Authority and contributing agencies as applicable. OSM requires contributor attribution and ODbL handling. Preserve provider license metadata and review product-specific access/redistribution terms before deployment.
 
 ## Intake and implementation boundary

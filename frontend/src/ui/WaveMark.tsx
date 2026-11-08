@@ -1,4 +1,4 @@
-/** HiTide mark: two waves. One canonical vector, shared by the console, driver app and inspections. */
+/** Simple two-wave HiTide glyph for small, single-colour spots (driver home band). The full logo is LogoMark. */
 export function WaveMark({ size = 24 }: { size?: number }) {
   return (
     <svg width={Math.round(size * 1.6)} height={size} viewBox="0 0 40 24" aria-hidden="true">

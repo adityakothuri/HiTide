@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 
 OUT = Path(__file__).resolve().parents[2] / "data" / "gauge_tray"
-STL_HEADER = b"FloodWatch gauge tray (model mm)".ljust(80, b" ")
+STL_HEADER = b"HiTide gauge tray (model mm)".ljust(80, b" ")
 
 SIZE_MM = 200.0              # square footprint (P1P bed is 256)
 RES_MM = 0.4                 # heightfield grid = one nozzle width
@@ -366,7 +366,7 @@ def build(out: Path = OUT, xy_scale: float = 1.0) -> dict:
                         pool_mm=POOL_MM, step_mm=STEP_MM,
                         fiducial_corners_mm=np.array([t["corners_mm"] for t in tags]), fiducial_ids=np.array(TAG_IDS))
     manifest = {
-        "name": "FloodWatch gauge tray",
+        "name": "HiTide gauge tray",
         "size_mm": [SIZE_MM * xy_scale, SIZE_MM * xy_scale, float(h.max())], "res_mm": res, "xy_scale": xy_scale,
         "triangles": len(tris), "watertight": is_watertight(tris), "volume_cm3": round(volume_mm3(tris) / 1000, 1),
         "levels": {"floor_mm": FLOOR_MM, "pool_mm": POOL_MM, "step_mm": STEP_MM, "step_means": "1 ft of rise",
@@ -379,7 +379,7 @@ def build(out: Path = OUT, xy_scale: float = 1.0) -> dict:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Build the one-piece FloodWatch gauge tray STL")
+    ap = argparse.ArgumentParser(description="Build the one-piece HiTide gauge tray STL")
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--xy-scale", type=float, default=1.0,
                     help="shrink the footprint for a faster print, e.g. 0.8 -> 160 mm (heights unchanged)")

@@ -5,7 +5,7 @@ updated: 2026-11-07
 
 # Evidence-to-inspection milestone
 
-Current detailed handoff: [State of the Union](../../docs/STATE_OF_THE_UNION.md).
+Detailed record: [evidence milestone](../../docs/history/2026-11-07-evidence-milestone.md).
 
 ## Delivered
 

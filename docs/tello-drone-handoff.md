@@ -1,14 +1,14 @@
 # Handoff: DJI Tello drone (live video, telemetry, control)
 
-Standalone tools for the stage-3 "drone" piece of Flood Watch: stream a real DJI Tello's camera
+Standalone tools for the stage-3 "drone" piece of HiTide: stream a real DJI Tello's camera
 to the laptop, monitor it, and fly it from a browser dashboard. Not yet wired into the FastAPI
 app or the React ops dashboard.
 
 ## Picking this up
 
-- **Branch:** `feat/tello-drone` (cut from `feat/frontend` at `2ecc09b`). Only drone files are on it.
-- **Owner laptop state (ayush_aw7x):** venv at `C:\Users\ayush_aw7x\tello-env` (djitellopy 2.5.0,
-  opencv-python, av 19). Test output in `C:\Users\ayush_aw7x\tello-test\` (`report_run1.txt`,
+- **Branch:** built on `feat/tello-drone`; merged to `main` 2026-11-08.
+- **Owner laptop state:** venv at `%USERPROFILE%\tello-env` (djitellopy 2.5.0,
+  opencv-python, av 19). Test output in `%USERPROFILE%\tello-test\` (`report_run1.txt`,
   `dashboard.log`). Double-click launchers on the Desktop: `Tello check`, `Tello stream`,
   `Tello fly`, `Tello battery`, `Tello dashboard`, `Tello self-test`. These are not in the repo;
   each one just runs `tello-env\Scripts\python.exe backend\scripts\<script>.py`.
@@ -79,7 +79,7 @@ The server binds to 127.0.0.1 only and logs to `~/tello-test/dashboard.log`.
 - A solid red LED means the self-check failed: restart on a flat surface, let it cool, or run IMU
   calibration in the official Tello app. A blinking red LED means low battery.
 
-## Wired into Flood Watch (2026-11-08)
+## Wired into HiTide (2026-11-08)
 
 The real drone now shows up in the ops console (`/console`, "Live drone" panel under the road map).
 

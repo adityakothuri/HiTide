@@ -5,7 +5,7 @@ Status: approved for build 2026-11-08. Branch `feat/gauge-water-level` (from `fe
 ## Goal
 
 Point the Tello's camera at the printed gauge tray (`backend/scripts/build_gauge_tray.py`,
-`data/gauge_tray_160/`, 160 mm build), pour dyed water in, and have Flood Watch report the flood
+`data/gauge_tray_160/`, 160 mm build), pour dyed water in, and have HiTide report the flood
 level in **feet** with an honest range and confidence, plus what it means: is the low-water crossing
 flooded, how high is the water on the stranded car (`none / wheels / doors / windows / roof`, the
 existing `VisionResult.water_level` vocabulary), how many houses are flooded. Show it live on the

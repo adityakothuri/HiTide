@@ -1,4 +1,4 @@
-"""Print-at-100% sheet of the four ArUco tags for the FloodWatch gauge tray.
+"""Print-at-100% sheet of the four ArUco tags for the HiTide gauge tray.
 
     python backend/scripts/gauge_tag_sheet.py [--tray data/gauge_tray_160] [--dpi 600] [--check]
 
@@ -145,7 +145,7 @@ def build_sheet(manifest: dict, dpi: int) -> np.ndarray:
     dictionary = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, fid["dictionary"]))
     sheet = Sheet(PAGE_W_MM, PAGE_H_MM, dpi)
 
-    sheet.text(f"FloodWatch gauge tray tags ({size_x:.0f} mm tray)", 10, 7, 4.2, bold=True)
+    sheet.text(f"HiTide gauge tray tags ({size_x:.0f} mm tray)", 10, 7, 4.2, bold=True)
     sheet.text(f"{fid['dictionary']}, each tag {tag_mm:.1f} mm wide including the black border. "
                f"Cut on the dashed {pad_mm:.1f} mm square.", 10, 14, 2.4)
     sheet.text("Laid out as on the tray seen from above. Arrow = tray +Y (toward tags 2 and 3, "

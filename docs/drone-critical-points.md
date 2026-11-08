@@ -2,7 +2,7 @@
 
 This document consolidates three sources:
 - `overview.md` §6–§10 (ground truth),
-- the colleague's evidence and connectivity work (`backend/evidence/analysis.py`, `docs/STATE_OF_THE_UNION.md` §8),
+- the colleague's evidence and connectivity work (`backend/evidence/analysis.py`, `docs/history/2026-11-07-evidence-milestone.md` §8),
 - the Hill Country implementation (`backend/critical/`, `backend/drone/planner.py`).
 
 It ends with the July 4, 2025 replay results. Code references are `file:function`.

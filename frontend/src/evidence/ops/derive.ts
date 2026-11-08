@@ -1,4 +1,4 @@
-import type { Access, Community, EvidenceState, Observation, Road, Source, Task } from '../types'
+import type { Access, Community, EvidenceState, Observation, Road, Task } from '../types'
 
 /** Pure helpers that turn the evidence snapshot into what the inspections workspace shows. */
 
@@ -153,25 +153,6 @@ export function sourceShort(id: string): string {
   if (/drone/i.test(id)) return 'Drone'
   if (/local|report|community/i.test(id)) return 'Community'
   return id.replaceAll('_', ' ')
-}
-
-export type SourceTone = 'current' | 'partial' | 'down' | 'idle' | 'simulated'
-
-const TONE_ORDER: Record<SourceTone, number> = { current: 0, partial: 1, down: 2, idle: 3, simulated: 4 }
-
-/** Working feeds first, so the footer leads with what is actually informing the picture. */
-export function bySourceHealth(a: Source, b: Source): number {
-  return TONE_ORDER[sourceStatus(a).tone] - TONE_ORDER[sourceStatus(b).tone]
-}
-
-export function sourceStatus(source: Source): { label: string; tone: SourceTone } {
-  const raw = (source.status ?? source.last_status ?? '').toLowerCase()
-  if (raw === 'simulated') return { label: 'Simulated', tone: 'simulated' }
-  if (['ok', 'live', 'current', 'success', 'fresh'].includes(raw)) return { label: 'Current', tone: 'current' }
-  if (['partial', 'stale', 'cached', 'degraded'].includes(raw)) return { label: raw === 'cached' ? 'Cached' : 'Partial', tone: 'partial' }
-  if (['error', 'failed', 'unavailable', 'down'].includes(raw)) return { label: 'Unavailable', tone: 'down' }
-  if (raw === 'not_configured') return { label: 'Not configured', tone: 'idle' }
-  return { label: 'Not fetched', tone: 'idle' }
 }
 
 /** Roads worth drawing: anything with evidence, a task, a non-unknown state, or a conflict. */

@@ -1,6 +1,6 @@
 TELLO LIVE VIDEO - OFFLINE STEPS
 ================================
-Everything is already installed in C:\Users\ayush_aw7x\tello-env.
+Everything should already be installed in the Tello venv (see docs/tello-drone-handoff.md).
 No internet is needed for any of this.
 
 1. Charge the Tello battery. Put the drone on a flat surface.
@@ -8,7 +8,7 @@ No internet is needed for any of this.
 3. Laptop Wi-Fi: connect to TELLO-XXXXXX (no password).
    Windows may say "No internet". That's fine. Stay connected.
 4. Open File Explorer and go to:
-   C:\Users\ayush_aw7x\OneDrive\Documents\ChatGPT\Lifeguard\backend\scripts
+   <repo>\backend\scripts
 5. Double-click tello_stream.bat.
 6. A black console prints "Battery: NN %", then a window called "Tello" shows the video.
    (The first second can look smeared. That's normal.)
