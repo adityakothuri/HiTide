@@ -28,6 +28,7 @@ from vision.catalog import result_for
 log = logging.getLogger(__name__)
 TURN_AROUND_MSG = "Flooded road ahead. Turn around."
 NIGHT_HOUR, DAY_HOUR = 23, 14
+WATER_LEVEL_IN = {"none": 0.0, "wheels": 12.0, "doors": 20.0, "windows": 30.0, "roof": 50.0}  # sedan, approx.
 SEND_BUDGET_S = 4.0  # a slow Photon/ElevenLabs call must never freeze the tick for long
 
 
@@ -274,9 +275,13 @@ class StageRunner:
 
     async def _drone_arrived(self, e: Engine, case: Case, drone: dispatch.Drone) -> None:
         d = self.drivers[case.driver_id]
-        truck_ok = self._truck_route_exists(e, case)
-        vision, people = result_for(night=self._hour(d) == NIGHT_HOUR,
-                                    recommendation="truck_route_available" if truck_ok else "boat_required")
+        vision, people = result_for(night=self._hour(d) == NIGHT_HOUR, recommendation="boat_required")
+        observed_in = WATER_LEVEL_IN.get(vision["water_level"], 0.0) if vision else 0.0
+        at_car_in = max(case.depth_in, observed_in)  # the drone's eyes beat the model's estimate
+        boat_in = float(settings()["road_status_in"]["boat"])
+        boat = at_car_in >= boat_in or not self._truck_route_exists(e, case)
+        if vision:
+            vision = {**vision, "recommendation": "boat_required" if boat else "truck_route_available"}
         elapsed = round(e.t_sim_s - self.world.case_opened_s[case.id], 1)
         vr = VisionResult(**vision) if vision else None
         new = esc.transition(case, esc.DroneArrived(vr, people, elapsed), now_iso())

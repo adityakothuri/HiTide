@@ -28,7 +28,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 2 | Risk scoring + Stages 1-2 | done in mock mode. Real-phone check waits on Photon creds |
 | Phase 3 | Stage 3 escalation state machine | done in mock mode. Full 7-step demo runs in 62 s |
 | Phase 4 | Photon integration (spike, timeboxed) | adapters + sidecar built, blocked on creds |
-| Phase 5 | Drone + vision | drone flight done; vision in progress |
+| Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | todo |
 
 ## Checkpoints
