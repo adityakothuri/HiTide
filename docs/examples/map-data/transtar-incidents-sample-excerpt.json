@@ -1,0 +1,22 @@
+{
+  "action": "Get",
+  "copyright": "Houston TranStar",
+  "apiVersion": "v1.12",
+  "callTimestamp": "10/11/2021 9:35:20 AM",
+  "status": "OK",
+  "result": {
+    "incidents": [
+      {
+        "location": "FM-521 Northbound At HARRIS RESERVOIR RD CR 34 in Brazoria County",
+        "desc": "Other",
+        "veh": "0",
+        "lanes": "Left Shoulder,Right Shoulder,Left Lane,Right Lane,2 Center Lanes",
+        "status": "Verified",
+        "time": "5:52 AM",
+        "date": "today",
+        "lat": "29.25417",
+        "lng": "-95.45918"
+      }
+    ]
+  }
+}

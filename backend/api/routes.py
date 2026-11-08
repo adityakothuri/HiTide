@@ -16,7 +16,7 @@ from outreach.inbound import handle_inbound
 from app.runtime import Runtime
 from app.security import origin_ok, require_trusted_origin
 from feeds import Scope, all_feeds
-from feeds.recent import RecentSnapshot, recent_feeds
+from feeds.recent import RecentSnapshot, map_response, recent_feeds
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -51,13 +51,14 @@ async def feeds() -> dict[str, Any]:
 
 @router.get("/api/feeds/recent")
 async def recent(request: Request, max_age_minutes: int = Query(30, ge=15, le=30),
-                 scope: Scope = "texas") -> dict[str, Any]:
+                 scope: Scope = "texas", map_view: bool = False) -> dict[str, Any]:
     if not hasattr(request.app.state, "recent_snapshots"):
         request.app.state.recent_snapshots = {}
     snapshots = request.app.state.recent_snapshots
     if scope not in snapshots:
         snapshots[scope] = RecentSnapshot()
-    return await recent_feeds(max_age_minutes, scope, snapshots[scope])
+    result = await recent_feeds(max_age_minutes, scope, snapshots[scope])
+    return map_response(result) if map_view else result
 
 
 @router.post("/api/demo/start", dependencies=[Depends(require_trusted_origin)])

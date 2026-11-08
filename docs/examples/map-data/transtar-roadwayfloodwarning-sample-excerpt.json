@@ -1,0 +1,38 @@
+{
+  "action": "GetRoadwayFloodWarnings",
+  "copyright": "Houston TranStar",
+  "apiVersion": "3.3.2023",
+  "callTimestamp": "2/13/2024 3:27:05 PM",
+  "status": "OK",
+  "result": [
+    {
+      "Timestamp": "2024-02-13T15:23:34",
+      "SensorId": 211,
+      "SensorName": "OD211",
+      "Latitude": 30.0999,
+      "Longitude": -93.8578,
+      "TopOfBank": 2.763,
+      "ShefId": "",
+      "Radius": 0.5,
+      "SensorUrl": "https://setexasrain.onerain.com/",
+      "PrecipitationPreviousTimestamp": "2024-02-13T15:08:33",
+      "PrecipitationPreviousValue": 0.0,
+      "PrecipitationLatestTimestamp": "2024-02-13T15:23:34",
+      "PrecipitationLatestValue": 0.0,
+      "PrecipitationUpdateIntervalMinutes": 0,
+      "PrecipitationDelta": 0.0,
+      "StreamElevationPreviousTimestamp": "2024-02-13T15:08:33",
+      "StreamElevationPreviousValue": 6.1,
+      "StreamElevationLatestTimestamp": "2024-02-13T15:23:34",
+      "StreamElevationLatestValue": 6.09,
+      "StreamElevationUpdateIntervalMinutes": 15,
+      "StreamElevationDelta": -0.01,
+      "IsPrecipitationAlert": "False",
+      "IsStreamElevationAlert": "True",
+      "PrecipitationAlertExpireTimestamp": "0001-01-01T00:00:00",
+      "XCoord": 0,
+      "YCoord": 0,
+      "RegionCode": "SRA"
+    }
+  ]
+}

@@ -9,6 +9,7 @@
 .usgs_gage { color: var(--water-4); fill: currentcolor; }
 .nws_alerts { color: var(--caution); fill: var(--caution-bg); stroke: currentcolor; }
 .nws_local_storm_reports { color: var(--critical); fill: currentcolor; }
+.drivetexas_work_zones { color: #9a5200; stroke: currentcolor; stroke-width: 2.5; fill: none; cursor: pointer; }
 .map :is(.usgs_gage, .nws_alerts, .nws_local_storm_reports) { cursor: pointer; }
 .map .nws_alerts { fill-opacity: 0.55; }
 .map .selected { stroke: var(--ink); stroke-width: 2; }
@@ -28,3 +29,13 @@
   .workspace { grid-template-columns: 1fr; }
   .coverage { gap: 12px 20px; }
 }
+
+.additionalSource { color: #27786b; fill: currentcolor; stroke: currentcolor; }
+.coverage small { font-size: 11px; color: var(--neutral-5); max-width: 280px; }
+.coverage { align-items: start; }
+
+
+.sourceDetails { margin-bottom: 20px; }
+.sourceDetails summary { cursor: pointer; margin-bottom: 14px; }
+.filters label:has(input[type='checkbox']) { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.filters input[type='checkbox'] { width: 16px; height: 16px; min-height: 0; margin: 0; }

@@ -1,0 +1,7 @@
+{
+  "id": "202611072230",
+  "layer": "202611072230",
+  "layer_time_local": "2026-11-07T22:30:00",
+  "exists": true,
+  "tile_template": "https://inundation.hcfcd.org/api/Tiles/202611072230/{quadkey}"
+}

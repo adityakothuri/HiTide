@@ -70,3 +70,38 @@ def test_default_scope_uses_shared_statewide_poll_and_exposes_partial_results(mo
     assert len(wide["sources"]["usgs_gage"]["records"]) == 1
     assert narrow["sources"]["usgs_gage"]["records"] == []
     assert len(narrow["sources"]["nws_local_storm_reports"]["records"]) == 1
+
+def test_expanded_sources_preserve_unknown_time_context_and_access_failures(monkeypatch):
+    from feeds.intake import FeedRequest
+    from feeds.regional_roads import SARIVER
+
+    async def collect(scope):
+        [sensor] = split_response(SARIVER, {"source": "live", "data": [{
+            "id": 1, "title": "Crossing", "statusTypeID": 1,
+            "lat": 29.5, "lng": -98.4, "lastUpdated": "2026-11-07T22:30:00"}]})
+        blocked = split_response(FeedRequest("transtar_incidents", "transtar", "", {}, {"state": "TX"}, "features"),
+                                 {"source": "unavailable", "data": None, "errors": ("live_feed_access_required",)})[0]
+        return [sensor, blocked]
+
+    monkeypatch.setattr(recent, "collect_recent_inputs", collect)
+    app = FastAPI()
+    app.include_router(router)
+    with TestClient(app) as client:
+        data = client.get("/api/feeds/recent").json()
+    sensor = data["sources"]["sariver_crossings"]
+    assert sensor["status"] == "complete"
+    assert sensor["records"] == []
+    assert sensor["context"][0]["preview"]["time"] is None
+    assert sensor["context"][0]["preview"]["evidence_type"] == "context"
+    assert data["sources"]["transtar_incidents"]["status"] == "unavailable"
+    assert data["sources"]["transtar_incidents"]["errors"] == ["live_feed_access_required"]
+
+def test_map_projection_does_not_mutate_raw_snapshot():
+    from dataclasses import asdict
+    from feeds.recent import map_response
+    raw = asdict(gage("2026-11-07T22:00:00Z"))
+    raw["raw_payload"]["properties"]["unneeded"] = "preserve"
+    response = {"sources": {"usgs_gage": {"records": [raw], "context": []}}}
+    compact = map_response(response)
+    assert "unneeded" not in compact["sources"]["usgs_gage"]["records"][0]["raw_payload"]["properties"]
+    assert raw["raw_payload"]["properties"]["unneeded"] == "preserve"
