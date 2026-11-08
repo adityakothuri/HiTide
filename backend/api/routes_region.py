@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import math
 import os
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
@@ -14,6 +16,7 @@ from app.hill_runtime import get_hill, state_json
 from app.security import require_trusted_origin
 from drone.dispatch import distance_m
 
+log = logging.getLogger(__name__)
 router = APIRouter()
 _tello_lock = asyncio.Lock()  # one real flight at a time (two clients would fight over the UDP port)
 JSON = "application/json"
@@ -49,19 +52,43 @@ async def fly_tello(request: Request) -> dict:
 
     hill = await get_hill(request.app)
     loop = hill.loop
-    drone = next((d for d in loop.drones.values() if d.target), None)
-    if drone is None:
-        raise HTTPException(status_code=409, detail="no drone has a target yet; start the replay first")
-    target = loop.points[drone.target]
-    bearing = math.degrees(math.atan2((target["lon"] - drone.leg_from[0]) * math.cos(math.radians(target["lat"])),
-                                      target["lat"] - drone.leg_from[1])) % 360
-    dist = distance_m(drone.leg_from[1], drone.leg_from[0], target["lat"], target["lon"])
+    with loop.lock:  # the replay steps drones in a worker thread
+        drone = next((d for d in loop.drones.values() if d.target), None)
+        if drone is None:
+            raise HTTPException(status_code=409, detail="no drone has a target yet; start the replay first")
+        drone_id, target, leg_from = drone.id, dict(loop.points[drone.target]), tuple(drone.leg_from)
+    bearing = math.degrees(math.atan2((target["lon"] - leg_from[0]) * math.cos(math.radians(target["lat"])),
+                                      target["lat"] - leg_from[1])) % 360
+    dist = distance_m(leg_from[1], leg_from[0], target["lat"], target["lon"])
     if _tello_lock.locked():
         raise HTTPException(status_code=409, detail="the Tello is already flying")
     async with _tello_lock:
         res = await asyncio.to_thread(fly_first_leg, bearing, dist)
     if not res.ok:  # failure drill: the task fails, the previous status stands
         return {"ok": False, "error": res.error, "point_id": target["id"]}
-    snap = loop.external_snapshot(target["id"], drone.id, res.water_on_road, res.road_covered_pct)
+    vision = await _vision_snapshot(res, target["id"], drone_id)
+    if vision is not None:  # the drone's frames went through the vision model
+        from api.routes_snapshots import ingest
+
+        try:
+            ack = await ingest(request.app, vision)
+            return {"ok": True, "vision": True, "fused": ack.fused, "not_fused_reason": ack.not_fused_reason,
+                    "snapshot": vision.model_dump(mode="json")}
+        except Exception:  # never lose a good flight: fall back to the HSV result below
+            log.exception("vision snapshot ingest failed for %s; using the HSV cover result", target["id"])
+    snap = loop.external_snapshot(target["id"], drone_id, res.water_on_road, res.road_covered_pct)
     await request.app.state.runtime.hub.emit("snapshot.created", {"scenario": "hill_country", **snap})
-    return {"ok": True, "snapshot": snap}
+    return {"ok": True, "vision": False, "snapshot": snap}
+
+
+async def _vision_snapshot(res, point_id: str, drone_id: str):
+    """Tello hover frames -> vision model. None (HSV fallback) if the vision extra/models aren't installed."""
+    if not res.keyframes or os.environ.get("TELLO_VISION", "1") == "0":
+        return None
+    try:
+        from vision.live import run_hover
+
+        return await asyncio.to_thread(run_hover, res.keyframes, point_id, drone_id, time.time())
+    except Exception:  # any model failure (cv2.error, torch, missing weights) -> HSV fallback, flight kept
+        log.exception("vision model unavailable for the Tello hover; using the HSV cover fallback")
+        return None

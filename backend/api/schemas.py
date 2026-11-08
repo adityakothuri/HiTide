@@ -32,6 +32,7 @@ EventType = Literal[
     "drone.update",      # DroneState: position + ETA each tick
     "counters",          # Counters
     "demo.step",         # DemoStep: narration for the scripted demo
+    "snapshot.created",  # VisionSnapshot: drone snapshot of a critical point (overview 9.5 + drone vision plan 8)
 ]
 
 

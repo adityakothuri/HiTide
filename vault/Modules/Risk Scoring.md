@@ -38,6 +38,8 @@ Tests: 19 pass in `backend/tests/test_road_status.py`. The first commit was the 
   - new to the area (`unfamiliar 0.03`)
   - Drive Safe & Save phone-distraction rate, saturating at 2 per 100 mi (`distraction 0.04`)
   - live State Farm signal once its scripted time passes: roadside request or ADT water sensor (`signal 0.15`)
+  - baseline profile vulnerability (2026-11-08, `scoring/profile_risk.py`, `profile 0.12`): weighted 0..1 over low-lying crossing trips, past flood claim, passengers/pets, night share, DSS score + speeding, new driver, manufactured home, missed app check-in. Across the 100 drivers: median 0.27, max 0.57 (demo-d). Stopped-case scores spread 0.56 to 0.88 by day, none clamped at 1.0.
+  - used in all three stages: pre-trip warnings go out highest-urgency first, turn-arounds are scored, and the score shows on the ops map
 
 Output: a score plus `reasons[]` for the case card. A score at or above `high_risk_threshold` (0.65) sets `responder_flag`. See [[Stage 3 Stopped in water]].
 

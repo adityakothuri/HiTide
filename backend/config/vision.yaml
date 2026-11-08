@@ -1,0 +1,96 @@
+# Drone vision pipeline tunables. Spec: ~/Downloads/drone_vision_plan.md, ground truth: overview.md section 9.
+# Reasoning for every changed number goes in vault/Modules/Drone Vision.md.
+
+models:
+  segformer_dir: models/segformer-b0-ade      # under data/, saved by scripts/fetch_vision_models.py
+  segformer_hub_id: nvidia/segformer-b0-finetuned-ade-512-512
+  clipseg_dir: models/clipseg-rd64
+  clipseg_hub_id: CIDAS/clipseg-rd64-refined
+  yolo: models/yolov8n.pt
+  device: auto                                # auto | mps | cuda | cpu
+
+classes:                                      # ADE20K names; ids resolved from model.config.id2label at load
+  water: [water, sea, river, lake, swimming pool, waterfall]
+  ground: [road, sidewalk, earth, grass, field, sand, path, bridge, dirt track, land, floor]
+  blocker: [tree, building, car, person, fence, wall, sky, house, plant, palm, truck, bus, van, boat]
+  road: [road, bridge]
+
+segmentation:
+  run_every_s: 0.3            # 0.5 on a slow laptop
+  input_px: 512
+  vote_window: 5              # frames in the ground-grid majority vote
+  min_blob_frac: 0.01         # drop water blobs smaller than 1% of the frame
+  color_fallback: false       # OR an HSV blue mask: ONLY for a blue demo sheet (flags blue cars/sky on real footage)
+  hsv_lo: [95, 80, 40]
+  hsv_hi: [130, 255, 255]
+  low_light_v: 60             # mean V (0-255) below this => "low light" (overview 9.7)
+  zero_shot:                  # CLIPSeg: ADE20K misses muddy floodwater (measured on data/drone_samples)
+    enabled: true
+    every_n: 5                # ~2.2 s per call on MPS (SegFormer alone 0.14 s); reused while hovering
+    water_prompts: [flood water, muddy brown water]
+    scene_prompts: [a road, a car, trees, a building, sky]
+    coarse_frac: 0.5          # zero-shot supplied >= half the water => coarse-edge reason, mask bias x2
+
+grid:
+  half_size_m: 60.0           # local window around the critical point; water is ~level over this span
+  res_m: 0.5
+  occlusion_steps: 32
+
+edges:
+  ground_window: 2            # cells checked on the dry side of a water/ground boundary
+  ground_frac: 0.6
+  refine_samples: 9           # sub-cell 0.5-crossing search along each boundary pair (image space)
+
+water_level:
+  min_inliers: 30
+  min_side_pts: 10
+  mad_k: 3.0
+  one_side_widen: 1.5
+  dem_error_m: 0.10           # lidar on open ground; 0.5 m+ for 10 m DEM
+  pose_sigma_m: 1.0           # horizontal position 1-sigma (GPS)
+  pose_sigma_deg: 0.5         # attitude 1-sigma (gimbal)
+  pose_sigma_z_m: 0.5         # altitude 1-sigma (baro/GPS); slides mapped points by dz/tan(grazing)
+  mask_bias_px: 2.0           # 1-sigma systematic segmentation boundary shift (pixels)
+  range_k: 1.96               # reported range = wse +- k * sigma
+  steep_slope: 0.30           # rise/run at the edge above which "steep bank"
+  tight_in: 3.0               # half-range (in) for "tight"
+  wide_in: 8.0                # half-range (in) for "wide"
+
+road:
+  half_width_m: 4.0
+  wet_min_area_m2: 6.0        # water_on_road = true once >= 6 m2 of visible road is water (a 1.5 m x 4 m patch)
+  dry_visible_frac: 0.60      # false only if >= 60% of the road is visible ...
+  dry_max_area_m2: 1.0        # ... and < 1 m2 of it is wet. Otherwise null (never "safe", overview section 3)
+  low_quantile: 0.10          # the road's lowest 10% of cells (by DEM height) is where water collects ...
+  dry_low_seen_frac: 0.8      # ... and >= 80% of them must be seen before the road can be called dry
+
+detect:
+  conf: 0.35
+  persist_frames: 5
+  classes: {0: person, 2: car, 3: motorcycle, 5: bus, 7: truck, 8: boat}
+  img_size: 960
+
+objects:
+  ring_expand: 0.15
+  ring_water_frac: 0.6
+  box_water_frac: 0.25        # water inside the lower box => partly submerged
+  footprint_m: 2.0
+  people_near_water_m: 30.0
+  on_road_margin_m: 10.0      # a vehicle in water within road half width + this confirms water on the road
+
+vehicle_band_in:              # spec 7.4; labels match assess.WATER_LEVELS
+  doors: 12
+  windows: 24
+  roof: 48
+
+rise:
+  block_s: 3.0
+  min_points: 4
+  threshold_in_per_hr: 0.5
+  visit_split_m: 1.0          # reported pose moved/drifted > 1 m (or 0.5 m in z) from the visit start -> new visit,
+  visit_split_z_m: 0.5        # fitted with its own bias (a bias step must not read as a rise)
+
+alerts:
+  match_radius_m: 50.0
+  boat_in: 24.0
+  review_in: 12.0

@@ -1,0 +1,268 @@
+{
+ "source": "MRMS QPE via Iowa Environmental Mesonet tile cache (archived)",
+ "bbox": [
+  -99.76,
+  29.78,
+  -98.92,
+  30.29
+ ],
+ "minzoom": 8,
+ "maxzoom": 11,
+ "stamps_utc": [
+  "2025070406",
+  "2025070407",
+  "2025070408",
+  "2025070409",
+  "2025070410",
+  "2025070411",
+  "2025070412",
+  "2025070413"
+ ],
+ "ramp": "NWS-style precipitation ramp, recolored from IEM tiles; transparent under 0.01 in",
+ "products": {
+  "p1h": {
+   "label": "1 hour",
+   "legend": {
+    "stops": [
+     {
+      "pos": 0.0,
+      "color": "#a8e6a140"
+     },
+     {
+      "pos": 0.0909,
+      "color": "#a8e6a140"
+     },
+     {
+      "pos": 0.0909,
+      "color": "#6cc46a99"
+     },
+     {
+      "pos": 0.1818,
+      "color": "#6cc46a99"
+     },
+     {
+      "pos": 0.1818,
+      "color": "#2f9a3f"
+     },
+     {
+      "pos": 0.2727,
+      "color": "#2f9a3f"
+     },
+     {
+      "pos": 0.2727,
+      "color": "#f4e04d"
+     },
+     {
+      "pos": 0.3636,
+      "color": "#f4e04d"
+     },
+     {
+      "pos": 0.3636,
+      "color": "#f0b43c"
+     },
+     {
+      "pos": 0.4545,
+      "color": "#f0b43c"
+     },
+     {
+      "pos": 0.4545,
+      "color": "#ec8a2f"
+     },
+     {
+      "pos": 0.5455,
+      "color": "#ec8a2f"
+     },
+     {
+      "pos": 0.5455,
+      "color": "#e0522b"
+     },
+     {
+      "pos": 0.6364,
+      "color": "#e0522b"
+     },
+     {
+      "pos": 0.6364,
+      "color": "#c02427"
+     },
+     {
+      "pos": 0.7273,
+      "color": "#c02427"
+     },
+     {
+      "pos": 0.7273,
+      "color": "#d63fa0"
+     },
+     {
+      "pos": 0.8182,
+      "color": "#d63fa0"
+     },
+     {
+      "pos": 0.8182,
+      "color": "#9a4fcf"
+     },
+     {
+      "pos": 0.9091,
+      "color": "#9a4fcf"
+     },
+     {
+      "pos": 0.9091,
+      "color": "#e6d6f2"
+     },
+     {
+      "pos": 1.0,
+      "color": "#e6d6f2"
+     }
+    ],
+    "ticks": [
+     {
+      "pos": 0.0909,
+      "label": "0.1"
+     },
+     {
+      "pos": 0.2727,
+      "label": "0.5"
+     },
+     {
+      "pos": 0.4545,
+      "label": "1"
+     },
+     {
+      "pos": 0.6364,
+      "label": "2"
+     },
+     {
+      "pos": 0.7273,
+      "label": "3"
+     },
+     {
+      "pos": 0.9091,
+      "label": "6"
+     }
+    ],
+    "units": "in"
+   }
+  },
+  "p24h": {
+   "label": "24 hours",
+   "legend": {
+    "stops": [
+     {
+      "pos": 0.0,
+      "color": "#a8e6a140"
+     },
+     {
+      "pos": 0.0909,
+      "color": "#a8e6a140"
+     },
+     {
+      "pos": 0.0909,
+      "color": "#6cc46a99"
+     },
+     {
+      "pos": 0.1818,
+      "color": "#6cc46a99"
+     },
+     {
+      "pos": 0.1818,
+      "color": "#2f9a3f"
+     },
+     {
+      "pos": 0.2727,
+      "color": "#2f9a3f"
+     },
+     {
+      "pos": 0.2727,
+      "color": "#f4e04d"
+     },
+     {
+      "pos": 0.3636,
+      "color": "#f4e04d"
+     },
+     {
+      "pos": 0.3636,
+      "color": "#f0b43c"
+     },
+     {
+      "pos": 0.4545,
+      "color": "#f0b43c"
+     },
+     {
+      "pos": 0.4545,
+      "color": "#ec8a2f"
+     },
+     {
+      "pos": 0.5455,
+      "color": "#ec8a2f"
+     },
+     {
+      "pos": 0.5455,
+      "color": "#e0522b"
+     },
+     {
+      "pos": 0.6364,
+      "color": "#e0522b"
+     },
+     {
+      "pos": 0.6364,
+      "color": "#c02427"
+     },
+     {
+      "pos": 0.7273,
+      "color": "#c02427"
+     },
+     {
+      "pos": 0.7273,
+      "color": "#d63fa0"
+     },
+     {
+      "pos": 0.8182,
+      "color": "#d63fa0"
+     },
+     {
+      "pos": 0.8182,
+      "color": "#9a4fcf"
+     },
+     {
+      "pos": 0.9091,
+      "color": "#9a4fcf"
+     },
+     {
+      "pos": 0.9091,
+      "color": "#e6d6f2"
+     },
+     {
+      "pos": 1.0,
+      "color": "#e6d6f2"
+     }
+    ],
+    "ticks": [
+     {
+      "pos": 0.0909,
+      "label": "0.1"
+     },
+     {
+      "pos": 0.2727,
+      "label": "0.5"
+     },
+     {
+      "pos": 0.4545,
+      "label": "1"
+     },
+     {
+      "pos": 0.6364,
+      "label": "2"
+     },
+     {
+      "pos": 0.7273,
+      "label": "3"
+     },
+     {
+      "pos": 0.9091,
+      "label": "6"
+     }
+    ],
+    "units": "in"
+   }
+  }
+ }
+}

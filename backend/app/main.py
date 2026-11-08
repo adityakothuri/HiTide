@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.routes import router
 from api.routes_region import router as region_router
+from api.routes_snapshots import router as snapshots_router
 from app.config import DATA_DIR
 from app.hill_runtime import warm
 from app.runtime import build_runtime
@@ -85,4 +86,5 @@ app.add_middleware(
 app.include_router(router)
 app.include_router(evidence_router)
 app.include_router(region_router)
+app.include_router(snapshots_router)
 app.mount("/static/drone", StaticFiles(directory=DATA_DIR / "drone_samples"), name="drone")

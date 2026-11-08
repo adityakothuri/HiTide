@@ -39,6 +39,17 @@ uv run python -m scripts.replay_report        # drones vs gauges-only vs naive p
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
 
+# ops console weather layers (data/wx/, served offline by the frontend after `npm run sync-wx`; needs network once)
+uv run python -m scripts.fetch_mrms_tiles     # archived MRMS rain tiles, Kerr County, Jul 4 2025, recolored to an NWS-style ramp
+uv run python -m scripts.build_wx_flood       # 10 m 3DEP DEM -> flood-depth PNG per river rise + road closure thresholds
+uv run python -m scripts.build_wx_gauges      # 5 USGS gauges + NWS flood categories + replay warning timeline
+
+# drone vision: water edge + elevation -> depth over the road; vehicles/people in water -> alerts
+uv sync --extra vision && uv run python scripts/fetch_vision_models.py    # once, needs network (SegFormer, CLIPSeg, YOLO)
+uv run python -m vision.run_pipeline --source synth:cp-0014 --at 2025-07-04T10:45:00Z --post   # replay truth hover
+uv run python -m vision.run_pipeline --source images:../data/drone_samples --post               # real flood photos
+uv run pytest tests/test_vision_*.py -q                                    # accuracy: vault/Experiments/2026-11-08 Drone vision accuracy.md
+
 # frontend (driver view + ops dashboard)
 cd frontend && npm install && npm run dev
 ```

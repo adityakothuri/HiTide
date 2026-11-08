@@ -1,7 +1,7 @@
 ---
 tags: [floodwatch, home, status]
 status: in-progress
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # State Farm Flood Watch
@@ -23,7 +23,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 - Frontend: [[Design System]] · [[Driver App]] · [[Dashboard]] · screenshots in `Experiments/screenshots/`
 - Modules: [[Critical Point Drones]] · [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Dashboard]]
 - Reference: [[Data Sources]] · [[Tooling]] · [[Decisions]] · [[Demo Script]]
-- Experiments: [[2026-11-07 Town cache build]] · [[2026-11-07 Demo run check]] · [[2026-11-08 July 2025 replay calibration]]
+- Experiments: [[2026-11-07 Town cache build]] · [[2026-11-07 Demo run check]] · [[2026-11-08 July 2025 replay calibration]] · [[2026-11-08 Drone vision accuracy]]
 
 ## Phase status
 
@@ -37,6 +37,8 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | backend done: 7-step run verified over WS ([[2026-11-07 Demo run check]]), talk track, claims sourced, pre-submission security review (1 HIGH fixed, TDD). Left: live `photon2` rehearsal, backup video, CHECKPOINT 5 with the frontend |
 | Hill Country | Real July 4, 2025 replay over Hunt → Ingram → Kerrville: HAND flood, chokepoints, priority, multi-drone tours, area risk (move low → high ground), Tello hookup. See [[Critical Point Drones]] | backend done 2026-11-08: 7-beat demo verified live over WS; python, fastapi and code reviewers done, all findings fixed |
+| Drone vision | Water edge + elevation → water surface, depth at road with range, rise rate; YOLO + tracking for vehicles/people; alerts; spread; `POST /api/snapshots`. See [[Drone Vision]], [[2026-11-08 Drone vision accuracy]] | done 2026-11-08: 137 vision tests; Kerrville replay 16/16 inside range; 3 reviewers' HIGH findings fixed |
+| Driver profiles | Simulated State Farm profile (DSS, policy, claims, household, needs; `docs/driver-profile.md`) weights urgency in all 3 stages. See [[Risk Scoring]] | done 2026-11-08: colleague commit cherry-picked + baseline vulnerability score, TDD |
 | Frontend | Driver app + ops console (`feat/frontend`), see [[Dashboard]], [[Design System]] | Checkpoint 2: tokens, primitives, data layer (73 tests) |
 
 ## Checkpoints

@@ -110,6 +110,17 @@ def load_fleet(profile: str = "production") -> tuple[FleetProfile, float, list[d
     return FleetProfile(**p), endurance, cfg["fleet"], cfg
 
 
+
+def _public_obs(o: Any) -> dict[str, Any] | None:
+    """API view of an observation. A vision snapshot with no measured depth is stored with the loop's 0.0
+    convention (vision.bridge); publish the honest null instead of a fake 0."""
+    if o is None:
+        return None
+    d = asdict(o)
+    if d.get("depth_method") == "none":
+        d["est_depth_in"] = None
+    return d
+
 class CriticalLoop:
     def __init__(self, region: Region, flood: RegionFlood, profile: str = "production", seed: int = 7,
                  policy: str = "priority"):
@@ -277,7 +288,7 @@ class CriticalLoop:
         noisy = round(depth * self.rng.uniform(0.8, 1.2), 1) if wet else 0.0
         level = "none" if not wet else "wheels" if depth < 12 else "doors" if depth < 24 else "windows"
         return Snapshot(p["id"], d.id, iso(t), t, wet, int(min(100, 35 + depth * 3)) if wet else 0, noisy,
-                        "car_reference" if wet else "visual", rising, 0, "medium" if wet else "low", IMAGES[level])
+                        "water_edge_dem" if wet else "visual", rising, 0, "medium" if wet else "low", IMAGES[level])
 
     def _start_leg(self, d: DroneSim, t: float, to: tuple[float, float], state: str, target: str | None) -> None:
         lg = leg((d.lon, d.lat), to, self.prof, self.region.terrain)
@@ -439,7 +450,7 @@ class CriticalLoop:
                 "p_flooded": b.p, "status": self.status.get(p["id"], "open"), "priority": round(b.priority, 3),
                 "breakdown": {"dependency": round(b.dependency, 1), "vulnerability": round(b.vulnerability, 3),
                               "p_weight": round(b.p_weight, 3), "uncertainty": round(b.uncertainty, 3), "urgency": b.urgency},
-                "node_ids": list(b.node_ids), "last_snapshot": asdict(o) if o else None}
+                "node_ids": list(b.node_ids), "last_snapshot": _public_obs(o)}
 
     def ranked_public(self) -> list[dict[str, Any]]:
         return [self.point_public(b) for b in self.ranked[:TOP_N]]

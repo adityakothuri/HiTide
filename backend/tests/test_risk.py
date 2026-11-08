@@ -125,8 +125,9 @@ def test_profile_risk_fields_reads_simulated_profile():
         "demo_signals": [{"kind": "roadside_request", "at_min": 38}, {"kind": "adt_water_sensor", "at_min": 90}],
     }
     out = profile_risk_fields(profile, t_sim_min=40)
-    assert out == {"needs_priority": True, "new_to_area": True, "distraction_per_100mi": 1.5,
-                   "live_signals": ("roadside_request",)}
+    assert {k: out[k] for k in ("needs_priority", "new_to_area", "distraction_per_100mi", "live_signals")} == {
+        "needs_priority": True, "new_to_area": True, "distraction_per_100mi": 1.5,
+        "live_signals": ("roadside_request",)}
 
 
 def test_channel_only_needs_do_not_count_as_evacuation_priority():
@@ -136,3 +137,33 @@ def test_channel_only_needs_do_not_count_as_evacuation_priority():
 def test_signal_not_active_before_its_time():
     out = profile_risk_fields({"demo_signals": [{"kind": "roadside_request", "at_min": 38}]}, t_sim_min=10)
     assert out["live_signals"] == ()
+
+
+# ---- Baseline profile vulnerability (scoring/profile_risk.py) ----------------
+
+def test_profile_vulnerability_raises_urgency_and_adds_reasons():
+    r = s(**STOPPED, profile_vulnerability=0.8, profile_reasons=("past flood claim",))
+    assert r.value > s(**STOPPED).value
+    assert "past flood claim" in r.reasons
+
+
+def test_zero_profile_vulnerability_keeps_old_score():
+    assert s(**STOPPED, profile_vulnerability=0.0).value == s(**STOPPED).value
+
+
+def test_profile_vulnerability_never_lowers_and_is_clamped():
+    base = s(**STOPPED).value
+    assert s(**STOPPED, profile_vulnerability=-5.0).value == base
+    assert s(**STOPPED, profile_vulnerability=5.0).value == s(**STOPPED, profile_vulnerability=1.0).value
+
+
+def test_duplicate_profile_reasons_collapse():
+    r = s(**STOPPED, profile_reasons=("pets aboard", "pets aboard"))
+    assert r.reasons.count("pets aboard") == 1
+
+
+def test_profile_risk_fields_include_baseline_vulnerability():
+    out = profile_risk_fields({"claims": {"past_flood_claims": [{"year": 2025}]}}, t_sim_min=0)
+    assert out["profile_vulnerability"] > 0
+    assert "past flood claim" in out["profile_reasons"]
+    assert profile_risk_fields({}, t_sim_min=0)["profile_vulnerability"] == 0.0

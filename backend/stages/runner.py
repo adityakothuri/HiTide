@@ -17,7 +17,7 @@ from app.config import settings
 from drone import dispatch
 from outreach import OutboundMessage, make_outreach, voice_elevenlabs
 from outreach.call_summary import call_variables, classify_call, first_name, follow_up_text, opening_line
-from scoring.risk import RiskInput, profile_risk_fields, score
+from scoring.risk import RiskInput, RiskScore, profile_risk_fields, score
 from sim.drivers import Driver
 from sim.engine import Engine, now_iso
 from sim.movement import STOPPED_MPS, DriverMotion, advance, ahead, current_edge, locate, position
@@ -52,6 +52,7 @@ class World:
     case_fired: dict[str, frozenset[str]] = field(default_factory=dict)
     drones: dict[str, dispatch.Drone] = field(default_factory=dict)
     last_counters: dict[str, int] = field(default_factory=dict)
+    urgency: dict[str, float] = field(default_factory=dict)  # driver id -> latest pre-trip / en-route score
 
 
 class StageRunner:
@@ -86,7 +87,7 @@ class StageRunner:
     def driver_public(self, d: Driver) -> dict[str, Any]:
         m = self.world.motions.get(d.id)
         case_id = self.world.case_by_driver.get(d.id)
-        urgency = self.world.cases[case_id].urgency if case_id else 0.0
+        urgency = self.world.cases[case_id].urgency if case_id else self.world.urgency.get(d.id, 0.0)
         if m:
             lat, lon, heading = position(m, self.engine.town, self.lengths)
             situation = "stopped_in_water" if case_id else ("driving" if m.moving else "parked")
@@ -99,6 +100,12 @@ class StageRunner:
 
     def _hour(self, d: Driver) -> int:
         return NIGHT_HOUR if "night_trip" in d.tags else DAY_HOUR
+
+    def _urgency(self, e: Engine, d: Driver, situation: str, depth: float) -> RiskScore:
+        """Live urgency for one driver: hazard + simulated profile (needs, DSS, policy, claims, household)."""
+        return score(RiskInput(depth_in=depth, rise_in_per_min=self._rise_in_per_min(), hour=self._hour(d),
+                               age=d.age, vehicle_type=d.vehicle.type, situation=situation,
+                               **profile_risk_fields(d.profile, e.t_sim_s / 60)))
 
     def _rise_in_per_min(self) -> float:
         p = self.engine.params
@@ -149,7 +156,14 @@ class StageRunner:
         candidates = [d for d in self.drivers.values() if d.id not in self.world.suppress_pretrip]
         warnings = plan_pretrip(candidates, e.statuses, moving=self.on_trip(),
                                 already=frozenset(self.world.warned), alert_id=e.alert["id"])
-        for w in warnings:
+        ranked = sorted(((self._urgency(e, self.drivers[w.driver_id], "planning",
+                                        max((e.depth_of(h.edge_id) for h in w.hits), default=0.0)), w)
+                         for w in warnings), key=lambda rw: -rw[0].value)
+        world = self.world
+        for risk, w in ranked:  # highest-risk drivers are warned first
+            if self.world is not world:  # reset happened while we awaited a send
+                return
+            world.urgency[w.driver_id] = risk.value
             await self._warn(e, self.drivers[w.driver_id], w)
 
     async def _warn(self, e: Engine, d: Driver, w) -> None:
@@ -188,6 +202,7 @@ class StageRunner:
         ta = {"driver_id": d.id, "message": TURN_AROUND_MSG, "hazard_edge_id": hz.edge_id,
               "hazard_depth_in": round(e.depth_of(hz.edge_id), 1), "distance_m": round(hz.distance_m, 1)}
         self.world.turn_arounds[d.id] = ta
+        world.urgency[d.id] = self._urgency(e, d, "driving_toward", ta["hazard_depth_in"]).value
         await e.emit("turn_around", ta)
         await self._send(d, "driver", "tts_in_app", TURN_AROUND_MSG)
         if self.world is not world:  # reset happened while we awaited
@@ -222,9 +237,7 @@ class StageRunner:
             await self._advance_case(e, cid)
 
     async def _open_case(self, e: Engine, d: Driver, lat: float, lon: float, depth: float) -> None:
-        risk = score(RiskInput(depth_in=depth, rise_in_per_min=self._rise_in_per_min(), hour=self._hour(d),
-                               age=d.age, vehicle_type=d.vehicle.type, situation="stopped_in_water",
-                               **profile_risk_fields(d.profile, e.t_sim_s / 60)))
+        risk = self._urgency(e, d, "stopped_in_water", depth)
         cid = f"case-{len(self.world.cases) + 1:03d}"
         case = esc.open_case(cid, d.id, d.name, lat, lon, round(depth, 1), risk, now_iso())
         self.world.cases[cid] = case

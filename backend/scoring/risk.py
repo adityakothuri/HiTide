@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 from app.config import settings
+from scoring.profile_risk import profile_vulnerability
 
 RISE_SATURATION_IN_PER_MIN = 3.0
 AGE_RAMP_YEARS = 15
@@ -38,6 +39,8 @@ class RiskInput:
     new_to_area: bool = False
     distraction_per_100mi: float = 0.0
     live_signals: tuple[str, ...] = ()
+    profile_vulnerability: float = 0.0  # baseline 0..1 from scoring/profile_risk.py
+    profile_reasons: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -74,6 +77,7 @@ def factors(inp: RiskInput, cfg: Mapping[str, Any], boat_in: float) -> dict[str,
         "unfamiliar": 1.0 if inp.new_to_area else 0.0,
         "distraction": min(1.0, max(0.0, inp.distraction_per_100mi) / DISTRACTION_SATURATION_PER_100MI),
         "signal": 1.0 if any(k in SIGNAL_TEXT for k in inp.live_signals) else 0.0,
+        "profile": min(1.0, max(0.0, inp.profile_vulnerability)),
     }
 
 
@@ -81,11 +85,14 @@ def profile_risk_fields(profile: Mapping[str, Any], t_sim_min: float) -> dict[st
     """RiskInput fields from a simulated driver profile; signals count only once their scripted time has passed."""
     signals = tuple(sig["kind"] for sig in profile.get("demo_signals", ())
                     if sig.get("kind") in SIGNAL_TEXT and t_sim_min >= float(sig.get("at_min", 0)))
+    baseline = profile_vulnerability(profile)
     return {
         "needs_priority": bool(EVACUATION_NEEDS.intersection(profile.get("needs", ()))),
         "new_to_area": bool(profile.get("household", {}).get("new_to_area", False)),
         "distraction_per_100mi": float(profile.get("derived", {}).get("distraction_per_100mi", 0.0)),
         "live_signals": signals,
+        "profile_vulnerability": baseline.value,
+        "profile_reasons": baseline.reasons,
     }
 
 
@@ -110,7 +117,8 @@ def _reasons(inp: RiskInput, f: Mapping[str, float], cfg: Mapping[str, Any]) -> 
     if f["distraction"] >= 0.5:
         out.append("frequent phone distraction")
     out.extend(SIGNAL_TEXT[k] for k in dict.fromkeys(inp.live_signals) if k in SIGNAL_TEXT)
-    return tuple(out)
+    out.extend(inp.profile_reasons)
+    return tuple(dict.fromkeys(out))
 
 
 def score(inp: RiskInput, cfg: Mapping[str, Any] | None = None) -> RiskScore:

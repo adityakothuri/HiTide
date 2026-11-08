@@ -49,7 +49,7 @@ Every message has this envelope:
 |---|---|---|
 | `snapshot` | `StateSnapshot` | Sent first on connect. Replace all state with it. |
 | `segments.update` | `{t_sim_s, river_wse_m, segments:[{edge_id, depth_in, status}]}` | Diff (changed segments only). Recolour roads. |
-| `drivers.update` | `{drivers:[{id,name,lat,lon,heading_deg,situation,is_demo,urgency}]}` | Move markers. `situation`: parked, planning, driving, stopped_in_water. |
+| `drivers.update` | `{drivers:[{id,name,lat,lon,heading_deg,situation,is_demo,urgency}]}` | Move markers. `situation`: parked, planning, driving, stopped_in_water. `urgency` (0..1) is the case urgency for a driver with an open case, otherwise the latest pre-trip or turn-around score (includes the simulated profile), else 0. Shape unchanged. |
 | `alert` | `{id,event,headline,active,simulated,polygon}` | NWS banner + driver "Flood Watch active" status |
 | `outreach` | `{id,ts,driver_id,recipient,channel,body,mode,status,case_id,provider?,call_id?}` | Case timeline + driver phone mock. `mode: mock` means it was not really sent; live sends report `mode: photon`. `provider` (`stable` or `photon2`) is present only on live sends. `call_id` (ElevenLabs conversation id) is present only on placed voice calls. Both are optional and additive. |
 | `turn_around` | `{driver_id,message,hazard_edge_id,hazard_depth_in,distance_m}` | **Driver view: full-screen red alert + `speechSynthesis.speak(message)`** |
@@ -167,4 +167,41 @@ A second, separate demo replays the **real July 4, 2025 flood** over Hunt → In
 
 **Drone**: `{id, station, lat, lon, status: idle|flying|snapshot|returning, target, eta_s, battery_pct, tour: [point_id], path: [[lon,lat],...] (planned: drone → stops → station), km_flown, simulated: true}`. Draw `path` dashed (plan) and the trail solid.
 
-**Snapshot**: `{point_id, drone_id, time, water_on_road, road_covered_pct, est_depth_in, depth_method: car_reference|visual, rising, people_seen, confidence, image_url, simulated: true}`.
+**Snapshot**: `{point_id, drone_id, time, water_on_road, road_covered_pct, est_depth_in, depth_method: water_edge_dem|visual, rising, people_seen, confidence, image_url, simulated: true}`.
+
+## Drone vision snapshots (2026-11-08, additive)
+
+Real vision output from the drone pipeline (`backend/vision/`, spec `drone_vision_plan.md`, accuracy in
+`vault/Experiments/2026-11-08 Drone vision accuracy.md`).
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/api/snapshots` | Body: `VisionSnapshot` (below). `202 {accepted, fused, not_fused_reason, alerts}`. 403 untrusted origin, 422 invalid, 503 region failed to load. A `cp-*` point fuses into the Hill Country loop only while the replay is running. |
+| GET | `/static/drone/snapshots/<file>.jpg` | Annotated snapshot image (water tint, boxes, readout) |
+| POST | `/api/region/drones/tello` | (existing, `DRONE_MODE=tello`) The Tello's hover frames now run through the vision model. Response `{ok, vision: true, fused, not_fused_reason, snapshot: VisionSnapshot}` with `source: "live"`, `depth_method: "none"`. If the vision models are not installed (or `TELLO_VISION=0`) it falls back to the old blue-sheet cover: `{ok, vision: false, snapshot: Snapshot}`. Either way `snapshot.created` is emitted. A hover with no water seen gives `water_on_road: null` (unknown), not dry. |
+
+WS: the same `snapshot.created` event as above. The payload is a **superset** of the Hill Country `Snapshot`, so existing readers keep working.
+
+**VisionSnapshot**. The overview §9.5 fields keep their meaning, with these additions:
+- `water_on_road: true | false | null`. `null` means not enough road was visible. It is never treated as dry, and fusion ignores it. `false` means most of the road was seen and it's dry. **It never means "safe".**
+- `est_depth_in: number | null`. `null` means no depth was measured. There is no fake 0.
+- `depth_method: "water_edge_dem" | "none"`:
+  - `water_edge_dem`: water edge + elevation map, with a range. **This is the only source of a depth.**
+  - `none`: no depth measured (photos, video and live Tello frames have no pose/elevation). `est_depth_in` is `null`.
+  - A car's shape is never used as a depth gauge (changed 2026-11-08: `car_reference` was removed).
+  - (The simulated loop also sends `"visual"`.)
+- `rising: true | false | null`. `null` is the `"unknown"` trend. `false` is steady or falling.
+- `road_covered_pct` is the share of the **visible** road under water. `road_visible_pct` says how much road was seen.
+
+New fields:
+- `lat, lon`, `drone_id`, `source: synthetic|video|photo|live`, `simulated`
+- `water_surface_elev_m`, `water_surface_range_m: [lo, hi]`
+- `depth_at_road_range_in: [lo, hi]`
+- `depth_band: shallow|caution|dangerous|vehicles_float|boat_only|null` (3/6/12/24 in from `weights.yaml`; there is no "open" band)
+- `rise_rate_in_per_hr: number|null` (null unless the trend is significant), `trend: rising|falling|steady|unknown`
+- `edge_points_used`, `edge_sides: 0|1|2`
+- `vehicles: [{track_id, type, lat, lon, in_water, partly_submerged, depth_at_vehicle_in, band: none|wheels|doors|windows|roof|null, band_source: water_surface|null, matched_case_id}]` (band and depth only when the water surface was measured; otherwise null)
+- `people: [{track_id, lat, lon, situation: in_water|on_vehicle|dry_near_water|dry_away, on_vehicle_id}]`
+- `alerts: [{priority: critical|high|medium|low, kind, message, track_id, lat, lon, depth_in, boat_required, case_id}]` (sorted most urgent first; `boat_required` is true whenever depth is unknown; an operator confirms before anything reaches 911)
+- `spread_segments: [edge_id]`: nearby roads marked `likely_flooded` from this reading, never confirmed
+- `confidence_reasons: [string]`

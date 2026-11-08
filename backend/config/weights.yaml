@@ -32,12 +32,25 @@ risk:
     unfamiliar: 0.03          # new to the area
     distraction: 0.04         # Drive Safe & Save phone-distraction rate
     signal: 0.15              # live State Farm signal: roadside request or ADT water sensor
+    profile: 0.12             # baseline profile vulnerability (scoring/profile_risk.py), 0..1
   situation_levels: {planning: 0.2, driving_toward: 0.6, stopped_in_water: 1.0}
   vehicle_levels: {sedan: 0.6, compact: 0.8, ev: 0.8, suv: 0.3, truck: 0.1, minivan: 0.4}
   night_hours: [20, 6]        # 8 PM to 6 AM local
   older_age: 65
   teen_max_age: 19
   high_risk_threshold: 0.65   # flag responders immediately at or above this
+
+# Baseline vulnerability from the simulated driver profile (docs/driver-profile.md). Weights sum to 1.
+profile_risk:
+  weights:
+    crossing_exposure: 0.25   # trips/week over low-lying crossings (derived from DSS trips)
+    night_driving: 0.10       # share of miles at night (derived)
+    past_flood: 0.15          # past flood/water claim (sf_claims)
+    behavior: 0.10            # DSS 14-day score and speeding rate (sf_dss)
+    inexperience: 0.10        # licensed < 3 years or Steer Clear (sf_policy, sf_steer_clear)
+    passengers: 0.15          # kids/dependents or pets aboard: getting out takes longer (self_reported)
+    home_exposure: 0.10       # manufactured home (sf_policy)
+    reachability: 0.05        # missed app check-in or location not "Always" (sf_dss)
 
 stages:
   enroute_lookahead_m: 800

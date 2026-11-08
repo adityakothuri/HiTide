@@ -32,3 +32,10 @@ htmlcov/
 
 # osmnx Overpass HTTP cache (build scripts)
 backend/cache/
+
+# drone vision pipeline output (generated)
+data/drone_samples/snapshots/*.jpg
+data/wx_cache/
+
+# Nested git worktrees used by parallel Claude sessions
+.claude/worktrees/

@@ -46,3 +46,95 @@ def detect(image_path: str | Path) -> list[dict[str, Any]]:
         }
         for xyxy, p, c in zip(result.boxes.xyxy.tolist(), result.boxes.conf.tolist(), result.boxes.cls.tolist())
     ]
+
+
+# ---------------------------------------------------------------------------------------------
+# Live tracking (drone vision plan 7.1): ByteTrack IDs + a persistence filter so a one-frame hit
+# from a reflection or debris can never raise an alert.
+# ---------------------------------------------------------------------------------------------
+
+from dataclasses import dataclass, field  # noqa: E402
+from types import MappingProxyType  # noqa: E402
+from typing import Mapping  # noqa: E402
+
+import numpy as np  # noqa: E402
+
+
+@dataclass(frozen=True)
+class Det:
+    track_id: int
+    cls: str
+    conf: float
+    box: tuple[float, float, float, float]   # x1, y1, x2, y2 pixels
+
+
+@dataclass(frozen=True)
+class Persistence:
+    """How many processed frames each track id has been seen in. Immutable: update() returns a new one."""
+    counts: Mapping[int, int] = field(default_factory=lambda: MappingProxyType({}))
+    min_frames: int = 5
+
+    def update(self, dets: list[Det]) -> tuple["Persistence", list[Det]]:
+        counts = dict(self.counts)
+        for d in dets:
+            counts[d.track_id] = counts.get(d.track_id, 0) + 1
+        confirmed = [d for d in dets if counts[d.track_id] >= self.min_frames]
+        return Persistence(MappingProxyType(counts), self.min_frames), confirmed
+
+
+def reset_tracks() -> None:
+    """Forget ByteTrack tracks from a previous stream (ultralytics keeps them on model.predictor)."""
+    predictor = getattr(_model(), "predictor", None)
+    for tracker in getattr(predictor, "trackers", None) or []:
+        tracker.reset()
+
+
+class Tracker:
+    """YOLOv8n + ByteTrack over a frame stream. update(frame) -> detections that have persisted."""
+
+    def __init__(self, min_frames: int | None = None) -> None:
+        from vision.config import vision_config
+
+        cfg = vision_config()["detect"]
+        self.conf = float(cfg["conf"])
+        self.img_size = int(cfg["img_size"])
+        self.classes = {int(k): v for k, v in cfg["classes"].items()}
+        self.persistence = Persistence(min_frames=int(cfg["persist_frames"] if min_frames is None else min_frames))
+        reset_tracks()   # ByteTrack state lives on the shared YOLO model: a new stream starts clean
+
+
+    def raw(self, frame_bgr: np.ndarray) -> list[Det]:
+        result = _model().track(
+            frame_bgr, persist=True, tracker="bytetrack.yaml", conf=self.conf, imgsz=self.img_size,
+            classes=list(self.classes), agnostic_nms=True, verbose=False,
+        )[0]
+        boxes = result.boxes
+        if boxes is None or boxes.id is None:
+            return []
+        return [
+            Det(int(i), self.classes[int(c)], round(float(p), 3), tuple(round(float(v), 1) for v in xyxy))
+            for xyxy, p, c, i in zip(boxes.xyxy.tolist(), boxes.conf.tolist(), boxes.cls.tolist(), boxes.id.tolist())
+        ]
+
+    def update(self, frame_bgr: np.ndarray) -> list[Det]:
+        self.persistence, confirmed = self.persistence.update(self.raw(frame_bgr))
+        return confirmed
+
+
+def detect_still(image_path: str | Path) -> list[Det]:
+    """Single photo (no tracking possible): ids are per-image indexes; callers must say 'single frame'.
+
+    Uses the repo's tuned still-image threshold (MIN_CONF 0.25): the spec's 0.35 assumes the 5-frame
+    persistence filter, which a single photo can't have.
+    """
+    from vision.config import vision_config
+
+    cfg = vision_config()["detect"]
+    classes = {int(k): v for k, v in cfg["classes"].items()}
+    result = _model().predict(str(image_path), conf=MIN_CONF, imgsz=IMG_SIZE, classes=list(classes),
+                              agnostic_nms=True, verbose=False)[0]
+    return [
+        Det(k, classes[int(c)], round(float(p), 3), tuple(round(float(v), 1) for v in xyxy))
+        for k, (xyxy, p, c) in enumerate(zip(result.boxes.xyxy.tolist(), result.boxes.conf.tolist(),
+                                             result.boxes.cls.tolist()))
+    ]

@@ -22,7 +22,13 @@ dependencies = [
 
 [project.optional-dependencies]
 data-build = ["py3dep>=0.19.0", "rioxarray>=0.23.0"]
-vision = ["opencv-python-headless>=5.0.0.93", "pillow>=13.0.0", "ultralytics>=8.4.207"]
+vision = [
+    "opencv-python-headless>=5.0.0.93",
+    "pillow>=13.0.0",
+    "transformers>=4.46",
+    "lap>=0.5.12",                 # ByteTrack (Tracker); otherwise ultralytics pip-installs it at runtime
+    "ultralytics>=8.4.207",
+]
 
 [dependency-groups]
 dev = [

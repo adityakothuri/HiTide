@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-08T00:30:28.502446+00:00",
+  "fetched_at": "2026-11-08T06:40:35.838585+00:00",
   "data": {
     "@context": {
       "@version": "1.1"
@@ -7,6 +7,6 @@
     "type": "FeatureCollection",
     "features": [],
     "title": "Current watches, warnings, and advisories for 30.0474 N, 99.1403 W",
-    "updated": "2026-11-08T00:26:02+00:00"
+    "updated": "2026-11-08T06:38:58+00:00"
   }
 }
