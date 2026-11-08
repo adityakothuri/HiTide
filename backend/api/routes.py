@@ -5,23 +5,15 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
+
+from api.schemas import ReplyIn
 
 from app.runtime import Runtime
 from feeds import all_feeds
 
 log = logging.getLogger(__name__)
 router = APIRouter()
-
-SIM_ALERT = {
-    "id": "sim-ffw-kerrville",
-    "event": "Flash Flood Warning",
-    "headline": "SIMULATED: Flash Flood Warning for Kerr County. Guadalupe River rising rapidly. Turn around, don't drown.",
-    "active": True,
-    "simulated": True,
-    "polygon": None,
-}
-
 
 def rt(request: Request) -> Runtime:
     return request.app.state.runtime
@@ -54,18 +46,45 @@ async def feeds() -> dict[str, Any]:
 @router.post("/api/demo/start")
 async def demo_start(request: Request) -> dict[str, Any]:
     r = rt(request)
-    r.engine.reset()
-    await r.hub.emit("snapshot", r.snapshot())
-    await r.engine.begin_flood(SIM_ALERT)
+    await r.reset()
+    r.demo.start()
     return {"ok": True}
 
 
 @router.post("/api/demo/reset")
 async def demo_reset(request: Request) -> dict[str, Any]:
-    r = rt(request)
-    r.engine.reset()
-    await r.hub.emit("snapshot", r.snapshot())
+    await rt(request).reset()
     return {"ok": True}
+
+
+@router.get("/api/cases")
+async def cases(request: Request) -> list[dict[str, Any]]:
+    return [c.model_dump(mode="json") for c in rt(request).sorted_cases()]
+
+
+@router.post("/api/cases/{case_id}/reply")
+async def case_reply(case_id: str, body: ReplyIn, request: Request) -> dict[str, Any]:
+    case = await rt(request).runner.reply(case_id, body.reply, "driver")
+    if case is None:
+        raise HTTPException(status_code=404, detail="case not found")
+    return case.model_dump(mode="json")
+
+
+@router.get("/api/drivers/{driver_id}")
+async def driver_view(driver_id: str, request: Request) -> dict[str, Any]:
+    r = rt(request)
+    d = next((x for x in r.drivers if x.id == driver_id), None)
+    if d is None:
+        raise HTTPException(status_code=404, detail="driver not found")
+    w = r.runner.world
+    cid = w.case_by_driver.get(driver_id)
+    return {
+        "driver": {**r.runner.driver_public(d), "vehicle": f"{d.vehicle.make} {d.vehicle.model}"},
+        "alert": r.engine.alert,
+        "pretrip_warning": w.pretrip_cards.get(driver_id),
+        "active_turn_around": w.turn_arounds.get(driver_id),
+        "case": w.cases[cid].model_dump(mode="json") if cid else None,
+    }
 
 
 @router.websocket("/ws")

@@ -47,6 +47,7 @@ class Engine:
     depths: np.ndarray = field(init=False)
     statuses: dict[str, str] = field(default_factory=dict)  # only non-open
     hooks: list[TickHook] = field(default_factory=list)
+    last_dt: float = 0.0
     _task: asyncio.Task | None = None
 
     def __post_init__(self) -> None:
@@ -104,6 +105,7 @@ class Engine:
             await asyncio.sleep(tick)
 
     async def step(self, dt_sim_s: float) -> None:
+        self.last_dt = dt_sim_s
         self.t_sim_s += dt_sim_s
         if self.flood.active:
             await self._advance_flood(dt_sim_s)

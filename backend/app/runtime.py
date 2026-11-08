@@ -1,4 +1,4 @@
-"""Process-wide runtime: town, drivers, engine, hub. Built once in the FastAPI lifespan."""
+"""Process-wide runtime: town, drivers, engine, stage runner, hub. Built once in the FastAPI lifespan."""
 
 from __future__ import annotations
 
@@ -6,10 +6,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from api.ws import WsHub
-from app.config import settings
+from demo.scenario import DemoScenario
+from drone import dispatch
 from sim.drivers import Driver, load_drivers
 from sim.engine import Engine
 from sim.town import Town, load_town
+from stages.runner import StageRunner
 
 
 @dataclass
@@ -18,30 +20,37 @@ class Runtime:
     drivers: list[Driver]
     hub: WsHub
     engine: Engine
-
-    def driver_public(self, d: Driver) -> dict[str, Any]:
-        node = self.town.graph.nodes[d.home_node]
-        return {"id": d.id, "name": d.name, "lat": node["y"], "lon": node["x"], "heading_deg": 0.0,
-                "situation": "parked", "is_demo": d.is_demo, "urgency": 0.0}
+    runner: StageRunner
+    demo: DemoScenario
 
     def snapshot(self) -> dict[str, Any]:
-        e = self.engine
+        e, r = self.engine, self.runner
         return {
             "t_sim_s": round(e.t_sim_s, 1),
             "river_wse_m": round(e.flood.river_wse_m, 2),
             "alert": e.alert,
             "segments": e.segment_states(),
-            "drivers": [self.driver_public(d) for d in self.drivers],
-            "cases": [],
-            "drones": [],
-            "counters": {"drivers_warned": 0, "drivers_rerouted": 0, "cars_stopped_in_water": 0,
-                         "people_verified": 0, "est_claims_avoided_usd": 0},
+            "drivers": [r.driver_public(d) for d in self.drivers],
+            "cases": [c.model_dump(mode="json") for c in self.sorted_cases()],
+            "drones": [dispatch.state(d, e.t_sim_s) for d in r.world.drones.values()],
+            "counters": r.counters(),
         }
+
+    def sorted_cases(self):
+        return sorted(self.runner.world.cases.values(), key=lambda c: c.urgency, reverse=True)
+
+    async def reset(self) -> None:
+        self.demo.cancel()
+        self.engine.reset()
+        self.engine.speed = 1.0
+        self.runner.reset()
+        await self.hub.emit("snapshot", self.snapshot())
 
 
 def build_runtime() -> Runtime:
     town = load_town()
     drivers = load_drivers()
     hub = WsHub()
-    engine = Engine(town=town, drivers=drivers, emit=hub.emit, speed=float(settings()["clock"]["demo_speed"]))
-    return Runtime(town=town, drivers=drivers, hub=hub, engine=engine)
+    engine = Engine(town=town, drivers=drivers, emit=hub.emit, speed=1.0)
+    runner = StageRunner(engine, drivers)
+    return Runtime(town=town, drivers=drivers, hub=hub, engine=engine, runner=runner, demo=DemoScenario(engine, runner))

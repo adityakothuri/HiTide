@@ -36,7 +36,7 @@ risk:
 
 stages:
   enroute_lookahead_m: 800
-  stop_seconds: 60
+  stop_seconds: {normal: 60, demo: 5}
   dest_radius_m: 75
 
 escalation_s:                 # seconds from case open
@@ -45,4 +45,8 @@ escalation_s:                 # seconds from case open
 
 drone:
   speed_mps: 25
+  demo_max_flight_s: 15       # compress the flight in demo mode
   station: {name: "Kerrville Fire Station 1", lat: 30.0505, lon: -99.1395}
+
+claims:
+  avg_vehicle_claim_usd: 15000  # placeholder; source in vault/Pitch.md before using in the pitch
