@@ -1,0 +1,66 @@
+{
+  "fault": "stale",
+  "users": 2000,
+  "roles": {
+    "crossing": 615,
+    "home": 985,
+    "driver": 400
+  },
+  "step_s": 120.0,
+  "seed": 7,
+  "wall_s": 649.9,
+  "truth": {
+    "exposed_users": 1361,
+    "definition": ">= 6.0 in within 150 m (replay truth)"
+  },
+  "danger": {
+    "recall": 0.826,
+    "lead_min_median": 110.0,
+    "lead_min_p10": 22.0
+  },
+  "warning": {
+    "recall": 1.0,
+    "lead_min_median": 210.0,
+    "lead_min_p10": 142.0
+  },
+  "flagged_danger_users": 1650,
+  "false_alarm": {
+    "users": 163,
+    "share_of_flagged": 0.099,
+    "definition": "DANGER+ but truth < 3.0 in within 400 m all night"
+  },
+  "messages": {
+    "total": 12735,
+    "per_user_median": 6.0,
+    "per_user_p95": 11.0,
+    "per_user_max": 17,
+    "by_recipient_channel": {
+      "driver:tts_in_app": 1481,
+      "parent:text": 241,
+      "driver:text": 4938,
+      "driver:poll": 1751,
+      "driver:voice": 1664,
+      "emergency_contact:text": 1330,
+      "emergency_contact:voice": 1330
+    }
+  },
+  "final_levels": {
+    "none": 0,
+    "watch": 31,
+    "warning": 610,
+    "danger": 1020,
+    "critical": 339
+  },
+  "confidence_samples": {
+    "high": 0,
+    "medium": 0,
+    "low": 392000
+  },
+  "latency_ms": {
+    "refresh_median": 796.3749369992001,
+    "refresh_p99": 2110.305126445384,
+    "ping_median": 1.7994374975387473,
+    "ping_p99": 7.803555827049393,
+    "loop_step_median": 248.65956250141608
+  }
+}
