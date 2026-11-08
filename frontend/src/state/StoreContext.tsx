@@ -23,6 +23,8 @@ export function StoreProvider({ children, mode = modeFromUrl() }: { children: Re
   const [store, setStore] = useState<Store>(() => createStore(mode === 'mock' ? new MockProvider() : new WsProvider()))
 
   useEffect(() => {
+    // Dev and e2e only: lets Playwright drive the scenario (window.__floodwatch.provider.nextStep()).
+    if (import.meta.env.DEV) (window as unknown as { __floodwatch?: Store }).__floodwatch = store
     store.provider.connect(
       (e) => store.dispatch(e),
       (status) => store.setUi((u) => ({ ...u, status })),

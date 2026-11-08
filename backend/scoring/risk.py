@@ -12,6 +12,12 @@ from app.config import settings
 
 RISE_SATURATION_IN_PER_MIN = 3.0
 AGE_RAMP_YEARS = 15
+DISTRACTION_SATURATION_PER_100MI = 2.0
+# Self-reported needs that mean someone may not get out of a stranded car alone. Channel-only needs
+# (hearing_loss, low_vision) change how we alert, not urgency.
+EVACUATION_NEEDS = frozenset({"mobility_assist", "wheelchair_user", "powered_medical_equipment",
+                              "cognitive_support", "pregnant"})
+SIGNAL_TEXT = {"roadside_request": "roadside help requested", "adt_water_sensor": "home water sensor alert"}
 SITUATION_TEXT = {
     "planning": "planning a trip through flooding",
     "driving_toward": "driving toward a flooded road",
@@ -27,6 +33,11 @@ class RiskInput:
     age: int
     vehicle_type: str
     situation: str  # planning | driving_toward | stopped_in_water
+    # Simulated profile inputs (docs/driver-profile.md). Defaults leave the score unchanged; they only raise it.
+    needs_priority: bool = False
+    new_to_area: bool = False
+    distraction_per_100mi: float = 0.0
+    live_signals: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -59,6 +70,22 @@ def factors(inp: RiskInput, cfg: Mapping[str, Any], boat_in: float) -> dict[str,
         "age": _age_factor(inp.age, cfg),
         "vehicle": float(cfg["vehicle_levels"].get(inp.vehicle_type, 0.5)),
         "situation": float(cfg["situation_levels"].get(inp.situation, 0.2)),
+        "needs": 1.0 if inp.needs_priority else 0.0,
+        "unfamiliar": 1.0 if inp.new_to_area else 0.0,
+        "distraction": min(1.0, max(0.0, inp.distraction_per_100mi) / DISTRACTION_SATURATION_PER_100MI),
+        "signal": 1.0 if any(k in SIGNAL_TEXT for k in inp.live_signals) else 0.0,
+    }
+
+
+def profile_risk_fields(profile: Mapping[str, Any], t_sim_min: float) -> dict[str, Any]:
+    """RiskInput fields from a simulated driver profile; signals count only once their scripted time has passed."""
+    signals = tuple(sig["kind"] for sig in profile.get("demo_signals", ())
+                    if sig.get("kind") in SIGNAL_TEXT and t_sim_min >= float(sig.get("at_min", 0)))
+    return {
+        "needs_priority": bool(EVACUATION_NEEDS.intersection(profile.get("needs", ()))),
+        "new_to_area": bool(profile.get("household", {}).get("new_to_area", False)),
+        "distraction_per_100mi": float(profile.get("derived", {}).get("distraction_per_100mi", 0.0)),
+        "live_signals": signals,
     }
 
 
@@ -76,6 +103,13 @@ def _reasons(inp: RiskInput, f: Mapping[str, float], cfg: Mapping[str, Any]) -> 
         out.append("teen driver")
     if f["vehicle"] >= 0.6:
         out.append("low-clearance vehicle")
+    if f["needs"]:
+        out.append("needs extra help (self-reported)")
+    if f["unfamiliar"]:
+        out.append("new to the area")
+    if f["distraction"] >= 0.5:
+        out.append("frequent phone distraction")
+    out.extend(SIGNAL_TEXT[k] for k in dict.fromkeys(inp.live_signals) if k in SIGNAL_TEXT)
     return tuple(out)
 
 

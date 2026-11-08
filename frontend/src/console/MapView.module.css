@@ -1,0 +1,99 @@
+/* Full-bleed map under the panels. Flat chrome: hairline borders, no shadows or glow. */
+.wrap {
+  position: absolute;
+  inset: 0;
+  background: var(--d-bg);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: var(--d-bg);
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.center p { color: var(--d-text); }
+
+.center button {
+  color: var(--d-strong);
+  border-color: var(--d-faint);
+  background: var(--d-raised);
+}
+
+.drone {
+  width: 18px;
+  height: 18px;
+  color: var(--d-strong);
+}
+
+.returning { color: var(--d-muted); }
+
+.attrib {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  z-index: 1;
+  color: var(--d-faint);
+  font-size: 10px;
+  line-height: 14px;
+  pointer-events: none;
+}
+
+/* Gauge hover readout. */
+.tip { pointer-events: none; }
+
+.tipName {
+  color: var(--d-strong);
+  font-weight: 600;
+}
+
+.tipRow { color: var(--d-muted); }
+
+/* stylelint-disable selector-pseudo-class-no-unknown */
+.wrap :global(.maplibregl-popup-content) {
+  padding: 6px 8px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 4px;
+  background: var(--d-panel);
+  box-shadow: none;
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.wrap :global(.maplibregl-popup-tip) { display: none; }
+
+/* Zoom controls: top right, flat. */
+.wrap :global(.maplibregl-ctrl-top-right) {
+  top: 8px;
+  right: calc(var(--detail-w) + 8px);
+}
+
+.wrap :global(.maplibregl-ctrl-group) {
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 4px;
+  background: var(--d-panel);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.wrap :global(.maplibregl-ctrl-group button) {
+  width: 28px;
+  height: 28px;
+}
+
+.wrap :global(.maplibregl-ctrl-group button + button) { border-top: 1px solid rgb(255 255 255 / 10%); }
+.wrap :global(.maplibregl-ctrl-group button:hover) { background: var(--d-raised); }
+.wrap :global(.maplibregl-ctrl-icon) { filter: invert(1) brightness(0.85); }
+/* stylelint-enable selector-pseudo-class-no-unknown */

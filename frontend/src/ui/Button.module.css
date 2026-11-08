@@ -4,11 +4,12 @@
   justify-content: center;
   gap: var(--space-1);
   min-height: var(--tap-min);
-  padding: 0 var(--space-2);
+  padding: 0 var(--space-3);
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   font-weight: 600;
   font-size: var(--text-sm);
+  line-height: 1.2;
   cursor: pointer;
   transition: background-color var(--dur-quick) var(--ease-out);
 }
@@ -35,6 +36,7 @@
 
 .xl {
   min-height: 72px;
+  border-radius: var(--radius-md);
   font-size: var(--text-lg);
   justify-content: flex-start;
   padding: 0 var(--space-3);
@@ -58,6 +60,8 @@
 
 .primary:hover:not(:disabled) { background: var(--brand-red-hover); }
 
+.primary:active:not(:disabled) { background: var(--brand-red-active); }
+
 .primary:disabled {
   background: var(--neutral-1);
   color: var(--neutral-6);
@@ -66,23 +70,35 @@
 
 .secondary {
   background: var(--surface);
-  color: var(--ink);
-  border-color: var(--neutral-5);
+  color: var(--brand-red);
+  border-color: var(--brand-red);
 }
 
-.secondary:hover:not(:disabled) { background: var(--neutral-1); }
+.secondary:hover:not(:disabled) {
+  color: var(--brand-red-hover);
+  border-color: var(--brand-red-hover);
+  box-shadow: inset 0 0 0 1px var(--brand-red-hover);
+}
+
+.secondary:disabled,
+.secondary[aria-disabled='true'] {
+  color: var(--neutral-5);
+  border-color: var(--neutral-3);
+  box-shadow: none;
+}
 
 .quiet {
   background: transparent;
-  color: var(--neutral-6);
+  color: var(--info);
+  padding: 0 var(--space-1);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.quiet:hover:not(:disabled) { color: var(--ink); }
+.quiet:hover:not(:disabled) { color: var(--ink-strong); }
 
 .emergency {
-  background: var(--ink);
+  background: var(--ink-strong);
   color: var(--on-dark);
 }
 

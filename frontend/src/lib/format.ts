@@ -66,3 +66,11 @@ export function firstName(name: string): string {
 export function formatUsd(n: number): string {
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 }
+
+/** "Flash Flood Warning" -> "Flash flood warning". Keeps acronyms like NWS. */
+export function sentenceCase(text: string): string {
+  return text
+    .split(' ')
+    .map((w, i) => (i === 0 || /^[A-Z0-9]{2,}$/.test(w) ? w : w.toLowerCase()))
+    .join(' ')
+}

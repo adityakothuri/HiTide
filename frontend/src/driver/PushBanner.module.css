@@ -1,0 +1,82 @@
+/* iOS notification banner: frosted, 22px radius, app icon, two to three lines of body. */
+.wrap {
+  position: absolute;
+  inset: 8px 8px auto;
+  z-index: 11;
+  animation: drop 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes drop {
+  from { opacity: 0; transform: translateY(-28px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.banner {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 0;
+  border-radius: 22px;
+  background: rgb(246 246 248 / 88%);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 18%);
+  backdrop-filter: blur(30px) saturate(180%);
+  color: var(--ios-label);
+  font-family: var(--ios-font);
+  text-align: left;
+  cursor: pointer;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--ink-strong);
+}
+
+.icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--on-dark);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.app {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.when {
+  color: var(--ios-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.body {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.2px;
+}

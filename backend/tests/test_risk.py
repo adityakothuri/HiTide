@@ -71,3 +71,68 @@ def test_reasons_never_expose_exact_age_or_vehicle_model():
 def test_high_risk_flag_for_older_driver_stopped_at_night():
     assert s(depth_in=20, hour=23, age=78, situation="stopped_in_water", rise_in_per_min=2).high_risk is True
     assert s(depth_in=4, situation="planning").high_risk is False
+
+
+# ---- Simulated driver profile factors (docs/driver-profile.md) ----------------
+
+from scoring.risk import profile_risk_fields  # noqa: E402
+
+STOPPED = dict(depth_in=10, situation="stopped_in_water")
+
+
+def test_no_profile_keeps_existing_score():
+    assert s(**STOPPED, **profile_risk_fields({}, t_sim_min=0)).value == s(**STOPPED).value
+
+
+def test_evacuation_need_raises_urgency_with_coarse_reason():
+    r = s(**STOPPED, needs_priority=True)
+    assert r.value > s(**STOPPED).value
+    assert "needs extra help (self-reported)" in r.reasons
+    assert "wheelchair" not in " ".join(r.reasons)
+
+
+def test_new_to_area_raises_urgency():
+    r = s(**STOPPED, new_to_area=True)
+    assert r.value > s(**STOPPED).value
+    assert "new to the area" in r.reasons
+
+
+def test_distraction_history_raises_urgency_and_saturates():
+    assert s(**STOPPED, distraction_per_100mi=1.0).value > s(**STOPPED).value
+    assert s(**STOPPED, distraction_per_100mi=5.0).value == pytest.approx(s(**STOPPED, distraction_per_100mi=50.0).value)
+
+
+def test_live_state_farm_signal_raises_urgency():
+    r = s(**STOPPED, live_signals=("roadside_request",))
+    assert r.value > s(**STOPPED).value
+    assert "roadside help requested" in r.reasons
+    assert "home water sensor alert" in s(**STOPPED, live_signals=("adt_water_sensor",)).reasons
+
+
+def test_profile_factors_never_lower_urgency():
+    """Rule: needs and profile data can only raise priority, never lower it."""
+    base = s(**STOPPED).value
+    for kw in ({"needs_priority": True}, {"new_to_area": True}, {"distraction_per_100mi": 3.0},
+               {"live_signals": ("roadside_request",)}):
+        assert s(**STOPPED, **kw).value >= base
+
+
+def test_profile_risk_fields_reads_simulated_profile():
+    profile = {
+        "needs": ["wheelchair_user"],
+        "household": {"new_to_area": True},
+        "derived": {"distraction_per_100mi": 1.5},
+        "demo_signals": [{"kind": "roadside_request", "at_min": 38}, {"kind": "adt_water_sensor", "at_min": 90}],
+    }
+    out = profile_risk_fields(profile, t_sim_min=40)
+    assert out == {"needs_priority": True, "new_to_area": True, "distraction_per_100mi": 1.5,
+                   "live_signals": ("roadside_request",)}
+
+
+def test_channel_only_needs_do_not_count_as_evacuation_priority():
+    assert profile_risk_fields({"needs": ["hearing_loss"]}, t_sim_min=0)["needs_priority"] is False
+
+
+def test_signal_not_active_before_its_time():
+    out = profile_risk_fields({"demo_signals": [{"kind": "roadside_request", "at_min": 38}]}, t_sim_min=10)
+    assert out["live_signals"] == ()

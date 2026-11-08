@@ -17,7 +17,7 @@ from app.config import settings
 from drone import dispatch
 from outreach import OutboundMessage, make_outreach, voice_elevenlabs
 from outreach.call_summary import call_variables, classify_call, first_name, follow_up_text, opening_line
-from scoring.risk import RiskInput, score
+from scoring.risk import RiskInput, profile_risk_fields, score
 from sim.drivers import Driver
 from sim.engine import Engine, now_iso
 from sim.movement import STOPPED_MPS, DriverMotion, advance, ahead, current_edge, locate, position
@@ -223,7 +223,8 @@ class StageRunner:
 
     async def _open_case(self, e: Engine, d: Driver, lat: float, lon: float, depth: float) -> None:
         risk = score(RiskInput(depth_in=depth, rise_in_per_min=self._rise_in_per_min(), hour=self._hour(d),
-                               age=d.age, vehicle_type=d.vehicle.type, situation="stopped_in_water"))
+                               age=d.age, vehicle_type=d.vehicle.type, situation="stopped_in_water",
+                               **profile_risk_fields(d.profile, e.t_sim_s / 60)))
         cid = f"case-{len(self.world.cases) + 1:03d}"
         case = esc.open_case(cid, d.id, d.name, lat, lon, round(depth, 1), risk, now_iso())
         self.world.cases[cid] = case

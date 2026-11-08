@@ -2,9 +2,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-half);
-  padding: 0 var(--space-1);
+  padding: 0 10px 0 8px;
   min-height: 24px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   font-size: var(--text-xs);
   line-height: var(--lh-xs);
   font-weight: 600;

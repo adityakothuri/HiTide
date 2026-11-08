@@ -27,6 +27,11 @@ risk:
     age: 0.12
     vehicle: 0.08
     situation: 0.20
+    # Simulated profile factors (docs/driver-profile.md). Additive, so they can only raise urgency.
+    needs: 0.10               # self-reported evacuation need
+    unfamiliar: 0.03          # new to the area
+    distraction: 0.04         # Drive Safe & Save phone-distraction rate
+    signal: 0.15              # live State Farm signal: roadside request or ADT water sensor
   situation_levels: {planning: 0.2, driving_toward: 0.6, stopped_in_water: 1.0}
   vehicle_levels: {sedan: 0.6, compact: 0.8, ev: 0.8, suv: 0.3, truck: 0.1, minivan: 0.4}
   night_hours: [20, 6]        # 8 PM to 6 AM local

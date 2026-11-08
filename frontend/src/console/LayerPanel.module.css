@@ -1,0 +1,67 @@
+.panel {
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.heading {
+  margin-bottom: 6px;
+  color: var(--d-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--d-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.label input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--d-text);
+  cursor: pointer;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segBtn {
+  min-width: 34px;
+  height: 22px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--d-muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.segBtn + .segBtn { border-left: 1px solid rgb(255 255 255 / 12%); }
+.segBtn[aria-checked='true'] { background: var(--d-hover); color: var(--d-strong); }
+.segBtn:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
