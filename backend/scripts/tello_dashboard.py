@@ -53,6 +53,8 @@ SINK_CM = 25  # height lost without an "down" input over SINK_WINDOW_SECONDS = u
 SINK_WINDOW_SECONDS = 3.0
 SINK_REPORT_EVERY = 10.0
 SAG_BATTERY_PCT = 35  # below this, a worn battery's voltage can dip under the auto-land limit
+GROUND_FLOOR_CM = 15  # floor sensor reads ~10 cm when sitting on the ground
+GROUNDED_SECONDS = 2.0  # "flying" but on the floor this long = lost lift; land to stop the motors
 DRAIN_SETTLE_SECONDS = 5.0  # battery % reads low under load; read it after it recovers
 MAX_TILT_DEG = 10
 REFUSAL_HINT = (
@@ -108,6 +110,7 @@ class Drone:
         self.record_file: Path | None = None
         self.heights: deque[tuple[float, int]] = deque()
         self.sink_reported = 0.0
+        self.grounded_since = 0.0
 
     def start(self) -> None:
         """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
@@ -173,6 +176,7 @@ class Drone:
                 self._check_idle_heat()
                 self._record_flight()
                 self._check_sink()
+                self._check_grounded_motors_on()
             time.sleep(WATCHDOG_SECONDS)
 
     def _check_hover(self) -> None:
@@ -254,14 +258,37 @@ class Drone:
         battery, temp = self.value("get_battery"), self.value("get_highest_temperature")
         if temp >= HOT_TEMP_C:
             why = "it is overheating and protecting itself. Land and let it cool."
-        elif battery <= SAG_BATTERY_PCT or self.flight_start and battery < self.flight_start[1] - 10:
-            why = ("the battery voltage is sagging under load below the drone's safety limit, so it starts landing "
-                   "by itself. Common with a worn battery even when it still shows a decent %. Use a fresh battery.")
+        elif battery <= SAG_BATTERY_PCT or self._draining_fast(battery):
+            why = ("the battery can't supply enough power under load, so all four motors lose lift at once "
+                   "(the drop is level, not tipped). Typical of a worn battery even at 40-60%. Use a fresh, full battery.")
         else:
             why = ("its height sensor is confused (flying over a table edge, a step, or a dark/shiny floor). "
                    "Fly over flat, matte, well-lit floor.")
         self.note(f"DESCENDING ON ITS OWN ({drop}cm in {SINK_WINDOW_SECONDS:.0f}s, no down input) at battery "
                   f"{battery}%, {temp}C. Likely: {why} Press L rather than Kill so it lands instead of dropping.")
+
+    def _draining_fast(self, battery: int) -> bool:
+        """Battery use since takeoff well above normal: a worn battery that will sag and lose lift."""
+        if not self.flight_start:
+            return False
+        started, start_battery = self.flight_start
+        minutes = (time.time() - started) / 60
+        return minutes > 0 and (start_battery - battery) / minutes > NORMAL_DRAIN_PCT_PER_MIN * HIGH_DRAIN_FACTOR
+
+    def _check_grounded_motors_on(self) -> None:
+        """A drone that lost lift sits on the floor with its motors still running. Land it to stop them."""
+        on_floor = (self.tello.is_flying and not self.busy and not self.landing and self.rc[2] <= 0
+                    and self.value("get_distance_tof") <= GROUND_FLOOR_CM)
+        if not on_floor:
+            self.grounded_since = 0.0
+            return
+        self.grounded_since = self.grounded_since or time.time()
+        if time.time() - self.grounded_since < GROUNDED_SECONDS:
+            return
+        self.grounded_since = 0.0
+        self.note(f"On the floor with motors still running (lost lift at battery {self.value('get_battery')}%). "
+                  "Landing to stop the motors.")
+        self.action("land")
 
     def _check_idle_heat(self) -> None:
         temp = self.value("get_highest_temperature")
