@@ -55,7 +55,7 @@ async def place_call(
     except (httpx.HTTPError, ValueError) as exc:
         logger.error("elevenlabs outbound call error: %s", type(exc).__name__)
         return "failed"
-    if not data.get("success", False):
+    if not isinstance(data, dict) or not data.get("success", False):
         logger.error("elevenlabs outbound call rejected")
         return "failed"
     return "sent"

@@ -5,6 +5,7 @@ World holds the live state. Values inside it (DriverMotion, Case, Drone) are imm
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 from dataclasses import dataclass, field, replace
@@ -17,7 +18,7 @@ from outreach import OutboundMessage, make_outreach
 from scoring.risk import RiskInput, score
 from sim.drivers import Driver
 from sim.engine import Engine, now_iso
-from sim.movement import STOPPED_MPS, DriverMotion, advance, ahead, current_edge, position
+from sim.movement import STOPPED_MPS, DriverMotion, advance, ahead, current_edge, locate, position
 from sim.routing import dry_route, edge_end, edge_lengths, route_geojson
 from stages import escalation as esc
 from stages.route_check import lookahead, plan_pretrip
@@ -27,6 +28,7 @@ from vision.catalog import result_for
 log = logging.getLogger(__name__)
 TURN_AROUND_MSG = "Flooded road ahead. Turn around."
 NIGHT_HOUR, DAY_HOUR = 23, 14
+SEND_BUDGET_S = 4.0  # a slow Photon/ElevenLabs call must never freeze the tick for long
 
 
 @dataclass
@@ -94,7 +96,12 @@ class StageRunner:
                     poll: tuple[str, ...] = ()) -> dict:
         phone = {"driver": d.phone, "parent": d.parent.phone if d.parent else "",
                  "emergency_contact": d.emergency_contact.phone}[recipient]
-        return await self.outreach.send(OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll))
+        msg = OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll)
+        try:
+            return await asyncio.wait_for(self.outreach.send(msg), SEND_BUDGET_S)
+        except asyncio.TimeoutError:
+            log.error("outreach send to %s/%s timed out", d.id, recipient)
+            return {"mode": "photon", "status": "failed"}
 
     # ---- movement ------------------------------------------------------
     async def movement_hook(self, e: Engine) -> None:
@@ -148,19 +155,23 @@ class StageRunner:
                 await self._turn_around(e, self.drivers[did], m, hz)
 
     async def _turn_around(self, e: Engine, d: Driver, m: DriverMotion, hz) -> None:
-        self.world.handled_hazards.add((d.id, hz.edge_id))
+        world = self.world
+        world.handled_hazards.add((d.id, hz.edge_id))
         ta = {"driver_id": d.id, "message": TURN_AROUND_MSG, "hazard_edge_id": hz.edge_id,
               "hazard_depth_in": round(e.depth_of(hz.edge_id), 1), "distance_m": round(hz.distance_m, 1)}
         self.world.turn_arounds[d.id] = ta
         await e.emit("turn_around", ta)
         await self._send(d, "driver", "tts_in_app", TURN_AROUND_MSG)
-        src = edge_end(current_edge(m, self.lengths))
-        alt = dry_route(e.town.graph, src, m.dest_node, e.closed_edges(), "reroute")
-        if not alt:
-            self.world.motions[d.id] = replace(m, speed_mps=0.0, arrived=True)  # pulled over on dry ground
+        if self.world is not world:  # reset happened while we awaited
             return
-        self.world.rerouted.add(d.id)
-        self.world.motions[d.id] = replace(m, edge_ids=alt.edge_ids, offset_m=0.0, stall_at_edge=None)
+        here = current_edge(m, self.lengths)
+        alt = dry_route(e.town.graph, edge_end(here), m.dest_node, e.closed_edges(), "reroute")
+        if not alt:
+            world.motions[d.id] = replace(m, speed_mps=0.0, arrived=True)  # pulled over on dry ground
+            return
+        world.rerouted.add(d.id)
+        _, into = locate(m, self.lengths)  # keep the car where it is: finish this edge, then take the dry route
+        world.motions[d.id] = replace(m, edge_ids=(here, *alt.edge_ids), offset_m=into, stall_at_edge=None)
         await e.emit("reroute", {"driver_id": d.id, "reason": f"Flooded road ahead ({ta['hazard_depth_in']} in)",
                                  "route": route_geojson(e.town, alt.edge_ids), "blocked_edge_ids": [hz.edge_id],
                                  "distance_m": alt.length_m})
@@ -199,9 +210,11 @@ class StageRunner:
         profile = settings()["escalation_s"][self.profile]
         for kind in esc.due_timers(case, elapsed, self.world.case_fired[cid], profile):
             self.world.case_fired[cid] = self.world.case_fired[cid] | {kind}
-            case = esc.transition(case, esc.Timer(kind, round(elapsed, 1)), now_iso())
-            case = await self._timer_action(e, case, kind, elapsed)
-        if case is not self.world.cases[cid]:
+            new = esc.transition(case, esc.Timer(kind, round(elapsed, 1)), now_iso())
+            if new.state != case.state:
+                new = await self._timer_action(e, new, kind, elapsed)
+            case = new
+        if cid in self.world.cases and case is not self.world.cases[cid]:
             self.world.cases[cid] = case
             await e.emit("case.update", case.model_dump(mode="json"))
 
@@ -216,8 +229,10 @@ class StageRunner:
             body = (f"State Farm Flood Watch: {d.name}'s car has stopped in floodwater near "
                     f"{case.location.lat:.4f}, {case.location.lon:.4f} and they haven't answered. Responders are "
                     f"being notified. Reply SAFE if you've reached them.")
-            ev = await self._send(d, "emergency_contact", "text", body, case.id)
-            await self._send(d, "emergency_contact", "voice", f"This is State Farm Flood Watch calling about {d.name}.", case.id)
+            ev, _ = await asyncio.gather(
+                self._send(d, "emergency_contact", "text", body, case.id),
+                self._send(d, "emergency_contact", "voice", f"This is State Farm Flood Watch calling about {d.name}.", case.id),
+            )
             return self._note(case, elapsed, f"Text + call to {c.relation} {c.name} ({ev['mode']}, {ev['status']})")
         if kind == "dispatch_drone":
             dcfg = settings()["drone"]
@@ -239,17 +254,21 @@ class StageRunner:
             return None
         elapsed = self.engine.t_sim_s - self.world.case_opened_s[case_id]
         new = esc.transition(case, esc.Reply(kind, by, round(elapsed, 1)), now_iso())
-        if new.state == "resolved":
-            self.world.drones.pop(case_id, None)
+        if new.state == "resolved" and case_id in self.world.drones:
+            drone = self.world.drones.pop(case_id)
+            await self.engine.emit("drone.update", {**dispatch.state(drone, self.engine.t_sim_s), "status": "returning"})
         self.world.cases[case_id] = new
         await self.engine.emit("case.update", new.model_dump(mode="json"))
         return new
 
     # ---- drones ---------------------------------------------------------
     async def drone_hook(self, e: Engine) -> None:
-        for cid, drone in list(self.world.drones.items()):
+        world = self.world
+        for cid, drone in list(world.drones.items()):
             await e.emit("drone.update", dispatch.state(drone, e.t_sim_s))
-            case = self.world.cases[cid]
+            case = world.cases.get(cid)
+            if case is None or self.world is not world:
+                return
             if dispatch.arrived(drone, e.t_sim_s) and case.state == "drone_en_route":
                 await self._drone_arrived(e, case, drone)
 
@@ -269,7 +288,9 @@ class StageRunner:
         town = e.town
         dists = [(dispatch.distance_m(st["lat"], st["lon"], dat["y"], dat["x"]), n) for n, dat in town.graph.nodes(data=True)]
         src = min(dists)[1]
-        m = self.world.motions[case.driver_id]
+        m = self.world.motions.get(case.driver_id)
+        if m is None:
+            return False
         dst = edge_end(current_edge(m, self.lengths))
         boat_only = {eid for eid, s in e.statuses.items() if s == "boat"} - {current_edge(m, self.lengths)}
         return dry_route(town.graph, src, dst, boat_only, "truck") is not None
@@ -279,10 +300,13 @@ class StageRunner:
         w = self.world
         stopped = len(w.cases)
         verified = sum(len(c.vision.people) if c.vision else 0 for c in w.cases.values())
-        claim = int(settings()["claims"]["avg_vehicle_claim_usd"])
+        claims = settings()["claims"]
+        warned = {d for d, _ in w.warned if w.pretrip_cards.get(d, {}).get("blocking")}
+        protected = warned | w.rerouted  # unique drivers kept off a closed road
+        estimate = int(len(protected) * claims["avg_vehicle_claim_usd"] * claims["share_would_have_entered_water"])
         return {"drivers_warned": len({d for d, _ in w.warned}), "drivers_rerouted": len(w.rerouted),
                 "cars_stopped_in_water": stopped, "people_verified": verified,
-                "est_claims_avoided_usd": (len({d for d, _ in w.warned}) + len(w.rerouted)) * claim // 10}
+                "est_claims_avoided_usd": estimate}
 
     async def counters_hook(self, e: Engine) -> None:
         c = self.counters()

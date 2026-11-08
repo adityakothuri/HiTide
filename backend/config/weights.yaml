@@ -49,4 +49,6 @@ drone:
   station: {name: "Kerrville Fire Station 1", lat: 30.0505, lon: -99.1395}
 
 claims:
-  avg_vehicle_claim_usd: 15000  # placeholder; source in vault/Pitch.md before using in the pitch
+  # ILLUSTRATIVE estimate: unique drivers kept off a closed road x avg claim x assumed share who'd have driven in.
+  avg_vehicle_claim_usd: 15000          # placeholder until sourced (vault/Pitch.md)
+  share_would_have_entered_water: 0.10  # assumption, stated in the UI tooltip
