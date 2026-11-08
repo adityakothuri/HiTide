@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import hmac
+import os
 import time
 from typing import Literal
 
@@ -12,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.hill_runtime import get_hill
 from app.security import require_trusted_origin
 from safety.levels import Level
-from safety.monitor import SafetyMonitor
+from safety.monitor import SafetyMonitor, public_assessment
 from safety.motion import Ping
 from safety.users import E164, SafetyUser
 from sim.profiles import STALL_DEPTH_IN
@@ -56,13 +58,13 @@ class ReplyIn(BaseModel):
 class EnrollIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: str = Field(pattern=ID_PATTERN)
-    name: str = Field(min_length=1, max_length=80)
+    name: str = Field(min_length=1, max_length=80, pattern=r"^[^\W\d_][\w .'-]*$")
     phone: str = Field(pattern=E164.pattern, description="+E.164; stored only in the gitignored registry")
     age: int | None = Field(default=None, ge=13, le=110)
     vehicle_type: Literal["compact", "sedan", "ev", "minivan", "suv", "truck"] = "sedan"
     home_lat: float = Field(ge=-90, le=90)
     home_lon: float = Field(ge=-180, le=180)
-    contact_name: str | None = Field(default=None, max_length=80)
+    contact_name: str | None = Field(default=None, max_length=80, pattern=r"^[^\W\d_][\w .'-]*$")
     contact_phone: str | None = Field(default=None, pattern=E164.pattern)
     needs: list[str] = Field(default_factory=list, max_length=8)
     language: Literal["en", "es"] = "en"
@@ -83,6 +85,13 @@ class EnrollIn(BaseModel):
         if v is not True:
             raise ValueError("flood alerts need explicit consent")
         return v
+
+
+async def require_api_key(request: Request) -> None:
+    """SAFETY_API_KEY set -> enroll and reply need X-Safety-Key (the origin guard alone lets any non-browser client in)."""
+    key = os.environ.get("SAFETY_API_KEY", "")
+    if key and not hmac.compare_digest(request.headers.get("x-safety-key", ""), key):
+        raise HTTPException(status_code=401, detail="missing or wrong X-Safety-Key")
 
 
 async def monitor(request: Request) -> SafetyMonitor:
@@ -119,7 +128,7 @@ async def list_users(m: SafetyMonitor = Depends(monitor), limit: int = Query(200
     return {"total": len(users), "users": [u.public() for u in users[offset:offset + limit]]}
 
 
-@router.post("/api/users", status_code=201, dependencies=[Depends(require_trusted_origin)])
+@router.post("/api/users", status_code=201, dependencies=[Depends(require_trusted_origin), Depends(require_api_key)])
 async def enroll(body: EnrollIn, m: SafetyMonitor = Depends(monitor)) -> dict:
     profile = {"version": 1, "simulated": False,
                "consent": {"flood_alerts": True, "share_location_on_escalation": True, "drone_check": False},
@@ -132,6 +141,8 @@ async def enroll(body: EnrollIn, m: SafetyMonitor = Depends(monitor)) -> dict:
         await asyncio.to_thread(m.users.enroll, user)
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except OverflowError as exc:
+        raise HTTPException(status_code=429, detail=str(exc)) from exc
     return user.public()
 
 
@@ -144,7 +155,7 @@ async def at_risk(m: SafetyMonitor = Depends(monitor), min_level: str = Query("w
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     rows = m.at_risk(lv)
     return {"mode": m.ctx.mode, "total": len(rows),
-            "users": [_with_response(m, a.user_id, a.public()) for a in rows[:limit]]}
+            "users": [_with_response(m, a.user_id, public_assessment(m.users.get(a.user_id), a)) for a in rows[:limit]]}
 
 
 @router.get("/api/users/{uid}/danger")
@@ -153,7 +164,7 @@ async def danger(uid: str, m: SafetyMonitor = Depends(monitor)) -> dict:
     a = await asyncio.to_thread(m.assessment, uid)
     if a is None:
         raise HTTPException(status_code=409, detail="no flood picture yet: start the replay or live mode")
-    return _with_response(m, uid, a.public())
+    return _with_response(m, uid, public_assessment(_user_or_404(m, uid), a))
 
 
 @router.post("/api/users/{uid}/location", dependencies=[Depends(require_trusted_origin)])
@@ -167,10 +178,11 @@ async def location(uid: str, body: LocationIn, m: SafetyMonitor = Depends(monito
         raise HTTPException(status_code=422, detail="ts is in the future")
     if m.ctx.mode == "live" and ts < now - MAX_PAST_S:
         raise HTTPException(status_code=422, detail="ts is more than an hour old")
-    ping = Ping(body.lat, body.lon, ts, body.speed_mps, body.heading_deg, body.accuracy_m)
+    # A phone clock running ahead must not freeze the user (later pings with smaller ts would be ignored).
+    ping = Ping(body.lat, body.lon, min(ts, now), body.speed_mps, body.heading_deg, body.accuracy_m)
     d = await asyncio.to_thread(m.ping, uid, ping)
     await m.dispatch([d])
-    return _with_response(m, u.id, {**d.assessment.public(), "actions": [x.public() for x in d.actions]})
+    return _with_response(m, u.id, {**public_assessment(u, d.assessment), "actions": [x.public() for x in d.actions]})
 
 
 @router.post("/api/users/{uid}/route", dependencies=[Depends(require_trusted_origin)])
@@ -180,7 +192,7 @@ async def route(uid: str, body: RouteIn, m: SafetyMonitor = Depends(monitor)) ->
     return {"user_id": uid, "edges_matched": len(edges)}
 
 
-@router.post("/api/users/{uid}/reply", dependencies=[Depends(require_trusted_origin)])
+@router.post("/api/users/{uid}/reply", dependencies=[Depends(require_trusted_origin), Depends(require_api_key)])
 async def reply(uid: str, body: ReplyIn, m: SafetyMonitor = Depends(monitor)) -> dict:
     u = _user_or_404(m, uid)
     acts = await asyncio.to_thread(m.reply, uid, body.reply, body.by)

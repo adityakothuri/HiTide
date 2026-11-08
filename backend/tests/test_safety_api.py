@@ -110,3 +110,35 @@ def test_outreach_events_are_mock_and_phone_free(client):
         tail = log.read_text().splitlines()[-50:]
         assert not any("+1830" in line for line in tail)
     asyncio.run(asyncio.sleep(0))
+
+
+def test_enroll_cannot_overwrite_or_inject_links(client):
+    base = {"id": "real-user-2", "name": "Sam Lee", "phone": "+18305550124", "home_lat": 30.05, "home_lon": -99.14,
+            "consent_flood_alerts": True}
+    assert client.post("/api/users", json={**base, "name": "http://evil.example/x"}).status_code == 422
+    assert client.post("/api/users", json=base).status_code == 201
+    assert client.post("/api/users", json={**base, "phone": "+18305550999"}).status_code == 409  # no takeover
+
+
+def test_real_users_location_hidden_below_danger(client):
+    r = client.post("/api/users/real-user-2/location", json={"lat": 30.1, "lon": -99.44})
+    body = r.json()
+    if body["level"] in ("danger", "critical"):
+        pytest.skip("this spot is in danger in the current replay state")
+    assert "lat" not in body["location"] and "lat" not in body["hazard"]
+    assert client.get("/api/users/real-user-2/danger").json()["location"].get("lat") is None
+    listing = {u["id"]: u for u in client.get("/api/users?limit=2000").json()["users"]}
+    assert listing["real-user-2"]["name"] == "Sam" and listing["real-user-2"]["age"] is None
+
+
+def test_api_key_guards_enroll_and_reply(client, monkeypatch):
+    monkeypatch.setenv("SAFETY_API_KEY", "k3y")
+    assert client.post("/api/users/hc-ruth/reply", json={"reply": "safe"}).status_code == 401
+    ok = client.post("/api/users/hc-ruth/reply", json={"reply": "safe"}, headers={"x-safety-key": "k3y"})
+    assert ok.status_code == 200
+
+
+def test_messages_never_carry_a_user_supplied_link():
+    from safety.messages import first_name
+    assert first_name("http://evil.example/x Smith") == "there"
+    assert first_name("José María") == "José"

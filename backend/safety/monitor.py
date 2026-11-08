@@ -54,6 +54,15 @@ class Decision:
     changed: bool
 
 
+def public_assessment(u: SafetyUser, a: DangerAssessment) -> dict[str, Any]:
+    """Privacy: a real user's precise position is shared only while they are at DANGER or worse (opt-in terms)."""
+    d = a.public()
+    if not u.simulated and a.level < Level.DANGER:
+        d["location"] = {k: v for k, v in d["location"].items() if k not in ("lat", "lon", "heading_deg")}
+        d["hazard"] = {k: v for k, v in d["hazard"].items() if k not in ("lat", "lon")}
+    return d
+
+
 class SafetyMonitor:
     def __init__(self, locator: Locator, users: UserRegistry, outreach: Any, emit: Emit,
                  cfg: Mapping[str, Any] | None = None, state_path: Any = STATE_PATH, clock: Callable[[], float] = time.time):
@@ -67,6 +76,7 @@ class SafetyMonitor:
         self.clock = clock
         self._last_persist = 0.0
         self._background: set[asyncio.Task] = set()
+        self.epoch = 0                     # bumped by reset(); a context built before a reset is discarded
         self._load_positions()
 
     # ---- clock -------------------------------------------------------------
@@ -79,6 +89,7 @@ class SafetyMonitor:
     def reset(self, mode: str = "replay") -> None:
         """New scenario / mode switch: forget assessments and ladders; keep enrolled users and pinged positions in live."""
         with self.lock:
+            self.epoch += 1
             keep = {uid: UserTrack(t.motion, t.pinged, t.route_edges) for uid, t in self.tracks.items()
                     if t.pinged and mode == "live"}
             self.tracks = keep
@@ -106,9 +117,11 @@ class SafetyMonitor:
         t.response, t.last = resp, a
         return Decision(u, a, tuple(acts), changed)
 
-    def refresh(self, ctx: SafetyContext | None = None) -> list[Decision]:
+    def refresh(self, ctx: SafetyContext | None = None, epoch: int | None = None) -> list[Decision]:
         """Re-assess every consented user against the newest loop belief. Call from a worker thread."""
         with self.lock:
+            if epoch is not None and epoch != self.epoch:
+                return []   # built before a reset / mode switch: stale
             if ctx is not None:
                 rewound = ctx.t is not None and self.ctx.t is not None and ctx.t < self.ctx.t - 1.0
                 if rewound:   # the replay restarted: ladders and replay-clock positions belong to the old run
@@ -135,7 +148,7 @@ class SafetyMonitor:
             t = self._track(uid)
             t.motion, t.pinged = update(t.motion, p, self.cfg["motion"]), True
             d = self._assess(u, t, max(now, t.motion.ts))
-            self._maybe_persist(now, force=True)
+            self._maybe_persist(now)
             return d
 
     def set_route(self, uid: str, coords: list[tuple[float, float]]) -> tuple[str, ...]:
@@ -151,11 +164,16 @@ class SafetyMonitor:
         if u is None:
             return None
         with self.lock:
-            t = self._track(uid)
-            if t.last is None and self.ctx.ready:
-                self._assess(u, t, self.now())   # first look: no outreach is sent from a GET
-                t.response = ResponseState()
-            return t.last
+            t = self.tracks.get(uid)
+            if t is not None and t.last is not None:
+                return t.last
+            if not self.ctx.ready:
+                return None
+            # First look (not yet assessed by a step): compute without touching any state; a GET never sends.
+            now = self.now()
+            m = t.motion if t and t.motion else at_rest(u.home_lat, u.home_lon, now)
+            return assess_user(self.loc, self.ctx, u.id, u.profile, u.age, m, now,
+                               t.route_edges if t else (), bool(t and t.pinged), self.cfg)
 
     def response(self, uid: str) -> ResponseState | None:
         t = self.tracks.get(uid)
@@ -182,6 +200,8 @@ class SafetyMonitor:
             return None
         best: tuple[float, SafetyUser, str] | None = None
         for u in self.users.all():
+            if not u.consented:
+                continue
             for raw, by in self.users.phones_of(u):
                 if normalize_phone(resolve_phone(raw, enrolled=not u.simulated) or "") != want:
                     continue
@@ -208,13 +228,23 @@ class SafetyMonitor:
         return {"driver": u.phone, "emergency_contact": u.contact_phone, "parent": u.parent_phone}.get(recipient)
 
     async def dispatch(self, decisions: list[Decision]) -> None:
-        for d in decisions:
+        """Users are independent: one slow or failing send must not delay or drop anyone else's alert."""
+        async def one(d: Decision) -> None:
             if d.changed:
-                await self._emit("user.danger", {"user": d.user.public(), **d.assessment.public()})
+                await self._emit("user.danger", {"user": d.user.public(), **public_assessment(d.user, d.assessment)})
             for act in d.actions:
                 await self.execute(d.user, d.assessment, act)
+        await asyncio.gather(*(one(d) for d in decisions if d.changed or d.actions))
 
     async def execute(self, u: SafetyUser, a: DangerAssessment | None, act: Action) -> None:
+        try:
+            await self._execute(u, a, act)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # never lose the rest of the ladder to one bad action
+            log.exception("safety action %s/%s for %s failed", act.kind, act.template, u.id)
+
+    async def _execute(self, u: SafetyUser, a: DangerAssessment | None, act: Action) -> None:
         if act.kind == "flag_responders":
             await self._emit("user.responders", {"user_id": u.id, "level": act.level.label,
                                                  "reasons": list(a.reasons) if a else [],
@@ -232,7 +262,9 @@ class SafetyMonitor:
         body, variables = render(act.template, a, u.name, lang)
         msg = OutboundMessage(driver_id=u.id, recipient=act.recipient, channel=act.kind, body=body, phone=phone,
                               case_id=f"safety-{u.id}", poll_options=POLL_OPTIONS if act.kind == "poll" else (),
-                              variables=variables, enrolled=not u.simulated and u.consented)
+                              variables=variables,
+                              # real sends to enrolled users go to their own number only, never to an unverified contact
+                              enrolled=not u.simulated and u.consented and act.recipient == "driver")
         try:
             res = await self.outreach.send(msg)
         except Exception:  # outreach must never stop monitoring
@@ -241,11 +273,13 @@ class SafetyMonitor:
         call_id = res.get("call_id") if isinstance(res, dict) else None
         if act.kind == "voice" and call_id:
             self._spawn(self._watch_call(u.id, act.recipient, call_id))
-        elif act.kind == "voice" and isinstance(res, dict) and res.get("status") in ("failed", "suppressed"):
+        elif act.kind == "voice" and isinstance(res, dict) and res.get("status") == "failed":
+            # a failed call counts as unanswered; a suppressed one (not allowlisted) never reached anyone's phone
             await self.dispatch_actions(u, self.call_result(u.id, False, None, act.recipient))
 
     async def dispatch_actions(self, u: SafetyUser, acts: list[Action]) -> None:
-        a = self.tracks[u.id].last if u.id in self.tracks else None
+        t = self.tracks.get(u.id)
+        a = t.last if t else None
         for act in acts:
             await self.execute(u, a, act)
 
@@ -285,8 +319,9 @@ class SafetyMonitor:
     # ---- loop hook --------------------------------------------------------------------
     async def after_step(self, loop: Any) -> None:
         """Called after every Hill Country loop step (replay or live)."""
+        epoch = self.epoch
         ctx = await asyncio.to_thread(build_context, loop)
-        decisions = await asyncio.to_thread(self.refresh, ctx)
+        decisions = await asyncio.to_thread(self.refresh, ctx, epoch)
         await self.dispatch(decisions)
 
     # ---- persistence ---------------------------------------------------------------------

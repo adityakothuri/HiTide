@@ -133,6 +133,8 @@ async def start_replay(h: HillCountry, speed: float) -> None:
 async def _set_mode_locked(h: HillCountry, mode: RegionMode) -> None:
     await h.demo.stop()
     await _stop_live(h)
+    if h.safety is not None:
+        h.safety.reset(mode)   # before any new task can step: stale contexts from the old mode are discarded
     if mode == "live":
         live = _live(h)
         await asyncio.to_thread(h.loop.configure, live, False, h.flood)
@@ -143,8 +145,6 @@ async def _set_mode_locked(h: HillCountry, mode: RegionMode) -> None:
         h.live_task.add_done_callback(_log_failure)
     else:
         await asyncio.to_thread(h.loop.configure, h.replay_obs, True, h.flood)
-    if h.safety is not None:
-        h.safety.reset(mode)
     h.mode = mode
     await h.emit("region.reset", {"scenario": "hill_country", "mode": mode})
 

@@ -5,6 +5,7 @@ render(template, assessment, user) -> (body, voice variables). The first reason 
 
 from __future__ import annotations
 
+import re
 from typing import Any, Mapping
 
 from safety.danger import DangerAssessment
@@ -76,9 +77,13 @@ T: dict[str, dict[str, str]] = {
 }
 
 
+_SAFE_NAME = re.compile(r"^[^\W\d_][\w.'-]{0,39}$")
+
+
 def first_name(name: str) -> str:
+    """First token, only if it looks like a name: a user-supplied name must never put a link into our texts."""
     parts = (name or "").split()
-    return parts[0] if parts else "there"
+    return parts[0] if parts and _SAFE_NAME.match(parts[0]) else "there"
 
 
 def render(template: str, a: DangerAssessment | None, name: str, language: str = "en") -> tuple[str, dict[str, str]]:

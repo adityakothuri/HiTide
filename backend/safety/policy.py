@@ -181,6 +181,8 @@ def decide(s: ResponseState, a: DangerAssessment, now: float, cfg: Mapping[str, 
     lv = a.level
     acts: list[Action] = []
     muted = s.safe_until is not None and now < s.safe_until and lv <= s.safe_level
+    if lv >= Level.WARNING and s.clear_since is not None:
+        s = replace(s, clear_since=None)          # a flap back up restarts the all-clear hold
     if lv > s.episode_level:
         s, acts = _notify(replace(s, episode_level=lv, clear_since=None), a, now, reminder=False)
     elif lv >= Level.WATCH and lv == s.episode_level and not muted and _may_remind(s, lv, c):
@@ -192,7 +194,10 @@ def decide(s: ResponseState, a: DangerAssessment, now: float, cfg: Mapping[str, 
         s, more = _escalate_timers(s, a, now, t)
         acts += more
     # De-escalation: below WARNING long enough after WARNING+ -> all clear, new episode.
-    if lv < Level.WARNING and s.episode_level >= Level.WARNING:
+    # Never "all clear" someone who asked for help or has an open case (an operator closes those), and never
+    # because the evidence went dark: hold while any source is degraded.
+    holding = s.need_help or s.case_opened_at is not None or bool(a.hazard.degraded_sources)
+    if lv < Level.WARNING and s.episode_level >= Level.WARNING and not holding:
         since = s.clear_since if s.clear_since is not None else now
         if now - since >= t.all_clear_hold:
             acts.append(Action("text", "driver", "all_clear", lv))
@@ -216,6 +221,9 @@ def apply_reply(s: ResponseState, kind: str, now: float, by: str, a: DangerAsses
             acts.append(Action("flag_responders", "driver", "responders", lv))
         return replace(s, need_help=True, responders_flagged=True, awaiting_since=None,
                        timeline=_note(s, now, f"HELP from {by} -> responders flagged")), acts
+    if kind == "safe" and by != "driver":
+        # Family saying "she's fine" is a note for responders, not a reason to stop checking on the driver.
+        return replace(s, timeline=_note(s, now, f"SAFE from {by} (noted; driver not yet confirmed)")), []
     if kind == "safe":
         if s.need_help:   # HELP beats a later SAFE until an operator clears it
             return replace(s, timeline=_note(s, now, f"SAFE from {by} ignored: help already requested")), []

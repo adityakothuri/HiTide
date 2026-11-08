@@ -24,6 +24,7 @@ REGION_USERS_PATH = DATA_DIR / "region_users.json"
 REGISTRY_PATH = DATA_DIR / "user_registry.json"
 STATE_PATH = DATA_DIR / "safety_state.json"
 E164 = re.compile(r"^\+[1-9]\d{7,14}$")
+MAX_ENROLLED = 500
 
 
 def registry_path() -> Path:
@@ -56,8 +57,13 @@ class SafetyUser:
         return isinstance(consent, Mapping) and consent.get("flood_alerts") is True
 
     def public(self) -> dict[str, Any]:
-        """No phone numbers, ever."""
-        return {"id": self.id, "name": self.name, "age": self.age, "home": {"lat": self.home_lat, "lon": self.home_lon},
+        """No phone numbers, ever. Real (enrolled) users: first name only, no age, home rounded to ~1 km."""
+        if self.simulated:
+            name, age, home = self.name, self.age, {"lat": self.home_lat, "lon": self.home_lon}
+        else:
+            name, age = (self.name.split() or ["user"])[0], None
+            home = {"lat": round(self.home_lat, 2), "lon": round(self.home_lon, 2)}
+        return {"id": self.id, "name": name, "age": age, "home": home,
                 "simulated": self.simulated, "consented": self.consented, "tags": list(self.tags),
                 "has_emergency_contact": bool(self.contact_phone), "has_parent": bool(self.parent_phone)}
 
@@ -123,10 +129,12 @@ class UserRegistry:
         return len(self._users)
 
     def enroll(self, user: SafetyUser) -> SafetyUser:
+        """New ids only: an existing user (simulated or enrolled) is never overwritten through the API."""
         with self._lock:
-            existing = self._users.get(user.id)
-            if existing is not None and existing.simulated:
-                raise ValueError("id belongs to a simulated user")
+            if user.id in self._users:
+                raise ValueError("id already enrolled")
+            if sum(1 for u in self._users.values() if not u.simulated) >= MAX_ENROLLED:
+                raise OverflowError("enrollment is full")
             self._users[user.id] = user
             if self._path is not None:
                 atomic_write_json(self._path, [_to_json(u) for u in self._users.values() if not u.simulated])

@@ -143,3 +143,34 @@ def test_never_duplicates_same_level_within_cooldown():
     _, log = run([(t, Level.DANGER) for t in range(0, 200, 5)], replies=[(1, "safe")])
     polls = [k for _, acts in log for k in kinds(acts) if k[0] == "poll"]
     assert len(polls) == 1
+
+
+def test_flap_back_up_restarts_the_all_clear_hold():
+    hold = CFG["ladder"]["all_clear_hold_s"]
+    seq = [(0, Level.DANGER), (10, Level.NONE), (20, Level.WARNING), (hold + 15, Level.NONE)]
+    _, log = run(seq, replies=[(5, "safe")])
+    assert ("text", "driver", "all_clear") not in [k for _, acts in log for k in kinds(acts)]
+
+
+def test_no_all_clear_after_help_or_with_an_open_case():
+    hold = CFG["ladder"]["all_clear_hold_s"]
+    s, log = run([(0, Level.DANGER), (10, Level.NONE), (hold + 20, Level.NONE)], replies=[(5, "need_help")])
+    assert ("text", "driver", "all_clear") not in [k for _, acts in log for k in kinds(acts)]
+    assert s.need_help and s.responders_flagged
+
+
+def test_no_all_clear_while_evidence_is_dark():
+    from dataclasses import replace as dc_replace
+    hold = CFG["ladder"]["all_clear_hold_s"]
+    s, _ = run([(0, Level.WARNING)])
+    for t in (10, hold + 20):
+        a = assessment(Level.NONE, now=t)
+        a = dc_replace(a, hazard=dc_replace(a.hazard, degraded_sources=("usgs_gage",)))
+        s, acts = decide(s, a, t, CFG)
+        assert acts == []
+
+
+def test_family_safe_is_a_note_not_a_mute():
+    s, _ = run([(0, Level.DANGER)])
+    s2, acts = apply_reply(s, "safe", 5, "emergency_contact", None, CFG)
+    assert acts == [] and s2.safe_until is None and s2.awaiting_since is not None
