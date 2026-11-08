@@ -75,4 +75,16 @@
   /* Touch */
   --tap-min: 44px;
   --tap-primary: 56px;
+
+  /* HiTide ops console palette (royal blue + navy, from the HiTide frontend). Applied to the
+     console by re-pointing the tokens above inside .app; see Operations.module.css. */
+  --ops-primary: #2448e8;
+  --ops-primary-hover: #1b39c4;
+  --ops-ink: #13203b;
+  --ops-muted: #5d6882;
+  --ops-line: #e3e7ef;
+  --ops-line-strong: #c9cfdb;
+  --ops-pale: #eef3ff;
+  --ops-page: #f7f8fb;
+  --ops-land: #f3f5f8;
 }

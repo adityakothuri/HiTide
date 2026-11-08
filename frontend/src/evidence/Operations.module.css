@@ -1,7 +1,27 @@
-.app { min-height: 100%; }
+/* HiTide colour scheme: re-point the shared tokens for the console only, so every existing rule
+   (buttons, tags, borders, the Live drone panel) picks up the palette without layout changes.
+   Status colours (safe, caution, critical) are deliberately left as they are. */
+.app {
+  --brand-red: var(--ops-primary);
+  --brand-red-hover: var(--ops-primary-hover);
+  --ink: var(--ops-ink);
+  --neutral-1: var(--ops-land);
+  --neutral-2: var(--ops-line);
+  --neutral-3: var(--ops-line-strong);
+  --neutral-5: var(--ops-muted);
+  --surface-page: var(--ops-page);
+  --info: var(--ops-primary);
+  --info-bg: var(--ops-pale);
+  --border: 1px solid var(--ops-line);
+
+  min-height: 100%;
+  background: var(--surface-page);
+  color: var(--ink);
+}
 .header { min-height: 84px; padding: 16px 40px; background: var(--surface); border-bottom: var(--border); display: flex; align-items: center; gap: 48px; }
 .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-size: 20px; font-weight: 700; }
-.brandMark { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-red); color: var(--on-dark); display: grid; place-items: center; }
+.brandMark { width: 44px; height: 44px; display: grid; place-items: center; flex: none; }
+.brandMark img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .brandSub { display: block; color: var(--neutral-5); font-size: 9px; line-height: 16px; letter-spacing: 1.5px; }
 .header nav { display: flex; gap: 24px; }
 .header nav a { font-size: 13px; font-weight: 600; color: var(--neutral-5); text-decoration: none; padding: 12px 0; }
