@@ -12,11 +12,12 @@ from typing import Any
 import cv2
 import numpy as np
 
-from .camera import Intrinsics, Pose, tello_default
+from .camera import Intrinsics, Pose, project, tello_default
 from .fit import (CellGrid, build_cell_grid, dye_direction, fit_level, project_cells, sample_lab, to_lab,
                   visible_mask, wetness_from_baseline, wetness_from_dye)
 from .model import TrayModel
 from .pose import MIN_TAGS, PoseFix, detect_tags, estimate_focal, solve_pose
+from .rim import RimFit, rim_alignment, rim_problem, solve_rim_pose
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,13 @@ AGREEMENT_FLOOR, AGREEMENT_SPAN = 0.7, 0.25
 WIDTH_OK_MM, WIDTH_SPAN_MM = 2.5, 4.0
 CELLS_FOR_FULL_CONFIDENCE = 2000
 THREE_TAG_FACTOR = 0.85
+POSE_FACTORS = {"corners": 0.95, "rim": 0.85}  # confidence factor by pose source (tags: 1.0 / 0.85)
+SIGNATURE_SIZE = (80, 60)  # background thumbnail used to notice the camera moving
+CAMERA_STILL_GRAY = 10.0  # mean grey change outside the tray (0-255) above this = camera moved
+RESOLVE_MIN_SECONDS = 1.0  # don't retry a failed tag-free solve more often than this
+TRAY_MASK_DILATE_PX = 3
+MOVED_RIM_EXTRA_PX = 2.0  # dry-edge misalignment above the locked value by this = camera moved
+EDGE_LABEL_INSET_MM = 4.0  # edge labels sit on the rim, this far in from the outer edge
 REPROJ_OK_PX, REPROJ_SPAN_PX = 1.5, 3.0
 BASELINE_MOVE_MM, BASELINE_MOVE_DEG = 25.0, 8.0
 BASELINE_LEAVE_FRACTION = 0.7
@@ -69,6 +77,7 @@ class WaterEstimate:
     baseline_moved: bool = False
     wet_fraction: float = 0.0
     focal_px: float | None = None
+    pose_source: str | None = None  # "tags", "corners" (clicked) or "rim" (auto outline)
 
     @property
     def valid(self) -> bool:
@@ -150,6 +159,18 @@ class _Analysis:
     seen: dict[int, np.ndarray]
     tags: int
     view: _View | None
+    source: str | None = None
+    problem: str | None = None
+
+
+@dataclass(frozen=True, eq=False)
+class _RimLock:
+    """A tag-free pose held while the camera stays put (stand mode); re-solved when it moves."""
+    fit: RimFit
+    view: _View
+    signature: np.ndarray  # background thumbnail (grey)
+    background: np.ndarray  # True where the thumbnail is outside the tray
+    rim_px: float  # dry-edge alignment when locked
 
 
 class GaugeReader:
@@ -170,6 +191,10 @@ class GaugeReader:
         self._moved = False
         self._analysis: _Analysis | None = None
         self._rescale_logged: set[tuple[int, int]] = set()
+        self._corners_px: np.ndarray | None = None
+        self._rim_lock: _RimLock | None = None
+        self._rim_problem: str | None = None
+        self._last_rim_attempt = 0.0
 
     # ---------------------------------------------------------------- geometry
     def _guess_for(self, shape: tuple[int, int]) -> Intrinsics:
@@ -194,9 +219,88 @@ class GaugeReader:
             return cached
         seen = self._detect(frame)
         tags = len([i for i in seen if i in self.model.tag_corners_mm])
-        view = self._view(frame, seen) if tags >= MIN_TAGS else None
-        self._analysis = _Analysis(frame, frame.shape, seen, tags, view)
+        if tags >= MIN_TAGS:
+            view = self._view(frame, seen)
+            problem = None if view else "pose rejected: tags inconsistent or reprojection error too high"
+            source = "tags" if view else None
+        else:
+            view, problem = self._rim_view(frame)
+            source = self._rim_lock.fit.source if view is not None and self._rim_lock is not None else None
+        self._analysis = _Analysis(frame, frame.shape, seen, tags, view, source, problem)
         return self._analysis
+
+    # ---------------------------------------------------------------- tag-free pose
+    def set_corners(self, points_px: Any) -> tuple[bool, str]:
+        """Use 4 clicked rim corners (image px) for the pose: start at the left end of the FLOOD WATCH
+        edge, then go around. Kept until cleared; the pose is re-solved from them if the camera moves."""
+        try:
+            pts = np.asarray(points_px, dtype=np.float64).reshape(4, 2)
+        except (TypeError, ValueError):
+            return False, "need exactly 4 corner points [[x, y], ...]"
+        if not np.isfinite(pts).all() or len({tuple(np.round(p)) for p in pts}) < 4:
+            return False, "corner points must be 4 distinct finite pixels"
+        self._corners_px = pts
+        self._forget_rim()
+        return True, "ok"
+
+    def clear_corners(self) -> None:
+        self._corners_px = None
+        self._forget_rim()
+
+    @property
+    def corners_px(self) -> list[list[float]] | None:
+        return None if self._corners_px is None else self._corners_px.tolist()
+
+    def _forget_rim(self) -> None:
+        self._rim_lock, self._rim_problem, self._last_rim_attempt, self._analysis = None, None, 0.0, None
+
+    def _rim_view(self, frame: np.ndarray) -> tuple[_View | None, str | None]:
+        """Tag-free view: reuse the locked pose while the camera is still, else re-solve (rate-limited)."""
+        lock = self._rim_lock
+        if lock is not None and self._camera_still(frame, lock):
+            return lock.view, None
+        now = time.time()
+        if self._rim_problem is not None and now - self._last_rim_attempt < RESOLVE_MIN_SECONDS:
+            return None, self._rim_problem
+        self._last_rim_attempt = now
+        fit = solve_rim_pose(frame, self.model, self._guess_for(frame.shape[:2]), corners_px=self._corners_px)
+        problem = rim_problem(fit)
+        if problem is not None or fit is None:
+            self._rim_lock, self._rim_problem = None, problem
+            return None, problem
+        view = self._view_from(frame, fit.fix, fit.cam)
+        signature, background = self._signature(frame, fit)
+        rim_px = rim_alignment(frame, self.model, fit.cam, fit.fix.pose)
+        self._rim_lock, self._rim_problem = _RimLock(fit, view, signature, background, rim_px), None
+        return view, None
+
+    def _tray_outline_px(self, fix: PoseFix, cam: Intrinsics) -> np.ndarray:
+        w, d = self.model.size_mm[0], self.model.size_mm[1]
+        corners = np.array([[x, y, z] for z in (0.0, self.model.rim_top_mm)
+                            for x, y in ((0, 0), (w, 0), (w, d), (0, d))], dtype=np.float64)
+        return project(corners, cam, fix.pose)[0]
+
+    def _signature(self, frame: np.ndarray, fit: RimFit) -> tuple[np.ndarray, np.ndarray]:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        small = cv2.resize(gray, SIGNATURE_SIZE, interpolation=cv2.INTER_AREA).astype(np.float32)
+        scale = np.array([SIGNATURE_SIZE[0] / frame.shape[1], SIGNATURE_SIZE[1] / frame.shape[0]])
+        hull = cv2.convexHull((self._tray_outline_px(fit.fix, fit.cam) * scale).astype(np.int32))
+        tray = np.zeros((SIGNATURE_SIZE[1], SIGNATURE_SIZE[0]), np.uint8)
+        cv2.fillConvexPoly(tray, hull, 1)
+        tray = cv2.dilate(tray, np.ones((TRAY_MASK_DILATE_PX, TRAY_MASK_DILATE_PX), np.uint8))
+        return small, tray == 0
+
+    def _camera_still(self, frame: np.ndarray, lock: _RimLock) -> bool:
+        """Still when the background looks the same AND the always-dry rim edges still line up.
+
+        Water and hands change the inside of the tray, so neither check looks there."""
+        if not lock.background.any():
+            return False
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        small = cv2.resize(gray, SIGNATURE_SIZE, interpolation=cv2.INTER_AREA).astype(np.float32)
+        if float(np.abs(small - lock.signature)[lock.background].mean()) >= CAMERA_STILL_GRAY:
+            return False
+        return rim_alignment(frame, self.model, lock.fit.cam, lock.fit.fix.pose) < lock.rim_px + MOVED_RIM_EXTRA_PX
 
     def _solve(self, seen: dict[int, np.ndarray], shape: tuple[int, int]) -> tuple[PoseFix, Intrinsics] | None:
         """Pose with the given intrinsics and with a tag-derived focal; keep the better fit."""
@@ -220,7 +324,9 @@ class GaugeReader:
         solved = self._solve(seen, frame.shape[:2])
         if solved is None:
             return None
-        fix, cam = solved
+        return self._view_from(frame, *solved)
+
+    def _view_from(self, frame: np.ndarray, fix: PoseFix, cam: Intrinsics) -> _View:
         px, inside = project_cells(self._grid, cam, fix.pose, frame.shape[:2])
         idx = np.flatnonzero(inside)
         sub = CellGrid(self._grid.points_mm[idx], self._grid.height_mm[idx], self._grid.quality[idx])
@@ -230,12 +336,9 @@ class GaugeReader:
     # ---------------------------------------------------------------- baseline
     def set_baseline(self, frame: np.ndarray) -> tuple[bool, str]:
         """Capture the dry drape. Returns (ok, reason)."""
-        seen = self._detect(frame)
-        if len(seen) < MIN_TAGS:
-            return False, f"only {len(seen)} tags visible, need {MIN_TAGS}"
-        view = self._view(frame, seen)
+        view = self._analyse(frame).view
         if view is None:
-            return False, "pose rejected (tags inconsistent or reprojection error too high)"
+            return False, self._analyse(frame).problem or "can't find the tray"
         if len(view.cell_idx) < MIN_VISIBLE_CELLS:
             return False, f"only {len(view.cell_idx)} tray cells visible"
         lab_obs = sample_lab(to_lab(frame), view.px)
@@ -279,14 +382,13 @@ class GaugeReader:
     def _none(self, reason: str, **kw: Any) -> WaterEstimate:
         return WaterEstimate(reason=reason, houses_total=len(self.model.houses), ts=time.time(), **kw)
 
-    def _confidence(self, fit_agreement: float, width: float, visible: int, tags: int, err: float,
+    def _confidence(self, fit_agreement: float, width: float, visible: int, source_factor: float, err: float,
                     cap: float) -> float:
         quality = float(np.clip((fit_agreement - AGREEMENT_FLOOR) / AGREEMENT_SPAN, 0.0, 1.0))
         narrow = float(np.clip(1.0 - (width - WIDTH_OK_MM) / WIDTH_SPAN_MM, 0.0, 1.0))
         cells = min(1.0, visible / CELLS_FOR_FULL_CONFIDENCE)
-        tag_factor = 1.0 if tags >= 4 else THREE_TAG_FACTOR
         pose_factor = 1.0 - 0.5 * float(np.clip((err - REPROJ_OK_PX) / REPROJ_SPAN_PX, 0.0, 1.0))
-        return float(np.clip(cap * quality * narrow * cells * tag_factor * pose_factor, 0.0, 1.0))
+        return float(np.clip(cap * quality * narrow * cells * source_factor * pose_factor, 0.0, 1.0))
 
     def _wetness(self, lab_obs: np.ndarray, view: _View, moved: bool) -> tuple[np.ndarray, np.ndarray, bool]:
         """Wetness, validity mask and whether the baseline was used."""
@@ -305,16 +407,13 @@ class GaugeReader:
         if frame is None or getattr(frame, "ndim", 0) != 3:
             return self._none("no frame")
         analysis = self._analyse(frame)
-        tags, view = analysis.tags, analysis.view
-        if tags < MIN_TAGS:
-            return self._none(f"only {tags} of 4 tags visible", tags_seen=tags)
-        if view is None:
-            return self._none("pose rejected: tags inconsistent or reprojection error too high", tags_seen=tags)
-        return self._estimate(frame, view, tags)
+        if analysis.view is None:
+            return self._none(analysis.problem or "can't find the tray", tags_seen=analysis.tags)
+        return self._estimate(frame, analysis.view, analysis.tags, analysis.source or "tags")
 
-    def _estimate(self, frame: np.ndarray, view: _View, tags: int) -> WaterEstimate:
+    def _estimate(self, frame: np.ndarray, view: _View, tags: int, source: str) -> WaterEstimate:
         base_kw = dict(tags_seen=tags, reproj_err_px=view.fix.reproj_err_px, focal_px=view.cam.fx,
-                       visible_cells=len(view.cell_idx))
+                       visible_cells=len(view.cell_idx), pose_source=source)
         if len(view.cell_idx) < MIN_VISIBLE_CELLS:
             return self._none("too few tray cells visible", **base_kw)
         moved, note = False, None
@@ -338,8 +437,10 @@ class GaugeReader:
         if fit.level_hi_mm <= self.model.floor_mm + 0.5:
             return self._none("no water detected", **common)
         level, level_range, ft, ft_range = _step_interval(self.model, fit.level_lo_mm, fit.level_hi_mm)
-        confidence = self._confidence(fit.agreement, fit.level_hi_mm - fit.level_lo_mm, int(valid.sum()), tags,
-                                      view.fix.reproj_err_px, BASELINE_CAP if used_base else DYE_ONLY_CAP)
+        pose_factor = (1.0 if tags >= 4 else THREE_TAG_FACTOR) if source == "tags" else POSE_FACTORS[source]
+        confidence = self._confidence(fit.agreement, fit.level_hi_mm - fit.level_lo_mm, int(valid.sum()),
+                                      pose_factor, 0.0 if source != "tags" else view.fix.reproj_err_px,
+                                      BASELINE_CAP if used_base else DYE_ONLY_CAP)
         return self._meaning(WaterEstimate(level_mm=level, level_mm_range=level_range, ft=ft, ft_range=ft_range,
                                            confidence=confidence, reason=note, ts=time.time(),
                                            houses_total=len(self.model.houses), **common), self._car_idx)
@@ -386,7 +487,7 @@ class GaugeReader:
         """Smoothed estimate: median of the last valid frames; occluded or implausible frames are dropped."""
         est = self.read(frame)
         if not est.valid:
-            if est.tags_seen < MIN_TAGS:  # occluded: keep the history, hold the last good reading
+            if est.pose_source is None and est.tags_seen < MIN_TAGS:  # no pose at all (occluded): hold the last reading
                 return self._smoothed(est, est.reason) if self._buffer else est
             self._drops = 0
             self._invalid_streak += 1
@@ -412,6 +513,10 @@ class GaugeReader:
         for corners in analysis.seen.values():
             cv2.polylines(out, [corners.astype(np.int32).reshape(-1, 1, 2)], True, (0, 255, 0), 2)
         view = analysis.view
+        if view is not None and analysis.source in ("rim", "corners"):
+            rim = self._tray_outline_px(view.fix, view.cam)[4:]
+            cv2.polylines(out, [np.rint(rim).astype(np.int32).reshape(-1, 1, 2)], True, (0, 255, 0), 2)
+            self._label_edges(out, view)
         if view is not None and estimate.level_mm is not None:
             wet = self._grid.height_mm[view.cell_idx] < estimate.level_mm
             mask = np.zeros(frame.shape[:2], dtype=np.uint8)
@@ -424,13 +529,23 @@ class GaugeReader:
             _draw_label(out, text, (10, 24 + 24 * row))
         return out
 
+    def _label_edges(self, out: np.ndarray, view: _View) -> None:
+        """Name two rim edges so a wrongly ordered click is obvious: the labels should sit on the
+        tray's FLOOD WATCH and GUADALUPE RIVER edges. If they don't, click the corners again."""
+        w, d, z = self.model.size_mm[0], self.model.size_mm[1], self.model.rim_top_mm
+        spots = np.array([[w / 2, EDGE_LABEL_INSET_MM, z], [w / 2, d - EDGE_LABEL_INSET_MM, z]])
+        px = project(spots, view.cam, view.fix.pose)[0]
+        for text, (x, y) in zip(("FLOOD WATCH edge", "RIVER edge"), px):
+            if np.isfinite(x) and np.isfinite(y):
+                _draw_label(out, text, (int(x) - 60, int(y)))
+
     @staticmethod
     def _overlay_lines(est: WaterEstimate) -> list[str]:
         tag = " [SIMULATED]" if est.simulated else ""
         if est.ft is None or est.ft_range is None:
             return [f"Flood level: unknown ({est.reason}){tag}"]
         return [f"Flood level: {est.ft:.1f} ft (range {est.ft_range[0]:.0f}-{est.ft_range[1]:.0f}){tag}",
-                f"confidence {est.confidence:.2f}  tags {est.tags_seen}  baseline {est.has_baseline}",
+                f"confidence {est.confidence:.2f}  pose {est.pose_source}  baseline {est.has_baseline}",
                 f"crossing {'FLOODED' if est.crossing_flooded else 'clear'}  car {est.car_level}  "
                 f"houses {est.houses_flooded}/{est.houses_total}"]
 

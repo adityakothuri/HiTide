@@ -287,7 +287,7 @@ def render(model: TrayModel, cam: Intrinsics, pose: Pose, level_mm: float | None
            filament_bgr: tuple[int, int, int] = DEFAULT_FILAMENT_BGR,
            dye_bgr: tuple[int, int, int] = DEFAULT_DYE_BGR, dye_alpha: float = DEFAULT_DYE_ALPHA,
            noise: Noise = Noise(), rng: np.random.Generator | None = None,
-           tag_z_offset_mm: float = 0.0) -> np.ndarray:
+           tag_z_offset_mm: float = 0.0, draw_tags: bool = True) -> np.ndarray:
     """Render a BGR frame of the tray with water at ``level_mm`` (None = dry).
 
     Output size is ``2*cx x 2*cy`` of the intrinsics unless ``width``/``height`` are given.
@@ -299,5 +299,6 @@ def render(model: TrayModel, cam: Intrinsics, pose: Pose, level_mm: float | None
     terrain, dist = _render_terrain(model, cam, shot_pose, level_mm, colours, (dye_bgr, dye_alpha), size)
     image = cv2.resize(terrain, size, interpolation=cv2.INTER_LINEAR)
     dist_full = cv2.resize(dist, size, interpolation=cv2.INTER_NEAREST)
-    image = _draw_tags(model, cam, shot_pose, image, dist_full, tag_z_offset_mm)
+    if draw_tags:  # False models a tray whose tag stickers are missing or unreadable
+        image = _draw_tags(model, cam, shot_pose, image, dist_full, tag_z_offset_mm)
     return _degrade(image, noise, rng)
