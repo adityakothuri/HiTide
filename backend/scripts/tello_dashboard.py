@@ -8,6 +8,7 @@ It opens http://127.0.0.1:8765 in your browser. Works offline. Press Ctrl+C in t
 import json
 import threading
 import time
+import urllib.request
 import webbrowser
 from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -30,6 +31,7 @@ TAKEOFF_TIMEOUT = 20
 STATE_STALE_SECONDS = 2.0  # no telemetry for this long = drone connection lost
 VIDEO_STALE_SECONDS = 4.0
 RECONNECT_EVERY_SECONDS = 3.0
+TAKEOVER_WAIT_SECONDS = 15  # time for an old dashboard to land and release the port
 WATCHDOG_SECONDS = 0.25
 LOW_BATTERY_PCT = 20
 HOT_TEMP_C = 80
@@ -77,21 +79,30 @@ class Drone:
         self.reconnect_at = 0.0
 
     def start(self) -> None:
-        self.tello.connect()
-        flush_replies(self.tello)
-        self.note(f"Connected | {self.readings()}")
+        """Connect if the drone is reachable; otherwise keep running and let the watchdog retry."""
+        try:
+            self.tello.connect()
+            flush_replies(self.tello)
+            self.note(f"Connected | {self.readings()}")
+        except Exception as exc:
+            self.state_at = 0.0  # marks us disconnected so the watchdog keeps knocking
+            self.note(f"Drone not reachable yet ({exc}). Waiting: connect the laptop to the TELLO Wi-Fi.")
         # Video can take a while (or fail) to start; never let it block telemetry and controls.
         for loop in (self._video_loop, self._rc_loop, self._watchdog):
             threading.Thread(target=loop, daemon=True).start()
 
     def _video_loop(self) -> None:
-        self.note("Starting video...")
-        try:
-            self.tello.streamon()
-            self.frames = self.tello.get_frame_read()
-        except Exception as exc:
-            self.note(f"Video failed to start: {exc}")
-            return
+        while True:
+            while not self.connected:
+                time.sleep(1)
+            self.note("Starting video...")
+            try:
+                self.tello.streamon()
+                self.frames = self.tello.get_frame_read()
+                break
+            except Exception as exc:
+                self.note(f"Video failed to start ({exc}), retrying...")
+                time.sleep(RECONNECT_EVERY_SECONDS)
         self.note("Video started")
         self._encode_loop()
 
@@ -105,10 +116,10 @@ class Drone:
         A restarted Tello forgets SDK mode, so telemetry and video stop until it hears
         "command" and "streamon" again. Without this the page keeps showing frozen data.
         """
-        last_state, was_connected = None, True
+        last_state, was_connected = None, self.connected
         while True:
             state = self.tello.get_current_state()
-            if state is not last_state:  # the receiver thread swaps in a new dict per packet
+            if state and state is not last_state:  # the receiver thread swaps in a new dict per packet
                 last_state, self.state_at = state, time.time()
             connected = self.connected
             if connected != was_connected:
@@ -197,9 +208,9 @@ class Drone:
             self.busy = ""
 
     def readings(self) -> str:
-        t = self.tello
-        return (f"battery {t.get_battery()}%, temp {t.get_lowest_temperature()}-{t.get_highest_temperature()}C, "
-                f"pitch {t.get_pitch()} roll {t.get_roll()}, floor sensor {t.get_distance_tof()}cm")
+        v = self.value
+        return (f"battery {v('get_battery')}%, temp {v('get_lowest_temperature')}-{v('get_highest_temperature')}C, "
+                f"pitch {v('get_pitch')} roll {v('get_roll')}, floor sensor {v('get_distance_tof')}cm")
 
     def preflight_problems(self) -> list[str]:
         t = self.tello
@@ -227,22 +238,29 @@ class Drone:
         self.note(REFUSAL_HINT)
 
     def status(self) -> dict:
-        t = self.tello
+        # Before the first connection there is no telemetry yet; report zeros instead of erroring.
+        v = self.value
         return {
-            "battery": t.get_battery(),
-            "temp": t.get_highest_temperature(),
-            "height": t.get_height(),
-            "tof": t.get_distance_tof(),
-            "flight_time": t.get_flight_time(),
-            "speed": [t.get_speed_x(), t.get_speed_y(), t.get_speed_z()],
-            "attitude": [t.get_pitch(), t.get_roll(), t.get_yaw()],
-            "flying": t.is_flying,
+            "battery": v("get_battery"),
+            "temp": v("get_highest_temperature"),
+            "height": v("get_height"),
+            "tof": v("get_distance_tof"),
+            "flight_time": v("get_flight_time"),
+            "speed": [v("get_speed_x"), v("get_speed_y"), v("get_speed_z")],
+            "attitude": [v("get_pitch"), v("get_roll"), v("get_yaw")],
+            "flying": self.tello.is_flying,
             "connected": self.connected,
-            "state_age": round(time.time() - self.state_at, 1),
+            "state_age": round(time.time() - self.state_at, 1) if self.state_at else 999,
             "video_age": round(time.time() - self.frame_at, 1) if self.frame_at else None,
             "busy": self.busy,
             "log": list(self.log),
         }
+
+    def value(self, getter: str) -> int:
+        try:
+            return int(getattr(self.tello, getter)())
+        except Exception:
+            return 0
 
     def shutdown(self) -> None:
         if self.tello.is_flying:
@@ -298,6 +316,10 @@ def make_handler(drone: Drone):
             if self.path == "/rc":
                 drone.set_rc(body)
                 return self._json({"result": "ok"})
+            if self.path == "/shutdown":  # a newer dashboard is taking over (localhost only)
+                self._json({"result": "ok"})
+                threading.Thread(target=self.server.shutdown, daemon=True).start()
+                return None
             name = self.path.removeprefix("/action/")
             if name in ACTIONS:
                 return self._json({"result": drone.action(name)})
@@ -321,23 +343,39 @@ def make_handler(drone: Drone):
     return Handler
 
 
+def bind_server() -> DashboardServer | None:
+    """Take the port. If an older dashboard holds it, ask that one to land and exit first."""
+    try:
+        return DashboardServer((HOST, PORT), make_handler(None))
+    except OSError:
+        pass
+    write_log("Another dashboard is running; asking it to shut down...")
+    try:
+        req = urllib.request.Request(f"http://{HOST}:{PORT}/shutdown", data=b"{}", method="POST")
+        urllib.request.urlopen(req, timeout=3).read()
+    except OSError:
+        pass  # older versions have no /shutdown; fall through to the retry and message
+    deadline = time.time() + TAKEOVER_WAIT_SECONDS
+    while time.time() < deadline:
+        time.sleep(0.5)
+        try:
+            return DashboardServer((HOST, PORT), make_handler(None))
+        except OSError:
+            continue
+    return None
+
+
 def main() -> None:
     write_log("Dashboard starting")
-    try:
-        server = DashboardServer((HOST, PORT), make_handler(None))
-    except OSError:
-        write_log(f"The dashboard is ALREADY RUNNING (port {PORT} is in use).")
-        print("Close the other black 'Tello dashboard' window (click it, press Ctrl+C), then try again.")
+    server = bind_server()
+    if server is None:
+        write_log(f"An older dashboard is STILL RUNNING on port {PORT} and would not close.")
+        print("Close the other black 'Tello dashboard' window (or end python.exe in Task Manager), "
+              "then try again.")
         return
     drone = Drone(Tello())
     write_log("Connecting to the drone...")
-    try:
-        drone.start()
-    except Exception as exc:
-        write_log(f"Could not connect to the drone: {exc}")
-        print("Is the laptop on the TELLO Wi-Fi and the drone on (blinking yellow)? Then try again.")
-        server.server_close()
-        return
+    drone.start()
     server.RequestHandlerClass = make_handler(drone)
     url = f"http://{HOST}:{PORT}"
     print(f"Dashboard running at {url}  (press Ctrl+C here to stop)")

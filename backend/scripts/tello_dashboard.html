@@ -424,9 +424,21 @@ async function poll() {
     const r = await fetch("/status");
     const s = await r.json();
     if (s.error) throw new Error(s.error);
+    if (!("connected" in s)) {  // an old dashboard process is serving this page
+      const st = $("state"); st.className = "pill bad"; st.textContent = "Outdated dashboard running";
+      $("novideo").hidden = false;
+      $("novideo").textContent = "An old dashboard is still running and showing stale data. "
+        + "Close its black console window, then double-click Tello dashboard again.";
+      document.body.classList.add("stale");
+      return;
+    }
     render(s);
-  } catch {
+  } catch (err) {
     const st = $("state"); st.className = "pill bad"; st.textContent = "Dashboard offline";
+    $("novideo").hidden = false;
+    $("novideo").textContent = "Lost contact with the dashboard program. Is its black console window still open? "
+      + "If not, double-click Tello dashboard again.";
+    console.error(err);
   }
   $("clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 }
