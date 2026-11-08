@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 TURN_AROUND_MSG = "Flooded road ahead. Turn around."
 NIGHT_HOUR, DAY_HOUR = 23, 14
 WATER_LEVEL_IN = {"none": 0.0, "wheels": 12.0, "doors": 20.0, "windows": 30.0, "roof": 50.0}  # sedan, approx.
-SEND_BUDGET_S = 4.0  # a slow Photon/ElevenLabs call must never freeze the tick for long
+SEND_BUDGET_S = 8.0  # a slow Photon/ElevenLabs call must never freeze the tick for long
 
 
 @dataclass
@@ -57,6 +57,7 @@ class StageRunner:
         self.world = World()
         self.profile = os.environ.get("SIM_PROFILE", "demo")
         self.outreach = make_outreach(engine.emit, self.is_physically_moving)
+        self._pending: set[asyncio.Task] = set()
         engine.hooks.extend([self.movement_hook, self.pretrip_hook, self.enroute_hook, self.stopped_hook,
                              self.drone_hook, self.counters_hook])
 
@@ -98,11 +99,15 @@ class StageRunner:
         phone = {"driver": d.phone, "parent": d.parent.phone if d.parent else "",
                  "emergency_contact": d.emergency_contact.phone}[recipient]
         msg = OutboundMessage(d.id, recipient, channel, body, phone, case_id, poll)
+        task = asyncio.ensure_future(self.outreach.send(msg))
         try:
-            return await asyncio.wait_for(self.outreach.send(msg), SEND_BUDGET_S)
+            return await asyncio.wait_for(asyncio.shield(task), SEND_BUDGET_S)
         except asyncio.TimeoutError:
-            log.error("outreach send to %s/%s timed out", d.id, recipient)
-            return {"mode": "photon", "status": "failed"}
+            # keep the tick moving; the send finishes in the background and still logs + emits its own event
+            self._pending.add(task)
+            task.add_done_callback(self._pending.discard)
+            log.warning("outreach send to %s/%s still pending after %.0fs", d.id, recipient, SEND_BUDGET_S)
+            return {"mode": "photon", "status": "queued"}
 
     # ---- movement ------------------------------------------------------
     async def movement_hook(self, e: Engine) -> None:
@@ -276,7 +281,7 @@ class StageRunner:
     async def _drone_arrived(self, e: Engine, case: Case, drone: dispatch.Drone) -> None:
         d = self.drivers[case.driver_id]
         vision, people = result_for(night=self._hour(d) == NIGHT_HOUR, recommendation="boat_required")
-        observed_in = WATER_LEVEL_IN.get(vision["water_level"], 0.0) if vision else 0.0
+        observed_in = WATER_LEVEL_IN.get(vision.get("water_level", "none"), 0.0) if vision else 0.0
         at_car_in = max(case.depth_in, observed_in)  # the drone's eyes beat the model's estimate
         boat_in = float(settings()["road_status_in"]["boat"])
         boat = at_car_in >= boat_in or not self._truck_route_exists(e, case)
