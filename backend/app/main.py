@@ -8,7 +8,9 @@ import os
 from contextlib import asynccontextmanager, suppress
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -83,6 +85,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="State Farm Flood Watch", version="0.1.0", lifespan=lifespan)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
+    """422 without echoing the input: a NaN/Infinity would crash the default handler's JSON encoder (500)."""
+    errors = [{k: v for k, v in e.items() if k not in ("input", "ctx", "url")} for e in exc.errors()]
+    return JSONResponse(status_code=422, content={"detail": errors})
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=ORIGIN_RE.pattern,  # pin with FRONTEND_ORIGIN_REGEX if the UI is served from elsewhere

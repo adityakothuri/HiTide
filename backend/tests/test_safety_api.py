@@ -142,3 +142,14 @@ def test_messages_never_carry_a_user_supplied_link():
     from safety.messages import first_name
     assert first_name("http://evil.example/x Smith") == "there"
     assert first_name("José María") == "José"
+
+
+def test_nan_ts_rejected(client):
+    r = client.post("/api/users/hc-ruth/location", content='{"lat": 30.06, "lon": -99.33, "ts": NaN}',
+                    headers={"content-type": "application/json"})
+    assert r.status_code == 422
+
+
+def test_api_key_guards_location_too(client, monkeypatch):
+    monkeypatch.setenv("SAFETY_API_KEY", "k3y")
+    assert client.post("/api/users/hc-ruth/location", json={"lat": 30.06, "lon": -99.33}).status_code == 401

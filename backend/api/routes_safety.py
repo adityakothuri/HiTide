@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import logging
 import os
 import time
 from typing import Literal
@@ -20,6 +21,7 @@ from safety.users import E164, SafetyUser
 from sim.profiles import STALL_DEPTH_IN
 
 router = APIRouter()
+log = logging.getLogger(__name__)
 ID_PATTERN = r"^[A-Za-z0-9_-]{3,40}$"
 KNOWN_NEEDS = {"mobility_assist", "wheelchair_user", "powered_medical_equipment", "cognitive_support", "pregnant",
                "hearing_loss", "low_vision"}
@@ -28,7 +30,7 @@ MAX_ROUTE_POINTS = 2000
 
 
 class LocationIn(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
     speed_mps: float | None = Field(default=None, ge=0, le=90)
@@ -38,7 +40,7 @@ class LocationIn(BaseModel):
 
 
 class RouteIn(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     points: list[tuple[float, float]] = Field(min_length=2, max_length=MAX_ROUTE_POINTS, description="[[lat, lon], ...]")
 
     @field_validator("points")
@@ -56,7 +58,7 @@ class ReplyIn(BaseModel):
 
 
 class EnrollIn(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     id: str = Field(pattern=ID_PATTERN)
     name: str = Field(min_length=1, max_length=80, pattern=r"^[^\W\d_][\w .'-]*$")
     phone: str = Field(pattern=E164.pattern, description="+E.164; stored only in the gitignored registry")
@@ -101,6 +103,14 @@ async def monitor(request: Request) -> SafetyMonitor:
     return hill.safety
 
 
+async def _safe_dispatch(coro) -> None:
+    """State is already updated; an outreach failure must not turn the response into a 500 (client would retry)."""
+    try:
+        await coro
+    except Exception:
+        log.exception("safety dispatch failed")
+
+
 def _user_or_404(m: SafetyMonitor, uid: str) -> SafetyUser:
     u = m.users.get(uid)
     if u is None:
@@ -116,7 +126,8 @@ def _with_response(m: SafetyMonitor, uid: str, body: dict) -> dict:
 @router.get("/api/safety/summary")
 async def summary(m: SafetyMonitor = Depends(monitor)) -> dict:
     ctx = m.ctx
-    return {"mode": ctx.mode, "ready": ctx.ready, "users": len(m.users), "levels": m.counts(),
+    levels = await asyncio.to_thread(m.counts)   # takes the monitor lock: never on the event loop
+    return {"mode": ctx.mode, "ready": ctx.ready, "users": len(m.users), "levels": levels,
             "degraded_sources": list(ctx.degraded_sources()),
             "sources": {k: v.public() for k, v in ctx.sources.items()}}
 
@@ -153,9 +164,17 @@ async def at_risk(m: SafetyMonitor = Depends(monitor), min_level: str = Query("w
         lv = Level.parse(min_level)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    rows = m.at_risk(lv)
-    return {"mode": m.ctx.mode, "total": len(rows),
-            "users": [_with_response(m, a.user_id, public_assessment(m.users.get(a.user_id), a)) for a in rows[:limit]]}
+    def build() -> tuple[int, list[dict]]:
+        rows = m.at_risk(lv)
+        out = []
+        for a in rows[:limit]:
+            u = m.users.get(a.user_id)
+            if u is not None:
+                out.append(_with_response(m, a.user_id, public_assessment(u, a)))
+        return len(rows), out
+
+    total, users = await asyncio.to_thread(build)
+    return {"mode": m.ctx.mode, "total": total, "users": users}
 
 
 @router.get("/api/users/{uid}/danger")
@@ -167,7 +186,7 @@ async def danger(uid: str, m: SafetyMonitor = Depends(monitor)) -> dict:
     return _with_response(m, uid, public_assessment(_user_or_404(m, uid), a))
 
 
-@router.post("/api/users/{uid}/location", dependencies=[Depends(require_trusted_origin)])
+@router.post("/api/users/{uid}/location", dependencies=[Depends(require_trusted_origin), Depends(require_api_key)])
 async def location(uid: str, body: LocationIn, m: SafetyMonitor = Depends(monitor)) -> dict:
     u = _user_or_404(m, uid)
     if not m.ctx.ready:
@@ -180,15 +199,21 @@ async def location(uid: str, body: LocationIn, m: SafetyMonitor = Depends(monito
         raise HTTPException(status_code=422, detail="ts is more than an hour old")
     # A phone clock running ahead must not freeze the user (later pings with smaller ts would be ignored).
     ping = Ping(body.lat, body.lon, min(ts, now), body.speed_mps, body.heading_deg, body.accuracy_m)
-    d = await asyncio.to_thread(m.ping, uid, ping)
-    await m.dispatch([d])
+    try:
+        d = await asyncio.to_thread(m.ping, uid, ping)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="unknown user") from exc
+    await _safe_dispatch(m.dispatch([d]))
     return _with_response(m, u.id, {**public_assessment(u, d.assessment), "actions": [x.public() for x in d.actions]})
 
 
-@router.post("/api/users/{uid}/route", dependencies=[Depends(require_trusted_origin)])
+@router.post("/api/users/{uid}/route", dependencies=[Depends(require_trusted_origin), Depends(require_api_key)])
 async def route(uid: str, body: RouteIn, m: SafetyMonitor = Depends(monitor)) -> dict:
     _user_or_404(m, uid)
-    edges = await asyncio.to_thread(m.set_route, uid, [tuple(p) for p in body.points])
+    try:
+        edges = await asyncio.to_thread(m.set_route, uid, [tuple(p) for p in body.points])
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="unknown user") from exc
     return {"user_id": uid, "edges_matched": len(edges)}
 
 
@@ -196,6 +221,6 @@ async def route(uid: str, body: RouteIn, m: SafetyMonitor = Depends(monitor)) ->
 async def reply(uid: str, body: ReplyIn, m: SafetyMonitor = Depends(monitor)) -> dict:
     u = _user_or_404(m, uid)
     acts = await asyncio.to_thread(m.reply, uid, body.reply, body.by)
-    await m.dispatch_actions(u, acts)
+    await _safe_dispatch(m.dispatch_actions(u, acts))
     r = m.response(uid)
     return {"user_id": uid, "reply": body.reply, "response": r.public() if r else None}
