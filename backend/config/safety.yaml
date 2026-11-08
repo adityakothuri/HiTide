@@ -51,7 +51,7 @@ vulnerability:
 # Outreach ladder per danger level. Timers (seconds) shrink by up to `vuln_speedup` for high vulnerability.
 ladder:
   cooldown_s: {watch: 21600, warning: 7200, danger: 3600, critical: 1800}
-  max_reminders: 2             # per level per episode; then silence until the level rises (no spam)
+  max_reminders: 1             # per level per episode; then silence until the level rises (no spam)
   poll_to_call_s: 300          # DANGER: no reply to the safety poll -> voice call
   call_to_family_s: 300        # DANGER: still no answer -> emergency contact (text + call)
   critical_family_s: 120       # CRITICAL: family + responders this long after the first call

@@ -234,3 +234,78 @@ Additions to `/api/region/state` and the WS events. All are additive; existing f
 | `gauge.status` / `gauges[]` | Adds `flood_category: none\|action\|minor\|moderate\|major\|null`. It is official NWS stages, for Hunt (HNTT2) and Kerrville (KRRT2) only. |
 | `forecasts[]` | `{lid, site, name, observed_ft, observed_at, observed_category, crest_ft, crest_at, crest_category, issued_at, thresholds}`. `crest_*` is null when NWS has no current forecast. |
 | Drones in live mode | They get planned `tour`/`path` but stay `idle` at their station. There is no replay truth to simulate a flight from. Draw the path as "recommended tour". `snapshot.created` in live mode comes only from a real drone. |
+
+## Per-user danger (added 2026-11-08, additive): "is this person in danger where they are, right now?"
+
+Backend: `backend/safety/`, tunables in `backend/config/safety.yaml`. It runs on the Hill Country loop in replay
+**and** live mode: every loop step (and every location ping) re-assesses each consented user. The steps are:
+1. Hazard at their position: roads within 60 m and 400 m, crossings, NWS polygons, gauges, radar, road reports.
+2. Their vulnerability, from one profile model.
+3. Their motion: parked, driving or stopped.
+4. The outreach ladder.
+
+Levels: `none < watch < warning < danger < critical`.
+
+Unknown is never "dry":
+- `depth_in: null` means no gauge covers that road.
+- `confidence` drops to `medium` or `low` when evidence is missing or stale.
+
+Outside the region only NWS polygon alerts apply, capped at `warning`, or `danger` inside an Emergency polygon.
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/api/safety/summary` | `{mode, ready, users, levels: {none, watch, warning, danger, critical}, degraded_sources, sources}` |
+| GET | `/api/users?limit&offset` | `{total, users: [UserPublic]}`. Never includes phone numbers. |
+| POST | `/api/users` | Enroll a real user (trusted origin). Body: `{id, name, phone (+E.164), age?, vehicle_type, home_lat, home_lon, contact_name?, contact_phone?, needs[], language: en\|es, preferred_channel: sms\|voice\|app, consent_flood_alerts: true}`. Returns 201 `UserPublic`, 409 if the id is taken, 422 if invalid or no consent. Phones are stored only in gitignored `data/user_registry.json`. |
+| GET | `/api/users/at-risk?min_level=warning&limit` | `{mode, total, users: [Assessment + response]}`, most urgent first (level, then vulnerability). |
+| GET | `/api/users/{id}/danger` | `Assessment + response`. 409 until the replay or live mode has stepped once. |
+| POST | `/api/users/{id}/location` | Trusted origin. Body: `{lat, lon, speed_mps?, heading_deg?, accuracy_m?, ts?}`. Returns `Assessment + response + actions`. Live mode: 422 if `ts` is more than 5 min in the future or more than 1 h old. Replay: pings are stamped with the sim clock. |
+| POST | `/api/users/{id}/route` | Trusted origin. Body: `{points: [[lat, lon], ...]}` (2 to 2000 points), the planned trip. Every road on it is checked (a pre-trip warning). Returns `{edges_matched}`. |
+| POST | `/api/users/{id}/reply` | Trusted origin. Body: `{reply: safe\|need_help, by: driver\|emergency_contact\|parent}`. Manual or ops reply. Real replies also arrive by SMS or poll through `/api/photon/inbound` or the Photon 2.0 socket, in English or Spanish (SAFE/HELP/BIEN/AYUDA), matched by normalized phone. |
+
+**Assessment**:
+- Top-level fields:
+  - `user_id`
+  - `level`
+  - `hazard_level` (evidence only)
+  - `bumped_for_vulnerability`
+  - `reasons[]` (plain sentences, worst first)
+  - `advice`: `turn_around | do_not_drive | move_to_high_ground | stay_on_high_ground | be_ready | none`
+  - `confidence`: `high | medium | low`
+  - `stopped_in_water`
+  - `location_stale`
+  - `assessed_at`
+- `location`: `{lat, lon, ts, state: parked|driving|stopped, speed_mps, heading_deg}`
+- `hazard`:
+  - Coverage and position: `coverage: region|alerts_only`, `edge_id`, `road_name`, `distance_to_road_m`, `waterway`, `height_above_water_m`.
+  - Water: `depth_in|null`, `max_depth_nearby_in|null`, `unknown_nearby`.
+  - `worst_point: {id, name, kind, waterway, status, p, distance_m, on_my_road}`.
+  - Alerts: `in_warning`, `in_emergency`, `emergency_polygon`, `in_watch`, `alert_headlines[]`.
+  - Other evidence: `rain_in_hr`, `gauge_rising`, `gauge_category`, `forecast_category`, `closure_nearby`, `far_from_water`, `degraded_sources[]`.
+  - Road hits: `ahead[]` and `route[]`, each `{edge_id, road_name, distance_m, depth_in, point_status}`.
+- `vulnerability`: `{score, band, stall_depth_in, needs_priority, is_teen, is_older, channel, no_voice, language, reasons[], factors}`.
+
+**response**: `{episode_level, awaiting_reply, called, call_unanswered, family_contacted, responders_flagged, case_open, need_help, safe_until, timeline: [{t, what}]}`.
+
+**Ladder**:
+
+| Level | What happens |
+|---|---|
+| watch | A text. |
+| warning | A text (spoken in-app while driving), plus a copy to a teen's parent. |
+| danger | A safe/help poll. No reply → a voice call. No answer or voicemail → the emergency contact gets a text and a call. |
+| critical | A call now, and a case opens. Family and responders follow after 2 min (immediately if highly vulnerable). |
+
+- **When we notify:** only when the level rises, or at most once per level after its cooldown. A SAFE reply mutes the level for 30 min; HELP flags responders and stops the polls.
+- **All clear:** once the level has stayed below warning for 15 min, one "all clear" message is sent.
+- **Wording:** messages are in English or Spanish, and never call a road safe.
+
+**WS events**:
+- `user.danger`: `{user: UserPublic, ...Assessment}`, sent only when the level or top reason changes.
+- `user.responders`: `{user_id, level, reasons, location}`.
+- `user.case`: `{user_id, level, reasons}`.
+- `user.call`: `{user_id, recipient, answered, reply, summary}`.
+
+**Outreach events**:
+- `outreach.status` gains `"suppressed"`: live mode, but the number isn't allowlisted. It used to be logged as a fake `"sent"`.
+- Real sends go only to `env:DEMO_PHONE_*` numbers, or to enrolled +E.164 users when `OUTREACH_ALLOW_ENROLLED=1`.

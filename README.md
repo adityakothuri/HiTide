@@ -53,6 +53,18 @@ RUN_SLOW=1 uv run pytest tests/test_replay_golden.py   # replay is bit-for-bit u
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
 
+# PER-USER DANGER (backend/safety/): where is each opted-in resident, what is the water doing there, how vulnerable
+# are they -> none/watch/warning/danger/critical -> text / poll / call / family / responders. Runs in replay AND live.
+uv run python scripts/gen_region_users.py                      # 250 simulated Kerr County residents (committed)
+curl localhost:8000/api/safety/summary | jq                    # level counts, degraded sources
+curl -X POST localhost:8000/api/users/hc-ruth/location -H 'content-type: application/json' \
+     -d '{"lat": 30.0688, "lon": -99.3345}' | jq '.level, .reasons, .response'
+curl 'localhost:8000/api/users/at-risk?min_level=danger' | jq '.users[] | {user_id, level, reasons: .reasons[0]}'
+uv run python scripts/stress_safety.py --users 2000 --fault none   # accuracy vs replay truth + spam + latency
+uv run python scripts/stress_safety.py --load 20000                # latency only
+# env: OUTREACH_ALLOW_ENROLLED=1 lets consented API-enrolled +E.164 users get real sends (default off);
+#      SAFETY_DEMO=1 shrinks ladder timers 10x; SAFETY_REGISTRY_PATH / SAFETY_STATE_PATH move the gitignored runtime files
+
 # ops console weather layers (data/wx/, served offline by the frontend after `npm run sync-wx`; needs network once)
 uv run python -m scripts.fetch_mrms_tiles     # archived MRMS rain tiles, Kerr County, Jul 4 2025, recolored to an NWS-style ramp
 uv run python -m scripts.build_wx_flood       # 10 m 3DEP DEM -> flood-depth PNG per river rise + road closure thresholds
@@ -76,7 +88,7 @@ Copy `.env.example` to `.env`. `PHOTON_MODE` picks how outreach is sent:
 | `photon2` | Photon 2.0 shared iMessage line, replies over its WebSocket | ElevenLabs agent over Photon SIP |
 | `stable` | Photon Spectrum via `photon-sidecar/` (`npm install && npm start`) | |
 
-Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted. Every other driver is mock-only. Setup scripts: `uv run python -m scripts.photon2_enroll --write-env` and `uv run python -m scripts.elevenlabs_setup`.
+Only allowlisted demo numbers (`DEMO_PHONE_A/B/C`) are ever contacted, plus API-enrolled consented users when `OUTREACH_ALLOW_ENROLLED=1`. In a live mode every other send is logged as `suppressed` (never a fake "sent"). Setup scripts: `uv run python -m scripts.photon2_enroll --write-env` and `uv run python -m scripts.elevenlabs_setup`.
 
 ## Layout
 
