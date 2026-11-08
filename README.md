@@ -1,5 +1,9 @@
 # State Farm Flood Watch
 
+Open `/texas` (or the home page) for the **Texas flood monitor**. It shows recent river stage, flood bulletins and road-related flood reports across the state. The observation window defaults to 30 minutes. Each source reports its own availability. The Kerrville test console is at `/console`.
+
+The monitor also includes decoded NOAA rainfall/runoff previews, NWPS river summaries, LCRA and Harris County measurements, and construction restrictions. Expand Source availability for access failures and timestamp exclusions. Camera locations and timestamp-unverified crossing status require the source-context checkbox. Detailed source mappings and remaining integration limits are in [the data handoff](docs/MAP_DATA_ACCESS.md).
+
 > **Current team status:** read [State of the Union](docs/STATE_OF_THE_UNION.md)
 > for the integrated evidence database, inspection workflow, setup, verification,
 > limitations, and next milestones. The operations console is at `/console`.
@@ -20,6 +24,8 @@ Outreach order uses data State Farm already has (age, time of day, rising water,
 
 Demo town: Kerrville, Texas, on the Guadalupe River. The roads come from OpenStreetMap and the elevation from USGS 3DEP (10 m), both cached offline.
 
+Replay a historical NWS warning from `backend/` with `uv run python -m scripts.demo_flood_monitor`. The [map data access handoff](docs/MAP_DATA_ACCESS.md) covers raw collection, provider examples and the proposed normalization and MongoDB schema.
+
 ## Run it
 
 ```bash
@@ -36,6 +42,14 @@ curl -X POST localhost:8000/api/demo/reset
 curl -X POST 'localhost:8000/api/demo/start?scenario=hill_country&speed=150'   # ~2.5 min, 7 beats
 curl localhost:8000/api/region/state | jq '.critical_points[0], .nodes[0].risk'
 uv run python -m scripts.replay_report        # drones vs gauges-only vs naive patrol (two full replays)
+
+# Hill Country LIVE: same detection on real-time Texas feeds (USGS gauges, NWS alerts, MRMS radar rain,
+# NWS storm reports, NWPS river forecasts) for Hunt -> Kerrville, stepping every 30 s
+REGION_MODE=live uv run uvicorn app.main:app   # or switch at runtime:
+curl -X POST -H 'Origin: http://localhost:5173' 'localhost:8000/api/region/mode?mode=live'
+curl localhost:8000/api/region/sources | jq   # each source: status, provenance, age of its newest data
+# no MongoDB running? FLOODWATCH_DB_BACKEND=sqlite
+RUN_SLOW=1 uv run pytest tests/test_replay_golden.py   # replay is bit-for-bit unchanged (~15 min)
 # rebuild the region cache (needs network once): uv sync --extra data-build
 #   uv run python -m scripts.build_region_cache && uv run python -m scripts.fetch_july2025 && uv run python -m scripts.build_region_nodes
 

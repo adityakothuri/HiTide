@@ -8,8 +8,9 @@ BELIEF only gauge readings that exist at time t. Ungauged creeks and dead gauges
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Literal
 
 import numpy as np
 
@@ -26,6 +27,17 @@ from sim.region import Region
 
 PRE_EVENT_END = datetime.fromisoformat("2025-07-04T05:00:00+00:00").timestamp()  # midnight CDT
 CELERITY_BOUNDS = (1.5, 6.0)
+Baseline = Literal["pre_event", "window_min"]
+
+
+def _despiked_min(stage: np.ndarray) -> float:
+    if stage.size == 0:
+        return 0.0
+    if stage.size < 3:
+        return float(stage.min())
+    med = np.median(np.stack([stage[:-2], stage[1:-1], stage[2:]]), axis=0)
+    return float(med.min())
+CATEGORY_ORDER = ("action", "minor", "moderate", "major")
 
 
 def epoch(iso: str) -> float:
@@ -39,14 +51,30 @@ class GaugeInfo:
     chain: str
     lon: float
     lat: float
+    flood_stages_ft: dict[str, float] = field(default_factory=dict)   # NWS categories (official gauges only)
+
+    def category(self, stage_ft: float | None) -> str | None:
+        if stage_ft is None or not self.flood_stages_ft:
+            return None
+        cat = "none"
+        for name in CATEGORY_ORDER:
+            if name in self.flood_stages_ft and stage_ft >= self.flood_stages_ft[name]:
+                cat = name
+        return cat
 
 
-def _gauge(site: str, rec: dict, s_m: float) -> Gauge:
-    times = np.array([epoch(t) for t, _ in rec["series"]])
-    stage = np.array([v for _, v in rec["series"]], dtype=float)
-    pre = stage[times < PRE_EVENT_END]
-    base = float(pre.min()) if pre.size else float(stage.min())
-    return Gauge(site, s_m, times, stage, base)
+def _gauge(site: str, rec: dict, s_m: float, baseline: Baseline = "pre_event", max_gap_s: float = MAX_GAP_S) -> Gauge:
+    """baseline="pre_event": the replay's pre-storm low. "window_min": the lowest stage in the supplied window
+    (live: the last 7 days), i.e. normal flow, so a rise is measured on the gauge's own scale (no datum needed)."""
+    series = rec.get("series") or []
+    times = np.array([epoch(t) for t, _ in series], dtype=float)
+    stage = np.array([v for _, v in series], dtype=float)
+    if baseline == "pre_event":
+        pre = stage[times < PRE_EVENT_END]
+        base = float(pre.min()) if pre.size else (float(stage.min()) if stage.size else 0.0)
+    else:  # min of a 3-point running median: one bad low provisional reading can't set the 7-day baseline
+        base = _despiked_min(stage)
+    return Gauge(site, s_m, times, stage, base, max_gap_s)
 
 
 def _fit_celerity(gauges: list[Gauge]) -> float:
@@ -65,7 +93,10 @@ def _fit_celerity(gauges: list[Gauge]) -> float:
 
 
 class RegionFlood:
-    def __init__(self, region: Region, hydro: dict | None = None):
+    def __init__(self, region: Region, hydro: dict | None = None, *, baseline: Baseline = "pre_event",
+                 celerity: float | None = None, max_gap_s: float = MAX_GAP_S):
+        """Replay by default. Live: hydro built from feeds, baseline="window_min", the replay-fitted celerity
+        (a flat baseflow has no peaks to fit) and a longer max gap for telemetry latency."""
         self.region = region
         cfg = region.cfg
         if hydro is None:
@@ -77,16 +108,20 @@ class RegionFlood:
             rec = hydro[g["site"]]
             chain = region.chains[g["waterway"]]
             s_m = float(chain.s_m[chain.nearest(rec["lon"], rec["lat"])])
-            belief.setdefault(g["waterway"], []).append(_gauge(g["site"], rec, s_m))
-            self.info[g["site"]] = GaugeInfo(g["site"], g["name"], g["waterway"], rec["lon"], rec["lat"])
+            belief.setdefault(g["waterway"], []).append(_gauge(g["site"], rec, s_m, baseline, max_gap_s))
+            stages = {k: float(v) for k, v in (g.get("flood_stages_ft") or {}).items()}
+            self.info[g["site"]] = GaugeInfo(g["site"], g["name"], g["waterway"], rec["lon"], rec["lat"], stages)
         self.belief_gauges = belief
-        self.celerity = _fit_celerity(belief.get("Guadalupe River", []))
+        self.celerity = celerity if celerity is not None else _fit_celerity(belief.get("Guadalupe River", []))
         self.truth_gauges = self._fill_dead(belief, cfg.get("gap_fill", {}))
         self._by_site = {g.site: g for gs in self.truth_gauges.values() for g in gs}
 
     def _fill_dead(self, belief: dict[str, list[Gauge]], gap_fill: dict[str, str]) -> dict[str, list[Gauge]]:
         by_site = {g.site: g for gs in belief.values() for g in gs}
-        end = max(float(g.times[-1]) for g in by_site.values())
+        ends = [float(g.times[-1]) for g in by_site.values() if g.times.size]
+        if not ends:
+            return belief
+        end = max(ends)
         truth = {}
         for chain, gs in belief.items():
             out = []
@@ -149,7 +184,7 @@ class RegionFlood:
             for g in gs:
                 info = self.info[g.site]
                 past = g.times <= t
-                online = bool(past.any()) and (t - float(g.times[past][-1])) <= MAX_GAP_S
+                online = bool(past.any()) and (t - float(g.times[past][-1])) <= g.max_gap_s
                 last_t = float(g.times[past][-1]) if past.any() else None
                 last = float(g.stage_ft[past][-1]) if past.any() else None
                 hour = g.times[past & (g.times >= t - 3600)]
@@ -159,6 +194,7 @@ class RegionFlood:
                     rate = float((g.stage_ft[k[-1]] - g.stage_ft[k[0]]) / max(1.0, (g.times[k[-1]] - g.times[k[0]]) / 3600))
                 out.append({"site": g.site, "name": info.name, "waterway": info.chain, "lon": info.lon, "lat": info.lat,
                             "online": online, "stage_ft": last, "observed_at": last_t,
+                            "flood_category": info.category(last) if online else None,
                             "rate_ft_per_hr": None if rate is None else round(rate, 2)})
         return out
 

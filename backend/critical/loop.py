@@ -25,9 +25,12 @@ from critical.score import Breakdown, NodeUse, PointInput, rank
 from drone.dispatch import distance_m
 from drone.planner import DroneState, FleetProfile, Station, Target, leg, plan
 from fusion.segment_status import DroneObs, Signals, p_flooded, status
+from observe.alerts import Alert
+from observe.frame import ObservationFrame, Observations
+from observe.replay import ReplayObservations
 from population.nodes import access_graph, segment_hand
 from sim.region import Region
-from sim.region_flood import RegionFlood, epoch
+from sim.region_flood import RegionFlood
 
 WET_IN = 2.0             # water visibly on the road surface
 TRUCK_MAX_IN = 24.0      # high-clearance truck limit (NWS: 2 ft of moving water carries away SUVs/pickups)
@@ -123,7 +126,7 @@ def _public_obs(o: Any) -> dict[str, Any] | None:
 
 class CriticalLoop:
     def __init__(self, region: Region, flood: RegionFlood, profile: str = "production", seed: int = 7,
-                 policy: str = "priority"):
+                 policy: str = "priority", observations: Observations | None = None, simulate_drones: bool = True):
         self.region, self.flood = region, flood
         self.policy = policy          # "priority" (overview 8.4) or "patrol" (baseline: round-robin, same fleet)
         self.lock = threading.RLock()  # step / reset / snapshot run in worker threads; API reads the snapshot
@@ -134,6 +137,12 @@ class CriticalLoop:
         self.safe = set(data["safe_nodes"])
         self.households_total = int(data.get("households_total", 0))
         self.point_of = {e: p["id"] for p in self.points.values() for e in p["edge_ids"]}
+        self.region_zones = frozenset(region.cfg.get("nws_zones", ()))
+        # External evidence arrives only through an ObservationFrame (replay or live feeds).
+        self.observations: Observations = observations or ReplayObservations(region.cfg, self.points)
+        # Live mode has no replay truth to generate snapshots from: drones get planned tours but don't fly in sim;
+        # observations then come only from real drones (external_snapshot / the vision bridge).
+        self.simulate_drones = simulate_drones
         self.graph = access_graph(region)
         self.nearby = {nid: frozenset(pid for pid, p in self.points.items()
                                       if distance_m(n["lat"], n["lon"], p["lat"], p["lon"]) <= NEARBY_M)
@@ -156,6 +165,13 @@ class CriticalLoop:
             self._reset_state()
             self.snapshot = self.build_snapshot()
 
+    def configure(self, observations: Observations, simulate_drones: bool, flood: RegionFlood) -> None:
+        """Switch evidence source (replay <-> live). Clears all state; the next step starts fresh."""
+        with self.lock:
+            self.observations, self.simulate_drones, self.flood = observations, simulate_drones, flood
+            self._reset_state()
+            self.snapshot = self.build_snapshot()
+
     def _reset_state(self) -> None:
         self.t: float | None = None
         self.seg_depth: dict[str, float] = {}
@@ -168,7 +184,11 @@ class CriticalLoop:
         self.any_rising = False
         self.belief_now: np.ndarray = np.zeros(len(self.region.edge_ids))
         self.ranked: list[Breakdown] = []
-        self.alerts: list[dict] = []
+        self.alerts: list[dict] = []                 # active alerts touching the region, public form
+        self.alert_seen: dict[str, Alert] = {}
+        self.warnings: tuple[Alert, ...] = ()        # active warning-level alerts (drive in_warning + flights)
+        self.frame = ObservationFrame(mode=self.observations.mode)
+        self.hydro_rev = 0
         self.gauges_online: dict[str, bool] = {}
         self.last_plan = -math.inf
         self.force_replan = True
@@ -198,9 +218,9 @@ class CriticalLoop:
         return str(best)
 
     # ---- belief -------------------------------------------------------
-    def _point_signals(self, t: float, belief_depth: np.ndarray, gauges: list[dict], warning: bool) -> dict[str, Signals]:
-        rain = self.region.cfg.get("heavy_rain", {})
-        raining = bool(rain) and epoch(rain["from"]) <= t <= epoch(rain["to"])
+    def _point_signals(self, t: float, belief_depth: np.ndarray, gauges: list[dict],
+                       frame: ObservationFrame) -> dict[str, Signals]:
+        heavy_in_hr = fusion_settings()["fusion"]["heavy_rain_in_hr"]
         rising_chains = {g["waterway"] for g in gauges if g["online"] and (g["rate_ft_per_hr"] or 0) >= 2.0}
         any_rising = bool(rising_chains)
         out = {}
@@ -208,10 +228,12 @@ class CriticalLoop:
             idx = [self.region.edge_index[e] for e in p["edge_ids"] if e in self.region.edge_index]
             o = self.obs.get(pid)
             drone = DroneObs(o.water_on_road, t - o.t) if o else None
-            out[pid] = Signals(floodable=True, in_warning=warning,
+            in_warning = any(a.covers(p["lon"], p["lat"], self.region_zones) for a in self.warnings)
+            out[pid] = Signals(floodable=True, in_warning=in_warning,
                                gauge_rising=p["waterway"] in rising_chains,
                                model_above_road=bool(idx) and float(belief_depth[idx].max()) > 0.0,
-                               heavy_rain=raining and p["lon"] < rain.get("west_of_lon", 999),
+                               heavy_rain=(frame.rain_in_hr.get(pid) or 0.0) >= heavy_in_hr,
+                               closure=pid in frame.closures,
                                drone=drone, gauges_rising=any_rising)
         return out
 
@@ -336,7 +358,7 @@ class CriticalLoop:
                               1.0 + (t - self.obs[pid].t if pid in self.obs else 10 * 3600) / 3600.0)
                        for pid, p in self.points.items() if pid not in busy
                        and not (pid in self.obs and t - self.obs[pid].t < fresh_window)]
-        if not self.alerts:  # drones fly only when there is a warning and real uncertainty (overview 1, 9.1)
+        if not self.warnings:  # drones fly only when there is a warning and real uncertainty (overview 1, 9.1)
             targets = []
         truck = {tp for st in self.node_state.values() for tp in st.truck_points}
         if self.policy == "priority":
@@ -348,8 +370,11 @@ class CriticalLoop:
             tr = tours.get(d.id)
             if tr and tr.stops:
                 d.tour, d.path = tr.stops, tr.path
-                p = self.points[tr.stops[0]]
-                self._start_leg(d, t, (p["lon"], p["lat"]), "flying", p["id"])
+                if self.simulate_drones:
+                    p = self.points[tr.stops[0]]
+                    self._start_leg(d, t, (p["lon"], p["lat"]), "flying", p["id"])
+            elif not self.simulate_drones:
+                d.tour, d.path = (), ()
             elif (d.lon, d.lat) != (d.station.lon, d.station.lat):
                 home = min(self.stations, key=lambda s: distance_m(d.lat, d.lon, s.lat, s.lon))
                 d.station, d.tour, d.path = home, (), ((d.lon, d.lat), (home.lon, home.lat))
@@ -367,7 +392,9 @@ class CriticalLoop:
         """Immutable view for the REST API (built under the lock, so GETs never see a half-written step)."""
         t = self.t
         return json.loads(json.dumps({
-            "sim_time": None if t is None else iso(t), "alerts": list(self.alerts),
+            "sim_time": None if t is None else iso(t), "mode": self.frame.mode, "alerts": list(self.alerts),
+            "forecasts": [f.public() for f in self.frame.forecasts],
+            "sources": {k: v.public() for k, v in self.frame.sources.items()},
             "gauges": self.flood.gauge_status(t) if t else [],
             "segments": [{"edge_id": e, "status": st, "belief_depth_in": self.seg_depth.get(e, 0.0)}
                          for e, st in self.seg_status.items() if st != "open"],
@@ -378,13 +405,10 @@ class CriticalLoop:
         events: list[tuple[str, dict]] = []
         dt = 0.0 if self.t is None else max(0.0, t - self.t)
         self.t = t
-        for w in self.region.cfg["replay"]["warnings"]:
-            if epoch(w["at"]) <= t and w not in self.alerts:
-                self.alerts.append(w)
-                self.force_replan = True
-                events.append(("region.alert", {"id": f"replay-{len(self.alerts)}", "event": w["event"], "headline":
-                               f"REPLAY of July 4, 2025: {w['event']} for {w['area']}", "active": True,
-                               "simulated": True, "at": w["at"]}))
+        frame = self.frame = self.observations.frame_at(t)
+        if frame.flood is not None and frame.hydro_rev != self.hydro_rev:
+            self.flood, self.hydro_rev = frame.flood, frame.hydro_rev
+        events += self._sync_alerts(t, frame)
         gauges = self.flood.gauge_status(t)
         for g in gauges:
             if self.gauges_online.get(g["site"]) not in (None, g["online"]):
@@ -393,11 +417,12 @@ class CriticalLoop:
             self.gauges_online[g["site"]] = g["online"]
         rate = fusion_settings()["fusion"]["rising_ft_per_hr"]
         self.any_rising = any(g["online"] and (g["rate_ft_per_hr"] or 0) >= rate for g in gauges)  # same test as fusion
-        truth, truth_prev = self.flood.truth_depth_in(t), self.flood.truth_depth_in(t - max(dt, 60.0))
-        events += self._advance_drones(t, dt, truth, truth_prev)
+        if self.simulate_drones:
+            truth, truth_prev = self.flood.truth_depth_in(t), self.flood.truth_depth_in(t - max(dt, 60.0))
+            events += self._advance_drones(t, dt, truth, truth_prev)
         belief = self.flood.belief_depth_in(t)
         self.belief_now = belief
-        signals = self._point_signals(t, belief, gauges, warning=bool(self.alerts))
+        signals = self._point_signals(t, belief, gauges, frame)
         self.p = {pid: round(p_flooded(s), 3) for pid, s in signals.items()}
         self.status = {pid: status(p) for pid, p in self.p.items()}
         avoid = frozenset(pid for pid, s in self.status.items() if s in ("likely_flooded", "confirmed_flooded"))
@@ -418,6 +443,24 @@ class CriticalLoop:
         seg = self._segment_changes(belief)
         if seg:
             events.append(("region.segments", {"segments": seg}))
+        return events
+
+    def _sync_alerts(self, t: float, frame: ObservationFrame) -> list[tuple[str, dict]]:
+        """Emit an alert when it first becomes active and again (active: false) when it ends or is withdrawn."""
+        events: list[tuple[str, dict]] = []
+        active = [a for a in frame.alerts if a.active_at(t)]
+        ids = {a.id for a in active}
+        for a in active:
+            if a.id not in self.alert_seen:
+                self.alert_seen[a.id] = a
+                self.force_replan = self.force_replan or a.is_warning
+                events.append(("region.alert", {**a.public(), "active": True}))
+        for aid in [k for k in self.alert_seen if k not in ids]:
+            a = self.alert_seen.pop(aid)
+            self.force_replan = self.force_replan or a.is_warning
+            events.append(("region.alert", {**a.public(), "active": False}))
+        self.alerts = [{**a.public(), "active": True} for a in active]
+        self.warnings = tuple(a for a in active if a.is_warning)
         return events
 
     def _segment_changes(self, belief: np.ndarray) -> list[dict]:

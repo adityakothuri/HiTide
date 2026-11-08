@@ -4,6 +4,7 @@ import { TipProvider } from './ui/Tip'
 import { ToastProvider } from './ui/Toast'
 import { Wordmark } from './ui/Wordmark'
 import { Disclaimer } from './ui/Footer'
+import { TexasMonitor } from './evidence/TexasMonitor'
 import { Operations } from './evidence/Operations'
 
 function Index() {
@@ -34,7 +35,8 @@ function route(path: string) {
 
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, '')
-  if (path === '' || path === '/console') return <Operations />
+  if (path === '' || path === '/texas') return <TexasMonitor />
+  if (path === '/console') return <Operations />
   return (
     <StoreProvider>
       <TipProvider>

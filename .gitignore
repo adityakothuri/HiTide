@@ -39,3 +39,5 @@ data/wx_cache/
 
 # Nested git worktrees used by parallel Claude sessions
 .claude/worktrees/
+# live observation last-good caches (REGION_MODE=live)
+data/feeds_cache/live_*.json

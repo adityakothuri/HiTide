@@ -1,0 +1,41 @@
+.controls, .legend { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+.coverage { display: flex; flex-wrap: wrap; gap: 18px 50px; padding-block: 0 24px; }
+.coverage > div, .selection { display: grid; gap: 4px; }
+.coverage span, .caption, .credit, .meta, .record small, .selection small { font-size: 12px; color: var(--neutral-5); }
+.workspace { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 18px; align-items: start; }
+.map { display: block; width: 100%; max-height: 510px; background: var(--info-bg); }
+.boundary { fill: var(--surface); stroke: var(--neutral-4); stroke-width: 1.5; }
+.city { font-size: 12px; fill: var(--neutral-5); pointer-events: none; }
+.usgs_gage { color: var(--water-4); fill: currentcolor; }
+.nws_alerts { color: var(--caution); fill: var(--caution-bg); stroke: currentcolor; }
+.nws_local_storm_reports { color: var(--critical); fill: currentcolor; }
+.drivetexas_work_zones { color: #9a5200; stroke: currentcolor; stroke-width: 2.5; fill: none; cursor: pointer; }
+.map :is(.usgs_gage, .nws_alerts, .nws_local_storm_reports) { cursor: pointer; }
+.map .nws_alerts { fill-opacity: 0.55; }
+.map .selected { stroke: var(--ink); stroke-width: 2; }
+.legend, .caption, .credit { padding: 8px 18px; }
+.legend { gap: 16px; font-size: 12px; }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; background: currentcolor; }
+.credit { display: block; padding-bottom: 14px; }
+.filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
+.selection { padding: 16px; background: var(--info-bg); }
+.selection button { justify-self: start; }
+.results { max-height: 480px; overflow: auto; padding: 0 16px 16px; }
+.record { display: grid; gap: 3px; border: 0; border-top: var(--border); background: var(--surface); width: 100%; text-align: left; cursor: pointer; padding: 12px 6px; font-size: 13px; overflow-wrap: anywhere; }
+.record:hover, .record[aria-pressed='true'] { background: var(--neutral-1); }
+
+@media (width <= 800px) {
+  .workspace { grid-template-columns: 1fr; }
+  .coverage { gap: 12px 20px; }
+}
+
+.additionalSource { color: #27786b; fill: currentcolor; stroke: currentcolor; }
+.coverage small { font-size: 11px; color: var(--neutral-5); max-width: 280px; }
+.coverage { align-items: start; }
+
+
+.sourceDetails { margin-bottom: 20px; }
+.sourceDetails summary { cursor: pointer; margin-bottom: 14px; }
+.filters label:has(input[type='checkbox']) { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.filters input[type='checkbox'] { width: 16px; height: 16px; min-height: 0; margin: 0; }

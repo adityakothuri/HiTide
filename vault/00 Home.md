@@ -21,7 +21,7 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 - Why: [[Problem]] · [[Pitch]] · [[Privacy and Consent]]
 - How it works: [[Architecture]] · [[Stage 1 Pre-trip]] · [[Stage 2 En route]] · [[Stage 3 Stopped in water]]
 - Frontend: [[Design System]] · [[Driver App]] · [[Dashboard]] · screenshots in `Experiments/screenshots/`
-- Modules: [[Critical Point Drones]] · [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Dashboard]]
+- Modules: [[Live Observations]] · [[Critical Point Drones]] · [[Flood Simulation]] · [[Risk Scoring]] · [[Photon Outreach]] · [[Drone Dispatch]] · [[Drone Vision]] · [[Dashboard]]
 - Reference: [[Data Sources]] · [[Tooling]] · [[Decisions]] · [[Demo Script]]
 - Experiments: [[2026-11-07 Town cache build]] · [[2026-11-07 Demo run check]] · [[2026-11-08 July 2025 replay calibration]] · [[2026-11-08 Drone vision accuracy]]
 
@@ -31,11 +31,13 @@ Protect opted-in State Farm drivers in flash floods. Kerrville, TX on the Guadal
 |---|---|---|
 | Phase 0 | Setup: ECC, CLAUDE.md, vault, `.env.example`, API contract | done (2026-11-07) |
 | Phase 1 | Data layer: town cache, flood sim, road status, feeds, API | done: CHECKPOINT 1 backend verified 2026-11-07 |
+| Map data access | [Collector and event-monitor handoff](../docs/MAP_DATA_ACCESS.md) | Texas-wide alerts, river readings, decoded rainfall/runoff grids, regional sensors, construction and optional crossing/camera context at `/texas`. TranStar live access pending. Normalization, grading and durable event storage are planned. |
 | Phase 2 | Risk scoring + Stages 1-2 | done: CHECKPOINT 2 passed on a real phone |
 | Phase 3 | Stage 3 escalation state machine | done: CHECKPOINT 3 passed on a real phone (reply closed the case) |
 | Phase 4 | Photon integration | **Photon 2.0** texts + **voice calls** live (ElevenLabs over Photon SIP, call memory). The 2.0 inbound reply still needs a live test. Stable kept as fallback |
 | Phase 5 | Drone + vision | done: CHECKPOINT 4 backend verified (real roof detection, boat required) |
 | Phase 6 | Demo mode + polish, feature freeze 9 AM | backend done: 7-step run verified over WS ([[2026-11-07 Demo run check]]), talk track, claims sourced, pre-submission security review (1 HIGH fixed, TDD). Left: live `photon2` rehearsal, backup video, CHECKPOINT 5 with the frontend |
+| Live detection | Teammate's Texas collectors (`data_handoff.md`) feed Hill Country detection through `backend/observe/`: USGS gauges, NWS alerts (CAP lifecycle, polygons), MRMS radar rain at each crossing, NWS storm reports, NWPS forecasts. `REGION_MODE=live` or `POST /api/region/mode`. See [[Live Observations]] | done 2026-11-08. Replay is bit-for-bit unchanged (golden digest, 391 steps x 2 policies). The live path reproduces July 2025 belief exactly (0.00 in). Live smoke test passed against real feeds. |
 | Hill Country | Real July 4, 2025 replay over Hunt → Ingram → Kerrville: HAND flood, chokepoints, priority, multi-drone tours, area risk (move low → high ground), Tello hookup. See [[Critical Point Drones]] | backend done 2026-11-08: 7-beat demo verified live over WS; python, fastapi and code reviewers done, all findings fixed |
 | Drone vision | Water edge + elevation → water surface, depth at road with range, rise rate; YOLO + tracking for vehicles/people; alerts; spread; `POST /api/snapshots`. See [[Drone Vision]], [[2026-11-08 Drone vision accuracy]] | done 2026-11-08: 137 vision tests; Kerrville replay 16/16 inside range; 3 reviewers' HIGH findings fixed |
 | Driver profiles | Simulated State Farm profile (DSS, policy, claims, household, needs; `docs/driver-profile.md`) weights urgency in all 3 stages. See [[Risk Scoring]] | done 2026-11-08: colleague commit cherry-picked + baseline vulnerability score, TDD |

@@ -1,0 +1,15 @@
+[
+  {
+    "id": 2123,
+    "agencyID": 2,
+    "agencyIdentifier": "6301",
+    "isManuallyAdded": false,
+    "lastStatusChanged": "2026-11-03T06:58:59",
+    "lastUpdated": "2026-11-07T20:14:35",
+    "lat": 29.5086116790771,
+    "lng": -98.4480590820313,
+    "externalStatusTypeIdentifier": 0,
+    "statusTypeID": 2,
+    "title": "Cave Ln LWC_7070182"
+  }
+]

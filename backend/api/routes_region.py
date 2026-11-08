@@ -12,7 +12,7 @@ import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
-from app.hill_runtime import get_hill, state_json
+from app.hill_runtime import RegionMode, get_hill, set_mode, state_json
 from app.security import require_trusted_origin
 from drone.dispatch import distance_m
 
@@ -36,6 +36,23 @@ def _part(key: str):
     async def handler(request: Request) -> Response:
         return Response(json.dumps((await get_hill(request.app)).loop.snapshot.get(key, [])).encode(), media_type=JSON)
     return handler
+
+
+@router.get("/api/region/sources")
+async def region_sources(request: Request) -> dict:
+    """Which evidence sources drive detection right now, their provenance and the age of their newest data."""
+    hill = await get_hill(request.app)
+    if hill.mode == "live" and hill.live is not None:  # current even between loop steps
+        return {"mode": "live", "sources": {k: v.public() for k, v in hill.live.sources().items()}}
+    return {"mode": hill.mode, "sources": {k: v.public() for k, v in hill.replay_obs.sources.items()}}
+
+
+@router.post("/api/region/mode", dependencies=[Depends(require_trusted_origin)])
+async def region_mode(request: Request, mode: RegionMode) -> dict:
+    """replay: July 4, 2025 (start with /api/demo/start?scenario=hill_country). live: real-time Texas feeds now."""
+    hill = await get_hill(request.app)
+    await set_mode(hill, mode)
+    return {"ok": True, "mode": hill.mode}
 
 
 router.add_api_route("/api/region/critical-points", _part("critical_points"), methods=["GET"])

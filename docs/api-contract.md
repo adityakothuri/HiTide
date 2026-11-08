@@ -10,6 +10,10 @@ Source of truth: `backend/api/schemas.py` (Pydantic). Interactive docs: http://l
 
 Base URL: `http://localhost:8000`. CORS is open for `localhost:5173` (Vite).
 
+### Statewide monitoring
+
+`GET /api/feeds/recent` defaults to `scope=texas&max_age_minutes=30`. Supported ages are integers from 15 through 30. Use `scope=kerrville` for the local test query. The result includes `scope`, UTC `as_of`, `max_age_minutes` and `sources`. Each source includes `records` (raw intake envelopes), `excluded` (counts by reason) and `status` (complete, partial, unavailable). Construction context uses source drivetexas_work_zones, with publication time in provider_metadata.feed_updated_at and original WZDx LineString features. The Texas observation sources are `nws_alerts`, `usgs_gage` and `nws_local_storm_reports`. An empty live result is a completed request. Unreported road conditions remain unknown. [Source mappings and freshness rules](MAP_DATA_ACCESS.md)
+
 > **To see live data:** start the backend (`cd backend && uv run uvicorn app.main:app --reload`), connect to `/ws`, then `curl -X POST localhost:8000/api/demo/start`. The flood starts rising and `segments.update` events stream in (sim runs 60x real time).
 >
 > **Status (2026-11-07):** live now: `/api/health`, `/api/town`, `/api/state`, `/api/feeds`, `/api/demo/start|reset`, WS `snapshot`/`alert`/`segments.update`. The other endpoints and events are coming in Phases 2–5 with exactly these shapes.
@@ -205,3 +209,28 @@ New fields:
 - `alerts: [{priority: critical|high|medium|low, kind, message, track_id, lat, lon, depth_in, boat_required, case_id}]` (sorted most urgent first; `boat_required` is true whenever depth is unknown; an operator confirms before anything reaches 911)
 - `spread_segments: [edge_id]`: nearby roads marked `likely_flooded` from this reading, never confirmed
 - `confidence_reasons: [string]`
+
+### Live mode (added 2026-11-08): the same detection on real-time Texas feeds
+
+The Hill Country loop runs in one of two modes. **`replay`** (default) is the July 4, 2025 replay above. **`live`** steps the same fusion every 30 s on wall-clock time over live public data for the same region. Both modes feed the loop through one observation layer (`backend/observe/`), so every payload has the same shape.
+
+| Method | Path | Returns |
+|---|---|---|
+| POST | `/api/region/mode?mode=live\|replay` | `{ok, mode}`. Stops whatever is running, clears the loop, emits `region.reset {scenario, mode}`. Live starts polling and stepping at once. Replay waits for `/api/demo/start?scenario=hill_country`, which also switches back to replay. |
+| GET | `/api/region/sources` | `{mode, sources: {id: SourceStatus}}`. Shows which evidence drives detection, where it came from and how old it is. |
+
+**SourceStatus**: `{status: ok|stale|unavailable|pending|not_used, provenance: live|cached|replay|none, as_of (provider observation/product time), checked_at, detail, error}`.
+- Detection sources: `usgs_gage`, `nws_alerts`, `mrms`, `lsr`, `nwps`.
+- The statewide collectors that don't apply to this region are listed as `not_used`, with the reason in `detail`.
+- Show `stale` and `unavailable` prominently. They mean "we can't see", never "all clear".
+
+Additions to `/api/region/state` and the WS events. All are additive; existing fields are unchanged.
+
+| Where | What changed |
+|---|---|
+| `/api/region/state` | Adds `mode`, `forecasts[]` and `sources`. `scenario_running` is true while the replay or live monitoring runs. |
+| `region.alert` | Now `{id, event, level: warning\|watch\|advisory\|statement\|forecast, headline, emergency, simulated, source: replay\|nws\|nwps, at, area, effective, expires, active}`. |
+| Alert lifecycle | In live mode an alert is sent once with `active: true` and again with `active: false` when it ends, is cancelled or is superseded. Drop it from the map then. Replay alerts never end. Only `level: warning` sets `in_warning` and lets drones fly; the other levels are context. |
+| `gauge.status` / `gauges[]` | Adds `flood_category: none\|action\|minor\|moderate\|major\|null`. It is official NWS stages, for Hunt (HNTT2) and Kerrville (KRRT2) only. |
+| `forecasts[]` | `{lid, site, name, observed_ft, observed_at, observed_category, crest_ft, crest_at, crest_category, issued_at, thresholds}`. `crest_*` is null when NWS has no current forecast. |
+| Drones in live mode | They get planned `tour`/`path` but stay `idle` at their station. There is no replay truth to simulate a flight from. Draw the path as "recommended tour". `snapshot.created` in live mode comes only from a real drone. |

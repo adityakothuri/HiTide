@@ -1,0 +1,11 @@
+USGS National Map 3D Elevation Program
+Public service-directory response excerpt, inspected 2026-11-07 (Texas).
+https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer
+
+Name: 3DEPElevation
+Band Count: 1
+Pixel Type: F32
+Object ID Field: OBJECTID
+
+This excerpt describes the public service. The Kerrville point request
+timed out. No new elevation sample was captured.

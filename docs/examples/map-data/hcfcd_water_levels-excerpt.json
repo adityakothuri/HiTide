@@ -1,0 +1,57 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      "-95.0255130",
+      "29.5546390"
+    ],
+    "offset": [
+      -0.01998,
+      0.01067
+    ],
+    "Text": "100 Clear Lake 2nd Outlet @ SH 146"
+  },
+  "properties": {
+    "SiteId": 100,
+    "OrSiteId": 6,
+    "RegionId": 1,
+    "AllowSubscription": true,
+    "SiteType": "Gate",
+    "Rainfall": 0.0,
+    "RainfallText": "0.00",
+    "Description": "",
+    "StreamData": [
+      {
+        "CurrentLevel": 2.54,
+        "CurrentGageTrend": 0.154,
+        "CurrentReadingDate": "2026-11-07T22:31:30",
+        "ChannelInfo": {
+          "TOB": 7.7,
+          "BOC": -11.9,
+          "SensorId": 103,
+          "FloodStage": null,
+          "FloodLevelIndicator": 4.7,
+          "FLLevelIndicator": 7.7,
+          "NoFloodCategory": false,
+          "Position": 0
+        }
+      },
+      {
+        "CurrentLevel": 2.4,
+        "CurrentGageTrend": 0.14428572,
+        "CurrentReadingDate": "2026-11-07T22:31:30",
+        "ChannelInfo": {
+          "TOB": 7.7,
+          "BOC": -9.0,
+          "SensorId": 104,
+          "FloodStage": null,
+          "FloodLevelIndicator": 4.7,
+          "FLLevelIndicator": 7.7,
+          "NoFloodCategory": false,
+          "Position": 1
+        }
+      }
+    ]
+  }
+}

@@ -64,7 +64,7 @@ def run(policy: str) -> tuple[CriticalLoop, dict, float | None, str]:
             if o and o.water_on_road:
                 first["drone"].setdefault(pid, o.t)
         gauges = flood.gauge_status(t)
-        sig = loop._point_signals(t, flood.belief_depth_in(t), gauges, warning=bool(loop.alerts))  # noqa: SLF001
+        sig = loop._point_signals(t, flood.belief_depth_in(t), gauges, loop.frame)  # noqa: SLF001
         for pid, s in sig.items():
             if status(p_flooded(replace(s, drone=None))) in ("likely_flooded", "confirmed_flooded"):
                 first["gauges"].setdefault(pid, t)
